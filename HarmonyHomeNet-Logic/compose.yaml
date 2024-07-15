@@ -1,0 +1,9 @@
+services:
+  postgres:
+    image: 'postgres:latest'
+    environment:
+      - 'POSTGRES_DB=user'
+      - 'POSTGRES_PASSWORD=admin'
+      - 'POSTGRES_USER=HarmonyHomeNet_DB'
+    ports:
+      - '5432'
