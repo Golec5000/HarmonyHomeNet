@@ -1,15 +1,13 @@
-package bwp.pwr.daniel.rysz.harmonyhomenetlogic.building.entity;
+package bwp.pwr.daniel.rysz.harmonyhomenetlogic.buildingStuff.entitys;
 
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.apartment.entity.Apartment;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.apartmentStuff.entitys.Apartment;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.GenericGenerator;
 
-import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -21,16 +19,15 @@ import java.util.UUID;
 public class ParkingSpace {
 
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
     @Column(name = "parking_space_number")
     private int number;
 
-    @Column(name = "apartments")
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "building")
-    private List<Apartment> apartments;
+    @OneToOne(mappedBy = "parkingSpace", cascade = CascadeType.ALL)
+    @JsonBackReference
+    private Apartment apartments;
 
     @ManyToOne
     @JoinColumn(name = "building_id")

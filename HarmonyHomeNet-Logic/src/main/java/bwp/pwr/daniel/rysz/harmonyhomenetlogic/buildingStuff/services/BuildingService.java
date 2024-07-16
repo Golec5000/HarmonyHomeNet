@@ -1,6 +1,6 @@
-package bwp.pwr.daniel.rysz.harmonyhomenetlogic.building.service;
+package bwp.pwr.daniel.rysz.harmonyhomenetlogic.buildingStuff.services;
 
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.building.entity.Building;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.buildingStuff.entitys.Building;
 
 import java.util.List;
 import java.util.Optional;
@@ -11,5 +11,5 @@ public interface BuildingService {
     Optional<Building> findById(UUID id);
     void save(Building building);
     String deleteById(UUID id);
-    Optional<Building> findByName(String name);
+    Optional<Building> findByBuildingName(String name);
 }

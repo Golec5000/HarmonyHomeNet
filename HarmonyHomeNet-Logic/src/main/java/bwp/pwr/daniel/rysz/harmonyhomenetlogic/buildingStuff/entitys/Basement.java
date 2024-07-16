@@ -1,4 +1,4 @@
-package bwp.pwr.daniel.rysz.harmonyhomenetlogic.building.entity;
+package bwp.pwr.daniel.rysz.harmonyhomenetlogic.buildingStuff.entitys;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.GenericGenerator;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -20,11 +19,10 @@ import java.util.UUID;
 public class Basement {
 
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    @Column(name = "building_number")
+    @Column(name = "basement_number")
     private int basementNumber;
 
     @Column(name = "area")

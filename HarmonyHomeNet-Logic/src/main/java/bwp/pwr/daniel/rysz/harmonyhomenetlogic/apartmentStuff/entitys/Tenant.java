@@ -1,4 +1,5 @@
-package bwp.pwr.daniel.rysz.harmonyhomenetlogic.apartment.entity;
+package bwp.pwr.daniel.rysz.harmonyhomenetlogic.apartmentStuff.entitys;
+
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
@@ -6,7 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.GenericGenerator;
 
 import java.util.UUID;
 
@@ -15,12 +15,11 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "owners")
-public class Owner {
+@Table(name = "tenants")
+public class Tenant {
 
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
     @Column(name = "first_name")
@@ -39,4 +38,5 @@ public class Owner {
     @JoinColumn(name = "apartment_id")
     @JsonBackReference
     private Apartment apartment;
+
 }

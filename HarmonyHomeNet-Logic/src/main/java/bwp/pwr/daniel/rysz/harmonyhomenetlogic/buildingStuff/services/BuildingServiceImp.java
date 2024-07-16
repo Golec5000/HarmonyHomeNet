@@ -1,7 +1,7 @@
-package bwp.pwr.daniel.rysz.harmonyhomenetlogic.building.service;
+package bwp.pwr.daniel.rysz.harmonyhomenetlogic.buildingStuff.services;
 
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.building.entity.Building;
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.building.repository.BuildingRepository;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.buildingStuff.entitys.Building;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.buildingStuff.repositorys.BuildingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -37,7 +37,8 @@ public class BuildingServiceImp implements BuildingService {
     }
 
     @Override
-    public Optional<Building> findByName(String name) {
-        return buildingRepository.findByName(name);
+    public Optional<Building> findByBuildingName(String buildingName) {
+        return buildingRepository.findByBuildingName(buildingName);
     }
+
 }

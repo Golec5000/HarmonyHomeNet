@@ -1,12 +1,13 @@
-package bwp.pwr.daniel.rysz.harmonyhomenetlogic.apartment.entity;
+package bwp.pwr.daniel.rysz.harmonyhomenetlogic.apartmentStuff.entitys;
 
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.building.entity.Building;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.buildingStuff.entitys.Building;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.buildingStuff.entitys.ParkingSpace;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -23,8 +24,7 @@ import java.util.UUID;
 public class Apartment {
 
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
     @Column(name = "apartment_number")
@@ -43,8 +43,13 @@ public class Apartment {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<Tenant> tenants;
 
+    @OneToOne
+    @JoinColumn(name = "parking_space_id")
+    private ParkingSpace parkingSpace;
+
     @ManyToOne
     @JoinColumn(name = "building_id")
+    @JsonBackReference
     private Building building;
 
 

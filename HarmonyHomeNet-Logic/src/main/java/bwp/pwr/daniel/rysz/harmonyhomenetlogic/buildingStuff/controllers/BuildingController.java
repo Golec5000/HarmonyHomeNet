@@ -1,7 +1,7 @@
-package bwp.pwr.daniel.rysz.harmonyhomenetlogic.building.controller;
+package bwp.pwr.daniel.rysz.harmonyhomenetlogic.buildingStuff.controllers;
 
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.building.entity.Building;
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.building.service.BuildingService;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.buildingStuff.entitys.Building;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.buildingStuff.services.BuildingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

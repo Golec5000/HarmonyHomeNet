@@ -1,8 +1,8 @@
-package bwp.pwr.daniel.rysz.harmonyhomenetlogic.building.entity;
+package bwp.pwr.daniel.rysz.harmonyhomenetlogic.buildingStuff.entitys;
 
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.apartmentStuff.entitys.Apartment;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -18,17 +18,20 @@ import java.util.UUID;
 public class Building {
 
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    @Column(name = "name")
-    private String name;
+    @Column(name = "building_name")
+    private String buildingName;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "address_id", referencedColumnName = "id")
-    @OnDelete(action = OnDeleteAction.SET_NULL)
-    private Address address;
+    @Column(name = "street")
+    private String street;
+
+    @Column(name = "city")
+    private String city;
+
+    @Column(name = "region")
+    private String region;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "building")
     @OnDelete(action = OnDeleteAction.SET_NULL)
@@ -37,5 +40,9 @@ public class Building {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "building")
     @OnDelete(action = OnDeleteAction.SET_NULL)
     private List<ParkingSpace> parkingSpaces;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "building")
+    @OnDelete(action = OnDeleteAction.SET_NULL)
+    private List<Apartment> apartments;
 
 }
