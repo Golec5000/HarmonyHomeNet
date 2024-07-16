@@ -1,6 +1,5 @@
-package bwp.pwr.daniel.rysz.harmonyhomenetlogic.building.entity;
+package bwp.pwr.daniel.rysz.harmonyhomenetlogic.apartment.entity;
 
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.apartment.entity.Apartment;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -9,7 +8,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
-import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -17,24 +15,28 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "parking_spaces")
-public class ParkingSpace {
+@Table(name = "owners")
+public class Owner {
 
     @Id
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     private UUID id;
 
-    @Column(name = "parking_space_number")
-    private int number;
+    @Column(name = "first_name")
+    private String firstName;
 
-    @Column(name = "apartments")
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "building")
-    private List<Apartment> apartments;
+    @Column(name = "last_name")
+    private String lastName;
+
+    @Column(name = "email")
+    private String email;
+
+    @Column(name = "phone_number")
+    private String phoneNumber;
 
     @ManyToOne
-    @JoinColumn(name = "building_id")
+    @JoinColumn(name = "apartment_id")
     @JsonBackReference
-    private Building building;
-
+    private Apartment apartment;
 }

@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Data
@@ -27,7 +28,7 @@ public class Basement {
     private int basementNumber;
 
     @Column(name = "area")
-    private int area;
+    private BigDecimal area;
 
     @ManyToOne
     @JoinColumn(name = "building_id")

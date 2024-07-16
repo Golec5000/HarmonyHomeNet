@@ -9,6 +9,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -36,7 +37,7 @@ public class DatabaseInit {
             List<Basement> basements = new ArrayList<>();
             for (int j = 0; j < 5; j++) {
                 Basement basement = Basement.builder()
-                        .area((new Random().nextInt(15) + 6) * (j + 1))
+                        .area(BigDecimal.valueOf((new Random().nextInt(15) + 6) * (j + 1)))
                         .basementNumber(j + 1)
                         .building(buildingToSave)
                         .build();
@@ -47,7 +48,6 @@ public class DatabaseInit {
             for (int j = 0; j < 5; j++) {
                 ParkingSpace parkingSpace = ParkingSpace.builder()
                         .number(j + 1)
-                        .apartmetId(j + 1)
                         .building(buildingToSave)
                         .build();
                 parkingSpaces.add(parkingSpace);
