@@ -17,7 +17,7 @@ public class BuildingController {
 
     private final BuildingService buildingService;
 
-    @GetMapping("/all")
+    @GetMapping("/v1/all")
     public ResponseEntity<List<Building>> getAllBuildings() {
         return ResponseEntity.ok(buildingService.findAll());
     }

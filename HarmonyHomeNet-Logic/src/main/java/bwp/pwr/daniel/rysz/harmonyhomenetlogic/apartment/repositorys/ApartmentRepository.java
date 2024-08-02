@@ -1,6 +1,6 @@
-package bwp.pwr.daniel.rysz.harmonyhomenetlogic.apartmentStuff.repositorys;
+package bwp.pwr.daniel.rysz.harmonyhomenetlogic.apartment.repositorys;
 
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.apartmentStuff.entitys.Apartment;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.apartment.entitys.Apartment;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

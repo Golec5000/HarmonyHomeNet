@@ -1,6 +1,5 @@
 package bwp.pwr.daniel.rysz.harmonyhomenetlogic.buildingStuff.entitys;
 
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.apartmentStuff.entitys.Apartment;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -25,13 +24,8 @@ public class ParkingSpace {
     @Column(name = "parking_space_number")
     private int number;
 
-    @OneToOne(mappedBy = "parkingSpace", cascade = CascadeType.ALL)
-    @JsonBackReference
-    private Apartment apartments;
-
     @ManyToOne
     @JoinColumn(name = "building_id")
     @JsonBackReference
     private Building building;
-
 }

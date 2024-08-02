@@ -1,7 +1,7 @@
-package bwp.pwr.daniel.rysz.harmonyhomenetlogic.apartmentStuff.entitys;
+package bwp.pwr.daniel.rysz.harmonyhomenetlogic.apartment.entitys;
 
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.buildingStuff.entitys.Building;
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.buildingStuff.entitys.ParkingSpace;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.resident.entitys.Resident;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -33,24 +33,13 @@ public class Apartment {
     @Column(name = "area")
     private BigDecimal area;
 
-    @Column(name = "owners")
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "apartment")
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private List<Owner> owners;
-
-    @Column(name = "tenants")
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "apartment")
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private List<Tenant> tenants;
-
-    @OneToOne
-    @JoinColumn(name = "parking_space_id")
-    private ParkingSpace parkingSpace;
+    private List<Resident> residents;
 
     @ManyToOne
     @JoinColumn(name = "building_id")
     @JsonBackReference
     private Building building;
-
 
 }
