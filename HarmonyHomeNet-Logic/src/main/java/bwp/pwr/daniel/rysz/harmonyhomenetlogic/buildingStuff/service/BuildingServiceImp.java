@@ -1,7 +1,7 @@
-package bwp.pwr.daniel.rysz.harmonyhomenetlogic.buildingStuff.services;
+package bwp.pwr.daniel.rysz.harmonyhomenetlogic.buildingStuff.service;
 
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.buildingStuff.entitys.Building;
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.buildingStuff.repositorys.BuildingRepository;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.buildingStuff.entity.Building;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.buildingStuff.repository.BuildingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

@@ -2,12 +2,12 @@ package bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils;
 
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.apartment.entitys.Apartment;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.apartment.services.ApartmentService;
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.buildingStuff.entitys.Basement;
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.buildingStuff.entitys.Building;
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.buildingStuff.entitys.ParkingSpace;
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.buildingStuff.services.BasementService;
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.buildingStuff.services.BuildingService;
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.buildingStuff.services.ParkingSpaceService;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.basment.entity.Basement;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.buildingStuff.entity.Building;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.parkingSpace.entity.ParkingSpace;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.basment.service.BasementService;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.buildingStuff.service.BuildingService;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.parkingSpace.service.ParkingSpaceService;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.resident.entitys.Resident;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.resident.repository.ResidentRepository;
 import jakarta.annotation.PostConstruct;
@@ -18,7 +18,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.stream.IntStream;
 
 @Component
 @RequiredArgsConstructor

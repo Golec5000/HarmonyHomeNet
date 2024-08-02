@@ -1,6 +1,8 @@
-package bwp.pwr.daniel.rysz.harmonyhomenetlogic.buildingStuff.entitys;
+package bwp.pwr.daniel.rysz.harmonyhomenetlogic.buildingStuff.entity;
 
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.apartment.entitys.Apartment;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.basment.entity.Basement;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.parkingSpace.entity.ParkingSpace;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;

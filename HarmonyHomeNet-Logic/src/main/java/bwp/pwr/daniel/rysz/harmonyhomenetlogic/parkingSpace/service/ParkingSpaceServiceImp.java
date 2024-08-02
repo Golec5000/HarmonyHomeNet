@@ -1,7 +1,7 @@
-package bwp.pwr.daniel.rysz.harmonyhomenetlogic.buildingStuff.services;
+package bwp.pwr.daniel.rysz.harmonyhomenetlogic.parkingSpace.service;
 
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.buildingStuff.entitys.ParkingSpace;
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.buildingStuff.repositorys.ParkingSpaceRepository;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.parkingSpace.entity.ParkingSpace;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.parkingSpace.repository.ParkingSpaceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

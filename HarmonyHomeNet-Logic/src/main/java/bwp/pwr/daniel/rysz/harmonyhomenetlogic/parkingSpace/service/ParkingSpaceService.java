@@ -1,6 +1,6 @@
-package bwp.pwr.daniel.rysz.harmonyhomenetlogic.buildingStuff.services;
+package bwp.pwr.daniel.rysz.harmonyhomenetlogic.parkingSpace.service;
 
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.buildingStuff.entitys.ParkingSpace;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.parkingSpace.entity.ParkingSpace;
 
 import java.util.List;
 import java.util.Optional;

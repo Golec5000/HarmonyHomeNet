@@ -1,6 +1,6 @@
 package bwp.pwr.daniel.rysz.harmonyhomenetlogic.apartment.entitys;
 
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.buildingStuff.entitys.Building;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.buildingStuff.entity.Building;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.resident.entitys.Resident;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;

@@ -1,6 +1,6 @@
-package bwp.pwr.daniel.rysz.harmonyhomenetlogic.buildingStuff.services;
+package bwp.pwr.daniel.rysz.harmonyhomenetlogic.basment.service;
 
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.buildingStuff.entitys.Basement;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.basment.entity.Basement;
 
 import java.util.List;
 import java.util.Optional;
