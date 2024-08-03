@@ -1,19 +1,18 @@
 package bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.requests;
 
+import jakarta.persistence.Column;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+
 @Getter
 @Setter
 @Builder
-public class BuildingRequest {
+public class ApartmentRequest {
 
-    private String buildingName;
+    private int apartmentNumber;
 
-    private String street;
-
-    private String city;
-
-    private String region;
+    private BigDecimal area;
 }

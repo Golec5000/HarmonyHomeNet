@@ -1,15 +1,15 @@
 package bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils;
 
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.apartment.entitys.Apartment;
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.apartment.services.ApartmentService;
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.basment.entity.Basement;
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.buildingStuff.entity.Building;
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.parkingSpace.entity.ParkingSpace;
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.basment.service.BasementService;
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.buildingStuff.service.BuildingService;
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.parkingSpace.service.ParkingSpaceService;
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.resident.entitys.Resident;
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.resident.repository.ResidentRepository;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.apartment.entitys.Apartment;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.apartment.services.ApartmentService;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.basment.entity.Basement;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.building.entity.Building;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.parkingSpace.entity.ParkingSpace;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.basment.service.BasementService;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.building.service.BuildingService;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.parkingSpace.service.ParkingSpaceService;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.resident.entitys.Resident;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.resident.repository.ResidentRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -82,7 +82,7 @@ public class DatabaseInit {
             for (int k = 0; k < 10; k++) {
                 Apartment apartment = Apartment.builder()
                         .apartmentNumber(k + 1)
-                        .area(BigDecimal.valueOf(50.0 + k * 5.0 * new Random().nextDouble())) // Example area calculation
+                        .area(BigDecimal.valueOf(50.0 + (k + 1) * 5.0 * new Random().nextDouble())) // Example area calculation
                         .building(buildingToSave)
                         .build();
 
