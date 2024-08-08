@@ -1,6 +1,9 @@
 package bwp.pwr.daniel.rysz.harmonyhomenetlogic.exeptions.handler;
 
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.exeptions.customErrors.BuildingNotFoundException;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.exeptions.customErrors.UserNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -12,7 +15,10 @@ import java.time.LocalDateTime;
 @ControllerAdvice
 public class DefaultExceptionHandler {
 
-    @ExceptionHandler({NullPointerException.class, NoResourceFoundException.class})
+    @ExceptionHandler({
+            NullPointerException.class, NoResourceFoundException.class,
+            BuildingNotFoundException.class, UserNotFoundException.class
+    })
     public ResponseEntity<ApiError> handleNotFoundExceptions(Exception e, HttpServletRequest request) {
         return createResponseEntity(e, request, HttpStatus.NOT_FOUND);
     }
@@ -20,6 +26,11 @@ public class DefaultExceptionHandler {
     @ExceptionHandler({IllegalArgumentException.class, RuntimeException.class})
     public ResponseEntity<ApiError> handleIllegalArgumentException(IllegalArgumentException e, HttpServletRequest request) {
         return createResponseEntity(e, request, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ApiError> handleDataIntegrityViolationException(DataIntegrityViolationException e, HttpServletRequest request) {
+        return createResponseEntity(e, request, HttpStatus.CONFLICT);
     }
 
     private ResponseEntity<ApiError> createResponseEntity(Exception e, HttpServletRequest request, HttpStatus status) {

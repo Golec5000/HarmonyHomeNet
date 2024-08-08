@@ -74,7 +74,7 @@ public class Resident {
         }
 
         if (this.PESELNumber.length() != 11)
-            throw new IllegalArgumentException("PESEL number must contain 11 digidts");
+            throw new IllegalArgumentException("PESEL number must contain 11 digits");
 
     }
 
