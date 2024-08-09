@@ -1,6 +1,6 @@
 package bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.resident.service;
 
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.resident.entitys.Resident;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.resident.entity.Resident;
 
 import java.util.List;
 import java.util.Optional;

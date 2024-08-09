@@ -1,6 +1,6 @@
 package bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.resident.controller;
 
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.resident.entitys.Resident;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.resident.entity.Resident;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.resident.service.ResidentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

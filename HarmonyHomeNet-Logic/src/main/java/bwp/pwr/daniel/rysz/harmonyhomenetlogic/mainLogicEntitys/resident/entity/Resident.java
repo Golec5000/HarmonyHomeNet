@@ -1,4 +1,4 @@
-package bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.resident.entitys;
+package bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.resident.entity;
 
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.apartment.entitys.Apartment;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.basment.entity.Basement;
