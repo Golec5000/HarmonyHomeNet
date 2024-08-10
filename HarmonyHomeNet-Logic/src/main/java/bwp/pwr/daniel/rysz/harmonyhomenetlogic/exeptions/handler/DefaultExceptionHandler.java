@@ -1,8 +1,6 @@
 package bwp.pwr.daniel.rysz.harmonyhomenetlogic.exeptions.handler;
 
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.exeptions.customErrors.BuildingNotFoundException;
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.exeptions.customErrors.DocumentNotFoundException;
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.exeptions.customErrors.UserNotFoundException;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.exeptions.customErrors.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -20,7 +18,8 @@ public class DefaultExceptionHandler {
     @ExceptionHandler({
             NullPointerException.class, NoResourceFoundException.class,
             BuildingNotFoundException.class, UserNotFoundException.class,
-            DocumentNotFoundException.class
+            DocumentNotFoundException.class, ForumNotFoundException.class,
+            TopicNotFoundException.class
     })
     public ResponseEntity<ApiError> handleNotFoundExceptions(Exception e, HttpServletRequest request) {
         return createResponseEntity(e, request, HttpStatus.NOT_FOUND);
