@@ -39,7 +39,6 @@ public class DatabaseInit {
                     .login("user" + i)
                     .PESELNumber(PeselGenerator())
                     .email("user" + i + "@gmail.com")
-                    .residentType(GenerateType())
                     .build();
             residentRepository.save(resident);
         }
@@ -95,23 +94,6 @@ public class DatabaseInit {
             // Assuming Building entity has a field to reference apartments
             buildingToSave.setApartments(apartments);
             buildingService.save(buildingToSave); // update building with basements, parking spaces, and apartments
-        }
-    }
-
-    private List<ResidentType> GenerateType() {
-        switch (new Random().nextInt(4)) {
-            case 1 -> {
-                return List.of(ResidentType.TENANT);
-            }
-            case 2 -> {
-                return List.of(ResidentType.OWNER);
-            }
-            case 3 -> {
-                return List.of(ResidentType.TENANT, ResidentType.OWNER);
-            }
-            default -> {
-                return null;
-            }
         }
     }
 

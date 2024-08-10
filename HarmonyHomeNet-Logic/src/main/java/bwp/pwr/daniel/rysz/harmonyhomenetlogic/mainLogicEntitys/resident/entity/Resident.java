@@ -2,8 +2,9 @@ package bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.resident.entity
 
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.apartment.entitys.Apartment;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.basment.entity.Basement;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.forum.entity.Post;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.parkingSpace.entity.ParkingSpace;
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.ResidentType;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.enums.Role;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
@@ -13,6 +14,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Data
@@ -45,9 +47,11 @@ public class Resident {
     @Column(name = "phone_number")
     private String phoneNumber;
 
-    @Column(name = "resident_type")
+    @Column(name = "role")
     @Enumerated(EnumType.STRING)
-    private List<ResidentType> residentType;
+    @ElementCollection(targetClass = Role.class)
+    @CollectionTable(name = "resident_roles", joinColumns = @JoinColumn(name = "resident_id"))
+    private Set<Role> role;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "resident")
     @JsonManagedReference
@@ -62,18 +66,20 @@ public class Resident {
     @JsonManagedReference
     private List<ParkingSpace> parkingSpaces;
 
+    @OneToMany(mappedBy = "resident", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List<Post> posts;
+
     @PrePersist
     @PreUpdate
     public void checkPESELNumber(){
-        if (this.PESELNumber.isEmpty() || this.PESELNumber.isBlank()) {
+        if (PESELNumber == null || PESELNumber.isEmpty() || PESELNumber.isBlank())
             throw new IllegalArgumentException("PESEL number cannot be null or empty");
-        }
 
-        if (!this.PESELNumber.chars().allMatch(Character::isDigit)) {
+        if (!PESELNumber.chars().allMatch(Character::isDigit))
             throw new IllegalArgumentException("PESEL number must contain only digits");
-        }
 
-        if (this.PESELNumber.length() != 11)
+        if (PESELNumber.length() != 11)
             throw new IllegalArgumentException("PESEL number must contain 11 digits");
 
     }

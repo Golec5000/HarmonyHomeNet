@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/building")
+@RequestMapping("/bwp/api/v1/building")
 @RequiredArgsConstructor
 public class BuildingController {
 
@@ -31,12 +31,12 @@ public class BuildingController {
     private final BasementService basementService;
     private final ParkingSpaceService parkingSpaceService;
 
-    @GetMapping("/v1/all")
+    @GetMapping("/all")
     public ResponseEntity<List<Building>> getAllBuildings() {
         return ResponseEntity.ok(buildingService.findAll());
     }
 
-    @GetMapping("/v1/building-by-id/{building_id}")
+    @GetMapping("/building-by-id/{building_id}")
     public ResponseEntity<Building> getBuildingById(@PathVariable String building_id) throws BuildingNotFoundException {
         UUID id = UUID.fromString(building_id);
 
@@ -45,14 +45,14 @@ public class BuildingController {
                 .orElseThrow(() -> new BuildingNotFoundException("wrong building id"));
     }
 
-    @GetMapping("/v1/building-by-name/{building_name}")
+    @GetMapping("/building-by-name/{building_name}")
     public ResponseEntity<Building> getBuildingByName(@PathVariable String building_name) throws BuildingNotFoundException {
         return buildingService.findByBuildingName(building_name)
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> new BuildingNotFoundException("wrong building name"));
     }
 
-    @GetMapping("/v1/buildings-by-region/{building_region}")
+    @GetMapping("/buildings-by-region/{building_region}")
     public ResponseEntity<List<Building>> getAllBuildingByRegion(@PathVariable String building_region) {
         List<Building> listByRegion = buildingService.findAll().stream()
                 .filter(building -> building.getRegion().equals(building_region))
@@ -60,7 +60,7 @@ public class BuildingController {
         return ResponseEntity.ok(listByRegion);
     }
 
-    @PutMapping("v1/add-building")
+    @PutMapping("/add-building")
     public ResponseEntity<Building> addNewBuilding(@RequestBody BuildingRequest buildingRequest) {
         Building building = Building.builder()
                 .buildingName(buildingRequest.getBuildingName())
@@ -72,7 +72,7 @@ public class BuildingController {
         return ResponseEntity.ok(building);
     }
 
-    @PostMapping("/v1/building-id/{building_id}/add-apartment")
+    @PostMapping("/building-id/{building_id}/add-apartment")
     public ResponseEntity<Building> addApartmentToBuilding(@PathVariable String building_id, @RequestBody ApartmentRequest apartmentRequest) throws BuildingNotFoundException {
 
         UUID id = UUID.fromString(building_id);
@@ -95,7 +95,7 @@ public class BuildingController {
 
     }
 
-    @PostMapping("/v1/building-id/{building_id}/add-basement")
+    @PostMapping("/building-id/{building_id}/add-basement")
     public ResponseEntity<Building> addBasementToBuilding(@PathVariable String building_id, @RequestBody BasementRequest basementRequest) throws BuildingNotFoundException {
         UUID id = UUID.fromString(building_id);
 
@@ -116,7 +116,7 @@ public class BuildingController {
         return ResponseEntity.ok(buildingToUpdate);
     }
 
-    @PostMapping("/v1/building-id/{building_id}/add-parking-space")
+    @PostMapping("/building-id/{building_id}/add-parking-space")
     public ResponseEntity<Building> addParkingSpaceToBuilding(@PathVariable String building_id, @RequestBody ParkingSpaceRequest parkingSpaceRequest) throws BuildingNotFoundException {
         UUID id = UUID.fromString(building_id);
 
@@ -136,7 +136,7 @@ public class BuildingController {
         return ResponseEntity.ok(buildingToUpdate);
     }
 
-    @DeleteMapping("/v1/remove-building/{building_id}")
+    @DeleteMapping("/remove-building/{building_id}")
     public ResponseEntity<Building> removeBuildingById(@PathVariable String building_id) {
         UUID id = UUID.fromString(building_id);
         buildingService.deleteById(id);

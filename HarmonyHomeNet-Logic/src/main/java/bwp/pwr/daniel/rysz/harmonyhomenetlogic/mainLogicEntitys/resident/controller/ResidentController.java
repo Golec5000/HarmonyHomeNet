@@ -11,13 +11,13 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping ("/residents")
+@RequestMapping ("/bwp/api/v1/residents")
 @RequiredArgsConstructor
 public class ResidentController {
 
     private final ResidentService residentService;
 
-    @GetMapping("/v1/all")
+    @GetMapping("/all")
     public ResponseEntity<List<Resident>> findAll(){
         return ResponseEntity.ok(residentService.findAll());
     }
