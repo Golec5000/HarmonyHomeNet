@@ -19,7 +19,7 @@ public class DefaultExceptionHandler {
             NullPointerException.class, NoResourceFoundException.class,
             BuildingNotFoundException.class, UserNotFoundException.class,
             DocumentNotFoundException.class, ForumNotFoundException.class,
-            TopicNotFoundException.class
+            TopicNotFoundException.class, PostNotFoundException.class
     })
     public ResponseEntity<ApiError> handleNotFoundExceptions(Exception e, HttpServletRequest request) {
         return createResponseEntity(e, request, HttpStatus.NOT_FOUND);
@@ -36,6 +36,11 @@ public class DefaultExceptionHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ApiError> handleDataIntegrityViolationException(DataIntegrityViolationException e, HttpServletRequest request) {
         return createResponseEntity(e, request, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiError> handleException(Exception e, HttpServletRequest request) {
+        return createResponseEntity(e, request, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     private ResponseEntity<ApiError> createResponseEntity(Exception e, HttpServletRequest request, HttpStatus status) {

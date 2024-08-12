@@ -1,6 +1,7 @@
 package bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.forum.controller;
 
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.exeptions.customErrors.ForumNotFoundException;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.exeptions.customErrors.PostNotFoundException;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.exeptions.customErrors.TopicNotFoundException;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.exeptions.customErrors.UserNotFoundException;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.forum.entity.Forum;
@@ -53,6 +54,16 @@ public class ForumController {
                 .orElseThrow(() -> new ForumNotFoundException("wrong forum name"));
     }
 
+    @GetMapping("/topics-by-category/{topicCategory}")
+    public ResponseEntity<List<Topic>> getTopicsByCategory(@PathVariable String topicCategory) {
+        return ResponseEntity.ok(topicService.findByTopicCategory(TopicCategory.valueOf(topicCategory)));
+    }
+
+    @GetMapping("/posts-by-resident/{residentLogin}")
+    public ResponseEntity<List<Post>> getPostsByResident(@PathVariable String residentLogin) {
+        return ResponseEntity.ok(postService.findPostByResidentLogin(residentLogin));
+    }
+
     @PostMapping("/add-new-forum")
     public ResponseEntity<Forum> addForum(@RequestBody ForumRequest newForum) {
         Forum forum = Forum.builder()
@@ -74,6 +85,7 @@ public class ForumController {
         Topic topic = Topic.builder()
                 .topicName(newTopic.getTopicName())
                 .topicCategory(TopicCategory.valueOf(newTopic.getTopicCategory()))
+                .forum(forum)
                 .build();
 
         forum.getTopics().add(topic);
@@ -102,11 +114,11 @@ public class ForumController {
     }
 
     @PutMapping("/add-post/topic/{topicId}/user-id/{userId}")
-    public ResponseEntity<Post> addPostToTopic(@PathVariable String topicId, @PathVariable String userId, @RequestBody PostRequest newPost) throws TopicNotFoundException, UserNotFoundException {
-        UUID toppicUUID = UUID.fromString(topicId);
+    public ResponseEntity<Post> addPostToTopic(@PathVariable String topicId, @PathVariable String userId, @RequestBody PostRequest postRequest) throws TopicNotFoundException, UserNotFoundException {
+        UUID topicUUID = UUID.fromString(topicId);
         UUID residentUUID = UUID.fromString(userId);
 
-        Topic topic = topicService.findById(toppicUUID)
+        Topic topic = topicService.findById(topicUUID)
                 .orElseThrow(() -> new TopicNotFoundException("wrong topic id"));
 
         Resident resident = residentService.findById(residentUUID)
@@ -116,18 +128,49 @@ public class ForumController {
         if (resident.getPosts() == null) resident.setPosts(new ArrayList<>());
 
         Post post = Post.builder()
-                .postContent(newPost.getPostContent())
+                .postContent(postRequest.getPostContent())
+                .resident(resident)
+                .topic(topic)
                 .build();
 
         topic.getPosts().add(post);
         resident.getPosts().add(post);
 
-        residentService.save(resident);
         postService.save(post);
-        topicService.save(topic);
 
         return ResponseEntity.ok(post);
     }
 
+    @PutMapping("/remove-post/{postId}/topic/{topicId}")
+    public ResponseEntity<Topic> removePostFromTopic(@PathVariable String postId, @PathVariable String topicId) throws TopicNotFoundException, PostNotFoundException {
+        UUID postUUID = UUID.fromString(postId);
+        UUID topicUUID = UUID.fromString(topicId);
+
+        Topic topic = topicService.findById(topicUUID)
+                .orElseThrow(() -> new TopicNotFoundException("wrong topic id"));
+
+        Post post = postService.findById(postUUID)
+                .orElseThrow(() -> new PostNotFoundException("wrong post id"));
+
+        Resident resident = post.getResident();
+
+        resident.getPosts().remove(post);
+        topic.getPosts().remove(post);
+
+        postService.deleteById(postUUID);
+        topicService.save(topic);
+        residentService.save(resident);
+
+        return ResponseEntity.ok(topic);
+    }
+
+    @DeleteMapping("/delete-forum/{forumId}")
+    public ResponseEntity<String> deleteForum(@PathVariable String forumId) throws ForumNotFoundException {
+        UUID id = UUID.fromString(forumId);
+        Forum forum = forumService.findById(id)
+                .orElseThrow(() -> new ForumNotFoundException("wrong forum id"));
+        forumService.deleteById(id);
+        return ResponseEntity.ok("Forum " + forum.getForumName() + " deleted");
+    }
 
 }

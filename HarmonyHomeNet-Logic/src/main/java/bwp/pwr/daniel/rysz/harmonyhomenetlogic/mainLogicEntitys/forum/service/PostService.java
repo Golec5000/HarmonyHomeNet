@@ -11,4 +11,5 @@ public interface PostService {
     void save(Post post);
     void deleteById(UUID id);
     Optional<Post> findById(UUID id);
+    List<Post> findPostByResidentLogin(String login);
 }

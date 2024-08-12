@@ -34,4 +34,9 @@ public class PostServiceImp implements PostService {
     public Optional<Post> findById(UUID id) {
         return postRepository.findById(id);
     }
+
+    @Override
+    public List<Post> findPostByResidentLogin(String login) {
+        return postRepository.findPostByResidentLogin(login);
+    }
 }
