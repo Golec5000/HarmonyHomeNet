@@ -14,18 +14,18 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/document")
+@RequestMapping("/bwp/api/v1/document")
 @RequiredArgsConstructor
 public class DocumentController {
 
     private final DocumentService documentService;
 
-    @GetMapping("/v1/getAll")
+    @GetMapping("/getAll")
     public ResponseEntity<List<Document>> getAll() {
         return ResponseEntity.ok(documentService.findAll());
     }
 
-    @GetMapping("/v1/document-id/{documentId}")
+    @GetMapping("/document-id/{documentId}")
     public ResponseEntity<byte[]> getDocumentById(@PathVariable String documentId) throws DocumentNotFoundException {
         UUID id = UUID.fromString(documentId);
         Document document = documentService.findById(id)
@@ -37,7 +37,7 @@ public class DocumentController {
                 .body(document.getData());
     }
 
-    @PostMapping("/v1/upload-file")
+    @PostMapping("/upload-file")
     public ResponseEntity<Document> uploadFile(@RequestParam("file") MultipartFile file) throws IOException {
         documentService.save(createDocumentEntity(file));
         return ResponseEntity.ok().build();

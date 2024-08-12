@@ -4,6 +4,10 @@ import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.apartment.entity
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.apartment.services.ApartmentService;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.basment.entity.Basement;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.building.entity.Building;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.forum.entity.Forum;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.forum.repository.ForumRepository;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.forum.repository.PostRepository;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.forum.repository.TopicRepository;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.parkingSpace.entity.ParkingSpace;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.basment.service.BasementService;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.building.service.BuildingService;
@@ -28,8 +32,11 @@ public class DatabaseInit {
     private final ParkingSpaceService parkingSpaceService;
 
     private final ApartmentService apartmentService;
-
     private final ResidentRepository residentRepository;
+
+    private final ForumRepository forumRepository;
+    private final TopicRepository topicRepository;
+    private final PostRepository postRepository;
 
     @PostConstruct
     public void init() {
@@ -39,7 +46,6 @@ public class DatabaseInit {
                     .login("user" + i)
                     .PESELNumber(PeselGenerator())
                     .email("user" + i + "@gmail.com")
-                    .residentType(GenerateType())
                     .build();
             residentRepository.save(resident);
         }
@@ -96,23 +102,18 @@ public class DatabaseInit {
             buildingToSave.setApartments(apartments);
             buildingService.save(buildingToSave); // update building with basements, parking spaces, and apartments
         }
-    }
 
-    private List<ResidentType> GenerateType() {
-        switch (new Random().nextInt(4)) {
-            case 1 -> {
-                return List.of(ResidentType.TENANT);
-            }
-            case 2 -> {
-                return List.of(ResidentType.OWNER);
-            }
-            case 3 -> {
-                return List.of(ResidentType.TENANT, ResidentType.OWNER);
-            }
-            default -> {
-                return null;
-            }
+        for (int i = 0; i < 2; i++) {
+            Forum forum = Forum.builder()
+                    .forumDescription("Test desc." + (i + 1))
+                    .forumName("Forum" + (i + 1))
+                    .build();
+
+            forumRepository.save(forum);
         }
+
+
+
     }
 
     private String PeselGenerator() {
