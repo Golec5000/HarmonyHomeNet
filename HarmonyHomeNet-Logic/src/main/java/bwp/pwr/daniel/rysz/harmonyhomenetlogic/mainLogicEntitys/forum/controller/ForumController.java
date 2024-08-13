@@ -10,8 +10,8 @@ import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.forum.entity.Top
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.forum.service.ForumService;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.forum.service.PostService;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.forum.service.TopicService;
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.resident.entity.Resident;
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.resident.service.ResidentService;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.user.entity.Resident;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.user.service.UserService;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.enums.TopicCategory;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.requests.ForumRequest;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.requests.PostRequest;
@@ -32,7 +32,7 @@ public class ForumController {
     private final TopicService topicService;
     private final ForumService forumService;
     private final PostService postService;
-    private final ResidentService residentService;
+    private final UserService userService;
 
     @GetMapping("/all")
     public ResponseEntity<List<Forum>> getAllForums() {
@@ -121,7 +121,7 @@ public class ForumController {
         Topic topic = topicService.findById(topicUUID)
                 .orElseThrow(() -> new TopicNotFoundException("wrong topic id"));
 
-        Resident resident = residentService.findById(residentUUID)
+        Resident resident = (Resident) userService.findById(residentUUID)
                 .orElseThrow(() -> new UserNotFoundException("wrong user id"));
 
         if (topic.getPosts() == null) topic.setPosts(new ArrayList<>());
@@ -159,7 +159,7 @@ public class ForumController {
 
         postService.deleteById(postUUID);
         topicService.save(topic);
-        residentService.save(resident);
+        userService.save(resident);
 
         return ResponseEntity.ok(topic);
     }
