@@ -1,13 +1,17 @@
 package bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.user.entity;
 
 
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.forum.entity.Post;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.enums.Gender;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.enums.Role;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
@@ -26,23 +30,30 @@ public class User {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    @Column(name = "login", nullable = false, unique = true)
+    @Column(name = "login", nullable = false, unique = true, updatable = false)
     private String login;
 
-    @Column(name = "first_name")
+    @Column(name = "first_name", nullable = false)
     private String firstName;
 
-    @Column(name = "last_name")
+    @Column(name = "last_name", nullable = false)
     private String lastName;
 
-    @Column(name = "PESEL_number", nullable = false, unique = true)
+    @Column(name = "PESEL_number", unique = true)
     private String PESELNumber;
 
-    @Column(name = "email", nullable = false)
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @Column(name = "phone_number")
+    @Column(name = "phone_number", unique = true)
     private String phoneNumber;
+
+    @Column(name = "password", nullable = false)
+    private String password;
+
+    @Column(name = "user_gender")
+    @Enumerated(EnumType.STRING)
+    private Gender userGender;
 
     @Column(name = "role")
     @Enumerated(EnumType.STRING)
@@ -50,23 +61,46 @@ public class User {
     @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
     private Set<Role> role;
 
-    @PrePersist
-    @PreUpdate
-    public void checkPESELNumber(){
-        if (PESELNumber == null || PESELNumber.isBlank())
-            throw new IllegalArgumentException("PESEL number cannot be null or empty");
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List<Post> posts;
 
+    @PrePersist
+    public void prePersist() {
+        creatUserLogin();
+        checkPESELNumber();
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        checkPESELNumber();
+    }
+
+    private void creatUserLogin() {
+        login = String.format("%s.%s.%s",
+                firstName.substring(0, 3),
+                lastName.substring(0, 3),
+                id.toString().substring(0, 6));
+    }
+
+    private void checkPESELNumber() {
+        if (PESELNumber != null && !PESELNumber.isBlank() && userGender != null) {
+            validatePESELNumber();
+        }
+    }
+
+    private void validatePESELNumber() {
         if (!PESELNumber.matches("\\d{11}"))
             throw new IllegalArgumentException("PESEL number must contain 11 digits");
 
         if (!isChecksumValid(PESELNumber))
             throw new IllegalArgumentException("Invalid PESEL checksum");
 
-        if (!isDateValid(PESELNumber))
-            throw new IllegalArgumentException("Invalid PESEL date");
+        if (!isGenderValid(PESELNumber, userGender))
+            throw new IllegalArgumentException("Invalid PESEL that does not match owner gender");
 
-        if (isFutureDate(PESELNumber))
-            throw new IllegalArgumentException("PESEL date cannot be in the future");
+        if (!isDateValid(PESELNumber))
+            throw new IllegalArgumentException("Invalid PESEL date (or date in the future)");
     }
 
     private boolean isChecksumValid(String pesel) {
@@ -80,26 +114,42 @@ public class User {
     }
 
     private boolean isDateValid(String pesel) {
-        List<Integer> tmp = dates(pesel);
-
         try {
+            List<Integer> tmp = dates(pesel);
             LocalDate date = LocalDate.of(tmp.get(0), tmp.get(1), tmp.get(2));
-            return date.getDayOfMonth() == tmp.get(2);
-        } catch (Exception e) {
+            return !date.isAfter(LocalDate.now());
+        } catch (DateTimeException e) {
             return false;
         }
     }
 
-    private boolean isFutureDate(String pesel) {
-        List<Integer> tmp = dates(pesel);
-        LocalDate date = LocalDate.of(tmp.get(0), tmp.get(1), tmp.get(2));
-        return date.isAfter(LocalDate.now());
+    private boolean isGenderValid(String pesel, Gender gender) {
+        boolean isMale = Character.getNumericValue(pesel.charAt(9)) % 2 == 1;
+        return (gender == Gender.MALE && isMale) || (gender == Gender.FEMALE && !isMale);
     }
 
     private List<Integer> dates(String pesel) {
         int year = Integer.parseInt(pesel.substring(0, 2));
         int month = Integer.parseInt(pesel.substring(2, 4));
         int day = Integer.parseInt(pesel.substring(4, 6));
+
+        if (month > 80) {
+            year += 1800;
+            month -= 80;
+        } else if (month > 60) {
+            year += 2200;
+            month -= 60;
+        } else if (month > 40) {
+            year += 2100;
+            month -= 40;
+        } else if (month > 20) {
+            year += 2000;
+            month -= 20;
+        } else {
+            year += 1900;
+        }
+
         return List.of(year, month, day);
     }
+
 }

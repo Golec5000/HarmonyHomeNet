@@ -1,6 +1,6 @@
 package bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.forum.entity;
 
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.user.entity.Resident;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.user.entity.User;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -34,10 +34,10 @@ public class Post {
     @JsonBackReference
     private Topic topic;
 
-    @JoinColumn(name = "resident_id")
+    @JoinColumn(name = "user_id")
     @ManyToOne
     @JsonBackReference
-    private Resident resident;
+    private User user;
 
     @PrePersist
     @PreUpdate

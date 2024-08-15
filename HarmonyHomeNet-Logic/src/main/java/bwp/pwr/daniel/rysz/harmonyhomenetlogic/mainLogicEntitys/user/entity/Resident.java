@@ -2,7 +2,6 @@ package bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.user.entity;
 
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.apartment.entitys.Apartment;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.basment.entity.Basement;
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.forum.entity.Post;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.parkingSpace.entity.ParkingSpace;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -34,10 +33,6 @@ public class Resident extends User {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "resident")
     @JsonManagedReference
     private List<ParkingSpace> parkingSpaces;
-
-    @OneToMany(mappedBy = "resident", cascade = CascadeType.ALL)
-    @JsonManagedReference
-    private List<Post> posts;
 
 
 }

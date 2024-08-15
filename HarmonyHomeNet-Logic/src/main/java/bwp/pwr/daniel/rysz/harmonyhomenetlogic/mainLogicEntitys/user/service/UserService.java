@@ -20,4 +20,6 @@ public interface UserService {
 
     Optional<User> findByPESELNumber(String PESELNumber);
 
+    Optional<User> findByEmail(String email);
+
 }

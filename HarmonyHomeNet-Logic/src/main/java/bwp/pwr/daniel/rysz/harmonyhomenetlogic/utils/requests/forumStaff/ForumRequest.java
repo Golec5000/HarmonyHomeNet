@@ -1,4 +1,4 @@
-package bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.requests;
+package bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.requests.forumStaff;
 
 import lombok.Builder;
 import lombok.Getter;

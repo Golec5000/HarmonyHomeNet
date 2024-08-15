@@ -44,4 +44,9 @@ public class UserServiceImp implements UserService {
     public Optional<User> findByPESELNumber(String PESELNumber) {
         return residentRepository.findUserByPESELNumber(PESELNumber);
     }
+
+    @Override
+    public Optional<User> findByEmail(String email) {
+        return residentRepository.findUserByEmail(email);
+    }
 }

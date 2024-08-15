@@ -27,7 +27,7 @@ public class DefaultExceptionHandler {
 
     @ExceptionHandler({
             IllegalArgumentException.class, RuntimeException.class,
-            IOException.class
+            IOException.class, NumberFormatException.class
     })
     public ResponseEntity<ApiError> handleIllegalArgumentException(IllegalArgumentException e, HttpServletRequest request) {
         return createResponseEntity(e, request, HttpStatus.BAD_REQUEST);
