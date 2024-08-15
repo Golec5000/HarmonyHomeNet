@@ -98,10 +98,9 @@ public class ForumController {
 
     @PutMapping("/remove-topic/{topicId}/forum-id/{forumId}")
     public ResponseEntity<Forum> removeTopicFromForum(@PathVariable String topicId, @PathVariable String forumId) throws ForumNotFoundException, TopicNotFoundException {
-        UUID forumUUID = UUID.fromString(forumId);
         UUID topicUUID = UUID.fromString(topicId);
 
-        Forum forum = forumService.findById(forumUUID)
+        Forum forum = forumService.findById(UUID.fromString(forumId))
                 .orElseThrow(() -> new ForumNotFoundException("wrong forum id"));
 
         Topic topic = topicService.findById(topicUUID)
@@ -114,15 +113,13 @@ public class ForumController {
         return ResponseEntity.ok(forum);
     }
 
-    @PutMapping("/add-post/topic/{topicId}/user-id/{userId}")
-    public ResponseEntity<Post> addPostToTopic(@PathVariable String topicId, @PathVariable String userId, @RequestBody PostRequest postRequest) throws TopicNotFoundException, UserNotFoundException {
-        UUID topicUUID = UUID.fromString(topicId);
-        UUID residentUUID = UUID.fromString(userId);
+    @PutMapping("/add-post/topic/{topicId}/user-login/{userLogin}")
+    public ResponseEntity<Post> addPostToTopic(@PathVariable String topicId, @PathVariable String userLogin, @RequestBody PostRequest postRequest) throws TopicNotFoundException, UserNotFoundException {
 
-        Topic topic = topicService.findById(topicUUID)
+        Topic topic = topicService.findById(UUID.fromString(topicId))
                 .orElseThrow(() -> new TopicNotFoundException("wrong topic id"));
 
-        User user = userService.findById(residentUUID)
+        User user = userService.findByLogin(userLogin)
                 .orElseThrow(() -> new UserNotFoundException("wrong user id"));
 
         if (topic.getPosts() == null) topic.setPosts(new ArrayList<>());

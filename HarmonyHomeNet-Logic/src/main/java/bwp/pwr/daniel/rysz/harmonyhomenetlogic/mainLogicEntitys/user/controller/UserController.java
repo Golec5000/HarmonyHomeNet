@@ -84,9 +84,9 @@ public class UserController {
         return ResponseEntity.ok(employee);
     }
 
-    @PutMapping("/update-user/{userId}")
-    public ResponseEntity<User> updateResident(@PathVariable String userId, @RequestBody UserRequest updatedUser) throws UserNotFoundException {
-        User updateUser = userService.findById(UUID.fromString(userId))
+    @PutMapping("/update-user/{userLogin}")
+    public ResponseEntity<User> updateResident(@PathVariable String userLogin, @RequestBody UserRequest updatedUser) throws UserNotFoundException {
+        User updateUser = userService.findByLogin(userLogin)
                 .map(user -> {
                     user.setPESELNumber(updatedUser.getPESELNumber() != null ? updatedUser.getPESELNumber() : user.getPESELNumber());
                     user.setEmail(updatedUser.getEmail() != null ? updatedUser.getEmail() : user.getEmail());
@@ -102,9 +102,9 @@ public class UserController {
         return ResponseEntity.ok(updateUser);
     }
 
-    @PutMapping("/update-user-role/{userId}")
-    public ResponseEntity<User> updateUserRole(@PathVariable String userId, @RequestBody UserRequest updatedUser) throws UserNotFoundException {
-        User updateUser = userService.findById(UUID.fromString(userId))
+    @PutMapping("/update-user-role/{userLogin}")
+    public ResponseEntity<User> updateUserRole(@PathVariable String userLogin, @RequestBody UserRequest updatedUser) throws UserNotFoundException {
+        User updateUser = userService.findByLogin(userLogin)
                 .map(user -> {
                     user.setRole(updatedUser.getRole() != null ? updatedUser.getRole().stream().map(Role::valueOf).collect(Collectors.toSet()) : user.getRole());
                     return user;

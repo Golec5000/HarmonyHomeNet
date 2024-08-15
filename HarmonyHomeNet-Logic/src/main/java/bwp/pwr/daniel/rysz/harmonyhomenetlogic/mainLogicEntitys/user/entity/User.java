@@ -5,6 +5,7 @@ import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.forum.entity.Pos
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.enums.Gender;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.enums.Role;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,6 +15,7 @@ import lombok.experimental.SuperBuilder;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -30,22 +32,22 @@ public class User {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    @Column(name = "login", nullable = false, unique = true, updatable = false)
+    @Column(name = "login", nullable = false, unique = true, updatable = false, length = 14)
     private String login;
 
-    @Column(name = "first_name", nullable = false)
+    @Column(name = "first_name", nullable = false, length = 45)
     private String firstName;
 
-    @Column(name = "last_name", nullable = false)
+    @Column(name = "last_name", nullable = false, length = 45)
     private String lastName;
 
-    @Column(name = "PESEL_number", unique = true)
+    @Column(name = "PESEL_number", unique = true, length = 11)
     private String PESELNumber;
 
-    @Column(name = "email", nullable = false, unique = true)
+    @Column(name = "email", nullable = false, unique = true, length = 80)
     private String email;
 
-    @Column(name = "phone_number", unique = true)
+    @Column(name = "phone_number", unique = true, length = 9)
     private String phoneNumber;
 
     @Column(name = "password", nullable = false)
@@ -103,19 +105,19 @@ public class User {
             throw new IllegalArgumentException("Invalid PESEL date (or date in the future)");
     }
 
-    private boolean isChecksumValid(String pesel) {
+    private boolean isChecksumValid(@Nullable String pesel) {
         int[] weights = {1, 3, 7, 9, 1, 3, 7, 9, 1, 3};
         int sum = 0;
         for (int i = 0; i < 10; i++) {
-            sum += Character.getNumericValue(pesel.charAt(i)) * weights[i];
+            sum += Character.getNumericValue(Objects.requireNonNull(pesel).charAt(i)) * weights[i];
         }
         int checksum = (10 - (sum % 10)) % 10;
         return checksum == Character.getNumericValue(pesel.charAt(10));
     }
 
-    private boolean isDateValid(String pesel) {
+    private boolean isDateValid(@Nullable String pesel) {
         try {
-            List<Integer> tmp = dates(pesel);
+            List<Integer> tmp = dates(Objects.requireNonNull(pesel));
             LocalDate date = LocalDate.of(tmp.get(0), tmp.get(1), tmp.get(2));
             return !date.isAfter(LocalDate.now());
         } catch (DateTimeException e) {
@@ -123,12 +125,13 @@ public class User {
         }
     }
 
-    private boolean isGenderValid(String pesel, Gender gender) {
-        boolean isMale = Character.getNumericValue(pesel.charAt(9)) % 2 == 1;
+    private boolean isGenderValid(@Nullable String pesel, @Nullable Gender gender) {
+        boolean isMale = Character.getNumericValue(Objects.requireNonNull(pesel).charAt(9)) % 2 == 1;
         return (gender == Gender.MALE && isMale) || (gender == Gender.FEMALE && !isMale);
     }
 
-    private List<Integer> dates(String pesel) {
+    private List<Integer> dates(@Nullable String pesel) {
+        assert pesel != null;
         int year = Integer.parseInt(pesel.substring(0, 2));
         int month = Integer.parseInt(pesel.substring(2, 4));
         int day = Integer.parseInt(pesel.substring(4, 6));
