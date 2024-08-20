@@ -31,7 +31,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    @Column(name = "login", nullable = false, unique = true, updatable = false, length = 14)
+    @Column(name = "login", nullable = false, unique = true, updatable = false, length = 12)
     private String login;
 
     @Column(name = "first_name", nullable = false, length = 45)
@@ -78,7 +78,7 @@ public class User {
     }
 
     private void creatUserLogin() {
-        login = String.format("%s.%s.%s",
+        login = String.format("%s%s%s",
                 firstName.substring(0, 3),
                 lastName.substring(0, 3),
                 id.toString().substring(0, 6));
