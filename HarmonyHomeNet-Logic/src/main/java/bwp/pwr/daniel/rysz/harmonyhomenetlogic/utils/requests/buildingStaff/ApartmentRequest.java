@@ -1,6 +1,5 @@
-package bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.requests;
+package bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.requests.buildingStaff;
 
-import jakarta.persistence.Column;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;

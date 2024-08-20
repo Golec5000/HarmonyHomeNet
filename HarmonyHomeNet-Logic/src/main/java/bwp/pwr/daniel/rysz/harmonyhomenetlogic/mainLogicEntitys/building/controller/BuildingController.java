@@ -9,10 +9,10 @@ import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.building.entity.
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.building.service.BuildingService;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.parkingSpace.entity.ParkingSpace;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.parkingSpace.service.ParkingSpaceService;
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.requests.ApartmentRequest;
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.requests.BasementRequest;
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.requests.BuildingRequest;
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.requests.ParkingSpaceRequest;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.requests.buildingStaff.ApartmentRequest;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.requests.buildingStaff.BasementRequest;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.requests.buildingStaff.BuildingRequest;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.requests.buildingStaff.ParkingSpaceRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

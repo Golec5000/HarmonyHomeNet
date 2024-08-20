@@ -10,12 +10,13 @@ import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.forum.entity.Top
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.forum.service.ForumService;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.forum.service.PostService;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.forum.service.TopicService;
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.resident.entity.Resident;
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.resident.service.ResidentService;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.user.entity.Resident;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.user.entity.User;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.user.service.UserService;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.enums.TopicCategory;
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.requests.ForumRequest;
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.requests.PostRequest;
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.requests.TopicRequest;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.requests.forumStaff.ForumRequest;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.requests.forumStaff.PostRequest;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.requests.forumStaff.TopicRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,7 +33,7 @@ public class ForumController {
     private final TopicService topicService;
     private final ForumService forumService;
     private final PostService postService;
-    private final ResidentService residentService;
+    private final UserService userService;
 
     @GetMapping("/all")
     public ResponseEntity<List<Forum>> getAllForums() {
@@ -59,9 +60,9 @@ public class ForumController {
         return ResponseEntity.ok(topicService.findByTopicCategory(TopicCategory.valueOf(topicCategory)));
     }
 
-    @GetMapping("/posts-by-resident/{residentLogin}")
-    public ResponseEntity<List<Post>> getPostsByResident(@PathVariable String residentLogin) {
-        return ResponseEntity.ok(postService.findPostByResidentLogin(residentLogin));
+    @GetMapping("/posts-by-user/{userLogin}")
+    public ResponseEntity<List<Post>> getPostsByResident(@PathVariable String userLogin) {
+        return ResponseEntity.ok(postService.findPostByUserLogin(userLogin));
     }
 
     @PostMapping("/add-new-forum")
@@ -95,12 +96,11 @@ public class ForumController {
         return ResponseEntity.ok(topic);
     }
 
-    @PutMapping("remove-topic/{topicId}/forum-id/{forumId}")
+    @PutMapping("/remove-topic/{topicId}/forum-id/{forumId}")
     public ResponseEntity<Forum> removeTopicFromForum(@PathVariable String topicId, @PathVariable String forumId) throws ForumNotFoundException, TopicNotFoundException {
-        UUID forumUUID = UUID.fromString(forumId);
         UUID topicUUID = UUID.fromString(topicId);
 
-        Forum forum = forumService.findById(forumUUID)
+        Forum forum = forumService.findById(UUID.fromString(forumId))
                 .orElseThrow(() -> new ForumNotFoundException("wrong forum id"));
 
         Topic topic = topicService.findById(topicUUID)
@@ -113,28 +113,26 @@ public class ForumController {
         return ResponseEntity.ok(forum);
     }
 
-    @PutMapping("/add-post/topic/{topicId}/user-id/{userId}")
-    public ResponseEntity<Post> addPostToTopic(@PathVariable String topicId, @PathVariable String userId, @RequestBody PostRequest postRequest) throws TopicNotFoundException, UserNotFoundException {
-        UUID topicUUID = UUID.fromString(topicId);
-        UUID residentUUID = UUID.fromString(userId);
+    @PutMapping("/add-post/topic/{topicId}/user-login/{userLogin}")
+    public ResponseEntity<Post> addPostToTopic(@PathVariable String topicId, @PathVariable String userLogin, @RequestBody PostRequest postRequest) throws TopicNotFoundException, UserNotFoundException {
 
-        Topic topic = topicService.findById(topicUUID)
+        Topic topic = topicService.findById(UUID.fromString(topicId))
                 .orElseThrow(() -> new TopicNotFoundException("wrong topic id"));
 
-        Resident resident = residentService.findById(residentUUID)
+        User user = userService.findByLogin(userLogin)
                 .orElseThrow(() -> new UserNotFoundException("wrong user id"));
 
         if (topic.getPosts() == null) topic.setPosts(new ArrayList<>());
-        if (resident.getPosts() == null) resident.setPosts(new ArrayList<>());
+        if (user.getPosts() == null) user.setPosts(new ArrayList<>());
 
         Post post = Post.builder()
                 .postContent(postRequest.getPostContent())
-                .resident(resident)
+                .user(user)
                 .topic(topic)
                 .build();
 
         topic.getPosts().add(post);
-        resident.getPosts().add(post);
+        user.getPosts().add(post);
 
         postService.save(post);
 
@@ -152,14 +150,14 @@ public class ForumController {
         Post post = postService.findById(postUUID)
                 .orElseThrow(() -> new PostNotFoundException("wrong post id"));
 
-        Resident resident = post.getResident();
+        User user = post.getUser();
 
-        resident.getPosts().remove(post);
+        user.getPosts().remove(post);
         topic.getPosts().remove(post);
 
         postService.deleteById(postUUID);
         topicService.save(topic);
-        residentService.save(resident);
+        userService.save(user);
 
         return ResponseEntity.ok(topic);
     }

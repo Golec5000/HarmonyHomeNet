@@ -36,7 +36,7 @@ public class PostServiceImp implements PostService {
     }
 
     @Override
-    public List<Post> findPostByResidentLogin(String login) {
-        return postRepository.findPostByResidentLogin(login);
+    public List<Post> findPostByUserLogin(String login) {
+        return postRepository.findByUserLogin(login);
     }
 }

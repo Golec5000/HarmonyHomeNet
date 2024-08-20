@@ -6,16 +6,17 @@ import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.basment.entity.B
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.building.entity.Building;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.forum.entity.Forum;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.forum.repository.ForumRepository;
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.forum.repository.PostRepository;
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.forum.repository.TopicRepository;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.parkingSpace.entity.ParkingSpace;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.basment.service.BasementService;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.building.service.BuildingService;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.parkingSpace.service.ParkingSpaceService;
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.resident.entity.Resident;
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.resident.repository.ResidentRepository;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.user.entity.Employee;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.user.entity.Resident;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.user.repository.UserRepository;
 import jakarta.annotation.PostConstruct;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -25,6 +26,7 @@ import java.util.Random;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class DatabaseInit {
 
     private final BuildingService buildingService;
@@ -32,22 +34,42 @@ public class DatabaseInit {
     private final ParkingSpaceService parkingSpaceService;
 
     private final ApartmentService apartmentService;
-    private final ResidentRepository residentRepository;
+    private final UserRepository userRepository;
 
     private final ForumRepository forumRepository;
-    private final TopicRepository topicRepository;
-    private final PostRepository postRepository;
 
     @PostConstruct
+    @Transactional
     public void init() {
 
+        // Sprawdzenie, czy tabela Resident jest pusta
+        if (userRepository.count() > 0) {
+            log.info("Database already initialized. Skipping data creation.");
+            return; // Jeśli są już dane, przerywamy wykonanie metody.
+        }
+
         for (int i = 0; i < 20; i++) {
-            Resident resident = Resident.builder()
-                    .login("user" + i)
-                    .PESELNumber(PeselGenerator())
-                    .email("user" + i + "@gmail.com")
-                    .build();
-            residentRepository.save(resident);
+
+            if (i % 2 == 0) {
+                Resident resident = Resident.builder()
+                        .firstName("Jan")
+                        .lastName("Kowalski")
+                        .email("user" + i + "@gmail.com")
+                        .password("password" + i)
+                        .build();
+                userRepository.save(resident);
+
+            } else {
+                Employee employee = Employee.builder()
+                        .firstName("Grzesiek")
+                        .lastName("Nowak")
+                        .email("user" + i + "@gmail.com")
+                        .password("password" + i)
+                        .build();
+                userRepository.save(employee);
+            }
+
+
         }
 
         for (int i = 0; i < 10; i++) {
@@ -63,7 +85,7 @@ public class DatabaseInit {
             List<Basement> basements = new ArrayList<>();
             for (int j = 0; j < 5; j++) {
                 Basement basement = Basement.builder()
-                        .area(BigDecimal.valueOf((new Random().nextInt(15) + 6) * (j + 1)))
+                        .area(BigDecimal.valueOf((new Random().nextInt(15) + 6) * (j + 1) * new Random().nextDouble()))
                         .basementNumber(j + 1)
                         .building(buildingToSave)
                         .build();
@@ -111,15 +133,5 @@ public class DatabaseInit {
 
             forumRepository.save(forum);
         }
-
-
-
     }
-
-    private String PeselGenerator() {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < 11; i++) sb.append(new Random().nextInt(10));
-        return sb.toString();
-    }
-
 }
