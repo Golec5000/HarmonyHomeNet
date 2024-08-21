@@ -27,11 +27,14 @@ public class Apartment {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    @Column(name = "apartment_number")
+    @Column(name = "apartment_number", nullable = false)
     private int apartmentNumber;
 
-    @Column(name = "area")
+    @Column(name = "area", nullable = false)
     private BigDecimal area;
+
+    @Column(name = "percentage_of_shares", nullable = false)
+    private BigDecimal percentageOfShares;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "apartment")
     @OnDelete(action = OnDeleteAction.CASCADE)

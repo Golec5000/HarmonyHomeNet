@@ -112,6 +112,7 @@ public class DatabaseInit {
                         .apartmentNumber(k + 1)
                         .area(BigDecimal.valueOf(50.0 + (k + 1) * 5.0 * new Random().nextDouble())) // Example area calculation
                         .building(buildingToSave)
+                        .percentageOfShares(BigDecimal.valueOf(0.1 * (k + 1)))
                         .build();
 
                 apartmentService.save(apartment);

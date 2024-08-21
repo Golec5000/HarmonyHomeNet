@@ -14,4 +14,6 @@ public class ApartmentRequest {
     private int apartmentNumber;
 
     private BigDecimal area;
+
+    private BigDecimal percentageOfShares;
 }
