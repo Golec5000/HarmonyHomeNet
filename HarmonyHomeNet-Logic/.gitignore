@@ -34,3 +34,6 @@ build/
 
 
 logs/
+src/main/resources/.env
+# Ignore SSL certificate
+src/main/resources/keystore.p12
