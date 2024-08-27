@@ -1,4 +1,4 @@
-package bwp.pwr.daniel.rysz.harmonyhomenetlogic.configuration;
+package bwp.pwr.daniel.rysz.harmonyhomenetlogic.infrastructure.config;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -45,18 +45,16 @@ public class MyWebConfig {
 
     @Bean
     public ConfigurableServletWebServerFactory webServerFactory() {
-        TomcatServletWebServerFactory factory = new TomcatServletWebServerFactory() {
-            @Override
-            protected void postProcessContext(@NonNull Context context) {
-                SecurityConstraint securityConstraint = new SecurityConstraint();
-                securityConstraint.setUserConstraint("CONFIDENTIAL");
-                SecurityCollection collection = new SecurityCollection();
-                collection.addPattern("/*");
-                securityConstraint.addCollection(collection);
-                context.addConstraint(securityConstraint);
-            }
-        };
+        TomcatServletWebServerFactory factory = new TomcatServletWebServerFactory();
         factory.addAdditionalTomcatConnectors(createHttpConnector());
+        factory.addContextCustomizers(context -> {
+            SecurityConstraint securityConstraint = new SecurityConstraint();
+            securityConstraint.setUserConstraint("CONFIDENTIAL");
+            SecurityCollection collection = new SecurityCollection();
+            collection.addPattern("/*");
+            securityConstraint.addCollection(collection);
+            context.addConstraint(securityConstraint);
+        });
         return factory;
     }
 

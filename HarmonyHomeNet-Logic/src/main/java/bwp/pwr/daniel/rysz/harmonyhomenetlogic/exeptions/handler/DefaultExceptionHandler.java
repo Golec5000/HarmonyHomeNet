@@ -1,6 +1,7 @@
 package bwp.pwr.daniel.rysz.harmonyhomenetlogic.exeptions.handler;
 
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.exeptions.customErrors.*;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -38,7 +39,7 @@ public class DefaultExceptionHandler {
         return createResponseEntity(e, request, HttpStatus.CONFLICT);
     }
 
-    @ExceptionHandler(Exception.class)
+    @ExceptionHandler({Exception.class, ServletException.class})
     public ResponseEntity<ApiError> handleException(Exception e, HttpServletRequest request) {
         return createResponseEntity(e, request, HttpStatus.INTERNAL_SERVER_ERROR);
     }

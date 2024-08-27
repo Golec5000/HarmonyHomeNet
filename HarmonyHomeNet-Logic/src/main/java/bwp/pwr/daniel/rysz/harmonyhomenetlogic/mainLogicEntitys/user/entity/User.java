@@ -11,12 +11,20 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.DateTimeException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Data
 @NoArgsConstructor
@@ -25,7 +33,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "users")
 @Inheritance(strategy = InheritanceType.JOINED)
-public class User {
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -52,13 +60,21 @@ public class User {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "user_gender")
+    @Column(name = "user_gender", length = 6)
     @Enumerated(EnumType.STRING)
     private Gender userGender;
 
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
     @Column(name = "role")
     @Enumerated(EnumType.STRING)
-    @ElementCollection(targetClass = Role.class)
+    @ElementCollection(fetch = FetchType.EAGER, targetClass = Role.class)
     @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
     private Set<Role> role;
 
@@ -70,11 +86,13 @@ public class User {
     public void prePersist() {
         creatUserLogin();
         checkPESELNumber();
+        checkEmail();
     }
 
     @PreUpdate
     public void preUpdate() {
         checkPESELNumber();
+        checkEmail();
     }
 
     private void creatUserLogin() {
@@ -153,4 +171,42 @@ public class User {
         return List.of(year, month, day);
     }
 
+    private void checkEmail() {
+        if (email != null && !email.isBlank()) {
+            if (!email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$"))
+                throw new IllegalArgumentException("Invalid email address");
+        }
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return role.stream()
+                .map(role -> new SimpleGrantedAuthority(role.name()))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public String getUsername() {
+        return this.login;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 }
