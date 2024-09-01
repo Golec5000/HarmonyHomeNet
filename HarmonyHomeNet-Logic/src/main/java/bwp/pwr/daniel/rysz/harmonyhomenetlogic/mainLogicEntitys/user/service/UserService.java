@@ -9,7 +9,7 @@ import java.util.UUID;
 
 public interface UserService {
 
-    List<UserResponse> findAll();
+    List<User> findAll();
 
     User findById(UUID id) throws UserNotFoundException;
 
@@ -22,5 +22,9 @@ public interface UserService {
     User findByPESELNumber(String PESELNumber) throws UserNotFoundException;
 
     User findByEmail(String email) throws UserNotFoundException;
+
+    UserResponse mapUserToUserResponse(User user);
+
+    List<UserResponse> mapUserListToUserResponseList(List<User> userList);
 
 }

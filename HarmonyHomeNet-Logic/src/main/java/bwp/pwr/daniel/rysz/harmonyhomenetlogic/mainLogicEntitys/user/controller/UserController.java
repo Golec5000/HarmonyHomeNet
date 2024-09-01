@@ -1,8 +1,13 @@
 package bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.user.controller;
 
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.user.entity.Employee;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.user.entity.Resident;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.user.entity.User;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.user.service.UserService;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.enums.BaseRole;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.requests.userStaff.UserRequest;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.response.userStaff.UserResponse;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,98 +24,58 @@ public class UserController {
 
     @GetMapping("/all")
     public ResponseEntity<List<UserResponse>> getAllUsers() {
-        return ResponseEntity.ok(userService.findAll());
+        return ResponseEntity.ok(userService.mapUserListToUserResponseList(userService.findAll()));
     }
 
-//    @GetMapping("/user-by-id/{userId}")
-//    public ResponseEntity<User> getUserById(@PathVariable String userId) throws UserNotFoundException {
-//        return userService.findById(UUID.fromString(userId))
-//                .map(ResponseEntity::ok)
-//                .orElseThrow(() -> new UserNotFoundException("wrong user id"));
-//    }
-//
-//    @GetMapping("/user-by-login/{userLogin}")
-//    public ResponseEntity<User> getUserByLogin(@PathVariable String userLogin) throws UserNotFoundException {
-//        return userService.findByLogin(userLogin)
-//                .map(ResponseEntity::ok)
-//                .orElseThrow(() -> new UserNotFoundException("wrong user login"));
-//    }
-//
-//    @GetMapping("/user-by-email/{userEmail}")
-//    public ResponseEntity<User> getUserByEmail(@PathVariable String userEmail) throws UserNotFoundException {
-//        return userService.findByEmail(userEmail)
-//                .map(ResponseEntity::ok)
-//                .orElseThrow(() -> new UserNotFoundException("wrong user email"));
-//    }
-//
-//    @GetMapping("/user-by-PESELNumber/{userPESELNumber}")
-//    public ResponseEntity<User> getUserByPESELNumber(@PathVariable String userPESELNumber) throws UserNotFoundException {
-//        return userService.findByPESELNumber(userPESELNumber)
-//                .map(ResponseEntity::ok)
-//                .orElseThrow(() -> new UserNotFoundException("wrong user PESELNumber"));
-//    }
-//
-//    @PostMapping("/add-resident")
-//    public ResponseEntity<Resident> addResident(@RequestBody UserRequest newUser) {
-//        Resident resident = Resident.builder()
-//                .PESELNumber(newUser.getPESELNumber())
-//                .email(newUser.getEmail())
-//                .password(newUser.getPassword())
-//                .firstName(newUser.getFirstName())
-//                .lastName(newUser.getLastName())
-//                .phoneNumber(newUser.getPhoneNumber())
-//                .build();
-//        userService.save(resident);
-//        return ResponseEntity.ok(resident);
-//    }
-//
-//    @PostMapping("/add-employee")
-//    public ResponseEntity<User> addEmployee(@RequestBody UserRequest newUser) {
-//        Employee employee = Employee.builder()
-//                .PESELNumber(newUser.getPESELNumber())
-//                .email(newUser.getEmail())
-//                .password(newUser.getPassword())
-//                .firstName(newUser.getFirstName())
-//                .lastName(newUser.getLastName())
-//                .phoneNumber(newUser.getPhoneNumber())
-//                .build();
-//        userService.save(employee);
-//        return ResponseEntity.ok(employee);
-//    }
-//
-//    @PutMapping("/update-user/{userLogin}")
-//    public ResponseEntity<User> updateResident(@PathVariable String userLogin, @RequestBody UserRequest updatedUser) throws UserNotFoundException {
-//        User updateUser = userService.findByLogin(userLogin)
-//                .map(user -> {
-//                    user.setPESELNumber(updatedUser.getPESELNumber() != null ? updatedUser.getPESELNumber() : user.getPESELNumber());
-//                    user.setEmail(updatedUser.getEmail() != null ? updatedUser.getEmail() : user.getEmail());
-//                    user.setPassword(updatedUser.getPassword() != null ? updatedUser.getPassword() : user.getPassword());
-//                    user.setFirstName(updatedUser.getFirstName() != null ? updatedUser.getFirstName() : user.getFirstName());
-//                    user.setLastName(updatedUser.getLastName() != null ? updatedUser.getLastName() : user.getLastName());
-//                    user.setPhoneNumber(updatedUser.getPhoneNumber() != null ? updatedUser.getPhoneNumber() : user.getPhoneNumber());
-//                    user.setUserGender(updatedUser.getGender() != null ? Gender.valueOf(updatedUser.getGender()) : user.getUserGender());
-//                    return user;
-//                })
-//                .orElseThrow(() -> new UserNotFoundException("wrong user id"));
-//        userService.save(updateUser);
-//        return ResponseEntity.ok(updateUser);
-//    }
-//
-//    @PutMapping("/update-user-role/{userLogin}")
-//    public ResponseEntity<User> updateUserRole(@PathVariable String userLogin, @RequestBody UserRequest updatedUser) throws UserNotFoundException {
-//        User updateUser = userService.findByLogin(userLogin)
-//                .map(user -> {
-////                    user.setBaseRole(updatedUser.getRole() != null ? updatedUser.getRole().stream().map(BaseRole::valueOf).collect(Collectors.toSet()) : user.getBaseRole());
-//                    return user;
-//                })
-//                .orElseThrow(() -> new UserNotFoundException("wrong user id"));
-//        userService.save(updateUser);
-//        return ResponseEntity.ok(updateUser);
-//    }
+    @GetMapping("/user-by-id/{userId}")
+    public ResponseEntity<UserResponse> getUserById(@PathVariable String userId) {
+        return ResponseEntity.ok(userService.mapUserToUserResponse(userService.findById(UUID.fromString(userId))));
+    }
+
+    @GetMapping("/user-by-login/{userLogin}")
+    public ResponseEntity<UserResponse> getUserByLogin(@PathVariable String userLogin) {
+        return ResponseEntity.ok(userService.mapUserToUserResponse(userService.findByLogin(userLogin)));
+    }
+
+    @GetMapping("/user-by-email/{userEmail}")
+    public ResponseEntity<UserResponse> getUserByEmail(@PathVariable String userEmail) {
+        return ResponseEntity.ok(userService.mapUserToUserResponse(userService.findByEmail(userEmail)));
+    }
+
+    @GetMapping("/user-by-PESELNumber/{userPESELNumber}")
+    public ResponseEntity<UserResponse> getUserByPESELNumber(@PathVariable String userPESELNumber) {
+        return ResponseEntity.ok(userService.mapUserToUserResponse(userService.findByPESELNumber(userPESELNumber)));
+    }
+
+    @PostMapping("/add-resident")
+    public ResponseEntity<UserResponse> addResident(@RequestBody UserRequest newUser) {
+        Resident resident = (Resident) createUser(newUser);
+        resident.setBaseRole(BaseRole.USER);
+        return ResponseEntity.ok(userService.save(resident));
+    }
+
+    @PostMapping("/add-employee")
+    public ResponseEntity<UserResponse> addEmployee(@RequestBody UserRequest newUser) {
+        Employee employee = (Employee) createUser(newUser);
+        employee.setBaseRole(BaseRole.EMPLOYEE);
+        return ResponseEntity.ok(userService.save(employee));
+    }
 
     @DeleteMapping("/delete-user/{userId}")
     public ResponseEntity<User> deleteUserById(@PathVariable String userId) {
         userService.deleteById(UUID.fromString(userId));
         return ResponseEntity.ok().build();
     }
+
+    private User createUser(@NonNull UserRequest newUser) {
+        return User.builder()
+                .PESELNumber(newUser.PESELNumber())
+                .email(newUser.email())
+                .password(newUser.password())
+                .firstName(newUser.firstName())
+                .lastName(newUser.lastName())
+                .phoneNumber(newUser.phoneNumber())
+                .build();
+    }
+
 }

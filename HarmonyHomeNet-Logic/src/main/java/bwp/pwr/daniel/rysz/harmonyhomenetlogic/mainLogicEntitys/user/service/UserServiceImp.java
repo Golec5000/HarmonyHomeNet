@@ -17,17 +17,8 @@ public class UserServiceImp implements UserService {
     private final UserRepository userRepository;
 
     @Override
-    public List<UserResponse> findAll() {
-        return userRepository.findAll().stream()
-                .map(user -> UserResponse.builder()
-                        .id(user.getId())
-                        .lastName(user.getLastName())
-                        .firstName(user.getFirstName())
-                        .email(user.getEmail())
-                        .baseRole(user.getBaseRole())
-                        .gender(user.getUserGender())
-                        .build()
-                ).toList();
+    public List<User> findAll() {
+        return userRepository.findAll();
     }
 
     @Override
@@ -69,5 +60,31 @@ public class UserServiceImp implements UserService {
     public User findByEmail(String email) {
         return userRepository.findUserByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("wrong user email"));
+    }
+
+    @Override
+    public UserResponse mapUserToUserResponse(User user) {
+        return UserResponse.builder()
+                .id(user.getId())
+                .lastName(user.getLastName())
+                .firstName(user.getFirstName())
+                .email(user.getEmail())
+                .baseRole(user.getBaseRole())
+                .gender(user.getUserGender())
+                .build();
+    }
+
+    @Override
+    public List<UserResponse> mapUserListToUserResponseList(List<User> userList) {
+        return userList.stream()
+                .map(user -> UserResponse.builder()
+                        .id(user.getId())
+                        .lastName(user.getLastName())
+                        .firstName(user.getFirstName())
+                        .email(user.getEmail())
+                        .baseRole(user.getBaseRole())
+                        .gender(user.getUserGender())
+                        .build()
+                ).toList();
     }
 }
