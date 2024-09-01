@@ -9,5 +9,5 @@ import java.util.UUID;
 
 @Repository
 public interface ApartmentRepository extends JpaRepository<Apartment, UUID> {
-    Optional<Apartment> findByApartmentNumber(int apartmentNumber);
+    Optional<Apartment> findByApartmentNumberAndBuildingId(int apartmentNumber, UUID buildingId);
 }

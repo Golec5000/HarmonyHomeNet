@@ -19,7 +19,8 @@ public class DefaultExceptionHandler {
             NullPointerException.class, NoResourceFoundException.class,
             BuildingNotFoundException.class, UserNotFoundException.class,
             DocumentNotFoundException.class, ForumNotFoundException.class,
-            TopicNotFoundException.class, PostNotFoundException.class
+            TopicNotFoundException.class, PostNotFoundException.class,
+            ApartmentNotFoundException.class
     })
     public ResponseEntity<ApiError> handleNotFoundExceptions(Exception e, HttpServletRequest request) {
         return createResponseEntity(e, request, HttpStatus.NOT_FOUND);

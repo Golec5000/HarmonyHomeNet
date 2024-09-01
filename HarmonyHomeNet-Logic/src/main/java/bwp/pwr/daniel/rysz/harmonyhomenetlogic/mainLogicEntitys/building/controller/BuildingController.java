@@ -1,23 +1,19 @@
 package bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.building.controller;
 
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.exeptions.customErrors.BuildingNotFoundException;
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.apartment.entitys.Apartment;
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.apartment.services.ApartmentService;
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.basment.entity.Basement;
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.basment.service.BasementService;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.building.entity.Building;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.building.service.BuildingService;
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.parkingSpace.entity.ParkingSpace;
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.parkingSpace.service.ParkingSpaceService;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.requests.buildingStaff.ApartmentRequest;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.requests.buildingStaff.BasementRequest;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.requests.buildingStaff.BuildingRequest;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.requests.buildingStaff.ParkingSpaceRequest;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.response.buildingStaff.ApartmentResponse;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.response.buildingStaff.BasementResponse;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.response.buildingStaff.BuildingResponse;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.response.buildingStaff.ParkingSpaceResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,119 +23,67 @@ import java.util.UUID;
 public class BuildingController {
 
     private final BuildingService buildingService;
-    private final ApartmentService apartmentService;
-    private final BasementService basementService;
-    private final ParkingSpaceService parkingSpaceService;
 
     @GetMapping("/all")
-    public ResponseEntity<List<Building>> getAllBuildings() {
-        return ResponseEntity.ok(buildingService.findAll());
+    public ResponseEntity<List<BuildingResponse>> getAllBuildings() {
+        List<BuildingResponse> buildings = buildingService.findAll();
+        return buildings.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(buildings);
     }
 
     @GetMapping("/building-by-id/{building_id}")
-    public ResponseEntity<Building> getBuildingById(@PathVariable String building_id) throws BuildingNotFoundException {
-        UUID id = UUID.fromString(building_id);
-
-        return buildingService.findById(id)
-                .map(ResponseEntity::ok)
-                .orElseThrow(() -> new BuildingNotFoundException("wrong building id"));
+    public ResponseEntity<BuildingResponse> getBuildingById(@PathVariable String building_id) {
+        return ResponseEntity.ok(buildingService.findById(UUID.fromString(building_id)));
     }
 
     @GetMapping("/building-by-name/{building_name}")
-    public ResponseEntity<Building> getBuildingByName(@PathVariable String building_name) throws BuildingNotFoundException {
-        return buildingService.findByBuildingName(building_name)
-                .map(ResponseEntity::ok)
-                .orElseThrow(() -> new BuildingNotFoundException("wrong building name"));
+    public ResponseEntity<BuildingResponse> getBuildingByName(@PathVariable String building_name) {
+        return ResponseEntity.ok(buildingService.findByBuildingName(building_name));
     }
 
     @GetMapping("/buildings-by-region/{building_region}")
-    public ResponseEntity<List<Building>> getAllBuildingByRegion(@PathVariable String building_region) {
-        List<Building> listByRegion = buildingService.findAll().stream()
-                .filter(building -> building.getRegion().equals(building_region))
-                .toList();
-        return ResponseEntity.ok(listByRegion);
+    public ResponseEntity<List<BuildingResponse>> getAllBuildingByRegion(@PathVariable String building_region) {
+        List<BuildingResponse> buildings = buildingService.findAllByRegion(building_region);
+        return buildings.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(buildings);
     }
 
-    @PutMapping("/add-building")
-    public ResponseEntity<Building> addNewBuilding(@RequestBody BuildingRequest buildingRequest) {
-        Building building = Building.builder()
-                .buildingName(buildingRequest.getBuildingName())
-                .city(buildingRequest.getCity())
-                .street(buildingRequest.getStreet())
-                .region(buildingRequest.getRegion())
-                .build();
-        buildingService.save(building);
-        return ResponseEntity.ok(building);
+    @GetMapping("/buildings-id/{building_id}/apartments")
+    public ResponseEntity<List<ApartmentResponse>> getAllApartmentsFromBuilding(@PathVariable String building_id) {
+        List<ApartmentResponse> apartments = buildingService.findAllApartmentsFromBuilding(UUID.fromString(building_id));
+        return apartments.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(apartments);
     }
 
-    @PostMapping("/building-id/{building_id}/add-apartment")
-    public ResponseEntity<Building> addApartmentToBuilding(@PathVariable String building_id, @RequestBody ApartmentRequest apartmentRequest) throws BuildingNotFoundException {
-
-        UUID id = UUID.fromString(building_id);
-
-        Building buildingToUpdate = buildingService.findById(id)
-                .orElseThrow(() -> new BuildingNotFoundException("wrong building id"));
-
-        Apartment newApartment = Apartment.builder()
-                .apartmentNumber(apartmentRequest.getApartmentNumber())
-                .area(apartmentRequest.getArea())
-                .build();
-
-        if (buildingToUpdate.getApartments() == null) buildingToUpdate.setApartments(new ArrayList<>());
-        buildingToUpdate.getApartments().add(newApartment);
-
-        apartmentService.save(newApartment);
-        buildingService.save(buildingToUpdate);
-
-        return ResponseEntity.ok(buildingToUpdate);
-
+    @PostMapping("/add-building")
+    public ResponseEntity<BuildingResponse> addNewBuilding(@RequestBody BuildingRequest buildingRequest) {
+        return ResponseEntity.created(null).body(buildingService.save(getBuildingFromRequest(buildingRequest)));
     }
 
-    @PostMapping("/building-id/{building_id}/add-basement")
-    public ResponseEntity<Building> addBasementToBuilding(@PathVariable String building_id, @RequestBody BasementRequest basementRequest) throws BuildingNotFoundException {
-        UUID id = UUID.fromString(building_id);
-
-        Building buildingToUpdate = buildingService.findById(id)
-                .orElseThrow(() -> new BuildingNotFoundException("wrong building id"));
-
-        Basement newBasement = Basement.builder()
-                .basementNumber(basementRequest.getBasementNumber())
-                .area(basementRequest.getArea())
-                .build();
-
-        if (buildingToUpdate.getApartments() == null) buildingToUpdate.setBasements(new ArrayList<>());
-        buildingToUpdate.getBasements().add(newBasement);
-
-        basementService.save(newBasement);
-        buildingService.save(buildingToUpdate);
-
-        return ResponseEntity.ok(buildingToUpdate);
+    @PutMapping("/building-id/{building_id}/add-apartment")
+    public ResponseEntity<ApartmentResponse> addApartmentToBuilding(@PathVariable String building_id, @RequestBody ApartmentRequest apartmentRequest) {
+        return ResponseEntity.created(null).body(buildingService.addApartmentToBuilding(UUID.fromString(building_id), apartmentRequest));
     }
 
-    @PostMapping("/building-id/{building_id}/add-parking-space")
-    public ResponseEntity<Building> addParkingSpaceToBuilding(@PathVariable String building_id, @RequestBody ParkingSpaceRequest parkingSpaceRequest) throws BuildingNotFoundException {
-        UUID id = UUID.fromString(building_id);
+    @PutMapping("/building-id/{building_id}/add-basement")
+    public ResponseEntity<BasementResponse> addBasementToBuilding(@PathVariable String building_id, @RequestBody BasementRequest basementRequest) {
+        return ResponseEntity.created(null).body(buildingService.addBasementToBuilding(UUID.fromString(building_id), basementRequest));
+    }
 
-        Building buildingToUpdate = buildingService.findById(id)
-                .orElseThrow(() -> new BuildingNotFoundException("wrong building id"));
-
-        ParkingSpace parkingSpace = ParkingSpace.builder()
-                .number(parkingSpaceRequest.getNumber())
-                .build();
-
-        if (buildingToUpdate.getParkingSpaces() == null) buildingToUpdate.setParkingSpaces(new ArrayList<>());
-        buildingToUpdate.getParkingSpaces().add(parkingSpace);
-
-        parkingSpaceService.save(parkingSpace);
-        buildingService.save(buildingToUpdate);
-
-        return ResponseEntity.ok(buildingToUpdate);
+    @PutMapping("/building-id/{building_id}/add-parking-space")
+    public ResponseEntity<ParkingSpaceResponse> addParkingSpaceToBuilding(@PathVariable String building_id, @RequestBody ParkingSpaceRequest parkingSpaceRequest) {
+        return ResponseEntity.created(null).body(buildingService.addParkingSpaceToBuilding(UUID.fromString(building_id), parkingSpaceRequest));
     }
 
     @DeleteMapping("/remove-building/{building_id}")
-    public ResponseEntity<Building> removeBuildingById(@PathVariable String building_id) {
-        UUID id = UUID.fromString(building_id);
-        buildingService.deleteById(id);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<String> removeBuildingById(@PathVariable String building_id) {
+        buildingService.deleteById(UUID.fromString(building_id));
+        return ResponseEntity.ok("Building remove complete");
+    }
+
+    private Building getBuildingFromRequest(BuildingRequest buildingRequest) {
+        return Building.builder()
+                .buildingName(buildingRequest.buildingName())
+                .region(buildingRequest.region())
+                .city(buildingRequest.city())
+                .street(buildingRequest.street())
+                .build();
     }
 }

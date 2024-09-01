@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -32,6 +33,7 @@ public class Topic {
     @Enumerated(EnumType.STRING)
     private TopicCategory topicCategory;
 
+    @CreationTimestamp
     @Column(name = "topic_add_date", nullable = false)
     private LocalDateTime topicAddDate;
 
@@ -43,11 +45,5 @@ public class Topic {
     @OneToMany(mappedBy = "topic", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonManagedReference
     private List<Post> posts;
-
-    @PrePersist
-    @PreUpdate
-    public void prePersist() {
-        topicAddDate = LocalDateTime.now();
-    }
 
 }
