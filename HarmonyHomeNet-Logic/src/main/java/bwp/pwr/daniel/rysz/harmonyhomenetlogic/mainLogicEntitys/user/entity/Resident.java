@@ -1,15 +1,20 @@
 package bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.user.entity;
 
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.apartment.entitys.Apartment;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.apartment.entitys.ApartmentResidentAssignment;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.basment.entity.Basement;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.basment.entity.BasementResidentAssignment;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.parkingSpace.entity.ParkingSpace;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.util.List;
 
@@ -25,14 +30,19 @@ public class Resident extends User {
     @JsonManagedReference
     private List<Basement> basementList;
 
-    @JoinColumn(name = "apartment_id")
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JsonBackReference
-    private Apartment apartment;
-
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "resident")
     @JsonManagedReference
     private List<ParkingSpace> parkingSpaces;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "resident")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JsonManagedReference
+    private List<ApartmentResidentAssignment> apartmentResidentAssignments;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "resident")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JsonManagedReference
+    private List<BasementResidentAssignment> basementResidentAssignments;
 
 
 }

@@ -13,6 +13,8 @@ import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.parkingSpace.ser
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.user.entity.Employee;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.user.entity.Resident;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.user.repository.UserRepository;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.enums.BaseRole;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.enums.Gender;
 import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -56,6 +58,8 @@ public class DatabaseInit {
                         .lastName("Kowalski")
                         .email("user" + i + "@gmail.com")
                         .password("password" + i)
+                        .baseRole(BaseRole.USER)
+                        .userGender(Gender.MALE)
                         .build();
                 userRepository.save(resident);
 
@@ -65,6 +69,8 @@ public class DatabaseInit {
                         .lastName("Nowak")
                         .email("user" + i + "@gmail.com")
                         .password("password" + i)
+                        .baseRole(BaseRole.EMPLOYEE)
+                        .userGender(Gender.MALE)
                         .build();
                 userRepository.save(employee);
             }

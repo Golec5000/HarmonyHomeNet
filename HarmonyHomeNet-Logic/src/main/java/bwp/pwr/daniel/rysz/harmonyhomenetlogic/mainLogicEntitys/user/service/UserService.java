@@ -1,25 +1,26 @@
 package bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.user.service;
 
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.exeptions.customErrors.UserNotFoundException;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.user.entity.User;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.response.userStaff.UserResponse;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 public interface UserService {
 
-    List<User> findAll();
+    List<UserResponse> findAll();
 
-    Optional<User> findById(UUID id);
+    User findById(UUID id) throws UserNotFoundException;
 
-    Optional<User> findByLogin(String login);
+    User findByLogin(String login) throws UserNotFoundException;
 
-    void save(User resident);
+    UserResponse save(User user);
 
-    void deleteById(UUID id);
+    void deleteById(UUID id) throws UserNotFoundException;
 
-    Optional<User> findByPESELNumber(String PESELNumber);
+    User findByPESELNumber(String PESELNumber) throws UserNotFoundException;
 
-    Optional<User> findByEmail(String email);
+    User findByEmail(String email) throws UserNotFoundException;
 
 }

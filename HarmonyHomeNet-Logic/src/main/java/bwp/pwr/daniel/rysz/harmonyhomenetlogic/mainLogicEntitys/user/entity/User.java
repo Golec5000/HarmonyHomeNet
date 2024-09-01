@@ -2,8 +2,8 @@ package bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.user.entity;
 
 
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.forum.entity.Post;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.enums.BaseRole;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.enums.Gender;
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.enums.Role;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -15,7 +15,6 @@ import lombok.experimental.SuperBuilder;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 @Data
@@ -58,9 +57,7 @@ public class User {
 
     @Column(name = "role")
     @Enumerated(EnumType.STRING)
-    @ElementCollection(targetClass = Role.class)
-    @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
-    private Set<Role> role;
+    private BaseRole baseRole;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @JsonManagedReference

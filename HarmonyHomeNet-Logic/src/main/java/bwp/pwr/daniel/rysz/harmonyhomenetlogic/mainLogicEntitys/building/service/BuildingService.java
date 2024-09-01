@@ -1,6 +1,9 @@
 package bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.building.service;
 
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.exeptions.customErrors.ApartmentNotFoundException;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.exeptions.customErrors.BasementNotFoundException;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.exeptions.customErrors.BuildingNotFoundException;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.exeptions.customErrors.ParkingSpaceNotFoundException;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.building.entity.Building;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.requests.buildingStaff.ApartmentRequest;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.requests.buildingStaff.BasementRequest;
@@ -34,4 +37,10 @@ public interface BuildingService {
     ParkingSpaceResponse addParkingSpaceToBuilding(UUID buildingId, @NonNull ParkingSpaceRequest parkingSpaceRequest) throws BuildingNotFoundException;
 
     List<ApartmentResponse> findAllApartmentsFromBuilding(UUID buildingId) throws BuildingNotFoundException;
+
+    void deleteApartmentFromBuilding(UUID buildingId, UUID apartmentId) throws BuildingNotFoundException, ApartmentNotFoundException;
+
+    void deleteBasementFromBuilding(UUID buildingId, UUID basementId) throws BuildingNotFoundException, BasementNotFoundException;
+
+    void deleteParkingSpaceFromBuilding(UUID buildingId, UUID parkingSpaceId) throws BuildingNotFoundException, ParkingSpaceNotFoundException;
 }

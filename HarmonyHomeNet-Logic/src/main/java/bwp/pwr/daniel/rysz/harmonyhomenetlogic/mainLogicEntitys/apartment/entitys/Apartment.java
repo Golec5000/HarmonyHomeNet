@@ -1,15 +1,13 @@
 package bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.apartment.entitys;
 
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.building.entity.Building;
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.user.entity.Resident;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -33,13 +31,13 @@ public class Apartment {
     @Column(name = "area")
     private BigDecimal area;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "apartment")
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private List<Resident> residents;
-
     @ManyToOne
     @JoinColumn(name = "building_id")
     @JsonBackReference
     private Building building;
+
+    @OneToMany(mappedBy = "apartment", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List<ApartmentResidentAssignment> apartmentAssignments;
 
 }

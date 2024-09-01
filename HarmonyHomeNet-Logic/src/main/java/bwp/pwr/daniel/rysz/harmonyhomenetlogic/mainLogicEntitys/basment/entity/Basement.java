@@ -3,13 +3,17 @@ package bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.basment.entity;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.building.entity.Building;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.user.entity.Resident;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -39,4 +43,9 @@ public class Basement {
     @JoinColumn(name = "building_id")
     @JsonBackReference
     private Building building;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "basement")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JsonManagedReference
+    private List<BasementResidentAssignment> residentAssignments;
 }

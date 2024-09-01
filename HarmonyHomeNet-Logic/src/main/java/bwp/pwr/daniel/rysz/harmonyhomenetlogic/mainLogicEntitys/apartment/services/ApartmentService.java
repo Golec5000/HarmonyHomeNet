@@ -21,8 +21,6 @@ public interface ApartmentService {
 
     ApartmentResponse findByApartmentNumber(int apartmentNumber, UUID buildingId) throws ApartmentNotFoundException;
 
-    List<UserResponse> findUserByApartmentId(UUID apartmentId) throws ApartmentNotFoundException;
-
     UserResponse addResidentTenantToApartment(UUID userId, UUID apartmentId) throws ApartmentNotFoundException, UserNotFoundException;
 
     UserResponse addResidentOwnerToApartment(UUID userId, UUID apartmentId) throws ApartmentNotFoundException, UserNotFoundException;

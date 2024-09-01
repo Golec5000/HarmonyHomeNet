@@ -1,16 +1,16 @@
 package bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.building.service;
 
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.exeptions.customErrors.ApartmentNotFoundException;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.exeptions.customErrors.BasementNotFoundException;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.exeptions.customErrors.BuildingNotFoundException;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.exeptions.customErrors.ParkingSpaceNotFoundException;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.apartment.entitys.Apartment;
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.apartment.repositorys.ApartmentRepository;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.apartment.services.ApartmentService;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.basment.entity.Basement;
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.basment.repository.BasementRepository;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.basment.service.BasementService;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.building.entity.Building;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.building.repository.BuildingRepository;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.parkingSpace.entity.ParkingSpace;
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.parkingSpace.repository.ParkingSpaceRepository;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.parkingSpace.service.ParkingSpaceService;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.requests.buildingStaff.ApartmentRequest;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.requests.buildingStaff.BasementRequest;
@@ -149,7 +149,6 @@ public class BuildingServiceImp implements BuildingService {
         if (buildingToUpdate.getBasements() == null) buildingToUpdate.setBasements(new ArrayList<>());
         buildingToUpdate.getBasements().add(newBasement);
 
-        //@todo add basementService.save
         BasementResponse basementResponse = basementService.save(newBasement);
         buildingRepository.save(buildingToUpdate);
 
@@ -170,7 +169,6 @@ public class BuildingServiceImp implements BuildingService {
         if (buildingToUpdate.getParkingSpaces() == null) buildingToUpdate.setParkingSpaces(new ArrayList<>());
         buildingToUpdate.getParkingSpaces().add(newParkingSpace);
 
-        //@todo add parkingSpaceService.save
         ParkingSpaceResponse parkingSpaceResponse = parkingSpaceService.save(newParkingSpace);
         buildingRepository.save(buildingToUpdate);
 
@@ -189,5 +187,55 @@ public class BuildingServiceImp implements BuildingService {
                         .area(apartment.getArea())
                         .build()
                 ).toList();
+    }
+
+    @Override
+    @Transactional
+    public void deleteApartmentFromBuilding(UUID buildingId, UUID apartmentId) throws BuildingNotFoundException, ApartmentNotFoundException {
+        Building building = buildingRepository.findById(buildingId)
+                .orElseThrow(() -> new BuildingNotFoundException("wrong building id"));
+
+        Apartment apartment = building.getApartments().stream()
+                .filter(apartment1 -> apartment1.getId().equals(apartmentId))
+                .findFirst()
+                .orElseThrow(() -> new ApartmentNotFoundException("wrong apartment id"));
+
+        building.getApartments().remove(apartment);
+        apartmentService.deleteById(apartmentId);
+        buildingRepository.save(building);
+
+    }
+
+    @Override
+    @Transactional
+    public void deleteBasementFromBuilding(UUID buildingId, UUID basementId) throws BuildingNotFoundException, BasementNotFoundException {
+        Building building = buildingRepository.findById(buildingId)
+                .orElseThrow(() -> new BuildingNotFoundException("wrong building id"));
+
+        Basement basement = building.getBasements().stream()
+                .filter(basement1 -> basement1.getId().equals(basementId))
+                .findFirst()
+                .orElseThrow(() -> new BasementNotFoundException("wrong basement id"));
+
+        building.getBasements().remove(basement);
+        basementService.deleteById(basementId);
+        buildingRepository.save(building);
+    }
+
+    @Override
+    @Transactional
+    public void deleteParkingSpaceFromBuilding(UUID buildingId, UUID parkingSpaceId) throws BuildingNotFoundException, ParkingSpaceNotFoundException{
+        Building building = buildingRepository.findById(buildingId)
+                .orElseThrow(() -> new BuildingNotFoundException("wrong building id"));
+
+        ParkingSpace parkingSpace = building.getParkingSpaces().stream()
+                .filter(parkingSpace1 -> parkingSpace1.getId().equals(parkingSpaceId))
+                .findFirst()
+                .orElseThrow(() -> new ParkingSpaceNotFoundException("wrong parking space id"));
+
+        building.getParkingSpaces().remove(parkingSpace);
+        parkingSpaceService.deleteById(parkingSpaceId);
+        buildingRepository.save(building);
+
     }
 }

@@ -72,6 +72,24 @@ public class BuildingController {
         return ResponseEntity.created(null).body(buildingService.addParkingSpaceToBuilding(UUID.fromString(building_id), parkingSpaceRequest));
     }
 
+    @PutMapping("/building-id/{building_id}/remove-apartment/{apartment_id}")
+    public ResponseEntity<String> removeApartmentFromBuilding(@PathVariable String building_id, @PathVariable String apartment_id) {
+        buildingService.deleteApartmentFromBuilding(UUID.fromString(building_id), UUID.fromString(apartment_id));
+        return ResponseEntity.ok("Apartment remove complete");
+    }
+
+    @PutMapping("/building-id/{building_id}/remove-basement/{basement_id}")
+    public ResponseEntity<String> removeBasementFromBuilding(@PathVariable String building_id, @PathVariable String basement_id) {
+        buildingService.deleteBasementFromBuilding(UUID.fromString(building_id), UUID.fromString(basement_id));
+        return ResponseEntity.ok("Basement remove complete");
+    }
+
+    @PutMapping("/building-id/{building_id}/remove-parking-space/{parking_space_id}")
+    public ResponseEntity<String> removeParkingSpaceFromBuilding(@PathVariable String building_id, @PathVariable String parking_space_id) {
+        buildingService.deleteParkingSpaceFromBuilding(UUID.fromString(building_id), UUID.fromString(parking_space_id));
+        return ResponseEntity.ok("Parking space remove complete");
+    }
+
     @DeleteMapping("/remove-building/{building_id}")
     public ResponseEntity<String> removeBuildingById(@PathVariable String building_id) {
         buildingService.deleteById(UUID.fromString(building_id));

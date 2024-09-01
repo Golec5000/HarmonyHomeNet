@@ -3,10 +3,12 @@ package bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.apartment.servi
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.exeptions.customErrors.ApartmentNotFoundException;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.exeptions.customErrors.UserNotFoundException;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.apartment.entitys.Apartment;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.apartment.entitys.ApartmentResidentAssignment;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.apartment.repositorys.ApartmentRepository;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.apartment.repositorys.ApartmentResidentAssignmentRepository;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.user.entity.Resident;
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.user.entity.User;
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.user.repository.UserRepository;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.user.service.UserService;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.enums.ResourceRole;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.response.buildingStaff.ApartmentResponse;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.response.userStaff.UserResponse;
 import jakarta.transaction.Transactional;
@@ -14,6 +16,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,7 +25,8 @@ import java.util.UUID;
 public class ApartmentServiceImp implements ApartmentService {
 
     private final ApartmentRepository apartmentRepository;
-    private final UserRepository userRepository;
+    private final ApartmentResidentAssignmentRepository apartmentResidentAssignmentRepository;
+    private final UserService userService;
 
     @Override
     public List<ApartmentResponse> findAll() {
@@ -75,36 +79,53 @@ public class ApartmentServiceImp implements ApartmentService {
     }
 
     @Override
-    public List<UserResponse> findUserByApartmentId(UUID apartmentId) throws ApartmentNotFoundException {
-        return apartmentRepository.findById(apartmentId).map(apartment -> apartment.getResidents().stream()
-                .map(user -> UserResponse.builder()
-                        .id(user.getId())
-                        .firstName(user.getFirstName())
-                        .lastName(user.getLastName())
-                        .email(user.getEmail())
-                        .build()
-                ).toList()
-        ).orElseThrow(() -> new ApartmentNotFoundException("wrong apartment id"));
-    }
-
-    @Override
     @Transactional
     public UserResponse addResidentTenantToApartment(UUID userId, UUID apartmentId) throws ApartmentNotFoundException, UserNotFoundException {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("wrong user id"));
+        Resident resident = (Resident) userService.findById(userId);
 
-        if(!(user instanceof Resident)) throw new UserNotFoundException("user with this ID isn't a resident");
-
-        Apartment apartmentToUpdate = apartmentRepository.findById(apartmentId)
+        Apartment apartment = apartmentRepository.findById(apartmentId)
                 .orElseThrow(() -> new ApartmentNotFoundException("wrong apartment id"));
 
-//        user.getRole().add()
-        return null;
+        if (apartmentResidentAssignmentRepository.existsByApartmentIdAndResidentId(apartmentId, userId)) {
+            throw new IllegalArgumentException("User is already assigned to this apartment");
+        }
+
+        return addResidentsToApartment(resident, apartment, ResourceRole.APARTMENT_TENANT);
     }
 
     @Override
     @Transactional
     public UserResponse addResidentOwnerToApartment(UUID userId, UUID apartmentId) throws ApartmentNotFoundException, UserNotFoundException {
-        return null;
+        Resident resident = (Resident) userService.findById(userId);
+
+        Apartment apartment = apartmentRepository.findById(apartmentId)
+                .orElseThrow(() -> new ApartmentNotFoundException("wrong apartment id"));
+
+        if (apartmentResidentAssignmentRepository.existsByApartmentIdAndResidentId(apartmentId, userId)) {
+            throw new IllegalArgumentException("User is already assigned to this apartment");
+        }
+
+        return addResidentsToApartment(resident, apartment, ResourceRole.APARTMENT_OWNER);
+    }
+
+    private UserResponse addResidentsToApartment(Resident resident, Apartment apartment, ResourceRole role) {
+
+        ApartmentResidentAssignment assignment = ApartmentResidentAssignment.builder()
+                .resident(resident)
+                .apartment(apartment)
+                .resourceRole(role)
+                .build();
+
+        apartmentResidentAssignmentRepository.save(assignment);
+        if (apartment.getApartmentAssignments() == null) apartment.setApartmentAssignments(new ArrayList<>());
+        apartment.getApartmentAssignments().add(assignment);
+
+        if (resident.getApartmentResidentAssignments() == null) resident.setApartmentResidentAssignments(new ArrayList<>());
+        resident.getApartmentResidentAssignments().add(assignment);
+
+        UserResponse userResponse = userService.save(resident);
+        apartmentRepository.save(apartment);
+
+        return userResponse;
     }
 }

@@ -33,12 +33,6 @@ public class ApartmentController {
         return ResponseEntity.ok(apartmentService.findByApartmentNumber(apartment_number, UUID.fromString(building_id)));
     }
 
-    @GetMapping("/apartment-id/{apartment_id}/users")
-    public ResponseEntity<List<UserResponse>> getAllUsersFromApartment(@PathVariable String apartment_id) {
-        List<UserResponse> users = apartmentService.findUserByApartmentId(UUID.fromString(apartment_id));
-        return users.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(users);
-    }
-
     @PutMapping("/apartment-id/{apartment_id}/add-resident-tenant/{user_id}")
     public ResponseEntity<UserResponse> addResidentTenantToApartment(@PathVariable String apartment_id, @PathVariable String user_id) {
         return ResponseEntity.ok(apartmentService.addResidentTenantToApartment(UUID.fromString(user_id), UUID.fromString(apartment_id)));
