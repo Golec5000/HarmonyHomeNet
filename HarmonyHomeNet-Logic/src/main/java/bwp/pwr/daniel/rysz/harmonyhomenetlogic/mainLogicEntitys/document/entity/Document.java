@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -31,13 +33,17 @@ public class Document {
     @Column(name = "document_type", nullable = false)
     private String documentType;
 
-    @Column(name = "document_add_date", nullable = false)
-    private LocalDateTime documentAddDate;
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 
     @PrePersist
     @PreUpdate
     public void prePersist() {
-        documentAddDate = LocalDateTime.now();
         documentType = documentName.substring(documentName.lastIndexOf(".") + 1);
     }
 }

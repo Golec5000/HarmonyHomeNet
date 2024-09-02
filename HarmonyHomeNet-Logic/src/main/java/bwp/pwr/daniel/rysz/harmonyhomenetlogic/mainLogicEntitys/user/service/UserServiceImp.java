@@ -4,6 +4,7 @@ import bwp.pwr.daniel.rysz.harmonyhomenetlogic.exeptions.customErrors.UserNotFou
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.user.entity.User;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.user.repository.UserRepository;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.response.userStaff.UserResponse;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -34,7 +35,7 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
-    public UserResponse save(User user) {
+    public UserResponse save(@NonNull User user) {
         userRepository.save(user);
         return UserResponse.builder()
                 .id(user.getId())
@@ -63,7 +64,7 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
-    public UserResponse mapUserToUserResponse(User user) {
+    public UserResponse mapUserToUserResponse(@NonNull User user) {
         return UserResponse.builder()
                 .id(user.getId())
                 .lastName(user.getLastName())
@@ -75,7 +76,7 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
-    public List<UserResponse> mapUserListToUserResponseList(List<User> userList) {
+    public List<UserResponse> mapUserListToUserResponseList(@NonNull List<User> userList) {
         return userList.stream()
                 .map(user -> UserResponse.builder()
                         .id(user.getId())

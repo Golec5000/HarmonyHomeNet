@@ -40,29 +40,14 @@ public class BuildingServiceImp implements BuildingService {
 
 
     @Override
-    public List<BuildingResponse> findAll() {
-        return buildingRepository.findAll().stream()
-                .map(building -> BuildingResponse.builder()
-                        .id(building.getId())
-                        .buildingName(building.getBuildingName())
-                        .region(building.getRegion())
-                        .city(building.getCity())
-                        .street(building.getStreet())
-                        .build()
-                ).toList();
+    public List<Building> findAll() {
+        return buildingRepository.findAll();
     }
 
     @Override
-    public BuildingResponse findById(UUID id) throws BuildingNotFoundException {
+    public Building findById(UUID id) throws BuildingNotFoundException {
         return buildingRepository.findById(id)
-                .map(building -> BuildingResponse.builder()
-                        .id(building.getId())
-                        .buildingName(building.getBuildingName())
-                        .region(building.getRegion())
-                        .city(building.getCity())
-                        .street(building.getStreet())
-                        .build()
-                ).orElseThrow(() -> new BuildingNotFoundException("wrong building id"));
+                .orElseThrow(() -> new BuildingNotFoundException("wrong building id"));
     }
 
     @Override
@@ -88,29 +73,14 @@ public class BuildingServiceImp implements BuildingService {
     }
 
     @Override
-    public BuildingResponse findByBuildingName(@NonNull String name) throws BuildingNotFoundException {
+    public Building findByBuildingName(@NonNull String name) throws BuildingNotFoundException {
         return buildingRepository.findByBuildingName(name)
-                .map(building -> BuildingResponse.builder()
-                        .id(building.getId())
-                        .buildingName(building.getBuildingName())
-                        .region(building.getRegion())
-                        .city(building.getCity())
-                        .street(building.getStreet())
-                        .build()
-                ).orElseThrow(() -> new BuildingNotFoundException("wrong building name"));
+                .orElseThrow(() -> new BuildingNotFoundException("wrong building name"));
     }
 
     @Override
-    public List<BuildingResponse> findAllByRegion(@NonNull String region) {
-        return buildingRepository.findAllByRegion(region).stream()
-                .map(building -> BuildingResponse.builder()
-                        .id(building.getId())
-                        .buildingName(building.getBuildingName())
-                        .region(building.getRegion())
-                        .city(building.getCity())
-                        .street(building.getStreet())
-                        .build()
-                ).toList();
+    public List<Building> findAllByRegion(@NonNull String region) {
+        return buildingRepository.findAllByRegion(region);
     }
 
     @Override
@@ -128,7 +98,7 @@ public class BuildingServiceImp implements BuildingService {
         if (buildingToUpdate.getApartments() == null) buildingToUpdate.setApartments(new ArrayList<>());
         buildingToUpdate.getApartments().add(newApartment);
 
-        ApartmentResponse apartmentResponse= apartmentService.save(newApartment);
+        ApartmentResponse apartmentResponse = apartmentService.save(newApartment);
         buildingRepository.save(buildingToUpdate);
 
         return apartmentResponse;
@@ -224,7 +194,7 @@ public class BuildingServiceImp implements BuildingService {
 
     @Override
     @Transactional
-    public void deleteParkingSpaceFromBuilding(UUID buildingId, UUID parkingSpaceId) throws BuildingNotFoundException, ParkingSpaceNotFoundException{
+    public void deleteParkingSpaceFromBuilding(UUID buildingId, UUID parkingSpaceId) throws BuildingNotFoundException, ParkingSpaceNotFoundException {
         Building building = buildingRepository.findById(buildingId)
                 .orElseThrow(() -> new BuildingNotFoundException("wrong building id"));
 
@@ -237,5 +207,29 @@ public class BuildingServiceImp implements BuildingService {
         parkingSpaceService.deleteById(parkingSpaceId);
         buildingRepository.save(building);
 
+    }
+
+    @Override
+    public BuildingResponse mapBuildingToBuildingResponse(@NonNull Building building) {
+        return BuildingResponse.builder()
+                .id(building.getId())
+                .buildingName(building.getBuildingName())
+                .region(building.getRegion())
+                .city(building.getCity())
+                .street(building.getStreet())
+                .build();
+    }
+
+    @Override
+    public List<BuildingResponse> mapBuildingListToBuildingResponseList(@NonNull List<Building> buildingList) {
+        return buildingList.stream()
+                .map(building -> BuildingResponse.builder()
+                        .id(building.getId())
+                        .buildingName(building.getBuildingName())
+                        .region(building.getRegion())
+                        .city(building.getCity())
+                        .street(building.getStreet())
+                        .build()
+                ).toList();
     }
 }

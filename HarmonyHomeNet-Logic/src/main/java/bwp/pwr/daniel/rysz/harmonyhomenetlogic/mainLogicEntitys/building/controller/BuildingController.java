@@ -10,6 +10,7 @@ import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.response.buildingStaff.Apar
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.response.buildingStaff.BasementResponse;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.response.buildingStaff.BuildingResponse;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.response.buildingStaff.ParkingSpaceResponse;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,23 +27,23 @@ public class BuildingController {
 
     @GetMapping("/all")
     public ResponseEntity<List<BuildingResponse>> getAllBuildings() {
-        List<BuildingResponse> buildings = buildingService.findAll();
+        List<BuildingResponse> buildings = buildingService.mapBuildingListToBuildingResponseList(buildingService.findAll());
         return buildings.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(buildings);
     }
 
     @GetMapping("/building-by-id/{building_id}")
     public ResponseEntity<BuildingResponse> getBuildingById(@PathVariable String building_id) {
-        return ResponseEntity.ok(buildingService.findById(UUID.fromString(building_id)));
+        return ResponseEntity.ok(buildingService.mapBuildingToBuildingResponse(buildingService.findById(UUID.fromString(building_id))));
     }
 
     @GetMapping("/building-by-name/{building_name}")
     public ResponseEntity<BuildingResponse> getBuildingByName(@PathVariable String building_name) {
-        return ResponseEntity.ok(buildingService.findByBuildingName(building_name));
+        return ResponseEntity.ok(buildingService.mapBuildingToBuildingResponse(buildingService.findByBuildingName(building_name)));
     }
 
     @GetMapping("/buildings-by-region/{building_region}")
     public ResponseEntity<List<BuildingResponse>> getAllBuildingByRegion(@PathVariable String building_region) {
-        List<BuildingResponse> buildings = buildingService.findAllByRegion(building_region);
+        List<BuildingResponse> buildings = buildingService.mapBuildingListToBuildingResponseList(buildingService.findAllByRegion(building_region));
         return buildings.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(buildings);
     }
 
@@ -96,7 +97,7 @@ public class BuildingController {
         return ResponseEntity.ok("Building remove complete");
     }
 
-    private Building getBuildingFromRequest(BuildingRequest buildingRequest) {
+    private Building getBuildingFromRequest(@NonNull BuildingRequest buildingRequest) {
         return Building.builder()
                 .buildingName(buildingRequest.buildingName())
                 .region(buildingRequest.region())

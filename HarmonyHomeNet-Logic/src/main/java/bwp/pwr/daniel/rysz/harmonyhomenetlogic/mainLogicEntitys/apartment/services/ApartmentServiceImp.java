@@ -29,23 +29,14 @@ public class ApartmentServiceImp implements ApartmentService {
     private final UserService userService;
 
     @Override
-    public List<ApartmentResponse> findAll() {
-        return apartmentRepository.findAll().stream().map(apartment -> ApartmentResponse.builder()
-                .id(apartment.getId())
-                .apartmentNumber(apartment.getApartmentNumber())
-                .area(apartment.getArea())
-                .build()
-        ).toList();
+    public List<Apartment> findAll() {
+        return apartmentRepository.findAll();
     }
 
     @Override
-    public ApartmentResponse findById(UUID id) throws ApartmentNotFoundException {
-        return apartmentRepository.findById(id).map(apartment -> ApartmentResponse.builder()
-                .id(apartment.getId())
-                .apartmentNumber(apartment.getApartmentNumber())
-                .area(apartment.getArea())
-                .build()
-        ).orElseThrow(() -> new ApartmentNotFoundException("wrong apartment id"));
+    public Apartment findById(UUID id) throws ApartmentNotFoundException {
+        return apartmentRepository.findById(id)
+                .orElseThrow(() -> new ApartmentNotFoundException("wrong apartment id"));
     }
 
     @Override
@@ -53,11 +44,7 @@ public class ApartmentServiceImp implements ApartmentService {
 
         apartmentRepository.save(newApartment);
 
-        return ApartmentResponse.builder()
-                .id(newApartment.getId())
-                .apartmentNumber(newApartment.getApartmentNumber())
-                .area(newApartment.getArea())
-                .build();
+        return mapApartmentToApartmentResponse(newApartment);
     }
 
     @Override
@@ -69,13 +56,9 @@ public class ApartmentServiceImp implements ApartmentService {
     }
 
     @Override
-    public ApartmentResponse findByApartmentNumber(int apartmentNumber, UUID buildingId) throws ApartmentNotFoundException {
-        return apartmentRepository.findByApartmentNumberAndBuildingId(apartmentNumber, buildingId).map(apartment -> ApartmentResponse.builder()
-                .id(apartment.getId())
-                .apartmentNumber(apartment.getApartmentNumber())
-                .area(apartment.getArea())
-                .build()
-        ).orElseThrow(() -> new ApartmentNotFoundException("wrong apartment number"));
+    public Apartment findByApartmentNumber(int apartmentNumber, UUID buildingId) throws ApartmentNotFoundException {
+        return apartmentRepository.findByApartmentNumberAndBuildingId(apartmentNumber, buildingId)
+                .orElseThrow(() -> new ApartmentNotFoundException("wrong apartment number"));
     }
 
     @Override
@@ -106,6 +89,22 @@ public class ApartmentServiceImp implements ApartmentService {
         }
 
         return addResidentsToApartment(resident, apartment, ResourceRole.APARTMENT_OWNER);
+    }
+
+    @Override
+    public ApartmentResponse mapApartmentToApartmentResponse(Apartment apartment) {
+        return ApartmentResponse.builder()
+                .id(apartment.getId())
+                .apartmentNumber(apartment.getApartmentNumber())
+                .area(apartment.getArea())
+                .build();
+    }
+
+    @Override
+    public List<ApartmentResponse> mapApartmentListToApartmentResponseList(List<Apartment> apartmentList) {
+        return apartmentList.stream()
+                .map(this::mapApartmentToApartmentResponse)
+                .toList();
     }
 
     private UserResponse addResidentsToApartment(Resident resident, Apartment apartment, ResourceRole role) {

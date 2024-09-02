@@ -18,17 +18,17 @@ import java.util.List;
 import java.util.UUID;
 
 public interface BuildingService {
-    List<BuildingResponse> findAll();
+    List<Building> findAll();
 
-    BuildingResponse findById(UUID id) throws BuildingNotFoundException;
+    Building findById(UUID id) throws BuildingNotFoundException;
 
     BuildingResponse save(@NonNull Building newBuilding);
 
     void deleteById(UUID id) throws BuildingNotFoundException;
 
-    BuildingResponse findByBuildingName(@NonNull String name) throws BuildingNotFoundException;
+    Building findByBuildingName(@NonNull String name) throws BuildingNotFoundException;
 
-    List<BuildingResponse> findAllByRegion(@NonNull String region);
+    List<Building> findAllByRegion(@NonNull String region);
 
     ApartmentResponse addApartmentToBuilding(UUID buildingId, @NonNull ApartmentRequest apartmentRequest) throws BuildingNotFoundException;
 
@@ -43,4 +43,8 @@ public interface BuildingService {
     void deleteBasementFromBuilding(UUID buildingId, UUID basementId) throws BuildingNotFoundException, BasementNotFoundException;
 
     void deleteParkingSpaceFromBuilding(UUID buildingId, UUID parkingSpaceId) throws BuildingNotFoundException, ParkingSpaceNotFoundException;
+
+    BuildingResponse mapBuildingToBuildingResponse(@NonNull Building building);
+
+    List<BuildingResponse> mapBuildingListToBuildingResponseList(@NonNull List<Building> buildingList);
 }

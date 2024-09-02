@@ -4,6 +4,7 @@ import bwp.pwr.daniel.rysz.harmonyhomenetlogic.exeptions.customErrors.ParkingSpa
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.parkingSpace.entity.ParkingSpace;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.parkingSpace.repository.ParkingSpaceRepository;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.response.buildingStaff.ParkingSpaceResponse;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -31,22 +32,28 @@ public class ParkingSpaceServiceImp implements ParkingSpaceService {
     }
 
     @Override
-    public List<ParkingSpaceResponse> findAll() {
-        return parkingSpaceRepository.findAll().stream()
-                .map(parkingSpace -> ParkingSpaceResponse.builder()
-                        .id(parkingSpace.getId())
-                        .number(parkingSpace.getNumber())
-                        .build()
-                ).toList();
+    public List<ParkingSpace> findAll() {
+        return parkingSpaceRepository.findAll();
     }
 
     @Override
-    public ParkingSpaceResponse save(ParkingSpace parkingSpace) {
+    public ParkingSpaceResponse save(@NonNull ParkingSpace parkingSpace) {
         parkingSpaceRepository.save(parkingSpace);
+        return mapParkingSpaceToParkingSpaceResponse(parkingSpace);
+    }
 
+    @Override
+    public ParkingSpaceResponse mapParkingSpaceToParkingSpaceResponse(@NonNull ParkingSpace parkingSpace) {
         return ParkingSpaceResponse.builder()
                 .id(parkingSpace.getId())
                 .number(parkingSpace.getNumber())
                 .build();
+    }
+
+    @Override
+    public List<ParkingSpaceResponse> mapParkingSpaceListToParkingSpaceResponseList(@NonNull List<ParkingSpace> parkingSpaceList) {
+        return parkingSpaceList.stream()
+                .map(this::mapParkingSpaceToParkingSpaceResponse)
+                .toList();
     }
 }
