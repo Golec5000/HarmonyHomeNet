@@ -1,6 +1,6 @@
 package bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.apartment.controller;
 
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.apartment.services.ApartmentService;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.apartment.service.ApartmentService;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.response.buildingStaff.ApartmentResponse;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.response.userStaff.UserResponse;
 import lombok.RequiredArgsConstructor;

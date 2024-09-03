@@ -5,6 +5,7 @@ import bwp.pwr.daniel.rysz.harmonyhomenetlogic.exeptions.customErrors.BasementNo
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.exeptions.customErrors.BuildingNotFoundException;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.exeptions.customErrors.ParkingSpaceNotFoundException;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.building.entity.Building;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.enums.Region;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.requests.buildingStaff.ApartmentRequest;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.requests.buildingStaff.BasementRequest;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.requests.buildingStaff.ParkingSpaceRequest;
@@ -28,7 +29,7 @@ public interface BuildingService {
 
     Building findByBuildingName(@NonNull String name) throws BuildingNotFoundException;
 
-    List<Building> findAllByRegion(@NonNull String region);
+    List<Building> findAllByRegion(@NonNull Region region);
 
     ApartmentResponse addApartmentToBuilding(UUID buildingId, @NonNull ApartmentRequest apartmentRequest) throws BuildingNotFoundException;
 

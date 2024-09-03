@@ -1,6 +1,6 @@
-package bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.apartment.repositorys;
+package bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.apartment.repository;
 
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.apartment.entitys.ApartmentResidentAssignment;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.apartment.entity.ApartmentResidentAssignment;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.enums.ResourceRole;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

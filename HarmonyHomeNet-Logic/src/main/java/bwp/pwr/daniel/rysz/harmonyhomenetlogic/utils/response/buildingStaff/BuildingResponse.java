@@ -1,5 +1,6 @@
 package bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.response.buildingStaff;
 
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.enums.Region;
 import lombok.Builder;
 
 import java.util.UUID;
@@ -10,6 +11,6 @@ public record BuildingResponse(
         String buildingName,
         String street,
         String city,
-        String region
+        Region region
 ) {
 }

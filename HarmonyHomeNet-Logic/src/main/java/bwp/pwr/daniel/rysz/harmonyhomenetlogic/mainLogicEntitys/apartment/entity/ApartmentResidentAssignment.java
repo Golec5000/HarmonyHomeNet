@@ -1,4 +1,4 @@
-package bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.apartment.entitys;
+package bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.apartment.entity;
 
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.user.entity.Resident;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.enums.ResourceRole;

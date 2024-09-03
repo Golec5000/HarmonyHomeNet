@@ -1,9 +1,10 @@
 package bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.building.entity;
 
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.apartment.entitys.Apartment;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.apartment.entity.Apartment;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.basment.entity.Basement;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.parkingSpace.entity.ParkingSpace;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.user.entity.Employee;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.enums.Region;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
@@ -34,7 +35,8 @@ public class Building {
     private String city;
 
     @Column(name = "region", nullable = false)
-    private String region;
+    @Enumerated(EnumType.STRING)
+    private Region region;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "building")
     @OnDelete(action = OnDeleteAction.SET_NULL)

@@ -1,7 +1,7 @@
 package bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils;
 
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.apartment.entitys.Apartment;
-import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.apartment.services.ApartmentService;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.apartment.entity.Apartment;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.apartment.service.ApartmentService;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.basment.entity.Basement;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.basment.service.BasementService;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.building.entity.Building;
@@ -15,6 +15,7 @@ import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.user.entity.Resi
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.user.repository.UserRepository;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.enums.BaseRole;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.enums.Gender;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.enums.Region;
 import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -83,7 +84,7 @@ public class DatabaseInit {
                     .buildingName("Blok " + (i + 1))
                     .street("ul. Długa " + i)
                     .city("Kraków")
-                    .region("Małopolskie")
+                    .region(Region.MALOPOLSKIE)
                     .build();
 
             buildingService.save(buildingToSave);

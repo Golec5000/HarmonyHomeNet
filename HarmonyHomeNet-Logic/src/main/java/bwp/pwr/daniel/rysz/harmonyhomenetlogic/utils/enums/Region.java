@@ -1,0 +1,20 @@
+package bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.enums;
+
+public enum Region {
+    DOLNOSLASKIE,
+    KUJAWSKO_POMORSKIE,
+    LUBELSKIE,
+    LUBUSKIE,
+    LODZKIE,
+    MALOPOLSKIE,
+    MAZOWIECKIE,
+    OPOLSKIE,
+    PODKARPACKIE,
+    PODLASKIE,
+    POMORSKIE,
+    SLASKIE,
+    SWIETOKRZYSKIE,
+    WARMINSKO_MAZURSKIE,
+    WIELKOPOLSKIE,
+    ZACHODNIOPOMORSKIE
+}

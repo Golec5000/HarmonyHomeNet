@@ -2,6 +2,7 @@ package bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.building.contro
 
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.building.entity.Building;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.mainLogicEntitys.building.service.BuildingService;
+import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.enums.Region;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.requests.buildingStaff.ApartmentRequest;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.requests.buildingStaff.BasementRequest;
 import bwp.pwr.daniel.rysz.harmonyhomenetlogic.utils.requests.buildingStaff.BuildingRequest;
@@ -43,7 +44,7 @@ public class BuildingController {
 
     @GetMapping("/buildings-by-region/{building_region}")
     public ResponseEntity<List<BuildingResponse>> getAllBuildingByRegion(@PathVariable String building_region) {
-        List<BuildingResponse> buildings = buildingService.mapBuildingListToBuildingResponseList(buildingService.findAllByRegion(building_region));
+        List<BuildingResponse> buildings = buildingService.mapBuildingListToBuildingResponseList(buildingService.findAllByRegion(Region.valueOf(building_region)));
         return buildings.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(buildings);
     }
 
