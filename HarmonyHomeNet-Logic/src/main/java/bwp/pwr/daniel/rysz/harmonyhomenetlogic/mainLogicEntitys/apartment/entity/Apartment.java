@@ -63,7 +63,7 @@ public class Apartment {
             return;
         }
 
-        boolean isNotApartmentNumberUnique = building.getApartments().stream()
+        boolean isNotApartmentNumberUnique = building.getApartments() != null && building.getApartments().stream()
                 .anyMatch(apartment -> !apartment.equals(this) && apartment.getApartmentNumber() == apartmentNumber);
 
         if (isNotApartmentNumberUnique) {

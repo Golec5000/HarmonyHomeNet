@@ -85,11 +85,14 @@ public class DatabaseInit {
                     .street("ul. Długa " + i)
                     .city("Kraków")
                     .region(Region.MALOPOLSKIE)
+                    .apartments(new ArrayList<>())
+                    .basements(new ArrayList<>())
+                    .parkingSpaces(new ArrayList<>())
                     .build();
 
             buildingService.save(buildingToSave);
 
-            List<Basement> basements = new ArrayList<>();
+
             for (int j = 0; j < 5; j++) {
                 Basement basement = Basement.builder()
                         .area(BigDecimal.valueOf((new Random().nextInt(15) + 6) * (j + 1) * new Random().nextDouble()))
@@ -97,23 +100,24 @@ public class DatabaseInit {
                         .building(buildingToSave)
                         .build();
 
+                buildingToSave.getBasements().add(basement);
                 basementService.save(basement);
-                basements.add(basement);
+
             }
 
-            List<ParkingSpace> parkingSpaces = new ArrayList<>();
+
             for (int j = 0; j < 5; j++) {
                 ParkingSpace parkingSpace = ParkingSpace.builder()
                         .number(j + 1)
                         .building(buildingToSave)
                         .build();
 
+                buildingToSave.getParkingSpaces().add(parkingSpace);
                 parkingSpaceService.save(parkingSpace);
-                parkingSpaces.add(parkingSpace);
+
             }
 
-            // New code for adding apartments
-            List<Apartment> apartments = new ArrayList<>();
+
             for (int k = 0; k < 10; k++) {
                 Apartment apartment = Apartment.builder()
                         .apartmentNumber(k + 1)
@@ -121,14 +125,10 @@ public class DatabaseInit {
                         .building(buildingToSave)
                         .build();
 
+                buildingToSave.getApartments().add(apartment);
                 apartmentService.save(apartment);
-                apartments.add(apartment);
             }
 
-            buildingToSave.setParkingSpaces(parkingSpaces);
-            buildingToSave.setBasements(basements);
-            // Assuming Building entity has a field to reference apartments
-            buildingToSave.setApartments(apartments);
             buildingService.save(buildingToSave); // update building with basements, parking spaces, and apartments
         }
 
