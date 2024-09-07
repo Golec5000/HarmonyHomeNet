@@ -2,10 +2,91 @@
 \section{Wprowadzenie}
 Tematem niniejszej pracy inżynierskiej jest projektowanie i wdrożenie aplikacji Elektronicznego Biura Obsługi Klienta (eBOK) dla wspólnoty mieszkaniowej. Wybór tego rozwiązania jest odpowiedzią na rosnącą potrzebę automatyzacji procesów obsługi klienta oraz usprawnienia komunikacji między mieszkańcami a administracją. Współczesne eBOK-i nie tylko eliminują konieczność kontaktu osobistego czy telefonicznego, ale także oferują użytkownikom możliwość załatwienia większości spraw online, co wpływa na wygodę, oszczędność czasu oraz bezpieczeństwo transakcji i komunikacji.
 
-W pracy omówione zostaną podstawowe typy organizacji zarządzających nieruchomościami, takie jak wspólnoty mieszkaniowe i spółdzielnie, które różnią się strukturą prawną i organizacyjną. Zdecydowałem się na wybór wspólnoty mieszkaniowej jako szczególnego przypadku, który ma bardziej rozproszoną strukturę decyzyjną, a jednocześnie wymaga efektywnej komunikacji z mieszkańcami. Aplikacja będzie odpowiadać na potrzeby zarządzania wspólną przestrzenią, bieżących płatności oraz zgłoszeń technicznych. Wykorzystując nowoczesne rozwiązania webowe, system zostanie zoptymalizowany pod kątem użytkowników korzystających z komputerów i urządzeń mobilnych.
+W pracy omówione zostaną podstawowe typy organizacji zarządzających nieruchomościami, takie jak wspólnoty mieszkaniowe i spółdzielnie, które różnią się strukturą prawną i organizacyjną. Zdecydowałem się na wybór wspólnoty mieszkaniowej jako szczególnego przypadku, który ma bardziej rozproszoną strukturę decyzyjną, a jednocześnie wymaga efektywnej komunikacji z mieszkańcami. Aplikacja będzie odpowiadać na potrzeby zarządzania wspólną przestrzenią, bieżących płatności oraz zgłoszeń technicznych. Wykorzystując nowoczesne rozwiązania webowe, system zostanie zoptymalizowany pod kątem użytkowników korzystających z Internetu.
 
 W ostatnich latach automatyzacja obsługi klienta znacząco się rozwinęła, a eBOK-i zyskały szerokie zastosowanie w różnych branżach, takich jak energetyka, dostawy wody, czy usługi multimedialne. Systemy te oferują elastyczność działania – użytkownicy mogą korzystać z nich w dowolnym czasie, co znacząco wpływa na komfort obsługi. Dodatkowo, eBOK gwarantuje wysoki poziom bezpieczeństwa, m.in. dzięki regularnym aktualizacjom oraz implementacji takich funkcji jak uwierzytelnianie dwuskładnikowe, co jest kluczowe w kontekście ochrony danych osobowych.
 
 Celem niniejszej pracy jest stworzenie aplikacji umożliwiającej zarówno mieszkańcom, jak i administratorom wspólnoty sprawne zarządzanie należnościami, komunikacją, zgłoszeniami, a także dostępem do dokumentów. System zostanie zaprojektowany tak, aby dostarczał kompleksowych informacji, automatyzował wiele procesów oraz poprawiał transparentność działań wspólnoty.
 
 \section{Wymagania}
+
+\subsection{Wymagania funkcjonalne}
+
+\begin{enumerate}[label=\arabic*.]
+    \item Zarządzanie kontem użytkownika
+    \begin{itemize}
+        \item Użytkownik jest w stanie się zarejestrować i zalogować.
+        \item Użytkownik jest w stanie zarządzać danymi konta.
+        \item Użytkownik jest w stanie odzyskać/zresetować hasło.
+        \item Użytkownik jest w stanie usunąć konto.
+        \item Administrator zarządza lokalami podpiętymi pod użytkownika.
+    \end{itemize}
+    \item Przegląd i płatność należności
+    \begin{itemize}
+        \item Użytkownik ma możliwość wglądu do bieżących i historycznych należności.
+        \item Możliwość dokonywania płatności online za pomocą przelewu.
+    \end{itemize}
+    \item Obsługa zgłoszeń
+    \begin{itemize}
+        \item Użytkownik ma możliwość zgłaszania usterek oraz śledzenia ich statusu.
+        \item Użytkownik ma możliwość komunikacji z administracją za pomocą systemu zgłoszeń.
+    \end{itemize}
+    \item Zarządzanie dokumentami
+    \begin{itemize}
+        \item Użytkownik ma możliwość przeglądu umów, regulaminów i innych dokumentów.
+        \item Użytkownik ma możliwość pobierania faktur i umów w formacie PDF.
+        \item Administracja ma możliwość archiwizacji dokumentów.
+    \end{itemize}
+    \item Zarządzanie głosowaniami
+    \begin{itemize}
+        \item Użytkownik ma możliwość udziału w głosowaniach swojej wspólnoty w zależności od uprawnień, czyli czy jest właścicielem lub najemcą.
+        \item Użytkownik ma możliwość wglądu do wyników w czasie rzeczywistym.
+        \item Administracja jest odpowiedzialna za tworzenie i nadzór przebiegu głosowania.
+    \end{itemize}
+    \item Powiadomienia
+    \begin{itemize}
+        \item System automatycznie, za zgodą użytkownika, będzie wysyłał powiadomienia e-mail oraz SMS o płatnościach, zgłoszeniach i innych ważnych sprawach.
+    \end{itemize}
+    \item Panel administracyjny
+    \begin{itemize}
+        \item Administracja jest odpowiedzialna za zarządzanie kontami użytkowników, monitoring zgłoszeń i raporty.
+    \end{itemize}
+    \item Kalkulator należności
+    \begin{itemize}
+        \item W systemie będzie proces odpowiedzialny za naliczanie należności dla każdego lokalu użytkownika w zależność od odpowiednich czynników.
+    \end{itemize}
+    \item Interakcje z zewnętrznymi systemami
+    \begin{itemize}
+        \item Pobieranie danych np. z liczników do obliczenia kosztów należności.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Wymagania niefunkcjonalne}
+
+\begin{enumerate}[label=\arabic*.]
+    \item Skalowalność
+    \begin{itemize}
+        \item Aplikacja powinna obsługiwać zarówno małe, jak i duże ilości użytkowników.
+    \end{itemize}
+    \item Dostępność
+    \begin{itemize}
+        \item System dostępny 24/7, obsługiwany z dowolnego urządzenia z dostępem do Internetu.
+    \end{itemize}
+    \item Bezpieczeństwo
+    \begin{itemize}
+        \item Zastosowanie zaawansowanych algorytmów szyfrujących, zabezpieczenia przed atakami typu Injection, XXS.
+        \item Dwuskładnikowe uwierzytelnianie (m.in. Google Authenticator).
+    \end{itemize}
+    \item Wydajność
+    \begin{itemize}
+        \item Krótki czas ładowania stron i danych.
+    \end{itemize}
+    \item Intuicyjność użytkowania interfejsu
+    \begin{itemize}
+        \item Prosty, nowoczesny design z widgetami ułatwiającymi dostęp do informacji o stanie konta, wykresów zużycia, dokumentów oraz innych pomocnych funkcji.
+    \end{itemize}
+    \item Integracja z zewnętrznymi usługami
+    \begin{itemize}
+        \item Integracja z operatorami płatności, urządzeniami pomagającymi obliczenie należności oraz usługami SMS/e-mail do wysyłania powiadomień.
+    \end{itemize}
+\end{enumerate}
