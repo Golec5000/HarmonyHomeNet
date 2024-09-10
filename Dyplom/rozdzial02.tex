@@ -1,0 +1,90 @@
+\chapter{Analiza wymagań}
+% TO DO: dodać jakieś zagajenie
+\section{Zarys architektury systemu}
+% TO DO: przedstawić (na diagramach poglądowych), jak ma wyglądać architektura systemu (z jakich komponentów będzie się ona składać, kto z niej będzie korzystać, jakie interfejsy będzie udostępniać). Może z tego będzie trzeba zrobić osobny rozdział.
+
+\section{Wymagania funkcjonalne}
+% TO DO: chyba na początek warto wyróżnić, w jakich rolach występować będą użytkownicy systemu i w ogóle - do czego ma służyć tworzona aplikacja
+
+% Proszę zastanowić się, czy jednak nie dałoby się poniższego opisu jakoś rozwinąć (żeby nie był jedynie listą wyliczeniową). Czytelnik powinien zrozumieć, po co i dlaczego zdefiniowano poniższe wymagania. 
+
+% Proszę zwrócić uwagę na "grupowanie" wymagań. Napisał Pan "Administrator zarządza lokalami ..." - ale trudno znaleźć wyjaśnienie, czym są te lokale i w ogóle - jaki to przypadek użycia (jaki jest kontekst, w jakim działać ma aplikacja).
+
+\begin{enumerate}[label=\arabic*.]
+    \item Zarządzanie kontem użytkownika
+    \begin{itemize}
+        \item Użytkownik jest w stanie się zarejestrować i zalogować.
+        \item Użytkownik jest w stanie zarządzać danymi konta.
+        \item Użytkownik jest w stanie odzyskać/zresetować hasło.
+        \item Użytkownik jest w stanie usunąć konto.
+        \item Administrator zarządza lokalami podpiętymi pod użytkownika.
+    \end{itemize}
+    \item Przegląd i płatność należności
+    \begin{itemize}
+        \item Użytkownik ma możliwość wglądu do bieżących i historycznych należności.
+        \item Możliwość dokonywania płatności online za pomocą przelewu.
+    \end{itemize}
+    \item Obsługa zgłoszeń
+    \begin{itemize}
+        \item Użytkownik ma możliwość zgłaszania usterek oraz śledzenia ich statusu.
+        \item Użytkownik ma możliwość komunikacji z administracją za pomocą systemu zgłoszeń.
+    \end{itemize}
+    \item Zarządzanie dokumentami
+    \begin{itemize}
+        \item Użytkownik ma możliwość przeglądu umów, regulaminów i innych dokumentów.
+        \item Użytkownik ma możliwość pobierania faktur i umów w formacie PDF.
+        \item Administracja ma możliwość archiwizacji dokumentów.
+    \end{itemize}
+    \item Zarządzanie głosowaniami
+    \begin{itemize}
+        \item Użytkownik ma możliwość udziału w głosowaniach swojej wspólnoty w zależności od uprawnień, czyli czy jest właścicielem lub najemcą.
+        \item Użytkownik ma możliwość wglądu do wyników w czasie rzeczywistym.
+        \item Administracja jest odpowiedzialna za tworzenie i nadzór przebiegu głosowania.
+    \end{itemize}
+    \item Powiadomienia
+    \begin{itemize}
+        \item System automatycznie, za zgodą użytkownika, będzie wysyłał powiadomienia e-mail oraz SMS o płatnościach, zgłoszeniach i innych ważnych sprawach.
+    \end{itemize}
+    \item Panel administracyjny
+    \begin{itemize}
+        \item Administracja jest odpowiedzialna za zarządzanie kontami użytkowników, monitoring zgłoszeń i raporty.
+    \end{itemize}
+    \item Kalkulator należności
+    \begin{itemize}
+        \item W systemie będzie proces odpowiedzialny za naliczanie należności dla każdego lokalu użytkownika w zależność od odpowiednich czynników.
+    \end{itemize}
+    \item Interakcje z zewnętrznymi systemami
+    \begin{itemize}
+        \item Pobieranie danych np. z liczników do obliczenia kosztów należności.
+    \end{itemize}
+\end{enumerate}
+
+\section{Wymagania niefunkcjonalne}
+
+\begin{enumerate}[label=\arabic*.]
+    \item Skalowalność
+    \begin{itemize}
+        \item Aplikacja powinna obsługiwać zarówno małe, jak i duże ilości użytkowników.
+    \end{itemize}
+    \item Dostępność
+    \begin{itemize}
+        \item System dostępny 24/7, obsługiwany z dowolnego urządzenia z dostępem do Internetu.
+    \end{itemize}
+    \item Bezpieczeństwo
+    \begin{itemize}
+        \item Zastosowanie zaawansowanych algorytmów szyfrujących, zabezpieczenia przed atakami typu Injection, XXS.
+        \item Dwuskładnikowe uwierzytelnianie (m.in. Google Authenticator).
+    \end{itemize}
+    \item Wydajność
+    \begin{itemize}
+        \item Krótki czas ładowania stron i danych.
+    \end{itemize}
+    \item Intuicyjność użytkowania interfejsu
+    \begin{itemize}
+        \item Prosty, nowoczesny design z widgetami ułatwiającymi dostęp do informacji o stanie konta, wykresów zużycia, dokumentów oraz innych pomocnych funkcji.
+    \end{itemize}
+    \item Integracja z zewnętrznymi usługami
+    \begin{itemize}
+        \item Integracja z operatorami płatności, urządzeniami pomagającymi obliczenie należności oraz usługami SMS/e-mail do wysyłania powiadomień.
+    \end{itemize}
+\end{enumerate}
