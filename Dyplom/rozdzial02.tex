@@ -67,18 +67,19 @@ Aby wizualizować złożoność architektury systemu eBOK, można posłużyć si
 
 % Proszę zwrócić uwagę na "grupowanie" wymagań. Napisał Pan "Administrator zarządza lokalami ..." - ale trudno znaleźć wyjaśnienie, czym są te lokale i w ogóle - jaki to przypadek użycia (jaki jest kontekst, w jakim działać ma aplikacja).
 
-Tworzona aplikacja eBOK jest narzędziem umożliwiającym efektywne zarządzanie wspólnotami mieszkaniowymi, zarówno z perspektywy mieszkańców, jak i administracji. Współczesne wspólnoty borykają się z wieloma wyzwaniami, które związane są z utrzymaniem transparentnej komunikacji między mieszkańcami a zarządcami, jak również z zapewnieniem sprawnej obsługi technicznej budynków, płatności oraz dokumentów. W związku z tym zdefiniowane wymagania aplikacji mają na celu zapewnienie takich funkcji, które sprostają tym wyzwaniom, ułatwiając codzienną administrację wspólnotą i minimalizując potrzebę fizycznych interakcji.
+Aplikacja eBOK (Elektroniczne Biuro Obsługi Klienta) jest narzędziem wspierającym zarządzanie wspólnotami mieszkaniowymi, które ma na celu poprawę komunikacji pomiędzy mieszkańcami a administracją oraz automatyzację procesów związanych z obsługą nieruchomości. Jednym z kluczowych aspektów aplikacji jest zarządzanie lokalami, które w systemie pełnią centralną rolę, gdyż każda funkcjonalność aplikacji – od zgłaszania usterek, przez płatności, po głosowania – jest związana z konkretnym lokalem.
+
+Lokale, czyli nieruchomości (mieszkania, apartamenty, biura itp.), są podstawowym zasobem, który wymaga skutecznego zarządzania zarówno z perspektywy mieszkańca, jak i administratora. Dla mieszkańca lokal jest miejscem, do którego przypisane są należności finansowe, zgłoszenia techniczne czy dokumenty. Z perspektywy administratora, każdy lokal stanowi jednostkę, którą należy nadzorować pod kątem bieżących płatności, obsługi technicznej, jak również interakcji z właścicielami i najemcami. Dlatego zarządzanie lokalami/nieruchomościami w aplikacji eBOK jest jedną z kluczowych funkcji, zapewniającą przejrzystość oraz efektywność administracji.
 
 \subsection{Przykłady użycia aplikacji}
 
-Aplikacja eBOK ma kilka głównych przypadków użycia, które ilustrują sytuacje, w jakich różni użytkownicy będą korzystać z jej funkcji. Na przykład, mieszkaniec może zalogować się do aplikacji, aby sprawdzić swoje należności za bieżące rachunki i zapłacić online. Jeżeli zauważy usterkę w swoim mieszkaniu (np. przeciek lub pęknięcia na ścianie), może natychmiastowo zgłosić to przez aplikację, dołączając zdjęcia, a następnie śledzić status zgłoszenia. Z kolei administrator może delegować zgłoszenie do odpowiedniego wykonawcy i monitorować proces naprawy.
-Różni użytkownicy mają różne potrzeby, stąd aplikacja obsługuje dwie główne grupy użytkowników:
+Aplikacja eBOK oferuje różnorodne przypadki użycia, które ilustrują funkcjonalności dostępne dla różnych grup użytkowników. Głównym obszarem jej zastosowania jest zarządzanie relacją pomiędzy mieszkańcem a administratorem nieruchomości, w kontekście takich działań jak płatności, zgłoszenia usterek, dostęp do dokumentów czy udział w głosowaniach.
 
 \begin{itemize} 
 
-	\item \textbf{Mieszkańcy:} właściciele i najemcy, którzy korzystają z aplikacji do zarządzania swoimi płatnościami, zgłaszania usterek oraz dostępu do dokumentów. 
+	\item \textbf{Mieszkańcy (właściciele i najemcy):} logując się do systemu, mają możliwość sprawdzenia należności za lokal, uregulowania opłat online oraz przeglądania historii rachunków. Mogą również zgłaszać usterki dotyczące lokalu (np. przeciek, awaria ogrzewania) i śledzić status zgłoszenia. Dodatkowo, mieszkaniecy ma dostęp do dokumentów związanych z jego lokalem, takich jak umowy, regulaminy czy faktury.
 	
-	\item \textbf{Administratorzy:} osoby zarządzające wspólnotą, odpowiedzialne za obsługę zgłoszeń, zarządzanie lokalami i mieszkańcami oraz organizację głosowań.
+	\item \textbf{Administratorzy:} za pomocą panelu administracyjnego zarządzają zgłoszeniami technicznymi, przypisując je do wykonawców. Odpowiadają również za monitorowanie płatności związanych z każdym lokalem, a także za prowadzenie rejestru dokumentów i interakcje z mieszkańcami.
 	
 \end{itemize}
 
@@ -86,40 +87,40 @@ Każda z tych grup użytkowników ma dostęp do odpowiednich funkcji aplikacji, 
 
 \subsection{Wymagania funkcjonalne}
 
-Wymagania funkcjonalne aplikacji eBOK zostały podzielone na główne obszary tematyczne, które odpowiadają kluczowym funkcjom systemu.
+Wymagania funkcjonalne aplikacji eBOK skupiają się na kluczowych obszarach działalności, które odpowiadają za sprawne funkcjonowanie wspólnoty mieszkaniowej.
 
 \begin{enumerate}[label=\arabic*.] 
 
-	\item \textbf{Zarządzanie kontem użytkownika:} Użytkownicy muszą mieć możliwość zakładania konta i zarządzania swoimi danymi osobowymi. Na przykład, mieszkaniec może zalogować się do systemu, aby zmienić swoje dane kontaktowe, przypisać lokal do swojego konta, a także nadawać uprawnienia członkom rodziny lub najemcom. Tego rodzaju funkcje są kluczowe dla zapewnienia personalizacji i dostępu do odpowiednich zasobów.
+	\item \textbf{Zarządzanie kontem użytkownika i lokalami:} Użytkownicy muszą mieć możliwość tworzenia kont, zarządzania swoimi danymi osobowymi oraz przypisywania lokali do konta. Każdy mieszkaniec może przypisać do swojego konta lokal, którym zarządza lub w którym mieszka. W przypadku najmu, mieszkaniec może zarządzać umowami najmu oraz uprawnieniami innych użytkowników do korzystania z funkcji aplikacji dla tego lokalu.
 	
-	\item \textbf{Przegląd i płatność należności:} System musi umożliwiać mieszkańcom łatwy dostęp do informacji o swoich należnościach i płatnościach. Każdy mieszkaniec powinien móc przeglądać historię swoich rachunków oraz opłacać je bezpośrednio online. Powiadomienia o zaległych płatnościach pomagają mieszkańcom pamiętać o terminach, co zmniejsza ryzyko opóźnień.
+	\item \textbf{Przegląd i płatność należności:} Mieszkańcy mogą przeglądać szczegółowe informacje na temat należności przypisanych do konkretnego lokalu. System umożliwia szybki dostęp do historii opłat oraz realizację płatności online. Powiadomienia o zaległościach związanych z danym lokalem przypominają mieszkańcom o konieczności uregulowania zobowiązań.
 
-	\item \textbf{Obsługa zgłoszeń:} W przypadku usterek technicznych, takich jak wycieki czy problemy z ogrzewaniem, mieszkańcy mogą zgłaszać problemy za pośrednictwem aplikacji. Zgłoszenia te są następnie przydzielane przez administratora do odpowiednich wykonawców, a użytkownicy mogą śledzić postęp prac, co zapewnia pełną transparentność i szybką reakcję na problemy.
+	\item \textbf{Zarządzanie zgłoszeniami technicznymi dla lokali:} Mieszkańcy mogą zgłaszać problemy techniczne dotyczące ich lokali, takie jak awarie czy uszkodzenia. Administrator przypisuje zgłoszenia do odpowiednich ekip serwisowych, monitorując postęp prac, co zwiększa transparentność działań i umożliwia szybką reakcję na zgłoszone problemy.
+	
+	\item \textbf{Zarządzanie dokumentami:} Lokale są również powiązane z dokumentami, takimi jak umowy najmu, protokoły przekazania, regulaminy czy faktury. Aplikacja pozwala na przechowywanie i udostępnianie tych dokumentów mieszkańcom oraz administratorom, eliminując konieczność używania tradycyjnych archiwów papierowych.
+	
+	\item \textbf{Głosowania mieszkańców:} W przypadku istotnych decyzji dotyczących zarządzania wspólnotą, administrator może organizować głosowania, w których mieszkańcy przypisani do poszczególnych lokali mogą wziąć udział. Dzięki aplikacji proces ten jest zautomatyzowany, a wyniki głosowań są dostępne w czasie rzeczywistym.
+	
+	\item \textbf{Powiadomienia i komunikacja:} System powiadomień informuje mieszkańców o ważnych wydarzeniach związanych z ich lokalem, takich jak zaległe płatności, zgłoszenia serwisowe czy nadchodzące głosowania. Personalizowane powiadomienia zapewniają, że mieszkańcy są na bieżąco z najważniejszymi informacjami dotyczącymi ich nieruchomości.
 
-	\item \textbf{Zarządzanie dokumentami:} Aplikacja pełni funkcję cyfrowego archiwum dokumentów związanych ze wspólnotą, takich jak umowy, regulaminy i faktury. Mieszkańcy mogą przeglądać i pobierać dokumenty, co eliminuje potrzebę fizycznych archiwów i ułatwia dostęp do ważnych informacji.
-
-	\item \textbf{Zarządzanie głosowaniami:} Wspólnoty mieszkaniowe często muszą podejmować ważne decyzje dotyczące administracji budynkiem lub finansów. Aplikacja umożliwia organizację i monitorowanie głosowań w formie elektronicznej, co przyspiesza podejmowanie decyzji i angażuje większą liczbę mieszkańców.
-
-	\item \textbf{Powiadomienia:} Powiadomienia o ważnych wydarzeniach, takich jak nadchodzące głosowania, zmiany w regulaminach lub status zgłoszeń technicznych, zapewniają mieszkańcom bieżące informacje bez konieczności częstego logowania się do aplikacji. Możliwość personalizacji powiadomień zapewnia lepsze dostosowanie aplikacji do indywidualnych potrzeb użytkowników.
-
-	\item \textbf{Panel administracyjny:} Administratorzy zarządzają całym systemem poprzez intuicyjny panel, który umożliwia im monitorowanie zgłoszeń, generowanie raportów finansowych i technicznych oraz zarządzanie kontami mieszkańców. Tego typu funkcjonalność jest kluczowa dla sprawnego zarządzania wspólnotą.
-
-	\item \textbf{Interakcje z zewnętrznymi systemami:} Aplikacja musi umożliwiać integrację z innymi systemami, takimi jak systemy liczników mediów czy systemy płatności. Taka integracja zapewnia automatyzację wielu procesów, co redukuje błędy i obciążenia administracyjne.
-
+	\item \textbf{Panel administracyjny:} Administratorzy korzystają z zaawansowanego panelu, który pozwala im zarządzać wszystkimi lokalami, przypisanymi mieszkańcami oraz zgłoszeniami technicznymi. Panel umożliwia także monitorowanie płatności i generowanie raportów związanych z każdym lokalem, co jest kluczowe dla efektywnego zarządzania wspólnotą.
+	
+	\item \textbf{Integracja z zewnętrznymi systemami:} Aplikacja eBOK musi umożliwiać integrację z systemami takimi jak systemy pomiarowe liczników mediów (np. wodomierze, liczniki energii) oraz systemy płatności. Taka integracja usprawnia zarządzanie lokalami, umożliwiając automatyczne generowanie rachunków oraz synchronizację danych dotyczących zużycia mediów.
+	
 \end{enumerate}
 
 \subsection{Wymagania niefunkcjonalne}
 
 \begin{enumerate}[label=\arabic*.] 
 
-	\item \textbf{Skalowalność:} System musi być skalowalny, aby mógł obsługiwać zarówno małe wspólnoty, jak i duże spółdzielnie. Dzięki możliwości dynamicznego przydzielania zasobów serwerowych, system będzie w stanie dostosować się do rosnącej liczby użytkowników bez obniżenia wydajności.
-	
-	\item \textbf{Dostępność:} Aplikacja musi być dostępna przez całą dobę i z każdego urządzenia posiadającego dostęp do Internetu, co umożliwia użytkownikom zarządzanie swoimi sprawami w dogodnym dla nich momencie.
+	\item \textbf{Skalowalność:} System musi być na tyle elastyczny, aby mógł obsługiwać zarówno małe wspólnoty mieszkaniowe, jak i większe spółdzielnie, z możliwością zarządzania setkami lub tysiącami lokali.
 
-	\item \textbf{Bezpieczeństwo:} Wymagane są zaawansowane mechanizmy bezpieczeństwa, takie jak szyfrowanie danych, uwierzytelnianie dwuskładnikowe oraz zabezpieczenia przed atakami typu SQL Injection czy XSS. Bezpieczeństwo danych mieszkańców i transakcji jest priorytetem.
+	\item \textbf{Dostępność:} Aplikacja musi działać 24/7 i być dostępna z każdego urządzenia podłączonego do Internetu, co zapewnia mieszkańcom możliwość zarządzania ich lokalami w dowolnym momencie.
 
-	\item \textbf{Wydajność:} System musi działać szybko i niezawodnie, nawet podczas dużego obciążenia, co ma kluczowe znaczenie dla użytkowników. Wydajność aplikacji będzie mierzona na podstawie szybkości odpowiedzi systemu oraz czasów ładowania kluczowych funkcji, takich jak zgłoszenia czy płatności.
+	\item \textbf{Bezpieczeństwo:} Ważnym aspektem jest ochrona danych użytkowników oraz dokumentów związanych z lokalami. System musi zapewniać szyfrowanie danych, uwierzytelnianie dwuskładnikowe oraz ochronę przed zagrożeniami takimi jak ataki SQL Injection czy XSS.
 
-	\item \textbf{Intuicyjność interfejsu:} Aplikacja musi być łatwa w obsłudze, z prostym i przejrzystym interfejsem dostosowanym do różnych typów użytkowników. Personalizowane pulpity dostosowują widok do potrzeb użytkownika, co zwiększa efektywność korzystania z systemu.
-	
+	\item \textbf{Wydajność:} Aplikacja powinna działać płynnie, nawet w przypadku dużego obciążenia, co jest szczególnie istotne przy przetwarzaniu dużych ilości danych związanych z lokalami i płatnościami.
+
+	\item \textbf{Intuicyjność interfejsu:} Interfejs aplikacji powinien być prosty i intuicyjny, zarówno dla mieszkańców, jak i administratorów. Właściciele lokali powinni mieć możliwość łatwego zarządzania danymi swojego lokalu, zgłaszania problemów i przeglądania dokumentów bez potrzeby przechodzenia przez skomplikowane procedury.
+
 \end{enumerate}
