@@ -1,25 +1,25 @@
 \chapter{Wstęp}
 \section{Wprowadzenie}
-% TO DO: zacząć od opisu dziedziny
-Rola automatyzacji w obsłudze klienta znacznie wzrosła w ostatnich latach, co bezpośrednio doprowadziło do rozpowszechnienia elektronicznych biur obsługi klienta (eCSO). Takie systemy są szeroko stosowane w różnych sektorach gospodarki, takich jak energetyka, wodociągi, telekomunikacja i usługi multimedialne. Główną zaletą jest elastyczność systemu, która pozwala użytkownikom na korzystanie z niego w dowolnym miejscu i czasie. Takie podejście nie tylko znacząco poprawia jakość obsługi klienta, ale także zwiększa efektywność organizacji wdrażających takie rozwiązanie.
+Rola automatyzacji w obsłudze klienta znacznie wzrosła w ostatnich latach, co bezpośrednio doprowadziło do rozpowszechnienia elektronicznych biur obsługi klienta (eCSO). 
+% TO DO: co z rozwinięciem skrótu? Czy to nie " European Cyber Security Organisation (ECSO)"?
+Takie systemy są szeroko stosowane w różnych sektorach gospodarki, takich jak energetyka, wodociągi, telekomunikacja i usługi multimedialne. Główną zaletą jest elastyczność systemu, która pozwala użytkownikom na korzystanie z niego w dowolnym miejscu i czasie. Takie podejście nie tylko znacząco poprawia jakość obsługi klienta, ale także zwiększa efektywność organizacji wdrażających takie rozwiązanie.
 
 Elektroniczne biura obsługi klienta nie tylko umożliwiają użytkownikom zdalny dostęp do informacji o rozliczeniach i płatnościach, ale także wspierają bardziej zaawansowane procesy, takie jak zgłaszanie problemów technicznych, zarządzanie zgłoszeniami serwisowymi i komunikację z zarządem. Ważnym aspektem tych systemów jest bezpieczeństwo danych osobowych, które jest zapewniane poprzez regularne aktualizacje systemu, wdrażanie mechanizmów uwierzytelniania dwuskładnikowego oraz zgodność z przepisami o ochronie danych osobowych, takimi jak RODO.
 
-
-% TO DO: wskazać na istniejące rozwiązania
-
-\subsection{Istniejące rozwiązania na rynku}
+%\subsection{Istniejące rozwiązania na rynku} % Tworzenie podrozdziału nie jest tutaj konieczne
 
 Obecnie na rynku istnieje szereg rozwiązań eBOK, które są szeroko stosowane w różnych sektorach. Jednym z przykładów jest system „Energa24”, który umożliwia klientom dostęp do informacji o zużyciu energii, przeglądanie i pobieranie rachunków, płatności online i zgłaszanie awarii. Innym szeroko stosowanym rozwiązaniem jest eBOK dostarczany przez Miejskie Przedsiębiorstwo Wodociągów i Kanalizacji (MPWiK) w Warszawie, który umożliwia mieszkańcom monitorowanie zużycia wody, zarządzanie płatnościami i zgłaszanie problemów technicznych.
+% TO DO: proszę dodać cytowania do wskazanych przykładów (tj. do manuali, podręczów użytkownika, stron domowych projektów)
+% TO DO: można też dodać jakieś zrzuty z ekranu (na prawie cytatu)
 
 Na rynku dostępne są również rozwiązania dostosowane specjalnie do potrzeb spółdzielni i wspólnot mieszkaniowych. Przykładem może być system „e-Kartoteka”, który umożliwia mieszkańcom zarządzanie zgłoszeniami usterek oraz podgląd postępu zgłoszenia, wgląd oraz regulację w płatności za nieruchomość, wgląd w dokumenty nieruchomości oraz wspólnoty, głosowanie nad uchwałami wspólnoty, komunikację z zarządem. 
 
 Systemy eBOK różnią się funkcjonalnością, skalowalnością i stopniem integracji z innymi systemami, takimi jak narzędzia płatności online, systemy zarządzania nieruchomościami i aplikacje mobilne. W zależności od charakterystyki organizacji, wybór konkretnego rozwiązania będzie zależał od potrzeb operacyjnych, liczby użytkowników i stopnia automatyzacji procesów.
-
-\subsection{Motywacja i cele}
-
-% TO DO: przejść do uzasadnienia - motywacji do podjęcia tematu
+% TO DO: dodać zdanie/zdania łączące, coś podobnego do: wdrażanie takich systemów łączy się z koniecznością zastosowania różnych technologii. Projektowanie ich architektur stawia też liczne wyzwania. Jest w związku z tym dokonałym polem do sprawdzenia własnych umiejętności z dziedziny programowania. Dlatego postanowiono zająć się tym zagadnieniem w praktyce." 
+% 
+%\subsection{Motywacja i cele}
 Tematem niniejszej pracy inżynierskiej jest projektowanie i wdrożenie aplikacji Elektronicznego Biura Obsługi Klienta (eBOK) dla wspólnoty mieszkaniowej. Wybór tego rozwiązania jest odpowiedzią na rosnącą potrzebę automatyzacji procesów obsługi klienta oraz usprawnienia komunikacji między mieszkańcami a administracją. Współczesne eBOK-i nie tylko eliminują konieczność kontaktu osobistego czy telefonicznego, ale także oferują użytkownikom możliwość załatwienia większości spraw online, co wpływa na wygodę, oszczędność czasu oraz bezpieczeństwo transakcji i komunikacji.
+
 
 % Zwykle wprowadzenie zajmuje półtorej do dwóch stron
 
@@ -28,14 +28,13 @@ Tematem niniejszej pracy inżynierskiej jest projektowanie i wdrożenie aplikacj
 % TO DO: dodać coś o zakresie pracy - od analizy przypadku, po projektowanie i wdrożenie.
 % a więc trochę o architekturze (czy to będzie aplikacja webowa, dostępna przez przeglądarkę, czy może serwis, dostepny przez klientów dekstopowych i mobilnych, czy jeszcze coś innego), podstawowych technologiach, planowanym wdrożeniu 
 
+% TO DO: podczas redakcji pracy pojawia się kłopot z czasami (przeszły, teraźniejszy, przyszły), czasownikami (dokonane, niedokonane) i trybami (orzekający, rozkazujący, przypuszczający oraz warunkowy). Zwykle podczas redagowania założeni stosuje się czasowniki niedokonane, tryp orzekający-warunkowy-przypuszczający. Proszę zwrócić na to uwagę.
+
 Celem niniejszego opracowania jest zaprojektowanie i wdrożenie internetowej aplikacji elektronicznego biura obsługi klienta (eCSO) dla wspólnoty mieszkaniowej. Aplikacja ma ułatwić zarządzanie procesami związanymi z komunikacją, płatnościami, zgłoszeniami technicznymi i dostępem do odpowiednich dokumentów. W rezultacie zarówno mieszkańcy wspólnoty, jak i użytkownicy zarządzający skorzystają z kompleksowego narzędzia, które zautomatyzuje wiele codziennych zadań i poprawi efektywność ich praktyk.
 
-Zakres prac obejmuje cały cykl rozwoju oprogramowania, począwszy od analizy potrzeb wspólnoty mieszkaniowej, poprzez zaprojektowanie architektury systemu, wdrożenie i przetestowanie gotowego rozwiązania. Aplikacja będzie dostępna w przeglądarce internetowej i zapewni dostęp z różnych urządzeń, w tym w wersji desktopowej. 
+Zakres prac objąć ma cały cykl rozwoju oprogramowania, począwszy od analizy potrzeb wspólnoty mieszkaniowej, poprzez zaprojektowanie architektury systemu, wdrożenie i przetestowanie gotowego rozwiązania. Aplikacja będzie dostępna w przeglądarce internetowej i zapewni dostęp z różnych urządzeń, w tym w wersji desktopowej. 
 
-Backend systemu realizowany jest z wykorzystaniem technologii Java i Spring Boot, co umożliwia tworzenie skalowalnych i bezpiecznych aplikacji. Baza danych oparta jest na PostgreSQL, która będzie postawiona w kontenerze Docerowym. Cały system jest zarządzany i wdrażany przy użyciu Dockera.
-
-Front-end aplikacji będzie oparty na Next.js, napisany w TypeScript i zoptymalizowany pod kątem użyteczności i szybkości z nowoczesnym, responsywnym interfejsem użytkownika Next.js zapewnia dynamiczne ładowanie danych i interaktywne elementy, znacznie poprawiając wrażenia użytkownika z aplikacji.
-
+Backend systemu zostanie zrealizowany z wykorzystaniem technologii Java i Spring Boot, co umożliwi tworzenie skalowalnych i bezpiecznych aplikacji. Wykorzystaną bazą danych będzie PostgreSQL, uruchomiona w kontenerze dockerowym, podobnie jak i cały budowany system. Front-end aplikacji zostanie stworzony w języku TypeScript na platformie Next.js i zoptymalizowany pod kątem użyteczności i szybkości z nowoczesnym, responsywnym interfejsem użytkownika. 
 
 \section{Układ pracy}
 % tutaj opis zawartości kolejnych rozdziałów, można zredagować na końcu
