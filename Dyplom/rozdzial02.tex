@@ -3,9 +3,10 @@ Analiza wymagań jest kluczowym etapem procesu tworzenia oprogramowania. W jego 
 
 \section{Opis architektury systemu}
 Zaprojektowanie architektury systemu jeszcze przed jego implementacją pozwala na stworzenie efektywnego i funkcjonalnego rozwiązania. W przypadku aplikacji tworzonej aplikacji eBOK dla wspólnoty mieszkaniowej istotne są tu zarówno potrzeby użytkowników, jak i wymagania techniczne. W tym rozdziale przedstawione zostaną główne komponenty systemu oraz ich wzajemne interakcje, na podstawie przedstawionego schematu.
+
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=.8\linewidth]{Schematy/zarys_architektury} % TO DO: coś jest nie tak na diagramie - czy będą kontenery w kontenerach? Proszę też dbać o jakość rysunków - trzeba je zacieśniać, wyrównywać, stosować ten sam styl piktogramów
+    \includegraphics[width=.8\linewidth]{Schematy/zarys_architektury}
     \caption{Diagram przedstawiający architekturę systemu „Harmony Home Net”}
     \label{fig:zarys_architektury}
 \end{figure}
@@ -25,7 +26,7 @@ Jak przedstawiono na rysunku \ref{fig:zarys_architektury}, system składa się z
 
 	\item \textbf{Warstwa dostępu do danych} - Odpowiada za komunikację z bazą danych PostgreSQL, przechowującą informacje dotyczące użytkowników, zgłoszeń, płatności i innych istotnych danych. Ta warstwa zapewnia trwałość i integralność danych w systemie. W diagramie (rys. \ref{fig:zarys_architektury}), baza danych PostgreSQL jest zlokalizowana po prawej stronie, gdzie przechowuje wszystkie kluczowe informacje aplikacji.
 
-	\item \textbf{Baza danych} - System PostgreSQL, działający w kontenerze Docker, przechowuje wszystkie kluczowe dane aplikacji. Dzięki konteneryzacji możliwe jest łatwe skalowanie i zarządzanie bazą danych w środowisku produkcyjnym. Baza danych jest przedstawiona po prawej stronie diagramu, gdzie współpracuje z backendem przy operacjach odczytu i zapisu danych.
+	\item \textbf{Baza danych} - System wykorzystuje gotowy obraz Dockerowy PostgreSQL zamiast tworzenia nowej instancji bazy danych. Obraz ten zapewnia zarządzanie kluczowymi danymi aplikacji, takimi jak informacje o użytkownikach, zgłoszenia czy płatności. Dzięki zastosowaniu konteneryzacji, proces zarządzania bazą danych staje się prostszy i bardziej skalowalny ~\cite{Docker-docs,vsupalov}. Na diagramie (rys. \ref{fig:zarys_architektury}) baza danych PostgreSQL jest umieszczona po prawej stronie, gdzie współpracuje z backendem przy operacjach odczytu i zapisu danych.
 
 	\item \textbf{Serwer OAuth 2.0} - Serwer autoryzacji, który zapewnia bezpieczeństwo dostępu do zasobów systemu przez użytkowników. OAuth 2.0 umożliwia zarządzanie autoryzacją dostępu, co zwiększa bezpieczeństwo aplikacji. Na diagramie nie jest bezpośrednio zaznaczony, ale stanowi część systemu bezpieczeństwa aplikacji.
 
@@ -41,7 +42,7 @@ Interakcje między komponentami są kluczowe dla sprawnego funkcjonowania system
 \begin{itemize} 
 	\item \textbf{Frontend i Backend} - Frontend wysyła zapytania HTTPS do backendu (pokazanego pośrodku diagramu rys. \ref{fig:zarys_architektury}), poprzez zabezpieczenie protokołem TLS, w celu pobrania lub wysłania w sposób bezpieczny danych. Backend przetwarza te zapytania, wykonuje odpowiednie operacje na bazie danych i zwraca odpowiedzi do frontendu. Dane są wysyłane i odbierane w formacie JSON. Te interakcje są widoczne na schemacie jako przepływ między frontem po prawej a backendem w centrum.
 	
-	\item \textbf{Backend i Baza danych} - Backend łączy się z bazą danych PostgreSQL w celu odczytu i zapisu danych. Wszystkie operacje na danych, takie jak dodawanie nowych zgłoszeń czy aktualizacja informacji o płatnościach, są realizowane przez backend.
+	\item \textbf{Backend i Baza danych} - Backend łączy się z bazą danych PostgreSQL, która działa w kontenerze Docker, zapewniając niezależność środowiska oraz łatwość zarządzania i wdrażania. Gotowy obraz PostgreSQL usprawnia proces implementacji oraz dynamiczne skalowanie aplikacji, co ma kluczowe znaczenie dla jej wydajności i elastyczności~\cite{Docker-docs,vsupalov}.
 
 	\item \textbf{Backend i System płatności} - Backend integruje się z systemami płatności, aby obsługiwać transakcje finansowe. Po dokonaniu płatności, system płatności przekazuje informacje zwrotne do backendu, który aktualizuje status płatności w bazie danych.
 
@@ -112,7 +113,7 @@ Wymagania funkcjonalne aplikacji eBOK skupiają się na kluczowych obszarach dzi
 
 	\item \textbf{Dostępność:} Aplikacja powinna być dostępna przez 99,9\% czasu, z minimalnymi przerwami na konserwację. Wdrożenie technologii kontenerowej (Docker) oraz monitorowanie serwerów w czasie rzeczywistym pozwala na szybkie identyfikowanie problemów i automatyczne odzyskiwanie usług w przypadku awarii.
 
-	\item \textbf{Intuicyjność interfejsu:} Aplikacja musi być łatwa w obsłudze zarówno dla mieszkańców, jak i administratorów. Intuicyjny interfejs, oparty na komponentach Shadcn UI i zgodny z wytycznymi WCAG 2.0, zapewnia łatwy dostęp do funkcji. Ocenę intuicyjności można przeprowadzić na podstawie testów akceptacyjnych, w których użytkownicy będą oceniali łatwość korzystania z systemu w skali.
+	\item \textbf{Intuicyjność interfejsu:} Aplikacja musi być łatwa w obsłudze zarówno dla mieszkańców, jak i administratorów. Intuicyjny interfejs, oparty na komponentach Shadcn UI i zgodny z wytycznymi WCAG 2.0, zapewnia łatwy dostęp do funkcji. Ocenę intuicyjności można przeprowadzić na podstawie testów akceptacyjnych, w których użytkownicy będą oceniali łatwość korzystania z systemu.
 	
 	\item \textbf{Zgodność z przepisami RODO:} System musi spełniać wymagania dotyczące ochrony danych osobowych, wynikające z RODO. Oznacza to, że wszystkie dane osobowe przechowywane w systemie muszą być chronione, użytkownicy muszą mieć możliwość wglądu w swoje dane, ich modyfikacji, a także żądania ich usunięcia. Przetwarzanie danych osobowych musi być odpowiednio udokumentowane, a dostęp do tych danych powinien być ograniczony.
 

@@ -1,0 +1,9 @@
+- Zwykle wprowadzenie zajmuje półtorej do dwóch stron
+
+- proszę w miarę możliwości unikać wyrażenia "funkcjonalności", a używać raczej "funkcje". !!!
+
+- podczas redakcji pracy pojawia się kłopot z czasami (przeszły, teraźniejszy, przyszły), czasownikami (dokonane, niedokonane) i trybami (orzekający, rozkazujący, przypuszczający oraz warunkowy). Zwykle podczas redagowania założeni stosuje się czasowniki niedokonane, tryb orzekający - warunkowy - przypuszczający. Proszę zwrócić na to uwagę.
+
+- proszę uważać na apostrofy podczas cytowania - ich stosowanie w całej pracy powinno być spójne. Ja poprawiłem apostrofy w tym rozdziale na polskie pisarskie:  ,, (dolny) ''(górny) - latex zamieni dwa przecinki i dwa pojedyncze apostrofy na znaki podwójnego apostrofu dolnego i górnego.
+
+- Proszę też dbać o jakość rysunków - trzeba je zacieśniać, wyrównywać, stosować ten sam styl piktogramów
