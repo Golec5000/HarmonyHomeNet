@@ -28,7 +28,7 @@ Jak przedstawiono na rysunku \ref{fig:zarys_architektury}, system składa się z
 
 	\item \textbf{Baza danych} - System wykorzystuje gotowy obraz Dockerowy PostgreSQL zamiast tworzenia nowej instancji bazy danych. Obraz ten zapewnia zarządzanie kluczowymi danymi aplikacji, takimi jak informacje o użytkownikach, zgłoszenia czy płatności. Dzięki zastosowaniu konteneryzacji, proces zarządzania bazą danych staje się prostszy i bardziej skalowalny ~\cite{Docker-docs,vsupalov}. Na diagramie (rys. \ref{fig:zarys_architektury}) baza danych PostgreSQL jest umieszczona po prawej stronie, gdzie współpracuje z backendem przy operacjach odczytu i zapisu danych.
 
-	\item \textbf{Serwer OAuth 2.0} - Serwer autoryzacji, który zapewnia bezpieczeństwo dostępu do zasobów systemu przez użytkowników. OAuth 2.0 umożliwia zarządzanie autoryzacją dostępu, co zwiększa bezpieczeństwo aplikacji. Na diagramie nie jest bezpośrednio zaznaczony, ale stanowi część systemu bezpieczeństwa aplikacji.
+	\item \textbf{Serwer OAuth 2.0} - Serwer autoryzacji, który zapewnia bezpieczeństwo dostępu do zasobów systemu przez użytkowników. OAuth 2.0 umożliwia zarządzanie autoryzacją dostępu, co zwiększa bezpieczeństwo aplikacji.
 
 	\item \textbf{Systemy zewnętrzne} - Aplikacja integruje się z zewnętrznymi systemami, takimi jak bankowość (np. obsługa płatności online) oraz urządzenia zewnętrzne (np. liczniki zużycia mediów), co umożliwia kompleksową obsługę mieszkańców i automatyzację procesów. Zewnętrzne systemy znajdują się po lewej stronie diagramu, skąd integrują się z backendem w celu wymiany danych.
 
