@@ -1,17 +1,11 @@
 \chapter{Analiza wymagań}
-
-Analiza wymagań to kluczowy etap procesu tworzenia oprogramowania, który ma na celu zrozumienie potrzeb użytkowników oraz specyfikacji systemu. W przypadku projektowania aplikacji typu Elektroniczne Biuro Obsługi Klienta (eBOK) dla wspólnoty mieszkaniowej, istotne jest zidentyfikowanie wszystkich funkcji, 
-% TO DO: proszę w miarę możliwości unikać wyrażenia "funkcjonalności", a używać raczej "funkcje".
-które będą odpowiadały zarówno mieszkańcom, jak i administratorom. Poprawna analiza wymagań pozwala na stworzenie systemu, który nie tylko spełnia potrzeby użytkowników, ale także jest skalowalny, bezpieczny i łatwy w utrzymaniu.
-
-W niniejszym rozdziale zostaną omówione zarówno funkcjonalne, jak i niefunkcjonalne wymagania systemu, uwzględniając różnorodne potrzeby użytkowników. Przeanalizowane zostaną także kluczowe aspekty, takie jak bezpieczeństwo, wydajność, intuicyjność interfejsu, a także integracja z innymi systemami. Wymagania te będą stanowiły podstawę do zaprojektowania architektury systemu oraz jego implementacji.
+Analiza wymagań jest kluczowym etapem procesu tworzenia oprogramowania. W jego trakcie dąży się do zrozumienie potrzeb użytkowników oraz przygotowanie poprawnej specyfikacji systemu. Analiza wymagań powinna uwzględniać także inne aspekty, związane np.\ ze skalowalnością, bezpieczeństwem i utrzymaniem systemu. W przypadku projektowania aplikacji typu eBOK dla wspólnoty mieszkaniowej, istotne jest zidentyfikowanie wszystkich funkcji wymaganych funkcji, które będą odpowiadały zarówno mieszkańcom, jak i administratorom, jak również przeanalizowanie kluczowych zagadnień dotyczących bezpieczeństwo, wydajności, intuicyjności interfejsu, a także integracji z innymi systemami. 
 
 \section{Opis architektury systemu}
-Opis architektury systemu jest kluczowym krokiem w projektowaniu oprogramowania, który pozwala na stworzenie efektywnego i funkcjonalnego rozwiązania. W przypadku aplikacji Elektronicznego Biura Obsługi Klienta (eBOK) dla wspólnoty mieszkaniowej, architektura musi uwzględniać zarówno potrzeby użytkowników, jak i wymagania techniczne. W tym rozdziale przedstawione zostaną główne komponenty systemu oraz ich wzajemne interakcje, na podstawie przedstawionego schematu.
-
+Zaprojektowanie architektury systemu jeszcze przed jego implementacją pozwala na stworzenie efektywnego i funkcjonalnego rozwiązania. W przypadku aplikacji tworzonej aplikacji eBOK dla wspólnoty mieszkaniowej istotne są tu zarówno potrzeby użytkowników, jak i wymagania techniczne. W tym rozdziale przedstawione zostaną główne komponenty systemu oraz ich wzajemne interakcje, na podstawie przedstawionego schematu.
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=1.11\linewidth]{Schematy/zarys_architektury.png}
+    \includegraphics[width=.8\linewidth]{Schematy/zarys_architektury} % TO DO: coś jest nie tak na diagramie - czy będą kontenery w kontenerach? Proszę też dbać o jakość rysunków - trzeba je zacieśniać, wyrównywać, stosować ten sam styl piktogramów
     \caption{Diagram przedstawiający architekturę systemu „Harmony Home Net”}
     \label{fig:zarys_architektury}
 \end{figure}
