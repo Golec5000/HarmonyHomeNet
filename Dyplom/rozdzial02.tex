@@ -1,23 +1,19 @@
 \chapter{Analiza wymagań}
-Analiza wymagań jest kluczowym etapem procesu tworzenia oprogramowania. W jego trakcie dąży się do zrozumienie potrzeb użytkowników oraz przygotowanie poprawnej specyfikacji systemu. Analiza wymagań powinna uwzględniać także inne aspekty, związane np.\ ze skalowalnością, bezpieczeństwem i utrzymaniem systemu. W przypadku projektowania aplikacji typu eBOK dla wspólnoty mieszkaniowej, istotne jest zidentyfikowanie wszystkich funkcji wymaganych funkcji, które będą odpowiadały zarówno mieszkańcom, jak i administratorom, jak również przeanalizowanie kluczowych zagadnień dotyczących bezpieczeństwo, wydajności, intuicyjności interfejsu, a także integracji z innymi systemami. 
+Analiza wymagań jest kluczowym etapem procesu tworzenia oprogramowania. W jego trakcie dąży się do zrozumienie potrzeb użytkowników oraz przygotowanie poprawnej specyfikacji systemu. Analiza wymagań powinna uwzględniać także inne aspekty, związane np.\ ze skalowalnością, bezpieczeństwem i utrzymaniem systemu. W przypadku projektowania aplikacji typu eBOK dla wspólnoty mieszkaniowej, istotne jest zidentyfikowanie wszystkich funkcji wymaganych funkcji, które będą odpowiadały zarówno mieszkańcom, jak i administratorom, jak również przeanalizowanie kluczowych zagadnień dotyczących bezpieczeństwo, wydajności, intuicyjności interfejsu, architektury, a także integracji z innymi systemami. 
 
-\section{Opis architektury systemu}
-Zaprojektowanie architektury systemu jeszcze przed jego implementacją pozwala na stworzenie efektywnego i funkcjonalnego rozwiązania. W przypadku aplikacji tworzonej aplikacji eBOK dla wspólnoty mieszkaniowej istotne są tu zarówno potrzeby użytkowników, jak i wymagania techniczne. W tym rozdziale przedstawione zostaną główne komponenty systemu oraz ich wzajemne interakcje, na podstawie przedstawionego schematu.
-
+\section{Architektury systemu}
+Zaprojektowanie architektury systemu jeszcze przed jego implementacją pozwala na stworzenie efektywnego i funkcjonalnego rozwiązania. Samo projektowanie architektury zwykle zaczyna się od naszkicowania jej zarysu, z wyszczególnieniem głównych komponentów systemu oraz ich wzajemnych interakcji. Taki szkic przedstawiono na rysunku~\label{fig:zarys_architektury}.
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=.8\linewidth]{Schematy/zarys_architektury}
-    \caption{Diagram przedstawiający architekturę systemu „Harmony Home Net”}
+    \includegraphics[width=\linewidth]{Schematy/zarys_architektury}
+    \caption{Zarys architektury systemu „Harmony Home Net”}
     \label{fig:zarys_architektury}
 \end{figure}
-
+Widać na nim, że system składa się z kilku współpracujących ze sobą komponentów wdrożonych z wykorzystaniem konteneryzacji.
 
 \subsection{Komponenty systemu}
-
-Jak przedstawiono na rysunku \ref{fig:zarys_architektury}, system składa się z kilku kluczowych komponentów, które współpracują ze sobą, aby zapewnić pełną integralność aplikacji.
-
+System składać się ma z następujących komponentów: % TO DO: proszę doczytać (o co już prosiłem) zalecenia opisane w szablonie pracy (w szczególności Rozdział 5. Uwagi techniczne) i dostosować się do tych zaleceń.
 \begin{itemize} 
-
 	\item \textbf{Frontend} - Interfejs użytkownika aplikacji, zrealizowany w frameworku Next.js, pisany w TypeScript. Frontend obsługuje interakcje użytkowników (mieszkańców oraz administratorów) oraz prezentuje dane w odpowiednim formacie. Komunikacja z backendem odbywa się za pośrednictwem bezpiecznego protokołu HTTPS, a dane są szyfrowane przy pomocy protokołu TLS. Frontend (pokazany po prawej stronie na rys. \ref{fig:zarys_architektury}) pełni kluczową rolę w interakcji z użytkownikami, umożliwiając im dostęp do danych w łatwy sposób.
 
 	\item \textbf{Backend} - Serwer aplikacji, oparty na Spring Boot, działający w kontenerze Docker, odpowiedzialny za logikę biznesową oraz zarządzanie danymi. Backend znajduje się centralnie na diagramie (rys. \ref{fig:zarys_architektury}) i odpowiada za funkcje takie jak autoryzacja użytkowników (przez OAuth 2.0), obsługa zgłoszeń mieszkańców, zarządzanie płatnościami i komunikacja z zewnętrznymi systemami. Konteneryzacja za pomocą Dockera (również widoczna na diagramie) zapewnia elastyczność i łatwość w skalowaniu.
