@@ -667,6 +667,9 @@ Listing \thelstlisting: #1\hfill%\hfill%
 %\renewcommand\abstractname{Abstract} 
 %}%}
 
+%\let\oldmarkboth\markboth
+%\renewcommand{\markboth}[2]{\oldmarkboth{\small{#1}}{\small{#2}}}
+
 \renewcommand{\abstractnamefont}{\normalfont\Large\bfseries}
 \renewcommand{\abstracttextfont}{\normalfont}
 
@@ -838,8 +841,8 @@ Specjalność: & {\bfseries \@specjalnosc}\\
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %\Mastertrue % INFO: odkomentuj, jeśli to praca magisterska
-\title{Projekt narzędzia programowego wspierającego obsługę mieszkańców i właścicieli nieruchomości} % INFO: tytuł pracy w języku polskim 
-%\titleShort{Szablon pracy dyplomowej ...}  % INFO: krótki tytuł pracy (do zamieszczenia w stopce, sklejony z imieniem i nazwiskiem autora nie powinien zająć więcej niż jedną linijkę)
+\title{Projekt narzędzia programowego wspierającego obsługę mieszkańców i~właścicieli nieruchomości} % INFO: tytuł pracy w języku polskim 
+\titleShort{Projekt narzędzia programowego wspierającego obsługę mieszkańców $\ldots$}  % INFO: krótki tytuł pracy (do zamieszczenia w stopce, sklejony z imieniem i nazwiskiem autora nie powinien zająć więcej niż jedną linijkę)
 \titleEN{Design of a software tool supporting services for resident and property owners} % INFO: tytuł pracy w języku angielskim
 \author{Daniel Ryszkowski}  % INFO: imię i nazwisko autora
 \uczelnia{Politechnika Wrocławska} % INFO: nazwa uczelni
@@ -847,8 +850,8 @@ Specjalność: & {\bfseries \@specjalnosc}\\
 \kierunek{Informatyka techniczna (ITE)} % IFO: nazwa kierunku
 \specjalnosc{Inżynieria systemów informatycznych (INS)} % INFO: nazwa specjalności
 \promotor{dr inż.\ Tomasz Kubik} % INFO: dane promotora 
-\kvpl{raz, dwa, trzy} % INFO: słowa kluczowe po polsku
-\kven{one, two, three} % INFO: słowa kluczowe po angielsku
+\kvpl{elektroniczne biuro obsługi klienta, aplikacja internetowa, konteneryzacja} % INFO: słowa kluczowe po polsku
+\kven{electronic customer service, web application, containerization} % INFO: słowa kluczowe po angielsku
 \date{WROCŁAW, 2024} % INFO: miejscowość, rok złożenia pracy dyplomowej
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
