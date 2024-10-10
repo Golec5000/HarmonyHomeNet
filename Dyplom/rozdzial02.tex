@@ -52,20 +52,23 @@ Interakcje między komponentami są przedstawione na schemacie (\ref{fig:zarys_a
 \end{enumerate}
 
 
-\section{Wymagania aplikacji}
+\section{Wymagania aplikacji} %DONE: aktualizaja opisu rozmowy na ostanim spotkaniu
 
 Aplikacja eBOK ma za zadanie wspierać zarządzanie wspólnotami mieszkaniowymi poprzez poprawę komunikacji między mieszkańcami a administracją oraz automatyzację procesów związanych z obsługą nieruchomości. Kluczowym elementem systemu jest zarządzanie lokalami, które odgrywają centralną rolę w wielu funkcjach aplikacji – od zgłaszania usterek, przez płatności, aż po organizację głosowań.
 
-Lokale, definiowane jako nieruchomości (mieszkania, apartamenty, biura itp.), są głównym zasobem, który wymaga skutecznego zarządzania zarówno z perspektywy mieszkańca, jak i administratora. Dla mieszkańca lokal stanowi jednostkę przypisania płatności, zgłoszeń technicznych i dokumentów, natomiast dla administratora stanowi obszar monitorowania bieżących płatności, obsługi technicznej oraz interakcji z właścicielami i najemcami. Zarządzanie lokalami w aplikacji eBOK będzie kluczową funkcją, umożliwiającą efektywne administrowanie nieruchomościami.
+Lokale, definiowane jako nieruchomości (mieszkania, apartamenty, biura itp.), są głównym zasobem, który wymaga skutecznego zarządzania zarówno z perspektywy mieszkańca, jak i administracji spółdzielni oraz administratorów całego systemu. Mieszkaniec, będący właścicielem lokalu, przypisuje do swojego konta lokal, który jest podstawą do wszelkich interakcji z systemem, takich jak płatności, zgłoszenia techniczne czy udział w głosowaniach. Z kolei pracownicy administracji spółdzielni zarządzają bieżącymi operacjami dotyczącymi lokali, a administratorzy systemu mają pełen dostęp do wszystkich funkcji zarządzania aplikacją oraz integracji z innymi systemami.
 
 \subsection{Przykłady użycia aplikacji}
 
-Aplikacja eBOK oferuje szeroki zakres funkcji, z których korzystają różne grupy użytkowników. Główne przypadki użycia obejmują zarządzanie relacjami pomiędzy mieszkańcami a administracją, w zakresie takich działań jak płatności, zgłoszenia usterek, dostęp do dokumentów oraz udział w głosowaniach. System przewiduje dwie główne grupy użytkowników:
+Aplikacja eBOK oferuje szeroki zakres funkcji, z których korzystają trzy główne grupy użytkowników. Główne przypadki użycia obejmują zarządzanie relacjami pomiędzy mieszkańcami a administracją, w zakresie takich działań jak płatności, zgłoszenia usterek, dostęp do dokumentów oraz udział w głosowaniach. System przewiduje trzy główne grupy użytkowników:
 
 \begin{itemize} 
-	\item \textbf{Mieszkańcy (właściciele i najemcy)}: Po zalogowaniu do systemu, użytkownicy mają możliwość przeglądania należności przypisanych do lokalu, regulowania opłat online oraz przeglądania historii rachunków. Mogą również zgłaszać usterki (np. awarie ogrzewania, przecieki) i monitorować status zgłoszeń. Dodatkowo, mają dostęp do dokumentów związanych z lokalem, takich jak umowy, regulaminy czy faktury.
+
+	\item \textbf{Mieszkańcy (właściciele)}: Po zalogowaniu do systemu, właściciele lokali mają możliwość przeglądania należności przypisanych do lokalu, regulowania opłat online oraz przeglądania historii rachunków. Mogą również zgłaszać usterki (np. awarie ogrzewania, przecieki) i monitorować status zgłoszeń. Mają pełen dostęp do dokumentów związanych z lokalem, takich jak umowy, regulaminy czy faktury. Oprócz tego mogą uczestniczyć w głosowaniach organizowanych przez administrację.
 	
-	\item \textbf{Administratorzy}: Korzystają z panelu administracyjnego, który umożliwia zarządzanie zgłoszeniami technicznymi poprzez przypisywanie zadań wykonawcom oraz monitorowanie płatności związanych z każdym lokalem. Administratorzy prowadzą także rejestr dokumentów i utrzymują kontakt z mieszkańcami.
+	\item \textbf{Pracownicy administracji spółdzielni}: Pracownicy administracji korzystają z panelu zarządzania spółdzielnią, który umożliwia im monitorowanie zgłoszeń technicznych, przypisywanie zadań wykonawcom oraz monitorowanie bieżących płatności dla lokali. Mają także możliwość organizowania i zarządzania głosowaniami mieszkańców oraz prowadzenia rejestru dokumentów związanych z lokalami.
+
+	\item \textbf{Administratorzy systemu}: Administratorzy całego systemu mają dostęp do zaawansowanego panelu administracyjnego, który pozwala im na zarządzanie wszystkimi funkcjami aplikacji, w tym przypisywanie pracowników administracji do poszczególnych spółdzielni, monitorowanie działania systemu, konfigurowanie integracji z zewnętrznymi systemami oraz zarządzanie bazą danych lokali i użytkowników.
 
 \end{itemize}
 
@@ -77,49 +80,49 @@ Wymagania funkcjonalne aplikacji eBOK koncentrują się na kluczowych działania
 
 \begin{enumerate}[label=\arabic*.]
 
-    \item \textbf{Zarządzanie kontem użytkownika i lokalami:} Użytkownicy muszą mieć możliwość zakładania kont, zarządzania swoimi danymi osobowymi oraz przypisywania lokali do konta. Mieszkańcy mogą być przypisani do wielu lokali, w zależności od tego, czy są właścicielami, czy najemcami. Funkcje dostępne w systemie zależą od roli użytkownika w danym lokalu (właściciel ma dostęp do szerszego zakresu funkcji niż najemca).
+    \item \textbf{Zarządzanie kontem użytkownika i lokalami}: Każda grupa użytkowników posiada odrębne uprawnienia. Mieszkańcy mają możliwość zarządzania swoimi danymi oraz przypisywania lokali do konta. Pracownicy administracji mogą zarządzać kontami mieszkańców oraz przypisywać do nich lokale, a także zarządzać dokumentacją i zgłoszeniami dotyczącymi lokali. Administratorzy systemu zarządzają kontami wszystkich użytkowników, w tym pracowników administracji oraz mieszkańców.
 
-	\item \textbf{Przegląd i płatność należności:} Aplikacja umożliwia mieszkańcom przeglądanie szczegółowych informacji na temat należności związanych z danym lokalem. Właściciele mają dostęp do pełnej historii opłat oraz możliwość realizacji płatności online. Najemcy mogą przeglądać jedynie opłaty wynikające z umowy najmu. Powiadomienia o zaległościach przypominają użytkownikom o konieczności uregulowania opłat.
+	\item \textbf{Przegląd i płatność należności}: Właściciele lokali mogą przeglądać szczegóły dotyczące należności oraz historię płatności, a także realizować płatności online. System automatycznie wysyła powiadomienia o zaległościach, przypominając o konieczności uregulowania opłat. Pracownicy administracji mogą monitorować płatności wszystkich mieszkańców, przeglądać zaległości i zarządzać procesem windykacji. Administratorzy systemu mogą konfigurować integrację z systemami płatności oraz generować raporty dotyczące płatności.
 
-	\item \textbf{Zarządzanie zgłoszeniami technicznymi dla lokali:} Mieszkańcy mogą zgłaszać problemy techniczne dotyczące lokali, które są im przypisane. Właściciele mogą mieć dodatkowe uprawnienia do nadzorowania zgłoszeń związanych z większą liczbą lokali.
+	\item \textbf{Zarządzanie zgłoszeniami technicznymi dla lokali}:Mieszkańcy mogą zgłaszać usterki lub problemy techniczne związane ze swoimi lokalami oraz monitorować status tych zgłoszeń. Pracownicy administracji monitorują zgłoszenia, przypisują je odpowiednim wykonawcom i śledzą postęp napraw. Administratorzy systemu mogą zarządzać zgłoszeniami na poziomie globalnym, przeglądać ich historię i tworzyć raporty.
 
-	\item \textbf{Zarządzanie dokumentami:} Lokale są powiązane z dokumentami, takimi jak umowy najmu, protokoły przekazania, regulaminy czy faktury. Właściciele mają pełen dostęp do dokumentów związanych z ich lokalami, natomiast najemcy mogą przeglądać tylko te dokumenty, które dotyczą ich umowy najmu. Administratorzy zarządzają dokumentami, przypisując je odpowiednim użytkownikom.
+	\item \textbf{Zarządzanie dokumentami}: Właściciele mają pełen dostęp do dokumentów związanych z ich lokalami, takich jak umowy, regulaminy czy faktury. Pracownicy administracji zarządzają dokumentami powiązanymi z lokalami, przypisując je odpowiednim mieszkańcom oraz dbając o ich aktualność. Administratorzy systemu mogą tworzyć nowe kategorie dokumentów, zarządzać dostępami i monitorować całość systemu dokumentacji.
 
-	\item \textbf{Głosowania mieszkańców:} W przypadku decyzji dotyczących zarządzania wspólnotą, administrator może organizować głosowania. Prawo do głosowania mają mieszkańcy przypisani do lokali, na podstawie swojej roli (właściciele). Proces głosowania jest zautomatyzowany, a wyniki są dostępne w czasie rzeczywistym.
-
-	\item \textbf{Powiadomienia i komunikacja:} System powiadamia użytkowników o ważnych wydarzeniach związanych z ich lokalem, takich jak zaległe płatności, zgłoszenia serwisowe czy głosowania. Funkcje powiadomień zależą od roli użytkownika (właściciel lub najemca) i dostępnych dla niego opcji.
-
-	\item \textbf{Panel administracyjny:} Administratorzy korzystają z zaawansowanego panelu, który umożliwia zarządzanie wszystkimi lokalami, przypisywanie mieszkańców do lokali, weryfikację uprawnień użytkowników oraz monitorowanie zgłoszeń technicznych. Na podstawie umów lub dokumentów, administrator przypisuje lokale do kont użytkowników.
-
-	\item \textbf{Integracja z zewnętrznymi systemami:} Aplikacja eBOK musi integrować się z zewnętrznymi systemami, takimi jak systemy pomiarowe liczników mediów (np. wodomierze, liczniki energii) oraz systemy płatności. Integracja umożliwia automatyczne generowanie rachunków oraz synchronizację danych dotyczących zużycia mediów.
-
-	\item \textbf{Stany liczników:} Użytkownicy mogą wprowadzać i przeglądać stany liczników powiązanych z lokalami, takich jak odczyty wodomierzy czy liczników energii. System automatycznie generuje rozliczenia na podstawie wprowadzonych odczytów, co pozwala na dokładne monitorowanie zużycia mediów i kontrolowanie kosztów.
-
-	\item \textbf{Forum mieszkańców:} System umożliwia mieszkańcom uczestnictwo w forum dyskusyjnym. Każdy mieszkaniec przypisany do lokalu, niezależnie od roli (właściciel, najemca), może uczestniczyć w dyskusjach, dodawać nowe tematy oraz odpowiadać na pytania innych mieszkańców. Administratorzy moderują forum i mogą przypinać istotne informacje.
-
+	\item \textbf{Głosowania mieszkańców}: Właściciele mogą brać udział w głosowaniach dotyczących spraw wspólnoty mieszkaniowej. Pracownicy administracji organizują głosowania, publikują wyniki i zarządzają całością procesu głosowania. Administratorzy systemu mają dostęp do statystyk i wyników głosowań oraz mogą nadzorować ich przebieg.
+	
+	\item \textbf{Powiadomienia i komunikacja}: System wysyła powiadomienia do mieszkańców o ważnych wydarzeniach, takich jak zaległe płatności, zgłoszenia serwisowe, planowane prace konserwacyjne czy nadchodzące głosowania. Pracownicy administracji mogą zarządzać powiadomieniami, konfigurować harmonogram wysyłki oraz komunikować się z mieszkańcami za pomocą różnych kanałów (e-mail, SMS). Administratorzy systemu mogą monitorować i konfigurować system powiadomień.
+	
+	\item \textbf{Panel administracyjny}: Pracownicy administracji korzystają z panelu, który umożliwia zarządzanie lokalami, przypisywanie mieszkańców, monitorowanie zgłoszeń technicznych i kontrolowanie płatności. Administratorzy systemu mają dostęp do zaawansowanych funkcji, takich jak zarządzanie całą bazą danych lokali, użytkowników, dokumentów oraz konfiguracja integracji z zewnętrznymi systemami.
+	
+	\item \textbf{Integracja z zewnętrznymi systemami}: Aplikacja eBOK integruje się z zewnętrznymi systemami, takimi jak systemy pomiarowe liczników mediów (np. wodomierze, liczniki energii) oraz platformy płatności. Integracja umożliwia automatyczne generowanie rachunków oraz synchronizację danych dotyczących zużycia mediów. Administratorzy systemu są odpowiedzialni za konfigurację i monitorowanie tych integracji.
+	
+	\item \textbf{Stany liczników}: Mieszkańcy mogą przeglądać stany liczników powiązanych z ich lokalami, takich jak wodomierze czy liczniki energii. Na podstawie wprowadzonych odczytów system automatycznie generuje rozliczenia. Pracownicy administracji mogą monitorować i weryfikować stany liczników oraz generować raporty rozliczeń dla całej wspólnoty. Administratorzy systemu zarządzają całą infrastrukturą liczników oraz integracją z systemami pomiarowymi.
+	
+	\item \textbf{Forum mieszkańców}: Mieszkańcy mogą korzystać z forum, aby dyskutować na tematy związane z zarządzaniem wspólnotą, zadawać pytania oraz dzielić się informacjami. Pracownicy administracji mogą moderować forum, odpowiadać na pytania mieszkańców oraz publikować ogłoszenia. Administratorzy systemu mają możliwość zarządzania strukturą forum, przypisywania moderatorów oraz nadzorowania aktywności na forum.
+	
 \end{enumerate}
 
 \subsection{Wymagania niefunkcjonalne}
 
 \begin{enumerate}[label=\arabic*.]
 
-   \item \textbf{Skalowalność:} System musi być elastyczny, aby obsługiwać zarówno małe wspólnoty, jak i duże spółdzielnie, zarządzające setkami lub tysiącami lokali. Zastosowanie technologii Docker do konteneryzacji umożliwia skalowanie poziome (dodawanie instancji), co pozwala na efektywne rozdzielenie obciążenia.
+   \item \textbf{Skalowalność}: System musi być elastyczny, aby obsługiwać zarówno małe wspólnoty, jak i duże spółdzielnie, zarządzające setkami lub tysiącami lokali. Zastosowanie technologii Docker do konteneryzacji umożliwia skalowanie poziome (dodawanie instancji), co pozwala na efektywne rozdzielenie obciążenia.
 
-	\item \textbf{Bezpieczeństwo:} Wszystkie dane muszą być przechowywane i przesyłane w sposób bezpieczny. Wymagana jest komunikacja szyfrowana (TLS) oraz autoryzacja za pomocą OAuth 2.0. System musi także chronić dane przed nieautoryzowanym dostępem i atakami, np. SQL Injection czy XSS.
+	\item \textbf{Bezpieczeństwo}: Wszystkie dane muszą być przechowywane i przesyłane w sposób bezpieczny. Wymagana jest komunikacja szyfrowana (TLS) oraz autoryzacja za pomocą OAuth 2.0. System musi także chronić dane przed nieautoryzowanym dostępem i atakami, np. SQL Injection czy XSS.
 
-	\item \textbf{Wydajność:} System powinien zapewniać szybki czas odpowiedzi, szczególnie podczas przetwarzania dużych ilości danych, takich jak zgłoszenia techniczne czy płatności. Warstwa serwerowa oparta na Spring Boot oraz baza danych PostgreSQL muszą być odpowiednio zoptymalizowane.
+	\item \textbf{Wydajność}: System powinien zapewniać szybki czas odpowiedzi, szczególnie podczas przetwarzania dużych ilości danych, takich jak zgłoszenia techniczne czy płatności. Warstwa serwerowa oparta na Spring Boot oraz baza danych PostgreSQL muszą być odpowiednio zoptymalizowane.
 
-	\item \textbf{Dostępność:} Aplikacja powinna być dostępna przez 99,9\% czasu, z minimalnymi przerwami na konserwację. Monitorowanie serwerów oraz wdrożenie technologii Docker umożliwia szybkie przywracanie usług w przypadku awarii.
+	\item \textbf{Dostępność}: Aplikacja powinna być dostępna przez 99,9\% czasu, z minimalnymi przerwami na konserwację. Monitorowanie serwerów oraz wdrożenie technologii Docker umożliwia szybkie przywracanie usług w przypadku awarii.
 
-	\item \textbf{Intuicyjność interfejsu:} Aplikacja musi być łatwa w obsłudze zarówno dla mieszkańców, jak i administratorów. Interfejs oparty na komponentach Shadcn UI, zgodny z WCAG 2.0, zapewnia dostępność i łatwość nawigacji.
+	\item \textbf{Intuicyjność interfejsu}: Aplikacja musi być łatwa w obsłudze zarówno dla mieszkańców, jak i administratorów. Interfejs oparty na komponentach Shadcn UI, zgodny z WCAG 2.0, zapewnia dostępność i łatwość nawigacji.
 
-	\item \textbf{Zgodność z przepisami RODO:} System musi spełniać wymagania RODO dotyczące ochrony danych osobowych. Użytkownicy muszą mieć możliwość wglądu w swoje dane, ich modyfikacji oraz usunięcia. Proces przetwarzania danych musi być udokumentowany, a dostęp do danych ograniczony.
+	\item \textbf{Zgodność z przepisami RODO}: System musi spełniać wymagania RODO dotyczące ochrony danych osobowych. Użytkownicy muszą mieć możliwość wglądu w swoje dane, ich modyfikacji oraz usunięcia. Proces przetwarzania danych musi być udokumentowany, a dostęp do danych ograniczony.
 
-	\item \textbf{Niezawodność:} System musi zapewniać ciągłość działania oraz regularne tworzenie kopii zapasowych bazy danych. Plan odzyskiwania po awarii musi umożliwiać szybkie przywrócenie funkcjonalności systemu.
+	\item \textbf{Niezawodność}: System musi zapewniać ciągłość działania oraz regularne tworzenie kopii zapasowych bazy danych. Plan odzyskiwania po awarii musi umożliwiać szybkie przywrócenie funkcjonalności systemu.
 
-	\item \textbf{Testowalność:} Wszystkie funkcje aplikacji powinny być testowane automatycznie, co pozwala na szybką identyfikację błędów. Testy jednostkowe, integracyjne i systemowe powinny obejmować zarówno warstwę serwerową, jak i interfejs użytkownika.
+	\item \textbf{Testowalność}: Wszystkie funkcje aplikacji powinny być testowane automatycznie, co pozwala na szybką identyfikację błędów. Testy jednostkowe, integracyjne i systemowe powinny obejmować zarówno warstwę serwerową, jak i interfejs użytkownika.
 
-	\item \textbf{Elastyczność:} Architektura systemu musi umożliwiać łatwe wprowadzanie nowych funkcji oraz modyfikacje istniejących, bez konieczności szerokiej przebudowy kodu. Architektura warstwowa (N-tier) zapewnia rozdzielenie logiki biznesowej, danych oraz interfejsu użytkownika.
+	\item \textbf{Elastyczność}: Architektura systemu musi umożliwiać łatwe wprowadzanie nowych funkcji oraz modyfikacje istniejących, bez konieczności szerokiej przebudowy kodu. Architektura warstwowa (N-tier) zapewnia rozdzielenie logiki biznesowej, danych oraz interfejsu użytkownika.
 
 \end{enumerate}
 
