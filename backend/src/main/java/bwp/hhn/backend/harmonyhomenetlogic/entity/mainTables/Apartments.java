@@ -1,5 +1,7 @@
-package bwp.hhn.backend.harmonyhomenetlogic.entity;
+package bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables;
 
+import bwp.hhn.backend.harmonyhomenetlogic.entity.sideTables.AnnouncementApartment;
+import bwp.hhn.backend.harmonyhomenetlogic.entity.sideTables.PossessionHistory;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -20,7 +22,7 @@ import java.util.UUID;
 public class Apartments {
 
     @Id
-    @Column(name = "UUID_id", unique = true)
+    @Column(name = "UUID_id")
     private UUID uuidID;
 
     @Column(name = "Address", nullable = false, length = 50)
@@ -53,4 +55,7 @@ public class Apartments {
 
     @OneToMany(mappedBy = "apartment", cascade = CascadeType.ALL)
     private List<Payment> payments;
+
+    @OneToMany(mappedBy = "apartment", cascade = CascadeType.ALL)
+    private List<AnnouncementApartment> announcementApartments;
 }

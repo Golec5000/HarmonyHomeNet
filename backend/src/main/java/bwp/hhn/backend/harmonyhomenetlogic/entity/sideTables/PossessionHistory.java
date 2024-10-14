@@ -1,5 +1,7 @@
-package bwp.hhn.backend.harmonyhomenetlogic.entity;
+package bwp.hhn.backend.harmonyhomenetlogic.entity.sideTables;
 
+import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.Apartments;
+import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.User;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -19,7 +21,7 @@ import java.time.LocalDateTime;
 public class PossessionHistory {
 
     @Id
-    @Column(name = "ID", unique = true)
+    @Column(name = "ID")
     private Long id;
 
     @Column(name = "Start_date", nullable = false)
@@ -32,10 +34,10 @@ public class PossessionHistory {
     private String statusNotes;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id")
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "apartment_id", nullable = false)
+    @JoinColumn(name = "apartment_id")
     private Apartments apartment;
 }

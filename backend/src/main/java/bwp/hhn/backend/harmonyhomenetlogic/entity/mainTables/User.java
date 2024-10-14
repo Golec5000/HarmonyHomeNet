@@ -1,5 +1,6 @@
-package bwp.hhn.backend.harmonyhomenetlogic.entity;
+package bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables;
 
+import bwp.hhn.backend.harmonyhomenetlogic.entity.sideTables.PossessionHistory;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.Role;
 import jakarta.persistence.*;
 import lombok.*;
@@ -21,7 +22,7 @@ import java.util.UUID;
 public class User {
 
     @Id
-    @Column(name = "UUID_id", unique = true)
+    @Column(name = "UUID_id")
     private UUID uuidID;
 
     @Column(name = "First_name", nullable = false, length = 50)
@@ -56,4 +57,17 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<ProblemReport> problemReports;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<NotificationType> notificationTypes;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Poll> polls;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Vote> votes;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Announcement> payments;
+
 }

@@ -1,4 +1,4 @@
-package bwp.hhn.backend.harmonyhomenetlogic.entity;
+package bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables;
 
 import bwp.hhn.backend.harmonyhomenetlogic.utils.PaymentStatus;
 import jakarta.persistence.*;
@@ -23,7 +23,7 @@ import java.util.UUID;
 public class Payment {
 
     @Id
-    @Column(name = "UUID_id", unique = true)
+    @Column(name = "UUID_id")
     private UUID uuidID;
 
     @Enumerated(EnumType.STRING)

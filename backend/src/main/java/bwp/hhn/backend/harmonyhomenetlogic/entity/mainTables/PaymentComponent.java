@@ -1,4 +1,4 @@
-package bwp.hhn.backend.harmonyhomenetlogic.entity;
+package bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -17,7 +17,7 @@ import java.math.BigDecimal;
 public class PaymentComponent {
 
     @Id
-    @Column(name = "ID", unique = true)
+    @Column(name = "ID")
     private Long id;
 
     @Column(name = "Component_type", nullable = false, length = 50)
@@ -29,11 +29,11 @@ public class PaymentComponent {
     @Column(name = "Special_multiplier", precision = 10, scale = 2)
     private BigDecimal specialMultiplier;
 
-    @Column(name = "Component_amout", precision = 10, scale = 2)
+    @Column(name = "Component_amount", precision = 10, scale = 2)
     private BigDecimal componentAmount;
 
     @ManyToOne
-    @JoinColumn(name = "payment_id", nullable = false)
+    @JoinColumn(name = "payment_id")
     private Payment payment;
 
 }
