@@ -1,5 +1,7 @@
 package bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,6 +10,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -44,5 +47,10 @@ public class Poll {
 
     @ManyToOne
     @JoinColumn(name = "users_id")
+    @JsonBackReference
     private User user;
+
+    @OneToMany(mappedBy = "poll", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List<Vote> votes;
 }

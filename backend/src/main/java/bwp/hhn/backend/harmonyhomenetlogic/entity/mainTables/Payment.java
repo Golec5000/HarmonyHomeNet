@@ -1,6 +1,8 @@
 package bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables;
 
 import bwp.hhn.backend.harmonyhomenetlogic.utils.PaymentStatus;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -37,9 +39,11 @@ public class Payment {
     private LocalDateTime paymentTime;
 
     @ManyToOne
-    @JoinColumn(name = "apartment_id", nullable = false)
+    @JoinColumn(name = "apartment_id")
+    @JsonBackReference
     private Apartments apartment;
 
     @OneToMany(mappedBy = "payment", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<PaymentComponent> paymentComponents;
 }

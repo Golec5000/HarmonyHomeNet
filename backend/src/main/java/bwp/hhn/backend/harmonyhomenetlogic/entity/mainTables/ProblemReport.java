@@ -2,6 +2,7 @@ package bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables;
 
 import bwp.hhn.backend.harmonyhomenetlogic.utils.Category;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.ReportStatus;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -49,10 +50,12 @@ public class ProblemReport {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @JsonBackReference
     private User user;
 
     @ManyToOne
     @JoinColumn(name = "apartment_id")
+    @JsonBackReference
     private Apartments apartment;
 
 }

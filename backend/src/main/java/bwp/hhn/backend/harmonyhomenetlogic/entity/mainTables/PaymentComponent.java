@@ -1,5 +1,6 @@
 package bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -34,6 +35,7 @@ public class PaymentComponent {
 
     @ManyToOne
     @JoinColumn(name = "payment_id")
+    @JsonBackReference
     private Payment payment;
 
 }

@@ -2,6 +2,7 @@ package bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables;
 
 import bwp.hhn.backend.harmonyhomenetlogic.entity.sideTables.AnnouncementApartment;
 import bwp.hhn.backend.harmonyhomenetlogic.entity.sideTables.PossessionHistory;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -48,14 +49,18 @@ public class Apartments {
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "apartment", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<PossessionHistory> possessionHistories;
 
     @OneToMany(mappedBy = "apartment", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<ProblemReport> problemReports;
 
     @OneToMany(mappedBy = "apartment", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<Payment> payments;
 
     @OneToMany(mappedBy = "apartment", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<AnnouncementApartment> announcementApartments;
 }

@@ -2,6 +2,7 @@ package bwp.hhn.backend.harmonyhomenetlogic.entity.sideTables;
 
 import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.Announcement;
 import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.Apartments;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -11,7 +12,7 @@ import lombok.*;
 @Builder
 @Entity
 @Table(name = "Announcement_apartments", indexes = {
-        @Index(name = "idx_announcement_apartment", columnList = "aparment_id"),
+        @Index(name = "idx_announcement_apartment", columnList = "apartment_id"),
         @Index(name = "idx_announcement", columnList = "announcement_id")
 })
 public class AnnouncementApartment {
@@ -21,10 +22,12 @@ public class AnnouncementApartment {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "aparment_id")
+    @JoinColumn(name = "apartment_id")
+    @JsonBackReference
     private Apartments apartment;
 
     @ManyToOne
     @JoinColumn(name = "announcement_id")
+    @JsonBackReference
     private Announcement announcement;
 }

@@ -1,6 +1,7 @@
 package bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables;
 
 import bwp.hhn.backend.harmonyhomenetlogic.utils.VoteChoice;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -35,10 +36,12 @@ public class Vote {
 
     @ManyToOne
     @JoinColumn(name = "poll_id")
+    @JsonBackReference
     private Poll poll;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @JsonBackReference
     private User user;
 
 }

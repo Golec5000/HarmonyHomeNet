@@ -2,6 +2,7 @@ package bwp.hhn.backend.harmonyhomenetlogic.entity.sideTables;
 
 import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.Apartments;
 import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.User;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -35,9 +36,11 @@ public class PossessionHistory {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @JsonBackReference
     private User user;
 
     @ManyToOne
     @JoinColumn(name = "apartment_id")
+    @JsonBackReference
     private Apartments apartment;
 }

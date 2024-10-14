@@ -1,6 +1,8 @@
 package bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables;
 
 import bwp.hhn.backend.harmonyhomenetlogic.entity.sideTables.AnnouncementApartment;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -44,8 +46,10 @@ public class Announcement {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @JsonBackReference
     private User user;
 
     @OneToMany(mappedBy = "announcement", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<AnnouncementApartment> announcementApartments;
 }

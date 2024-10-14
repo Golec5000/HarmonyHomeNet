@@ -1,6 +1,7 @@
 package bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables;
 
 import bwp.hhn.backend.harmonyhomenetlogic.utils.Notification;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -26,5 +27,6 @@ public class NotificationType {
 
     @ManyToOne
     @JoinColumn(name = "users_id")
+    @JsonBackReference
     private User user;
 }
