@@ -39,7 +39,7 @@ public class Payment {
     private LocalDateTime paymentTime;
 
     @ManyToOne
-    @JoinColumn(name = "apartment_id")
+    @JoinColumn(name = "apartment_id", referencedColumnName = "UUID_id")
     @JsonBackReference
     private Apartments apartment;
 

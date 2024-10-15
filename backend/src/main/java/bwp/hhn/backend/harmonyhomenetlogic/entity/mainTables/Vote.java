@@ -35,12 +35,12 @@ public class Vote {
     private LocalDateTime createdAt;
 
     @ManyToOne
-    @JoinColumn(name = "poll_id")
+    @JoinColumn(name = "poll_id", referencedColumnName = "UUID_id")
     @JsonBackReference
     private Poll poll;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", referencedColumnName = "UUID_id")
     @JsonBackReference
     private User user;
 

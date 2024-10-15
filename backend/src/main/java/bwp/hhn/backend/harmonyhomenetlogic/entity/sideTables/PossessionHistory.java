@@ -35,12 +35,12 @@ public class PossessionHistory {
     private String statusNotes;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", referencedColumnName = "UUID_id")
     @JsonBackReference
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "apartment_id")
+    @JoinColumn(name = "apartment_id", referencedColumnName = "UUID_id")
     @JsonBackReference
     private Apartments apartment;
 }

@@ -26,7 +26,7 @@ public class NotificationType {
     private Notification type;
 
     @ManyToOne
-    @JoinColumn(name = "users_id")
+    @JoinColumn(name = "users_id", referencedColumnName = "UUID_id")
     @JsonBackReference
     private User user;
 }

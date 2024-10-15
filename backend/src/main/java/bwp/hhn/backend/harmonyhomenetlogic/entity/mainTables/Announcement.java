@@ -45,7 +45,7 @@ public class Announcement {
     private LocalDateTime updatedAt;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", referencedColumnName = "UUID_id")
     @JsonBackReference
     private User user;
 

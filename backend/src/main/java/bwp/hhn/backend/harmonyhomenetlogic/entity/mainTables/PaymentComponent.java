@@ -2,19 +2,20 @@ package bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 @Builder
 @Entity
-@Table(name = "Payment_components")
+@Table(name = "Payment_components", indexes = {
+        @Index(name = "idx_paymentcomponent", columnList = "payment_id")
+})
 public class PaymentComponent {
 
     @Id
@@ -34,7 +35,7 @@ public class PaymentComponent {
     private BigDecimal componentAmount;
 
     @ManyToOne
-    @JoinColumn(name = "payment_id")
+    @JoinColumn(name = "payment_id", referencedColumnName = "UUID_id")
     @JsonBackReference
     private Payment payment;
 

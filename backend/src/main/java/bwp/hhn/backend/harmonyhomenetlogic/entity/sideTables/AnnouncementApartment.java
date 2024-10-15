@@ -22,12 +22,12 @@ public class AnnouncementApartment {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "apartment_id")
+    @JoinColumn(name = "apartment_id", referencedColumnName = "UUID_id")
     @JsonBackReference
     private Apartments apartment;
 
     @ManyToOne
-    @JoinColumn(name = "announcement_id")
+    @JoinColumn(name = "announcement_id", referencedColumnName = "ID")
     @JsonBackReference
     private Announcement announcement;
 }

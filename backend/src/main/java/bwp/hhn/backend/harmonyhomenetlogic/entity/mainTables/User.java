@@ -1,6 +1,7 @@
 package bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables;
 
 import bwp.hhn.backend.harmonyhomenetlogic.entity.sideTables.PossessionHistory;
+import bwp.hhn.backend.harmonyhomenetlogic.entity.sideTables.UserDocumentPermission;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.Role;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
@@ -76,4 +77,17 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<Announcement> payments;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List<Topic> topics;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List<Post> posts;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List<UserDocumentPermission> userDocumentPermissions;
+
 }
