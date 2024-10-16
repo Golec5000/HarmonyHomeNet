@@ -1,9 +1,10 @@
 package bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables;
 
-import bwp.hhn.backend.harmonyhomenetlogic.utils.PaymentStatus;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.PaymentStatus;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,10 +29,12 @@ public class Payment {
     @Column(name = "UUID_id")
     private UUID uuidID;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "Payment_status", nullable = false, length = 8)
     private PaymentStatus paymentStatus;
 
+    @NotNull
     @Column(name = "Payment_date", nullable = false)
     private LocalDateTime paymentDate;
 

@@ -4,6 +4,7 @@ import bwp.hhn.backend.harmonyhomenetlogic.entity.sideTables.AnnouncementApartme
 import bwp.hhn.backend.harmonyhomenetlogic.entity.sideTables.PossessionHistory;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -26,18 +27,30 @@ public class Apartments {
     @Column(name = "UUID_id")
     private UUID uuidID;
 
+    @NotEmpty
+    @Size(max = 50)
     @Column(name = "Address", nullable = false, length = 50)
     private String address;
 
+    @NotEmpty
+    @Size(max = 20)
     @Column(name = "City", nullable = false, length = 20)
     private String city;
 
+    @NotEmpty
+    @Pattern(regexp = "^\\d{2}-\\d{3}$", message = "Invalid zip code format")
     @Column(name = "Zip_code", nullable = false, length = 6)
     private String zipCode;
 
+    @NotNull
+    @DecimalMin(value = "0.0", inclusive = false)
+    @Digits(integer = 3, fraction = 2)
     @Column(name = "Apartment_area", nullable = false, precision = 5, scale = 2)
     private BigDecimal apartmentArea;
 
+    @NotNull
+    @DecimalMin(value = "0.0", inclusive = false)
+    @Digits(integer = 3, fraction = 2)
     @Column(name = "Apartment_percent_value", nullable = false, precision = 5, scale = 2)
     private BigDecimal apartmentPercentValue;
 

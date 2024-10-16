@@ -2,9 +2,10 @@ package bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables;
 
 import bwp.hhn.backend.harmonyhomenetlogic.entity.sideTables.PossessionHistory;
 import bwp.hhn.backend.harmonyhomenetlogic.entity.sideTables.UserDocumentPermission;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.Role;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Role;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -27,15 +28,24 @@ public class User {
     @Column(name = "UUID_id")
     private UUID uuidID;
 
+    @NotEmpty
+    @Size(min = 3, max = 50)
     @Column(name = "First_name", nullable = false, length = 50)
     private String firstName;
 
+    @NotEmpty
+    @Size(min = 3, max = 50)
     @Column(name = "Last_name", nullable = false, length = 50)
     private String lastName;
 
+    @NotEmpty
+    @Email
+    @Pattern(regexp = "^[A-Za-z0-9+_.-]+@(.+)$", message = "Invalid email format")
     @Column(name = "Email", nullable = false, unique = true, length = 50)
     private String email;
 
+    @NotEmpty
+    @Size(min = 10, max = 255)
     @Column(name = "Password", nullable = false)
     private String password;
 
@@ -43,6 +53,8 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @NotEmpty
+    @Pattern(regexp = "^\\d{9,11}$", message = "Invalid phone number format")
     @Column(name = "Phone_number", nullable = false, length = 11)
     private String phoneNumber;
 
@@ -89,5 +101,4 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<UserDocumentPermission> userDocumentPermissions;
-
 }

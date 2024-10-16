@@ -1,6 +1,8 @@
 package bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -23,6 +25,8 @@ public class Post {
     @Column(name = "UUID_id")
     private UUID uuidID;
 
+    @NotEmpty
+    @Size(max = 1000)
     @Column(name = "Content", nullable = false, length = 1000)
     private String content;
 

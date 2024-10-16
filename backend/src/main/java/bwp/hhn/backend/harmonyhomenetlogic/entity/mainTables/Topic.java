@@ -3,6 +3,8 @@ package bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,6 +29,8 @@ public class Topic {
     @Column(name = "UUID_id")
     private String uuidID;
 
+    @NotEmpty
+    @Size(max = 50)
     @Column(name = "Title", nullable = false, length = 50)
     private String title;
 

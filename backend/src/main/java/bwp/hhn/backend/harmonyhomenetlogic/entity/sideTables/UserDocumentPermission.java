@@ -2,9 +2,10 @@ package bwp.hhn.backend.harmonyhomenetlogic.entity.sideTables;
 
 import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.Document;
 import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.User;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.AccessLevel;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.AccessLevel;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -21,6 +22,7 @@ public class UserDocumentPermission {
     @Column(name = "UUID_id")
     private String uuidID;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "Access_level", nullable = false, length = 50)
     private AccessLevel accessLevel;

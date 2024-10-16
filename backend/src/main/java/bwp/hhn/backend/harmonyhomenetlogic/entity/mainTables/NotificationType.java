@@ -1,8 +1,9 @@
 package bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables;
 
-import bwp.hhn.backend.harmonyhomenetlogic.utils.Notification;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Notification;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Data
@@ -21,6 +22,7 @@ public class NotificationType {
     @Column(name = "ID", unique = true)
     private Long id;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "Type", nullable = false, length = 5)
     private Notification type;

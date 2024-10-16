@@ -1,8 +1,9 @@
 package bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables;
 
-import bwp.hhn.backend.harmonyhomenetlogic.utils.VoteChoice;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.VoteChoice;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -26,6 +27,7 @@ public class Vote {
     @Column(name = "ID")
     private Long id;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "Vote_choice", nullable = false)
     private VoteChoice voteChoice;

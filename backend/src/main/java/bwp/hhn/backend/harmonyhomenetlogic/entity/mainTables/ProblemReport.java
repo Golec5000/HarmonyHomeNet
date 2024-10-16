@@ -1,9 +1,10 @@
 package bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables;
 
-import bwp.hhn.backend.harmonyhomenetlogic.utils.Category;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.ReportStatus;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Category;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.ReportStatus;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -30,16 +31,21 @@ public class ProblemReport {
     @Column(name = "ID")
     private Long id;
 
+    @NotNull
     @Column(name = "Filing_date", nullable = false)
     private LocalDateTime filingDate;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "Status", nullable = false)
     private ReportStatus reportStatus;
 
+    @NotEmpty
+    @Size(max = 1000)
     @Column(name = "Note", length = 1000, nullable = false)
     private String note;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "Category", nullable = false)
     private Category category;
@@ -57,5 +63,4 @@ public class ProblemReport {
     @JoinColumn(name = "apartment_id", referencedColumnName = "UUID_id")
     @JsonBackReference
     private Apartments apartment;
-
 }

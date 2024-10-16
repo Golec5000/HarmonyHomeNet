@@ -4,6 +4,8 @@ import bwp.hhn.backend.harmonyhomenetlogic.entity.sideTables.AnnouncementApartme
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -30,9 +32,13 @@ public class Announcement {
     @Column(name = "ID")
     private Long id;
 
+    @NotEmpty
+    @Size(max = 50)
     @Column(name = "Title", nullable = false, length = 50)
     private String title;
 
+    @NotEmpty
+    @Size(max = 1000)
     @Column(name = "Content", nullable = false, length = 1000)
     private String content;
 

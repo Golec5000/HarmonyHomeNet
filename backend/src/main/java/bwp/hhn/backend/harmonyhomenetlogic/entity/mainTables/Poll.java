@@ -3,6 +3,7 @@ package bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,17 +29,23 @@ public class Poll {
     @Column(name = "UUID_id")
     private UUID uuidID;
 
-    @Column(name = "Poll_name", nullable = false)
+    @NotEmpty
+    @Size(max = 100)
+    @Column(name = "Poll_name", nullable = false, length = 100)
     private String pollName;
 
+    @NotEmpty
+    @Size(max = 1000)
     @Column(name = "Content", nullable = false, length = 1000)
     private String content;
 
     @Lob
+    @NotNull
     @Column(name = "Upload_data", nullable = false)
     private byte[] uploadData;
 
     @CreationTimestamp
+    @NotNull
     @Column(name = "Created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
