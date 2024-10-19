@@ -1,7 +1,7 @@
 package bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables;
 
 import bwp.hhn.backend.harmonyhomenetlogic.entity.sideTables.PossessionHistory;
-import bwp.hhn.backend.harmonyhomenetlogic.entity.sideTables.UserDocumentPermission;
+import bwp.hhn.backend.harmonyhomenetlogic.entity.sideTables.UserDocumentConnection;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Role;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
@@ -53,6 +53,9 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @Column(name = "Access_level", nullable = false)
+    private int accessLevel;
+
     @NotEmpty
     @Pattern(regexp = "^\\d{9,11}$", message = "Invalid phone number format")
     @Column(name = "Phone_number", nullable = false, length = 11)
@@ -100,5 +103,5 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @JsonManagedReference
-    private List<UserDocumentPermission> userDocumentPermissions;
+    private List<UserDocumentConnection> userDocumentConnections;
 }

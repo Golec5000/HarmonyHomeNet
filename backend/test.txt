@@ -1,0 +1,60 @@
+public interface AnnouncementService {
+    void createAnnouncement(Announcement announcement, List<Long> apartmentIds);
+    void linkApartmentToAnnouncement(Long announcementId, Long apartmentId);
+    List<Announcement> getAnnouncementsByApartment(Long apartmentId);
+    List<Announcement> getAllAnnouncements();
+    Optional<Announcement> getAnnouncementById(Long id);
+}
+
+public interface ApartmentsService {
+    void createApartment(Apartment apartment);
+    List<PossessionHistory> getPossessionHistory(Long apartmentId);
+    void addPossessionHistory(Long apartmentId, PossessionHistory history);
+    List<Apartment> getAllApartments();
+    Optional<Apartment> getApartmentById(Long id);
+}
+
+public interface PaymentService {
+    void createPayment(Payment payment, List<PaymentComponent> components);
+    void addPaymentComponent(Long paymentId, PaymentComponent component);
+    Payment getPaymentDetails(Long paymentId);
+    List<Payment> getPaymentsByUser(Long userId);
+}
+
+public interface PollService {
+    void createPoll(Poll poll);
+    void addVoteToPoll(Long pollId, Vote vote);
+    List<Vote> getVotesByPoll(Long pollId);
+    List<Poll> getAllPolls();
+    Optional<Poll> getPollById(Long pollId);
+}
+
+public interface PostService {
+    void createTopic(Topic topic, List<Post> posts);
+    void addPostToTopic(Long topicId, Post post);
+    List<Post> getPostsByTopic(Long topicId);
+    List<Topic> getAllTopics();
+    Optional<Topic> getTopicById(Long topicId);
+    Optional<Post> getPostById(Long postId);
+}
+
+public interface ProblemReportService {
+    void createProblemReport(ProblemReport report);
+    List<ProblemReport> getProblemReportsByApartment(Long apartmentId);
+    void updateProblemReportStatus(Long reportId, String status);
+    List<ProblemReport> getAllProblemReports();
+    Optional<ProblemReport> getProblemReportById(Long reportId);
+}
+
+    @GetMapping("/download/{documentId}")
+    public ResponseEntity<ByteArrayResource> downloadDocument(@PathVariable UUID documentId) {
+        Document document = documentService.getDocumentById(documentId);
+
+        ByteArrayResource resource = new ByteArrayResource(document.getDocumentData());
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + document.getDocumentName())
+                .contentType(org.springframework.http.MediaType.APPLICATION_OCTET_STREAM)
+                .contentLength(document.getDocumentData().length)
+                .body(resource);
+    }

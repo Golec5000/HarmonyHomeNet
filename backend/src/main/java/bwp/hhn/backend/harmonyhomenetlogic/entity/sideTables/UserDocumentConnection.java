@@ -2,36 +2,34 @@ package bwp.hhn.backend.harmonyhomenetlogic.entity.sideTables;
 
 import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.Document;
 import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.User;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.AccessLevel;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Entity
-@Table(name = "User_documents_permissions")
-public class UserDocumentPermission {
+@Table(name = "User_documents_connections")
+public class UserDocumentConnection {
 
     @Id
     @Column(name = "UUID_id")
-    private String uuidID;
+    private UUID uuidID;
 
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    @Column(name = "Access_level", nullable = false, length = 50)
-    private AccessLevel accessLevel;
-
-    @Column(name = "Granted_at", nullable = false)
+    @CreationTimestamp
+    @Column(name = "Granted_at", nullable = false, updatable = false)
     private LocalDateTime grantedAt;
 
-    @Column(name = "Revoked_at")
-    private LocalDateTime revokedAt;
+    @UpdateTimestamp
+    @Column(name = "Updated_at")
+    private LocalDateTime updatedAt;
 
     @ManyToOne
     @JoinColumn(name = "users_id", referencedColumnName = "UUID_id")

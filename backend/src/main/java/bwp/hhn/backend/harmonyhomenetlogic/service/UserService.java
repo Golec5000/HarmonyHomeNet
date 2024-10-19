@@ -1,19 +1,33 @@
 package bwp.hhn.backend.harmonyhomenetlogic.service;
 
-import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.User;
+import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.UserNotFoundException;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.AccessLevel;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Role;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.request.UserRequest;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.UserResponse;
+
+import java.util.List;
+import java.util.UUID;
 
 public interface UserService {
 
-    User save(User user);
+    UserResponse creatUser(UserRequest user);
 
-    User findAll();
+    UserResponse updateUser(UUID userId, UserRequest user) throws UserNotFoundException;
 
-    User findById(Long id);
+    UserResponse assignRoleToUser(UUID userId, Role role) throws UserNotFoundException;
 
-    User findByEmail(String email);
+    UserResponse getUserById(UUID userId) throws UserNotFoundException;
 
-    User findByFirstAndLastName(String firstName, String lastName);
+    List<UserResponse> getAllUsers();
 
+    UserResponse getUserByEmail(String email) throws UserNotFoundException;
 
+    List<UserResponse> getUsersByRole(Role role);
 
+    String deleteUser(UUID userId) throws UserNotFoundException;
+
+    UserResponse setAccessLevelAddPermission(UUID userId, AccessLevel accessLevel) throws UserNotFoundException;
+
+    UserResponse setAccessLevelRemovePermission(UUID userId, AccessLevel accessLevel) throws UserNotFoundException;
 }

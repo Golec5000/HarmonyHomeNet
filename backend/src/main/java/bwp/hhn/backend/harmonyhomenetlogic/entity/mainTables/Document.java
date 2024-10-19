@@ -1,6 +1,6 @@
 package bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables;
 
-import bwp.hhn.backend.harmonyhomenetlogic.entity.sideTables.UserDocumentPermission;
+import bwp.hhn.backend.harmonyhomenetlogic.entity.sideTables.UserDocumentConnection;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -12,6 +12,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @AllArgsConstructor
@@ -23,7 +24,7 @@ public class Document {
 
     @Id
     @Column(name = "UUID_id")
-    private String uuidID;
+    private UUID uuidID;
 
     @NotEmpty
     @Size(max = 50)
@@ -40,11 +41,6 @@ public class Document {
     @Column(name = "Document_data", nullable = false)
     private byte[] documentData;
 
-    @NotNull
-    @Min(0)
-    @Column(name = "Document_size", nullable = false)
-    private long documentSize;
-
     @CreationTimestamp
     @Column(name = "Created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -54,5 +50,5 @@ public class Document {
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "document", cascade = CascadeType.ALL)
-    private List<UserDocumentPermission> userDocumentPermissions;
+    private List<UserDocumentConnection> userDocumentConnections;
 }
