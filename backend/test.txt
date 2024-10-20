@@ -29,15 +29,6 @@ public interface PollService {
     Optional<Poll> getPollById(Long pollId);
 }
 
-public interface PostService {
-    void createTopic(Topic topic, List<Post> posts);
-    void addPostToTopic(Long topicId, Post post);
-    List<Post> getPostsByTopic(Long topicId);
-    List<Topic> getAllTopics();
-    Optional<Topic> getTopicById(Long topicId);
-    Optional<Post> getPostById(Long postId);
-}
-
 public interface ProblemReportService {
     void createProblemReport(ProblemReport report);
     List<ProblemReport> getProblemReportsByApartment(Long apartmentId);

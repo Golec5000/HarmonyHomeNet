@@ -1,15 +1,19 @@
 package bwp.hhn.backend.harmonyhomenetlogic.service;
 
 import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.UserNotFoundException;
+import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.NotificationType;
 import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.User;
+import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.NotificationTypeRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.UserRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.AccessLevel;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Notification;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Role;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.UserRequest;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.UserResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -19,6 +23,7 @@ import java.util.stream.Collectors;
 public class UserServiceImp implements UserService {
 
     private final UserRepository userRepository;
+    private final NotificationTypeRepository notificationTypeRepository;
 
     @Override
     public UserResponse creatUser(UserRequest user) {
@@ -161,6 +166,37 @@ public class UserServiceImp implements UserService {
                 .lastName(userEntity.getLastName())
                 .updatedAt(userEntity.getUpdatedAt())
                 .build();
+    }
+
+    @Override
+    public String addNotificationToUser(UUID userId, Notification notification) throws UserNotFoundException {
+        User userEntity = getUserOrThrow(userId, null);
+        if (userEntity.getNotificationTypes() == null) userEntity.setNotificationTypes(new ArrayList<>());
+
+        NotificationType notificationType = NotificationType.builder()
+                .type(notification)
+                .user(userEntity)
+                .build();
+
+        userEntity.getNotificationTypes().add(notificationType);
+        notificationTypeRepository.save(notificationType);
+        userRepository.save(userEntity);
+
+        return "Notification " + notification + " added successfully";
+
+    }
+
+    @Override
+    public String removeNotificationFromUser(UUID userId, Notification notification) throws UserNotFoundException {
+        User userEntity = getUserOrThrow(userId, null);
+        if (userEntity.getNotificationTypes() == null) userEntity.setNotificationTypes(new ArrayList<>());
+
+        userEntity.getNotificationTypes().removeIf(notificationType -> notificationType.getType().equals(notification));
+
+        userRepository.save(userEntity);
+        notificationTypeRepository.deleteByTypeAndUserUuidID(notification, userId);
+
+        return "Notification " + notification + " removed successfully";
     }
 
     private User getUserOrThrow(UUID userId, String email) throws UserNotFoundException {
