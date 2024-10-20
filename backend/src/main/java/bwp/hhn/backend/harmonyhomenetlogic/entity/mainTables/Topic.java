@@ -13,6 +13,7 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @AllArgsConstructor
@@ -27,7 +28,7 @@ public class Topic {
 
     @Id
     @Column(name = "UUID_id")
-    private String uuidID;
+    private UUID uuidID;
 
     @NotEmpty
     @Size(max = 50)
@@ -43,7 +44,7 @@ public class Topic {
     @JsonBackReference
     private User user;
 
-    @OneToMany(mappedBy = "topic", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "topic", cascade = CascadeType.REMOVE, orphanRemoval = true)
     @JsonManagedReference
     private List<Post> posts;
 

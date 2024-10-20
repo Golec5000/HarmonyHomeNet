@@ -2,6 +2,7 @@ package bwp.hhn.backend.harmonyhomenetlogic.service;
 
 import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.UserNotFoundException;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.AccessLevel;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Notification;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Role;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.UserRequest;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.UserResponse;
@@ -30,4 +31,8 @@ public interface UserService {
     UserResponse setAccessLevelAddPermission(UUID userId, AccessLevel accessLevel) throws UserNotFoundException;
 
     UserResponse setAccessLevelRemovePermission(UUID userId, AccessLevel accessLevel) throws UserNotFoundException;
+
+    String addNotificationToUser(UUID userId, Notification notification) throws UserNotFoundException;
+
+    String removeNotificationFromUser(UUID userId, Notification notification) throws UserNotFoundException;
 }
