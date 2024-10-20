@@ -1,6 +1,7 @@
 package bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables;
 
 import bwp.hhn.backend.harmonyhomenetlogic.entity.sideTables.UserDocumentConnection;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.DocumentType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -32,9 +33,10 @@ public class Document {
     private String documentName;
 
     @NotEmpty
-    @Size(max = 10)
-    @Column(name = "Document_type", nullable = false, length = 10)
-    private String documentType;
+    @Size(max = 15)
+    @Enumerated(EnumType.STRING)
+    @Column(name = "Document_type", nullable = false, length = 15)
+    private DocumentType documentType;
 
     @Lob
     @NotNull

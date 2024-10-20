@@ -7,9 +7,11 @@ import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.User;
 import bwp.hhn.backend.harmonyhomenetlogic.entity.sideTables.UserDocumentConnection;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.DocumentRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.UserRepository;
+import bwp.hhn.backend.harmonyhomenetlogic.repository.sideTables.PossessionHistoryRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.sideTables.UserDocumentConnectionRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.service.DocumentServiceImp;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.AccessLevel;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.DocumentType;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Role;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.DocumentRequest;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.DocumentResponse;
@@ -20,10 +22,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.util.Base64;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.mockito.Mockito.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,6 +40,9 @@ public class DocumentServiceTest {
 
     @Mock
     private UserDocumentConnectionRepository userDocumentConnectionRepository;
+
+    @Mock
+    private PossessionHistoryRepository possessionHistoryRepository;
 
     @InjectMocks
     private DocumentServiceImp documentService;
@@ -69,37 +71,87 @@ public class DocumentServiceTest {
 
         document = Document.builder()
                 .documentName("Test Document")
-                .documentType("application/pdf")
+                .documentType(DocumentType.OTHER)
                 .documentData(new byte[]{1, 2, 3})
                 .build();
 
         documentRequest = DocumentRequest.builder()
                 .documentName("Updated Document")
-                .documentType("application/pdf")
+                .documentType(DocumentType.RESOLUTION)
                 .documentData(new byte[]{4, 5, 6})
                 .build();
     }
 
     @Test
-    void shouldUploadDocumentSuccessfully() throws UserNotFoundException {
+    void shouldUploadPublicDocumentSuccessfully() throws UserNotFoundException {
+        // Mock użytkownika
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
-        DocumentResponse response = documentService.uploadDocument(documentRequest, userId);
+        // Mock zapisu dokumentu
+        DocumentResponse response = documentService.uploadDocument(documentRequest, userId, null);
 
+        // Assercje
         assertThat(response).isNotNull();
         assertThat(response.documentName()).isEqualTo("Updated Document");
 
+        // Weryfikacja zapisów
         verify(documentRepository, times(1)).save(any(Document.class));
-        verify(userRepository, times(1)).save(any(User.class));
-        verify(userDocumentConnectionRepository, times(1)).save(any(UserDocumentConnection.class));
+        verify(userDocumentConnectionRepository, times(1)).saveAll(anyList());
     }
 
     @Test
-    void shouldThrowUserNotFoundExceptionWhenUploadingDocument() {
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+    void shouldUploadPrivateDocumentSuccessfully() throws UserNotFoundException {
 
-        assertThrows(UserNotFoundException.class, () ->
-                documentService.uploadDocument(documentRequest, userId)
+        UUID apartmentId = UUID.fromString("9ea15a64-84ba-40b7-bc49-7a25c05deb6f");
+
+        // Mock użytkownika
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        // Mock mieszkańców apartamentu
+        List<User> residents = List.of(user);
+        when(possessionHistoryRepository.findActiveResidentsByApartment(any(UUID.class)))
+                .thenReturn(residents);
+
+        // Mock pracowników (opcjonalne)
+        List<User> employees = List.of(new User());
+        when(userRepository.findAllByRole(Role.EMPLOYEE)).thenReturn(employees);
+
+        // Wywołanie metody
+        DocumentRequest privateDocumentRequest = DocumentRequest.builder()
+                .documentName("Ownership Document")
+                .documentType(DocumentType.PROPERTY_DEED)
+                .documentData(new byte[]{4, 5, 6})
+                .build();
+
+        DocumentResponse response = documentService.uploadDocument(privateDocumentRequest, userId, apartmentId);
+
+        // Assercje
+        assertThat(response).isNotNull();
+        assertThat(response.documentName()).isEqualTo("Ownership Document");
+
+        // Weryfikacja, czy wszystko zostało poprawnie zapisane
+        verify(documentRepository, times(1)).save(any(Document.class));
+        verify(userDocumentConnectionRepository, times(1)).saveAll(anyList());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenNoResidentsInApartment() {
+        // Mock użytkownika
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        // Mock pustej listy mieszkańców
+        when(possessionHistoryRepository.findActiveResidentsByApartment(any(UUID.class)))
+                .thenReturn(Collections.emptyList());
+
+        // Próba uploadu prywatnego dokumentu powinna rzucić wyjątek
+        DocumentRequest privateDocumentRequest = DocumentRequest.builder()
+                .documentName("Ownership Document")
+                .documentType(DocumentType.PROPERTY_DEED)
+                .documentData(new byte[]{4, 5, 6})
+                .build();
+
+        assertThrows(IllegalArgumentException.class, () ->
+                documentService.uploadDocument(privateDocumentRequest, userId, UUID.randomUUID())
         );
     }
 
@@ -126,50 +178,98 @@ public class DocumentServiceTest {
     }
 
     @Test
-    void shouldDeleteDocumentSuccessfully() throws UserNotFoundException, DocumentNotFoundException {
+    void shouldDeleteDocumentCompletely() throws UserNotFoundException, DocumentNotFoundException {
+        // Inicjalizacja użytkownika i przypisanie pustej listy połączeń
+        user.setUserDocumentConnections(new ArrayList<>());
+        document.setUserDocumentConnections(new ArrayList<>());
+
+        // Tworzenie połączenia z przypisanym użytkownikiem i dokumentem
+        UserDocumentConnection connection = new UserDocumentConnection();
+        connection.setUser(user);  // Przypisanie użytkownika
+        connection.setDocument(document);  // Przypisanie dokumentu
+
+        // Dodaj połączenie do listy połączeń użytkownika i dokumentu
+        user.getUserDocumentConnections().add(connection);
+        document.getUserDocumentConnections().add(connection);
+
+        // Mockowanie wywołań repozytoriów
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(documentRepository.findById(documentId)).thenReturn(Optional.of(document));
-        when(userDocumentConnectionRepository.findByDocumentUuidIDAndUserUuidID(documentId, userId))
-                .thenReturn(Optional.of(new UserDocumentConnection()));
+        when(userDocumentConnectionRepository.findByDocumentUuidID(documentId))
+                .thenReturn(List.of(connection));  // Zwrócenie połączenia
 
-        String result = documentService.deleteDocument(documentId, userId);
+        // Wywołanie metody
+        String result = documentService.deleteDocument(documentId, userId, true);
 
-        assertEquals("Document id: " + documentId + " deleted successfully", result);
+        // Assercje
+        assertEquals("Document id: " + documentId + " deleted successfully for all users", result);
 
-        verify(documentRepository, times(1)).deleteById(documentId);
-        verify(userDocumentConnectionRepository, times(1)).delete(any(UserDocumentConnection.class));
-        verify(userRepository, times(1)).save(any(User.class));
+        // Weryfikacja usunięcia połączeń i dokumentu
+        verify(userDocumentConnectionRepository, times(1)).deleteAll(anyList());
+        verify(documentRepository, times(1)).delete(document);
     }
 
+
     @Test
-    @Transactional
+    void shouldDisconnectUserFromDocument() throws UserNotFoundException, DocumentNotFoundException {
+        // Mock użytkownika i przypisanie pustej listy połączeń
+        user.setUserDocumentConnections(new ArrayList<>());
+        document.setUserDocumentConnections(new ArrayList<>());
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(documentRepository.findById(documentId)).thenReturn(Optional.of(document));
+
+        // Mock połączenia użytkownika z dokumentem
+        UserDocumentConnection connection = new UserDocumentConnection();
+        connection.setUser(user);
+        connection.setDocument(document);
+
+        // Dodajemy połączenie do obu obiektów
+        user.getUserDocumentConnections().add(connection);
+        document.getUserDocumentConnections().add(connection);
+
+        when(userDocumentConnectionRepository.findByDocumentUuidIDAndUserUuidID(documentId, userId))
+                .thenReturn(Optional.of(connection));
+
+        // Wywołanie metody
+        String result = documentService.deleteDocument(documentId, userId, false);
+
+        // Assercje
+        assertEquals("Document id: " + documentId + " disconnected successfully for user id: " + userId, result);
+
+        // Weryfikacja usunięcia połączenia
+        verify(userDocumentConnectionRepository, times(1)).delete(connection);
+    }
+
+
+    @Test
     void shouldThrowDocumentNotFoundExceptionWhenDeletingNonExistingDocument() {
-
-        User mockUser = new User();
-        mockUser.setUuidID(userId);
-        when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
-
         when(documentRepository.findById(wrongDocumentId)).thenReturn(Optional.empty());
 
         assertThrows(DocumentNotFoundException.class, () ->
-                documentService.deleteDocument(wrongDocumentId, userId)
+                documentService.deleteDocument(wrongDocumentId, userId, true)
         );
     }
 
     @Test
-    @Transactional
     void shouldThrowUserNotFoundExceptionWhenDeletingDocument() {
-
+        // Mockujemy brak użytkownika
         when(userRepository.findById(wrongUserId)).thenReturn(Optional.empty());
 
-        Document mockDocument = new Document();
-        mockDocument.setUuidID(documentId);
-        when(documentRepository.findById(documentId)).thenReturn(Optional.of(mockDocument));
+        // Mockujemy, że dokument istnieje (aby upewnić się, że przejdzie przez ten krok)
+        when(documentRepository.findById(documentId)).thenReturn(Optional.of(document));
 
+        // Sprawdzamy, czy zostanie rzucony właściwy wyjątek
         assertThrows(UserNotFoundException.class, () ->
-                documentService.deleteDocument(documentId, wrongUserId)
+                documentService.deleteDocument(documentId, wrongUserId, true)
         );
+
+        // Weryfikujemy, że dokument nie został usunięty
+        verify(documentRepository, never()).delete(any());
+        verify(userDocumentConnectionRepository, never()).deleteAll(anyList());
     }
+
+
 
     @Test
     @Transactional
@@ -177,7 +277,7 @@ public class DocumentServiceTest {
 
         UUID userId = UUID.randomUUID();
         UUID documentId = UUID.randomUUID();
-        DocumentRequest documentRequest = new DocumentRequest("Test Document", "application/pdf", "Sample data".getBytes());
+        DocumentRequest documentRequest = new DocumentRequest("Test Document", DocumentType.OTHER, "Sample data".getBytes());
 
         User mockUser = new User();
         mockUser.setUuidID(userId);
@@ -200,7 +300,7 @@ public class DocumentServiceTest {
 
         assertNotNull(response);
         assertEquals("Test Document", response.documentName());
-        assertEquals("application/pdf", response.documentType());
+        assertEquals(DocumentType.OTHER, response.documentType());
         verify(documentRepository).findById(documentId);
         verify(userRepository).findById(userId);
         verify(userDocumentConnectionRepository).save(mockConnection);
@@ -209,7 +309,7 @@ public class DocumentServiceTest {
     @Test
     @Transactional
     void shouldThrowUserNotFoundExceptionWhenUpdatingDocument() {
-        DocumentRequest documentRequest = new DocumentRequest("Test Document", "application/pdf", "Sample data".getBytes());
+        DocumentRequest documentRequest = new DocumentRequest("Test Document", DocumentType.OTHER, "Sample data".getBytes());
 
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
@@ -224,7 +324,7 @@ public class DocumentServiceTest {
     @Test
     @Transactional
     void shouldThrowDocumentNotFoundExceptionWhenUpdatingDocument() {
-        DocumentRequest documentRequest = new DocumentRequest("Test Document", "PDF", "Sample data".getBytes());
+        DocumentRequest documentRequest = new DocumentRequest("Test Document", DocumentType.OTHER, "Sample data".getBytes());
 
         User mockUser = new User();
         mockUser.setUuidID(userId);
@@ -246,13 +346,13 @@ public class DocumentServiceTest {
 
         Document doc1 = Document.builder()
                 .documentName("Doc 1")
-                .documentType("PDF")
+                .documentType(DocumentType.DECISION)
                 .documentData("Data 1".getBytes())
                 .build();
 
         Document doc2 = Document.builder()
                 .documentName("Doc 2")
-                .documentType("DOCX")
+                .documentType(DocumentType.PROPERTY_DEED)
                 .documentData("Data 2".getBytes())
                 .build();
 
@@ -265,8 +365,8 @@ public class DocumentServiceTest {
 
         assertNotNull(response);
         assertEquals(2, response.size());
-        assertEquals("PDF", response.get(0).documentType());
-        assertEquals("DOCX", response.get(1).documentType());
+        assertEquals(DocumentType.DECISION, response.get(0).documentType());
+        assertEquals(DocumentType.PROPERTY_DEED, response.get(1).documentType());
         verify(userRepository).existsByUuidID(userId);
         verify(userDocumentConnectionRepository).findDocumentsByUserId(userId);
     }
@@ -295,7 +395,7 @@ public class DocumentServiceTest {
 
         assertNotNull(response);
         assertEquals("Test Document", response.documentName());
-        assertEquals("application/pdf", response.documentType());
+        assertEquals(DocumentType.OTHER, response.documentType());
         assertEquals(Base64.getEncoder().encodeToString(new byte[]{1, 2, 3}), response.documentDataBase64());
 
         verify(documentRepository).findById(documentId);

@@ -11,7 +11,7 @@ import java.util.UUID;
 public interface DocumentService {
 
 
-    DocumentResponse uploadDocument(DocumentRequest document, UUID userId) throws UserNotFoundException, IllegalArgumentException;
+    DocumentResponse uploadDocument(DocumentRequest document, UUID userId, UUID apartmentId) throws UserNotFoundException, IllegalArgumentException ;
 
 
     List<DocumentResponse> getAllDocumentsByUserId(UUID userId) throws UserNotFoundException;
@@ -23,7 +23,7 @@ public interface DocumentService {
     DocumentResponse updateDocument(UUID documentId, UUID userId, DocumentRequest document) throws DocumentNotFoundException, UserNotFoundException, IllegalArgumentException;
 
 
-    String deleteDocument(UUID documentId, UUID userId) throws DocumentNotFoundException, UserNotFoundException, IllegalArgumentException;
+    String deleteDocument(UUID documentId, UUID userId, boolean deleteCompletely) throws DocumentNotFoundException, UserNotFoundException, IllegalArgumentException;
 
 
     DocumentResponse downloadDocument(UUID documentId) throws DocumentNotFoundException;
