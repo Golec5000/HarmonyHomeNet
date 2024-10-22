@@ -21,14 +21,6 @@ public interface PaymentService {
     List<Payment> getPaymentsByUser(Long userId);
 }
 
-public interface PollService {
-    void createPoll(Poll poll);
-    void addVoteToPoll(Long pollId, Vote vote);
-    List<Vote> getVotesByPoll(Long pollId);
-    List<Poll> getAllPolls();
-    Optional<Poll> getPollById(Long pollId);
-}
-
 public interface ProblemReportService {
     void createProblemReport(ProblemReport report);
     List<ProblemReport> getProblemReportsByApartment(Long apartmentId);

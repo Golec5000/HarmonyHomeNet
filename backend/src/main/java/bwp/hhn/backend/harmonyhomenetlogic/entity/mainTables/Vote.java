@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
 @AllArgsConstructor
@@ -35,6 +36,9 @@ public class Vote {
     @CreationTimestamp
     @Column(name = "Created_at", nullable = false)
     private LocalDateTime createdAt;
+
+    @Column(name = "Apartment_UUID")
+    private UUID apartmentUUID;
 
     @ManyToOne
     @JoinColumn(name = "poll_id", referencedColumnName = "UUID_id")

@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -52,12 +53,18 @@ public class Poll {
     @Column(name = "End_date")
     private LocalDateTime endDate;
 
+    @NotNull
+    @DecimalMin(value = "0.0", inclusive = false)
+    @Digits(integer = 3, fraction = 2)
+    @Column(name = "Summary", precision = 5, scale = 2)
+    private BigDecimal summary;
+
     @ManyToOne
     @JoinColumn(name = "users_id", referencedColumnName = "UUID_id")
     @JsonBackReference
     private User user;
 
-    @OneToMany(mappedBy = "poll", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "poll", cascade = CascadeType.REMOVE, orphanRemoval = true)
     @JsonManagedReference
     private List<Vote> votes;
 }
