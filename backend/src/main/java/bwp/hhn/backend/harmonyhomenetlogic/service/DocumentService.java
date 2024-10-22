@@ -20,9 +20,6 @@ public interface DocumentService {
     DocumentResponse getDocumentById(UUID documentId) throws DocumentNotFoundException;
 
 
-    DocumentResponse updateDocument(UUID documentId, UUID userId, DocumentRequest document) throws DocumentNotFoundException, UserNotFoundException, IllegalArgumentException;
-
-
     String deleteDocument(UUID documentId, UUID userId, boolean deleteCompletely) throws DocumentNotFoundException, UserNotFoundException, IllegalArgumentException;
 
 

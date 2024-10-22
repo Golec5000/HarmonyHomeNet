@@ -269,77 +269,6 @@ public class DocumentServiceTest {
         verify(userDocumentConnectionRepository, never()).deleteAll(anyList());
     }
 
-
-
-    @Test
-    @Transactional
-    void shouldUpdateDocumentSuccessfully() throws UserNotFoundException, DocumentNotFoundException {
-
-        UUID userId = UUID.randomUUID();
-        UUID documentId = UUID.randomUUID();
-        DocumentRequest documentRequest = new DocumentRequest("Test Document", DocumentType.OTHER, "Sample data".getBytes());
-
-        User mockUser = new User();
-        mockUser.setUuidID(userId);
-        mockUser.setAccessLevel(AccessLevel.WRITE.getLevel());
-
-        Document mockDocument = new Document();
-        mockDocument.setUuidID(documentId);
-        mockDocument.setDocumentName("Old Name");
-
-        UserDocumentConnection mockConnection = new UserDocumentConnection();
-        mockConnection.setUser(mockUser);
-        mockConnection.setDocument(mockDocument);
-
-        when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
-        when(documentRepository.findById(documentId)).thenReturn(Optional.of(mockDocument));
-        when(userDocumentConnectionRepository.findByDocumentUuidIDAndUserUuidID(documentId, userId))
-                .thenReturn(Optional.of(mockConnection));
-
-        DocumentResponse response = documentService.updateDocument(documentId, userId, documentRequest);
-
-        assertNotNull(response);
-        assertEquals("Test Document", response.documentName());
-        assertEquals(DocumentType.OTHER, response.documentType());
-        verify(documentRepository).findById(documentId);
-        verify(userRepository).findById(userId);
-        verify(userDocumentConnectionRepository).save(mockConnection);
-    }
-
-    @Test
-    @Transactional
-    void shouldThrowUserNotFoundExceptionWhenUpdatingDocument() {
-        DocumentRequest documentRequest = new DocumentRequest("Test Document", DocumentType.OTHER, "Sample data".getBytes());
-
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
-
-        assertThrows(UserNotFoundException.class, () ->
-                documentService.updateDocument(documentId, userId, documentRequest)
-        );
-
-        verify(userRepository).findById(userId);
-        verifyNoInteractions(documentRepository);
-    }
-
-    @Test
-    @Transactional
-    void shouldThrowDocumentNotFoundExceptionWhenUpdatingDocument() {
-        DocumentRequest documentRequest = new DocumentRequest("Test Document", DocumentType.OTHER, "Sample data".getBytes());
-
-        User mockUser = new User();
-        mockUser.setUuidID(userId);
-        mockUser.setAccessLevel(AccessLevel.WRITE.getLevel());
-
-        when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
-        when(documentRepository.findById(documentId)).thenReturn(Optional.empty());
-
-        assertThrows(DocumentNotFoundException.class, () ->
-                documentService.updateDocument(documentId, userId, documentRequest)
-        );
-
-        verify(documentRepository).findById(documentId);
-    }
-
     @Test
     @Transactional
     void shouldReturnAllDocumentsByUserId() throws UserNotFoundException {
@@ -411,7 +340,6 @@ public class DocumentServiceTest {
 
         verify(documentRepository).findById(wrongDocumentId);
     }
-
 
 
 }

@@ -47,10 +47,6 @@ public class Document {
     @Column(name = "Created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp
-    @Column(name = "Updated_at")
-    private LocalDateTime updatedAt;
-
     @OneToMany(mappedBy = "document", cascade = CascadeType.ALL)
     private List<UserDocumentConnection> userDocumentConnections;
 }

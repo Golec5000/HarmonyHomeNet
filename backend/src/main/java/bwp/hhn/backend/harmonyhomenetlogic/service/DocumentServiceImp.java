@@ -85,7 +85,9 @@ public class DocumentServiceImp implements DocumentService {
             user.getUserDocumentConnections().add(connection);
 
             // Przypisz połączenie dokumentowi
-            if (documentEntity.getUserDocumentConnections() == null) documentEntity.setUserDocumentConnections(new ArrayList<>());
+            if (documentEntity.getUserDocumentConnections() == null)
+                documentEntity.setUserDocumentConnections(new ArrayList<>());
+
             documentEntity.getUserDocumentConnections().add(connection);
         }
 
@@ -96,7 +98,6 @@ public class DocumentServiceImp implements DocumentService {
                 .documentName(documentEntity.getDocumentName())
                 .documentType(documentEntity.getDocumentType())
                 .createdAt(documentEntity.getCreatedAt())
-                .updatedAt(documentEntity.getUpdatedAt())
                 .build();
     }
 
@@ -111,7 +112,6 @@ public class DocumentServiceImp implements DocumentService {
                                 .documentName(document.getDocumentName())
                                 .documentType(document.getDocumentType())
                                 .createdAt(document.getCreatedAt())
-                                .updatedAt(document.getUpdatedAt())
                                 .build()
                 )
                 .toList();
@@ -125,42 +125,9 @@ public class DocumentServiceImp implements DocumentService {
                                 .documentName(document.getDocumentName())
                                 .documentType(document.getDocumentType())
                                 .createdAt(document.getCreatedAt())
-                                .updatedAt(document.getUpdatedAt())
                                 .build()
                 )
                 .orElseThrow(() -> new DocumentNotFoundException("Document id: " + id + " not found"));
-    }
-
-    @Override
-    @Transactional
-    public DocumentResponse updateDocument(UUID documentId, UUID userId, DocumentRequest document) throws DocumentNotFoundException, UserNotFoundException, IllegalArgumentException {
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User id: " + userId + " not found"));
-
-        if (!AccessLevel.hasPermission(user.getAccessLevel(), AccessLevel.WRITE))
-            throw new IllegalArgumentException("User does not have permission to update document");
-
-        Document documentEntity = documentRepository.findById(documentId)
-                .orElseThrow(() -> new DocumentNotFoundException("Document id: " + documentId + " not found"));
-
-        documentEntity.setDocumentName(document.getDocumentName());
-        documentEntity.setDocumentType(document.getDocumentType());
-        documentEntity.setDocumentData(document.getDocumentData());
-
-        userDocumentConnectionRepository.findByDocumentUuidIDAndUserUuidID(documentId, userId)
-                .ifPresent(connection -> {
-                    connection.setDocument(documentEntity);
-                    connection.setUser(user);
-                    userDocumentConnectionRepository.save(connection);
-                });
-
-        return DocumentResponse.builder()
-                .documentName(documentEntity.getDocumentName())
-                .documentType(documentEntity.getDocumentType())
-                .createdAt(documentEntity.getCreatedAt())
-                .updatedAt(documentEntity.getUpdatedAt())
-                .build();
     }
 
     @Override
@@ -219,7 +186,6 @@ public class DocumentServiceImp implements DocumentService {
     }
 
 
-
     @Override
     public DocumentResponse downloadDocument(UUID documentId) throws DocumentNotFoundException {
         Document document = documentRepository.findById(documentId)
@@ -230,14 +196,14 @@ public class DocumentServiceImp implements DocumentService {
                 .documentType(document.getDocumentType())
                 .documentDataBase64(encodeToBase64(document.getDocumentData()))
                 .createdAt(document.getCreatedAt())
-                .updatedAt(document.getUpdatedAt())
                 .build();
     }
 
     private String encodeToBase64(byte[] data) {
-        if (data == null)
-            throw new IllegalArgumentException("Data is null");
+
+        if (data == null) throw new IllegalArgumentException("Data is null");
         return Base64.getEncoder().encodeToString(data);
+
     }
 
 

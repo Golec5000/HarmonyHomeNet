@@ -10,7 +10,6 @@ public record DocumentResponse(
         String documentName,
         DocumentType documentType,
         LocalDateTime createdAt,
-        LocalDateTime updatedAt,
         String documentDataBase64
 ) {
 }
