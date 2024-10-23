@@ -9,7 +9,7 @@ import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.DocumentReposit
 import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.UserRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.sideTables.PossessionHistoryRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.sideTables.UserDocumentConnectionRepository;
-import bwp.hhn.backend.harmonyhomenetlogic.service.DocumentServiceImp;
+import bwp.hhn.backend.harmonyhomenetlogic.service.implementation.DocumentServiceImp;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.DocumentType;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Role;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.DocumentRequest;

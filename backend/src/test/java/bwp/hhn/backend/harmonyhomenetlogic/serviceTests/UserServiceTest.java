@@ -3,7 +3,7 @@ package bwp.hhn.backend.harmonyhomenetlogic.serviceTests;
 import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.UserNotFoundException;
 import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.User;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.UserRepository;
-import bwp.hhn.backend.harmonyhomenetlogic.service.UserServiceImp;
+import bwp.hhn.backend.harmonyhomenetlogic.service.implementation.UserServiceImp;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.AccessLevel;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Role;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.UserRequest;

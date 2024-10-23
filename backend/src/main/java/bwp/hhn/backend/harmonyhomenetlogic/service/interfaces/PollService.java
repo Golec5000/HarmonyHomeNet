@@ -1,4 +1,4 @@
-package bwp.hhn.backend.harmonyhomenetlogic.service;
+package bwp.hhn.backend.harmonyhomenetlogic.service.interfaces;
 
 import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.*;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.PollRequest;

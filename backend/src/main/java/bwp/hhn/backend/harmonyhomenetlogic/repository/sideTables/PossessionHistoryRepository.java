@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface PossessionHistoryRepository extends JpaRepository<PossessionHistory, Long> {
@@ -14,5 +15,9 @@ public interface PossessionHistoryRepository extends JpaRepository<PossessionHis
     List<User> findActiveResidentsByApartment(UUID apartmentId);
 
     boolean existsByUserUuidIDAndApartmentUuidID(UUID userId, UUID apartmentId);
+
+    List<PossessionHistory> findByUserUuidID (UUID userId);
+
+    Optional<PossessionHistory> findByUserUuidIDAndApartmentUuidID (UUID userId, UUID apartmentId);
 
 }

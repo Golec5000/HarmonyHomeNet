@@ -1,4 +1,4 @@
-package bwp.hhn.backend.harmonyhomenetlogic.service;
+package bwp.hhn.backend.harmonyhomenetlogic.service.interfaces;
 
 import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.UserNotFoundException;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.AccessLevel;

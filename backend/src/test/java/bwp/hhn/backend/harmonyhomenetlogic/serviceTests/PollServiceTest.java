@@ -5,7 +5,7 @@ import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.*;
 import bwp.hhn.backend.harmonyhomenetlogic.entity.sideTables.PossessionHistory;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.*;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.sideTables.PossessionHistoryRepository;
-import bwp.hhn.backend.harmonyhomenetlogic.service.PollServiceImp;
+import bwp.hhn.backend.harmonyhomenetlogic.service.implementation.PollServiceImp;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Role;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.VoteChoice;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.PollRequest;
@@ -48,7 +48,7 @@ class PollServiceTest {
     private UUID userId;
     private UUID pollId;
     private UUID apartmentId;
-    private Apartments apartment;
+    private Apartment apartment;
 
     @BeforeEach
     void setUp() {
@@ -74,7 +74,7 @@ class PollServiceTest {
                 .votes(new ArrayList<>())
                 .build();
 
-        apartment = Apartments.builder()
+        apartment = Apartment.builder()
                 .uuidID(apartmentId)
                 .apartmentPercentValue(new BigDecimal("0.05"))
                 .build();

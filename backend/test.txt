@@ -6,14 +6,6 @@ public interface AnnouncementService {
     Optional<Announcement> getAnnouncementById(Long id);
 }
 
-public interface ApartmentsService {
-    void createApartment(Apartment apartment);
-    List<PossessionHistory> getPossessionHistory(Long apartmentId);
-    void addPossessionHistory(Long apartmentId, PossessionHistory history);
-    List<Apartment> getAllApartments();
-    Optional<Apartment> getApartmentById(Long id);
-}
-
 public interface PaymentService {
     void createPayment(Payment payment, List<PaymentComponent> components);
     void addPaymentComponent(Long paymentId, PaymentComponent component);
