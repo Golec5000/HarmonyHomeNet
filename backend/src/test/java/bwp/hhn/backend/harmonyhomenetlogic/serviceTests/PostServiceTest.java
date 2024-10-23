@@ -1,415 +1,333 @@
 package bwp.hhn.backend.harmonyhomenetlogic.serviceTests;
 
-import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.PostNotFoundException;
-import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.TopicNotFoundException;
-import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.UserNotFoundException;
-import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.Post;
-import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.Topic;
-import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.User;
-import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.PostRepository;
-import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.TopicRepository;
-import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.UserRepository;
+import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.*;
+import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.*;
+import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.*;
 import bwp.hhn.backend.harmonyhomenetlogic.service.PostServiceImp;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.request.PostRequest;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.request.TopicRequest;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.response.PostResponse;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.response.TopicResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Role;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.request.*;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.*;
 
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class PostServiceTest {
+class PostServiceTest {
 
     @Mock
-    private PostRepository postRepository;
+    private UserRepository userRepository;
 
     @Mock
     private TopicRepository topicRepository;
 
     @Mock
-    private UserRepository userRepository;
+    private PostRepository postRepository;
 
     @InjectMocks
-    private PostServiceImp postServiceImp;
+    private PostServiceImp postService;
+
+    private User user;
+    private Topic topic;
+    private Post post;
+    private UUID userId;
+    private UUID topicId;
+    private UUID postId;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.openMocks(this);
+        userId = UUID.randomUUID();
+        topicId = UUID.randomUUID();
+        postId = UUID.randomUUID();
+
+        user = User.builder()
+                .uuidID(userId)
+                .firstName("testuser")
+                .posts(new ArrayList<>())
+                .topics(new ArrayList<>())
+                .role(Role.USER)
+                .build();
+
+        topic = Topic.builder()
+                .uuidID(topicId)
+                .title("Test Topic")
+                .user(user)
+                .posts(new ArrayList<>())
+                .build();
+
+        post = Post.builder()
+                .uuidID(postId)
+                .content("Test Content")
+                .user(user)
+                .topic(topic)
+                .build();
     }
 
     @Test
-    public void createTopicTest() throws UserNotFoundException {
-        // Przygotowanie danych
-        UUID userId = UUID.randomUUID();
-        TopicRequest topicRequest = new TopicRequest();
-        topicRequest.setTitle("Testowy Temat");
-
-        User user = User.builder()
-                .uuidID(userId)
+    void testCreateTopic_Success() throws UserNotFoundException {
+        TopicRequest topicRequest = TopicRequest.builder()
+                .title("New Topic")
                 .build();
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(topicRepository.save(any(Topic.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        // Wykonanie metody
-        TopicResponse topicResponse = postServiceImp.createTopic(topicRequest, userId);
+        TopicResponse response = postService.createTopic(topicRequest, userId);
 
-        // Weryfikacja
-        assertNotNull(topicResponse);
-        assertEquals("Testowy Temat", topicResponse.title());
+        assertNotNull(response);
+        assertEquals("New Topic", response.title());
+
+        verify(userRepository, times(1)).findById(userId);
+        verify(userRepository, times(1)).save(user);
         verify(topicRepository, times(1)).save(any(Topic.class));
     }
 
     @Test
-    public void createTopic_UserNotFound() {
-        UUID userId = UUID.randomUUID();
-        TopicRequest topicRequest = new TopicRequest();
-        topicRequest.setTitle("Testowy Temat");
+    void testCreateTopic_UserNotFound() {
+        TopicRequest topicRequest = TopicRequest.builder()
+                .title("New Topic")
+                .build();
 
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-        assertThrows(UserNotFoundException.class, () -> {
-            postServiceImp.createTopic(topicRequest, userId);
-        });
-        verify(topicRepository, never()).save(any(Topic.class));
+        assertThrows(UserNotFoundException.class, () -> postService.createTopic(topicRequest, userId));
+
+        verify(userRepository, times(1)).findById(userId);
+        verifyNoMoreInteractions(userRepository);
+        verifyNoInteractions(topicRepository);
     }
 
     @Test
-    public void getUserTopicsTest() throws UserNotFoundException {
-        UUID userId = UUID.randomUUID();
-        Topic topic1 = Topic.builder()
-                .uuidID(UUID.randomUUID())
-                .title("Temat 1")
-                .build();
-        Topic topic2 = Topic.builder()
-                .uuidID(UUID.randomUUID())
-                .title("Temat 2")
-                .build();
-
-        List<Topic> topics = Arrays.asList(topic1, topic2);
-
+    void testGetUserTopics_Success() throws UserNotFoundException {
         when(userRepository.existsById(userId)).thenReturn(true);
-        when(topicRepository.findByUserUuidID(userId)).thenReturn(topics);
+        when(topicRepository.findByUserUuidID(userId)).thenReturn(Collections.singletonList(topic));
 
-        List<TopicResponse> topicResponses = postServiceImp.getUserTopics(userId);
+        List<TopicResponse> topics = postService.getUserTopics(userId);
 
-        assertNotNull(topicResponses);
-        assertEquals(2, topicResponses.size());
+        assertNotNull(topics);
+        assertEquals(1, topics.size());
+        assertEquals("Test Topic", topics.get(0).title());
+
+        verify(userRepository, times(1)).existsById(userId);
         verify(topicRepository, times(1)).findByUserUuidID(userId);
     }
 
     @Test
-    public void getUserTopics_UserNotFound() {
-        UUID userId = UUID.randomUUID();
-
+    void testGetUserTopics_UserNotFound() {
         when(userRepository.existsById(userId)).thenReturn(false);
 
-        assertThrows(UserNotFoundException.class, () -> {
-            postServiceImp.getUserTopics(userId);
-        });
-        verify(topicRepository, never()).findByUserUuidID(userId);
+        assertThrows(UserNotFoundException.class, () -> postService.getUserTopics(userId));
+
+        verify(userRepository, times(1)).existsById(userId);
+        verifyNoInteractions(topicRepository);
     }
 
     @Test
-    public void getAllTopicsTest() {
-        Topic topic1 = Topic.builder()
-                .uuidID(UUID.randomUUID())
-                .title("Temat 1")
-                .build();
-        Topic topic2 = Topic.builder()
-                .uuidID(UUID.randomUUID())
-                .title("Temat 2")
-                .build();
+    void testGetAllTopics() {
+        when(topicRepository.findAll()).thenReturn(Collections.singletonList(topic));
 
-        List<Topic> topics = Arrays.asList(topic1, topic2);
+        List<TopicResponse> topics = postService.getAllTopics();
 
-        when(topicRepository.findAll()).thenReturn(topics);
+        assertNotNull(topics);
+        assertEquals(1, topics.size());
+        assertEquals("Test Topic", topics.get(0).title());
 
-        List<TopicResponse> topicResponses = postServiceImp.getAllTopics();
-
-        assertNotNull(topicResponses);
-        assertEquals(2, topicResponses.size());
         verify(topicRepository, times(1)).findAll();
     }
 
     @Test
-    public void deleteTopicTest() throws TopicNotFoundException {
-        UUID topicId = UUID.randomUUID();
+    void testDeleteTopic_Success() throws TopicNotFoundException {
+        when(topicRepository.existsByUuidID(topicId)).thenReturn(true);
 
-        Topic topic = Topic.builder()
-                .uuidID(topicId)
-                .build();
-
-        when(topicRepository.findById(topicId)).thenReturn(Optional.of(topic));
-
-        String result = postServiceImp.deleteTopic(topicId);
+        String result = postService.deleteTopic(topicId);
 
         assertEquals("Topic deleted successfully", result);
-        verify(topicRepository, times(1)).delete(topic);
+
+        verify(topicRepository, times(1)).existsByUuidID(topicId);
+        verify(topicRepository, times(1)).deleteById(topicId);
     }
 
     @Test
-    public void deleteTopic_TopicNotFound() {
-        UUID topicId = UUID.randomUUID();
+    void testDeleteTopic_NotFound() {
+        when(topicRepository.existsByUuidID(topicId)).thenReturn(false);
 
-        when(topicRepository.findById(topicId)).thenReturn(Optional.empty());
+        assertThrows(TopicNotFoundException.class, () -> postService.deleteTopic(topicId));
 
-        assertThrows(TopicNotFoundException.class, () -> {
-            postServiceImp.deleteTopic(topicId);
-        });
-        verify(topicRepository, never()).delete(any(Topic.class));
+        verify(topicRepository, times(1)).existsByUuidID(topicId);
+        verify(topicRepository, times(0)).deleteById(topicId);
     }
 
     @Test
-    public void createPostTest() throws UserNotFoundException, TopicNotFoundException {
-        UUID userId = UUID.randomUUID();
-        UUID topicId = UUID.randomUUID();
-
-        PostRequest postRequest = new PostRequest();
-        postRequest.setContent("Testowa Treść");
-
-        User user = User.builder()
-                .uuidID(userId)
-                .posts(new ArrayList<>())
-                .build();
-
-        Topic topic = Topic.builder()
-                .uuidID(topicId)
-                .posts(new ArrayList<>())
+    void testCreatePost_Success() throws UserNotFoundException, TopicNotFoundException {
+        PostRequest postRequest = PostRequest.builder()
+                .content("New Post Content")
                 .build();
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(topicRepository.findById(topicId)).thenReturn(Optional.of(topic));
+        when(postRepository.save(any(Post.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        PostResponse postResponse = postServiceImp.createPost(postRequest, topicId, userId);
+        PostResponse response = postService.createPost(postRequest, topicId, userId);
 
-        assertNotNull(postResponse);
-        assertEquals("Testowa Treść", postResponse.content());
-        verify(postRepository, times(1)).save(any(Post.class));
+        assertNotNull(response);
+        assertEquals("New Post Content", response.content());
+
+        verify(userRepository, times(1)).findById(userId);
+        verify(topicRepository, times(1)).findById(topicId);
         verify(userRepository, times(1)).save(user);
+        verify(postRepository, times(1)).save(any(Post.class));
         verify(topicRepository, times(1)).save(topic);
     }
 
     @Test
-    public void createPost_UserNotFound() throws TopicNotFoundException {
-        UUID userId = UUID.randomUUID();
-        UUID topicId = UUID.randomUUID();
-
-        PostRequest postRequest = new PostRequest();
-        postRequest.setContent("Testowa Treść");
+    void testCreatePost_UserNotFound() {
+        PostRequest postRequest = PostRequest.builder()
+                .content("New Post Content")
+                .build();
 
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
-        when(topicRepository.findById(topicId)).thenReturn(Optional.of(new Topic()));
 
-        assertThrows(UserNotFoundException.class, () -> {
-            postServiceImp.createPost(postRequest, topicId, userId);
-        });
-        verify(postRepository, never()).save(any(Post.class));
+        assertThrows(UserNotFoundException.class, () -> postService.createPost(postRequest, topicId, userId));
+
+        verify(userRepository, times(1)).findById(userId);
+        verifyNoMoreInteractions(userRepository);
+        verifyNoInteractions(topicRepository);
+        verifyNoInteractions(postRepository);
     }
 
     @Test
-    public void createPost_TopicNotFound() throws UserNotFoundException {
-        UUID userId = UUID.randomUUID();
-        UUID topicId = UUID.randomUUID();
+    void testCreatePost_TopicNotFound() {
+        PostRequest postRequest = PostRequest.builder()
+                .content("New Post Content")
+                .build();
 
-        PostRequest postRequest = new PostRequest();
-        postRequest.setContent("Testowa Treść");
-
-        when(userRepository.findById(userId)).thenReturn(Optional.of(new User()));
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(topicRepository.findById(topicId)).thenReturn(Optional.empty());
 
-        assertThrows(TopicNotFoundException.class, () -> {
-            postServiceImp.createPost(postRequest, topicId, userId);
-        });
-        verify(postRepository, never()).save(any(Post.class));
+        assertThrows(TopicNotFoundException.class, () -> postService.createPost(postRequest, topicId, userId));
+
+        verify(userRepository, times(1)).findById(userId);
+        verify(topicRepository, times(1)).findById(topicId);
+        verifyNoInteractions(postRepository);
     }
 
     @Test
-    public void getTopicPostsTest() throws TopicNotFoundException {
-        UUID topicId = UUID.randomUUID();
-
-        Post post1 = Post.builder()
-                .uuidID(UUID.randomUUID())
-                .content("Post 1")
-                .build();
-
-        Post post2 = Post.builder()
-                .uuidID(UUID.randomUUID())
-                .content("Post 2")
-                .build();
-
-        List<Post> posts = Arrays.asList(post1, post2);
-
+    void testGetTopicPosts_Success() throws TopicNotFoundException {
         when(topicRepository.existsById(topicId)).thenReturn(true);
-        when(postRepository.findByTopicUuidID(topicId)).thenReturn(posts);
+        when(postRepository.findByTopicUuidID(topicId)).thenReturn(Collections.singletonList(post));
 
-        List<PostResponse> postResponses = postServiceImp.getTopicPosts(topicId);
+        List<PostResponse> posts = postService.getTopicPosts(topicId);
 
-        assertNotNull(postResponses);
-        assertEquals(2, postResponses.size());
+        assertNotNull(posts);
+        assertEquals(1, posts.size());
+        assertEquals("Test Content", posts.get(0).content());
+
+        verify(topicRepository, times(1)).existsById(topicId);
         verify(postRepository, times(1)).findByTopicUuidID(topicId);
     }
 
     @Test
-    public void getTopicPosts_TopicNotFound() {
-        UUID topicId = UUID.randomUUID();
-
+    void testGetTopicPosts_TopicNotFound() {
         when(topicRepository.existsById(topicId)).thenReturn(false);
 
-        assertThrows(TopicNotFoundException.class, () -> {
-            postServiceImp.getTopicPosts(topicId);
-        });
-        verify(postRepository, never()).findByTopicUuidID(topicId);
+        assertThrows(TopicNotFoundException.class, () -> postService.getTopicPosts(topicId));
+
+        verify(topicRepository, times(1)).existsById(topicId);
+        verifyNoInteractions(postRepository);
     }
 
     @Test
-    public void deletePostTest() throws UserNotFoundException, PostNotFoundException {
-        UUID postId = UUID.randomUUID();
-        UUID userId = UUID.randomUUID();
-
-        User user = User.builder()
-                .uuidID(userId)
-                .posts(new ArrayList<>())
-                .build();
-
-        Post post = Post.builder()
-                .uuidID(postId)
-                .user(user)
-                .build();
-
-        user.getPosts().add(post);
-
+    void testDeletePost_Success() throws UserNotFoundException, PostNotFoundException {
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(postRepository.findById(postId)).thenReturn(Optional.of(post));
-        when(postRepository.existsPostByUserUuidID(userId)).thenReturn(true);
+        when(postRepository.canDeletePost(postId, userId, user.getRole().name())).thenReturn(true);
 
-        String result = postServiceImp.deletePost(postId, userId);
+        String result = postService.deletePost(postId, userId);
 
         assertEquals("Post deleted successfully", result);
-        assertFalse(user.getPosts().contains(post));
+
+        verify(userRepository, times(1)).findById(userId);
+        verify(postRepository, times(1)).findById(postId);
+        verify(postRepository, times(1)).canDeletePost(postId, userId, user.getRole().name());
         verify(userRepository, times(1)).save(user);
         verify(postRepository, times(1)).delete(post);
     }
 
     @Test
-    public void deletePost_PostNotFound() throws UserNotFoundException {
-        UUID postId = UUID.randomUUID();
-        UUID userId = UUID.randomUUID();
+    void testDeletePost_UserNotFound() {
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-        User user = User.builder()
-                .uuidID(userId)
-                .build();
+        assertThrows(UserNotFoundException.class, () -> postService.deletePost(postId, userId));
 
+        verify(userRepository, times(1)).findById(userId);
+        verifyNoInteractions(postRepository);
+    }
+
+    @Test
+    void testDeletePost_PostNotFound() {
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(postRepository.findById(postId)).thenReturn(Optional.empty());
 
-        assertThrows(PostNotFoundException.class, () -> {
-            postServiceImp.deletePost(postId, userId);
-        });
-        verify(postRepository, never()).delete(any(Post.class));
+        assertThrows(PostNotFoundException.class, () -> postService.deletePost(postId, userId));
+
+        verify(userRepository, times(1)).findById(userId);
+        verify(postRepository, times(1)).findById(postId);
+        verifyNoMoreInteractions(postRepository);
     }
 
     @Test
-    public void deletePost_UserNotFound() throws PostNotFoundException {
-        UUID postId = UUID.randomUUID();
-        UUID userId = UUID.randomUUID();
-
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
-
-        assertThrows(UserNotFoundException.class, () -> {
-            postServiceImp.deletePost(postId, userId);
-        });
-        verify(postRepository, never()).delete(any(Post.class));
-    }
-
-    @Test
-    public void deletePost_UserNotOwner() throws UserNotFoundException, PostNotFoundException {
-        UUID postId = UUID.randomUUID();
-        UUID userId = UUID.randomUUID();
-
-        User user = User.builder()
-                .uuidID(userId)
-                .build();
-
-        Post post = Post.builder()
-                .uuidID(postId)
-                .user(User.builder().uuidID(UUID.randomUUID()).build()) // Inny użytkownik
-                .build();
-
+    void testDeletePost_NotAuthorized() {
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(postRepository.findById(postId)).thenReturn(Optional.of(post));
-        when(postRepository.existsPostByUserUuidID(userId)).thenReturn(false);
+        when(postRepository.canDeletePost(postId, userId, user.getRole().name())).thenReturn(false);
 
-        assertThrows(UserNotFoundException.class, () -> {
-            postServiceImp.deletePost(postId, userId);
-        });
-        verify(postRepository, never()).delete(any(Post.class));
+        assertThrows(IllegalArgumentException.class, () -> postService.deletePost(postId, userId));
+
+        verify(userRepository, times(1)).findById(userId);
+        verify(postRepository, times(1)).findById(postId);
+        verify(postRepository, times(1)).canDeletePost(postId, userId, user.getRole().name());
+        verifyNoMoreInteractions(postRepository);
     }
 
     @Test
-    public void getUserPostsTest() throws UserNotFoundException {
-        UUID userId = UUID.randomUUID();
-
-        Post post1 = Post.builder()
-                .uuidID(UUID.randomUUID())
-                .content("Post 1")
-                .build();
-
-        Post post2 = Post.builder()
-                .uuidID(UUID.randomUUID())
-                .content("Post 2")
-                .build();
-
-        List<Post> posts = Arrays.asList(post1, post2);
-
+    void testGetUserPosts_Success() throws UserNotFoundException {
         when(userRepository.existsById(userId)).thenReturn(true);
-        when(postRepository.findByUserUuidID(userId)).thenReturn(posts);
+        when(postRepository.findByUserUuidID(userId)).thenReturn(Collections.singletonList(post));
 
-        List<PostResponse> postResponses = postServiceImp.getUserPosts(userId);
+        List<PostResponse> posts = postService.getUserPosts(userId);
 
-        assertNotNull(postResponses);
-        assertEquals(2, postResponses.size());
+        assertNotNull(posts);
+        assertEquals(1, posts.size());
+        assertEquals("Test Content", posts.get(0).content());
+
+        verify(userRepository, times(1)).existsById(userId);
         verify(postRepository, times(1)).findByUserUuidID(userId);
     }
 
     @Test
-    public void getUserPosts_UserNotFound() {
-        UUID userId = UUID.randomUUID();
-
+    void testGetUserPosts_UserNotFound() {
         when(userRepository.existsById(userId)).thenReturn(false);
 
-        assertThrows(UserNotFoundException.class, () -> {
-            postServiceImp.getUserPosts(userId);
-        });
-        verify(postRepository, never()).findByUserUuidID(userId);
+        assertThrows(UserNotFoundException.class, () -> postService.getUserPosts(userId));
+
+        verify(userRepository, times(1)).existsById(userId);
+        verifyNoInteractions(postRepository);
     }
 
     @Test
-    public void getAllPostsTest() {
-        Post post1 = Post.builder()
-                .uuidID(UUID.randomUUID())
-                .content("Post 1")
-                .build();
+    void testGetAllPosts() {
+        when(postRepository.findAll()).thenReturn(Collections.singletonList(post));
 
-        Post post2 = Post.builder()
-                .uuidID(UUID.randomUUID())
-                .content("Post 2")
-                .build();
+        List<PostResponse> posts = postService.getAllPosts();
 
-        List<Post> posts = Arrays.asList(post1, post2);
+        assertNotNull(posts);
+        assertEquals(1, posts.size());
+        assertEquals("Test Content", posts.get(0).content());
 
-        when(postRepository.findAll()).thenReturn(posts);
-
-        List<PostResponse> postResponses = postServiceImp.getAllPosts();
-
-        assertNotNull(postResponses);
-        assertEquals(2, postResponses.size());
         verify(postRepository, times(1)).findAll();
     }
 }

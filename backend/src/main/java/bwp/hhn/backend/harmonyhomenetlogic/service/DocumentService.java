@@ -10,8 +10,7 @@ import java.util.UUID;
 
 public interface DocumentService {
 
-
-    DocumentResponse uploadDocument(DocumentRequest document, UUID userId, UUID apartmentId) throws UserNotFoundException, IllegalArgumentException ;
+    DocumentResponse uploadDocument(DocumentRequest document, UUID apartmentId) throws IllegalArgumentException ;
 
 
     List<DocumentResponse> getAllDocumentsByUserId(UUID userId) throws UserNotFoundException;

@@ -10,4 +10,5 @@ import java.util.UUID;
 public interface TopicRepository extends JpaRepository<Topic, UUID> {
 
     List<Topic> findByUserUuidID(UUID userId);
+    boolean existsByUuidID(UUID uuidID);
 }

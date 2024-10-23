@@ -1,9 +1,6 @@
 package bwp.hhn.backend.harmonyhomenetlogic.service;
 
-import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.PollNotFoundException;
-import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.PossessionHistoryNotFoundException;
-import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.UserNotFoundException;
-import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.VoteNotFoundException;
+import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.*;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.PollRequest;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.VoteRequest;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.PollResponse;
@@ -22,7 +19,7 @@ public interface PollService {
 
     String deletePoll(UUID pollId) throws PollNotFoundException;
 
-    VoteResponse vote(UUID pollId, UUID userId, VoteRequest voteRequest) throws UserNotFoundException, PollNotFoundException, PossessionHistoryNotFoundException;
+    VoteResponse vote(UUID pollId, UUID userId, UUID apartmentId, VoteRequest voteRequest) throws UserNotFoundException, PollNotFoundException, PossessionHistoryNotFoundException, ApartmentNotFoundException;
 
     List<VoteResponse> getVotesFromPoll(UUID pollId) throws PollNotFoundException;
 
@@ -30,5 +27,4 @@ public interface PollService {
 
     String deleteVote(Long voteId) throws VoteNotFoundException;
 
-    String summaryPoll(UUID pollId) throws PollNotFoundException;
 }

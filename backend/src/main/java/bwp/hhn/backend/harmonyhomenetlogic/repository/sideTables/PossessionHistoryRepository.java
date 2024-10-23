@@ -13,5 +13,6 @@ public interface PossessionHistoryRepository extends JpaRepository<PossessionHis
     @Query("SELECT ph.user FROM PossessionHistory ph WHERE ph.apartment.uuidID = :apartmentId AND ph.endDate IS NULL")
     List<User> findActiveResidentsByApartment(UUID apartmentId);
 
-    List<PossessionHistory> findByUserUuidID(UUID userId);
+    boolean existsByUserUuidIDAndApartmentUuidID(UUID userId, UUID apartmentId);
+
 }

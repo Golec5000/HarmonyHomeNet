@@ -47,6 +47,6 @@ public class Document {
     @Column(name = "Created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "document", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "document", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserDocumentConnection> userDocumentConnections;
 }

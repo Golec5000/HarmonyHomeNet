@@ -2,6 +2,7 @@ package bwp.hhn.backend.harmonyhomenetlogic.utils.response;
 
 import lombok.Builder;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Builder
@@ -10,6 +11,7 @@ public record PollResponse(
         String content,
         byte[] uploadData,
         LocalDateTime createdAt,
-        LocalDateTime endDate
+        LocalDateTime endDate,
+        BigDecimal summary
 ) {
 }

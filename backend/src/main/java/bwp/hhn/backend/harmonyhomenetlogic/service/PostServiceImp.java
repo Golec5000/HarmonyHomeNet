@@ -13,6 +13,7 @@ import bwp.hhn.backend.harmonyhomenetlogic.utils.request.PostRequest;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.TopicRequest;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.PostResponse;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.TopicResponse;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +30,7 @@ public class PostServiceImp implements PostService {
     private final PostRepository postRepository;
 
     @Override
+    @Transactional
     public TopicResponse createTopic(TopicRequest topicRequest, UUID userId) throws UserNotFoundException {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User: " + userId + " not found"));
@@ -39,7 +41,9 @@ public class PostServiceImp implements PostService {
                 .build();
 
         if (user.getTopics() == null) user.setTopics(new ArrayList<>());
-        else user.getTopics().add(topic);
+        user.getTopics().add(topic);
+
+        userRepository.save(user);
         topicRepository.save(topic);
 
         return TopicResponse.builder()
@@ -75,10 +79,10 @@ public class PostServiceImp implements PostService {
 
     @Override
     public String deleteTopic(UUID topicId) throws TopicNotFoundException {
-        Topic topic = topicRepository.findById(topicId)
-                .orElseThrow(() -> new TopicNotFoundException("Topic: " + topicId + " not found"));
+        if (!topicRepository.existsByUuidID(topicId))
+            throw new TopicNotFoundException("Topic: " + topicId + " not found");
 
-        topicRepository.delete(topic);
+        topicRepository.deleteById(topicId);
         return "Topic deleted successfully";
     }
 
@@ -97,10 +101,10 @@ public class PostServiceImp implements PostService {
                 .build();
 
         if (user.getPosts() == null) user.setPosts(new ArrayList<>());
-        else user.getPosts().add(post);
+        user.getPosts().add(post);
 
         if (topic.getPosts() == null) topic.setPosts(new ArrayList<>());
-        else topic.getPosts().add(post);
+        topic.getPosts().add(post);
 
         userRepository.save(user);
         postRepository.save(post);
@@ -136,10 +140,11 @@ public class PostServiceImp implements PostService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new PostNotFoundException("Post: " + postId + " not found"));
 
-        if (!postRepository.existsPostByUserUuidID(userId))
-            throw new UserNotFoundException("User: " + userId + " is not the owner of the post");
+        if (!postRepository.canDeletePost(postId, userId, user.getRole().name()))
+            throw new IllegalArgumentException("User: " + userId + " is not authorized to delete the post");
 
-        user.getPosts().removeIf(p -> p.getUuidID().equals(postId));
+
+        user.getPosts().remove(post);
         userRepository.save(user);
         postRepository.delete(post);
 

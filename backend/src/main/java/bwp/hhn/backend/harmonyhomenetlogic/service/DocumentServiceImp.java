@@ -27,6 +27,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class DocumentServiceImp implements DocumentService {
 
+    // @TODO - sprawdzenie czy użytkownik ma uprawnienia do dodawania dokumentów zostanie przeniesiona do @hasRole w dostepie do endpointu
     private final UserDocumentConnectionRepository userDocumentConnectionRepository;
     private final DocumentRepository documentRepository;
     private final UserRepository userRepository;
@@ -34,15 +35,7 @@ public class DocumentServiceImp implements DocumentService {
 
     @Override
     @Transactional
-    public DocumentResponse uploadDocument(DocumentRequest document, UUID userId, UUID apartmentId)
-            throws UserNotFoundException, IllegalArgumentException {
-
-        User uploader = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User id: " + userId + " not found"));
-
-        if (!AccessLevel.hasPermission(uploader.getAccessLevel(), AccessLevel.WRITE)) {
-            throw new IllegalArgumentException("User does not have permission to upload document");
-        }
+    public DocumentResponse uploadDocument(DocumentRequest document, UUID apartmentId) throws IllegalArgumentException {
 
         Document documentEntity = Document.builder()
                 .documentName(document.getDocumentName())
@@ -50,7 +43,7 @@ public class DocumentServiceImp implements DocumentService {
                 .documentData(document.getDocumentData())
                 .build();
 
-        documentRepository.save(documentEntity);  // Zapis dokumentu
+        documentRepository.save(documentEntity);
 
         // Pobranie użytkowników do przypisania w zależności od typu dokumentu
         List<User> eligibleUsers;
@@ -58,7 +51,7 @@ public class DocumentServiceImp implements DocumentService {
             // Dokument publiczny - przypisujemy wszystkich użytkowników
             eligibleUsers = userRepository.findAll();
         } else {
-            // Dokument prywatny - pobierz mieszkańców apartamentu i pracowników
+            // Dokument prywatny - pobierz mieszkańców apartamentu i pracowników oraz adminów
             List<User> residents = possessionHistoryRepository.findActiveResidentsByApartment(apartmentId);
 
             if (residents.isEmpty()) {
@@ -132,18 +125,10 @@ public class DocumentServiceImp implements DocumentService {
 
     @Override
     @Transactional
-    public String deleteDocument(UUID documentId, UUID userId, boolean deleteCompletely)
-            throws DocumentNotFoundException, UserNotFoundException, IllegalArgumentException {
+    public String deleteDocument(UUID documentId, UUID userId, boolean deleteCompletely) throws DocumentNotFoundException, UserNotFoundException, IllegalArgumentException {
 
         Document document = documentRepository.findById(documentId)
                 .orElseThrow(() -> new DocumentNotFoundException("Document id: " + documentId + " not found"));
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User id: " + userId + " not found"));
-
-        if (!AccessLevel.hasPermission(user.getAccessLevel(), AccessLevel.DELETE)) {
-            throw new IllegalArgumentException("User does not have permission to delete document");
-        }
 
         if (deleteCompletely) {
             // Usuwanie dokumentu i wszystkich powiązań
@@ -162,18 +147,18 @@ public class DocumentServiceImp implements DocumentService {
 
             return "Document id: " + documentId + " deleted successfully for all users";
         } else {
+
             // Usuwanie tylko połączenia użytkownika z dokumentem
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new UserNotFoundException("User id: " + userId + " not found"));
+
             UserDocumentConnection connection = userDocumentConnectionRepository
                     .findByDocumentUuidIDAndUserUuidID(documentId, userId)
                     .orElseThrow(() -> new IllegalArgumentException("Connection not found"));
 
             // Inicjalizujemy listy, jeśli są nullem, aby uniknąć NullPointerException
-            if (user.getUserDocumentConnections() == null) {
-                user.setUserDocumentConnections(new ArrayList<>());
-            }
-            if (document.getUserDocumentConnections() == null) {
-                document.setUserDocumentConnections(new ArrayList<>());
-            }
+            if (user.getUserDocumentConnections() == null) user.setUserDocumentConnections(new ArrayList<>());
+            if (document.getUserDocumentConnections() == null) document.setUserDocumentConnections(new ArrayList<>());
 
             // Usunięcie połączenia
             user.getUserDocumentConnections().remove(connection);
