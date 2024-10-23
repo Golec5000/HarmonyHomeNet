@@ -1,6 +1,6 @@
 package bwp.hhn.backend.harmonyhomenetlogic.controller;
 
-import bwp.hhn.backend.harmonyhomenetlogic.service.UserService;
+import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;

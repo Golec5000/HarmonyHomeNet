@@ -1,4 +1,4 @@
-package bwp.hhn.backend.harmonyhomenetlogic.service;
+package bwp.hhn.backend.harmonyhomenetlogic.service.implementation;
 
 import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.PostNotFoundException;
 import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.TopicNotFoundException;
@@ -9,6 +9,7 @@ import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.User;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.PostRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.TopicRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.UserRepository;
+import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.PostService;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.PostRequest;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.TopicRequest;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.PostResponse;

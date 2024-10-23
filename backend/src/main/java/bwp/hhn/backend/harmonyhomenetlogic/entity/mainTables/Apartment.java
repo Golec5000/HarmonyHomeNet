@@ -21,7 +21,7 @@ import java.util.UUID;
 @Table(name = "Apartments", indexes = {
         @Index(name = "idx_apartments_address", columnList = "Address")
 })
-public class Apartments {
+public class Apartment {
 
     @Id
     @Column(name = "UUID_id")
@@ -61,19 +61,19 @@ public class Apartments {
     @Column(name = "Update_at")
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "apartment", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "apartment", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<PossessionHistory> possessionHistories;
 
-    @OneToMany(mappedBy = "apartment", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "apartment", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<ProblemReport> problemReports;
 
-    @OneToMany(mappedBy = "apartment", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "apartment", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<Payment> payments;
 
-    @OneToMany(mappedBy = "apartment", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "apartment", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<AnnouncementApartment> announcementApartments;
 }

@@ -3,7 +3,7 @@ package bwp.hhn.backend.harmonyhomenetlogic.serviceTests;
 import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.*;
 import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.*;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.*;
-import bwp.hhn.backend.harmonyhomenetlogic.service.PostServiceImp;
+import bwp.hhn.backend.harmonyhomenetlogic.service.implementation.PostServiceImp;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Role;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.*;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.*;

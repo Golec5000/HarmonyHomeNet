@@ -1,16 +1,16 @@
-package bwp.hhn.backend.harmonyhomenetlogic.service;
+package bwp.hhn.backend.harmonyhomenetlogic.service.implementation;
 
 import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.*;
-import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.Apartments;
+import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.Apartment;
 import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.Poll;
 import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.User;
 import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.Vote;
-import bwp.hhn.backend.harmonyhomenetlogic.entity.sideTables.PossessionHistory;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.ApartmentsRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.PollRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.UserRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.VoteRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.sideTables.PossessionHistoryRepository;
+import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.PollService;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.VoteChoice;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.PollRequest;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.VoteRequest;
@@ -139,7 +139,7 @@ public class PollServiceImp implements PollService {
             throw new IllegalArgumentException("For aparmet: " + apartmentId + " in poll: " + pollId + " owners has already voted");
 
         // Pobranie mieszkania i jego wartości procentowej
-        Apartments apartment = apartmentsRepository.findById(apartmentId)
+        Apartment apartment = apartmentsRepository.findById(apartmentId)
                 .orElseThrow(() -> new ApartmentNotFoundException("Apartment: " + apartmentId + " not found"));
 
         Vote vote = Vote.builder()

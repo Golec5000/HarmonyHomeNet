@@ -44,7 +44,7 @@ public class Payment {
     @ManyToOne
     @JoinColumn(name = "apartment_id", referencedColumnName = "UUID_id")
     @JsonBackReference
-    private Apartments apartment;
+    private Apartment apartment;
 
     @OneToMany(mappedBy = "payment", cascade = CascadeType.ALL)
     @JsonManagedReference

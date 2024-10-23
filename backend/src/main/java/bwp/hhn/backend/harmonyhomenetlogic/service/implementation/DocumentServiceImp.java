@@ -1,4 +1,4 @@
-package bwp.hhn.backend.harmonyhomenetlogic.service;
+package bwp.hhn.backend.harmonyhomenetlogic.service.implementation;
 
 import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.DocumentNotFoundException;
 import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.UserNotFoundException;
@@ -9,11 +9,11 @@ import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.DocumentReposit
 import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.UserRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.sideTables.PossessionHistoryRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.sideTables.UserDocumentConnectionRepository;
+import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.DocumentService;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.DocumentType;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Role;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.DocumentRequest;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.DocumentResponse;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.AccessLevel;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
