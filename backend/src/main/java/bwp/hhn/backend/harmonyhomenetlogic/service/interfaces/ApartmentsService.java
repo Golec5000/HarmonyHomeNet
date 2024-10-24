@@ -35,7 +35,7 @@ public interface ApartmentsService {
     List<PossessionHistoryResponse> getApartmentPossessionHistory(UUID apartmentId) throws ApartmentNotFoundException;
 
     List<ApartmentResponse> getAllUserApartments(UUID userId) throws UserNotFoundException;
-// @todo do szatanowienia
+// @todo do zastanowienia
 //    PossessionHistoryResponse updatePossessionHistory(UUID possessionHistoryId, PossessionHistoryRequest request) throws PossessionHistoryNotFoundException;
 
     List<UserResponse> getAllResidentsByApartmentId(UUID apartmentId) throws ApartmentNotFoundException;

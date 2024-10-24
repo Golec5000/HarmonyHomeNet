@@ -58,7 +58,7 @@ public class Apartment {
     @Column(name = "Create_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "Update_at")
+    @Column(name = "Update_at", updatable = false)
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "apartment", cascade = CascadeType.ALL, orphanRemoval = true)

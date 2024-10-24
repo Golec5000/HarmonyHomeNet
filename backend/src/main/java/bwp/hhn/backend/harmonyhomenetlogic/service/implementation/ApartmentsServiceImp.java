@@ -3,6 +3,8 @@ package bwp.hhn.backend.harmonyhomenetlogic.service.implementation;
 import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.ApartmentNotFoundException;
 import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.UserNotFoundException;
 import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.Apartment;
+import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.User;
+import bwp.hhn.backend.harmonyhomenetlogic.entity.sideTables.PossessionHistory;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.ApartmentsRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.UserRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.sideTables.PossessionHistoryRepository;
@@ -14,6 +16,7 @@ import bwp.hhn.backend.harmonyhomenetlogic.utils.response.UserResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -145,31 +148,94 @@ public class ApartmentsServiceImp implements ApartmentsService {
 
     @Override
     public PossessionHistoryResponse createPossessionHistory(UUID apartmentId, UUID userId) throws ApartmentNotFoundException, UserNotFoundException {
-        return null;
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User: " + userId + " not found"));
+
+        Apartment apartment = apartmentsRepository.findById(apartmentId)
+                .orElseThrow(() -> new ApartmentNotFoundException("Apartment: " + apartmentId + " not found"));
+
+        if (possessionHistoryRepository.existsByUserUuidIDAndApartmentUuidID(userId, apartmentId))
+            throw new ApartmentNotFoundException("User: " + userId + " already has apartment: " + apartmentId);
+
+        PossessionHistory possessionHistory = possessionHistoryRepository.save(
+                PossessionHistory.builder()
+                        .user(user)
+                        .apartment(apartment)
+                        .build()
+        );
+
+        return PossessionHistoryResponse.builder()
+                .userName(possessionHistory.getUser().getFirstName() + " " + possessionHistory.getUser().getLastName())
+                .apartmentName(possessionHistory.getApartment().getAddress())
+                .build();
     }
 
     @Override
     public PossessionHistoryResponse deletePossessionHistory(UUID apartmentId, UUID userId) throws ApartmentNotFoundException, UserNotFoundException {
-        return null;
+        PossessionHistory possessionHistory = possessionHistoryRepository.findByUserUuidIDAndApartmentUuidID(userId, apartmentId)
+                .orElseThrow(() -> new ApartmentNotFoundException("User: " + userId + " not found in apartment: " + apartmentId));
+
+        possessionHistory.setEndDate(LocalDateTime.now());
+
+        PossessionHistory saved = possessionHistoryRepository.save(possessionHistory);
+
+        return PossessionHistoryResponse.builder()
+                .userName(saved.getUser().getFirstName() + " " + saved.getUser().getLastName())
+                .apartmentName(saved.getApartment().getAddress())
+                .build();
     }
 
     @Override
     public List<UserResponse> getCurrentResidents(UUID apartmentId) throws ApartmentNotFoundException {
-        return List.of();
+        return possessionHistoryRepository.findActiveResidentsByApartment(apartmentId).stream()
+                .map(
+                        user -> UserResponse.builder()
+                                .firstName(user.getFirstName())
+                                .lastName(user.getLastName())
+                                .email(user.getEmail())
+                                .build()
+                )
+                .toList();
     }
 
     @Override
     public List<PossessionHistoryResponse> getApartmentPossessionHistory(UUID apartmentId) throws ApartmentNotFoundException {
-        return List.of();
+        return possessionHistoryRepository.findByApartmentUuidID(apartmentId).stream()
+                .map(
+                        possessionHistory -> PossessionHistoryResponse.builder()
+                                .userName(possessionHistory.getUser().getFirstName() + " " + possessionHistory.getUser().getLastName())
+                                .apartmentName(possessionHistory.getApartment().getAddress())
+                                .build()
+                )
+                .toList();
     }
 
     @Override
     public List<ApartmentResponse> getAllUserApartments(UUID userId) throws UserNotFoundException {
-        return List.of();
+        return possessionHistoryRepository.findByUserUuidID(userId).stream()
+                .map(
+                        possessionHistory -> ApartmentResponse.builder()
+                                .address(possessionHistory.getApartment().getAddress())
+                                .city(possessionHistory.getApartment().getCity())
+                                .zipCode(possessionHistory.getApartment().getZipCode())
+                                .apartmentArea(possessionHistory.getApartment().getApartmentArea())
+                                .createdAt(possessionHistory.getApartment().getCreatedAt())
+                                .updatedAt(possessionHistory.getApartment().getUpdatedAt())
+                                .build()
+                )
+                .toList();
     }
 
     @Override
     public List<UserResponse> getAllResidentsByApartmentId(UUID apartmentId) throws ApartmentNotFoundException {
-        return List.of();
+        return possessionHistoryRepository.findByApartmentUuidID(apartmentId).stream()
+                .map(
+                        possessionHistory -> UserResponse.builder()
+                                .firstName(possessionHistory.getUser().getFirstName())
+                                .lastName(possessionHistory.getUser().getLastName())
+                                .email(possessionHistory.getUser().getEmail())
+                                .build()
+                )
+                .toList();
     }
 }
