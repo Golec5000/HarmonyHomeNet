@@ -1,8 +1,8 @@
 version: '3.8'
 
 services:
-  app:
-    build: .
+  backend_app:
+    build: ./backend
     ports:
       - "8444:8443"
     depends_on:
