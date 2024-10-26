@@ -4,7 +4,7 @@ spring:
   main:
     banner-mode: off
   datasource:
-    url: jdbc:postgresql://localhost:5232/HarmonyHomeNet_DB
+    url: jdbc:postgresql://db:5432/HarmonyHomeNet_DB
     username: user
     password: admin
     driver-class-name: org.postgresql.Driver

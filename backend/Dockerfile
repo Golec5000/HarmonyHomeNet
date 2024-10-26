@@ -1,17 +1,47 @@
-# Stage 1: Build the application
-FROM maven:3.8.6-openjdk-17 AS build
+# Etap 1: Budowanie aplikacji
+FROM maven:3.8.5-openjdk-17 AS build
+
+# Ustawienie katalogu roboczego
 WORKDIR /app
+
+# Kopiowanie pliku pom.xml i pobieranie zależności
 COPY pom.xml .
-COPY src ./src
-RUN mvn clean package -DskipTests
+RUN mvn dependency:go-offline
 
-# Stage 2: Generate keystore and run the application
-FROM openjdk:17-jdk-slim
+# Kopiowanie kodu źródłowego
+COPY src ./src
+
+# Budowanie aplikacji
+RUN mvn package -DskipTests
+
+# Etap 2: Uruchamianie aplikacji
+FROM openjdk:17-jdk-alpine
+
+# Ustawienie katalogu roboczego
 WORKDIR /app
 
-# Generate keystore.p12
-RUN keytool -genkeypair -alias bwp -keyalg RSA -keysize 2048 -storetype PKCS12 -keystore keystore.p12 -validity 3650 -storepass 123456 -dname "CN=example.com, OU=IT, O=Example, L=City, S=State, C=US"
-
+# Kopiowanie zbudowanego pliku JAR z poprzedniego etapu
 COPY --from=build /app/target/*.jar app.jar
+
+# Generowanie samopodpisanego certyfikatu i keystore.p12 z poprawionym hasłem
+RUN keytool -genkeypair \
+    -alias myalias \
+    -keyalg RSA \
+    -keysize 2048 \
+    -storetype PKCS12 \
+    -keystore keystore.p12 \
+    -validity 365 \
+    -storepass haslo123 \
+    -keypass haslo123 \
+    -dname "CN=localhost"
+
+# Eksponowanie portu 8443
 EXPOSE 8443
-ENTRYPOINT ["java", "-jar", "app.jar"]
+
+# Uruchamianie aplikacji z ustawieniami SSL i poprawionym hasłem
+ENTRYPOINT ["java", "-jar", "app.jar", \
+    "--server.port=8443", \
+    "--server.ssl.key-store=/app/keystore.p12", \
+    "--server.ssl.key-store-password=haslo123", \
+    "--server.ssl.key-store-type=PKCS12", \
+    "--server.ssl.key-alias=myalias"]
