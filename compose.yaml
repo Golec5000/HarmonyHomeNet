@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  backend_app:
+    build: ./backend
+    ports:
+      - "8444:8443"
+    depends_on:
+      - db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/HarmonyHomeNet_DB
+      SPRING_DATASOURCE_USERNAME: user
+      SPRING_DATASOURCE_PASSWORD: admin
+
+  db:
+    image: postgres:alpine
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: HarmonyHomeNet_DB
