@@ -17,3 +17,18 @@ spring:
     show-sql: true
     generate-ddl: true
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+server:
+  port: 8443
+  ssl:
+    enabled: true
+    protocol: TLSv1.3
+    key-store: classpath:keystore.p12
+    key-store-password: 123456
+    key-store-type: PKCS12
+    key-alias: bwp

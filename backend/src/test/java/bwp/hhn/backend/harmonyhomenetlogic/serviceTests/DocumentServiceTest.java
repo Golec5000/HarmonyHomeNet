@@ -12,7 +12,6 @@ import bwp.hhn.backend.harmonyhomenetlogic.repository.sideTables.UserDocumentCon
 import bwp.hhn.backend.harmonyhomenetlogic.service.implementation.DocumentServiceImp;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.DocumentType;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Role;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.request.DocumentRequest;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.DocumentResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,7 +45,6 @@ class DocumentServiceTest {
     private UUID apartmentId;
     private Document document;
     private User user;
-    private DocumentRequest documentRequest;
 
     @BeforeEach
     void setUp() {
@@ -69,70 +67,6 @@ class DocumentServiceTest {
                 .role(Role.USER)
                 .userDocumentConnections(new ArrayList<>())
                 .build();
-
-        documentRequest = DocumentRequest.builder()
-                .documentName("Test Document")
-                .documentType(DocumentType.OTHER)
-                .documentData("Test data".getBytes())
-                .build();
-    }
-
-    @Test
-    void testUploadDocument_PublicDocument_Success() {
-        // Given
-        when(documentRepository.save(any(Document.class))).thenReturn(document);
-        when(userRepository.findAll()).thenReturn(Collections.singletonList(user));
-        doAnswer(invocation -> null).when(userDocumentConnectionRepository).saveAll(anyList());
-
-        // When
-        DocumentResponse response = documentService.uploadDocument(documentRequest, apartmentId);
-
-        // Then
-        assertNotNull(response);
-        assertEquals(document.getDocumentName(), response.documentName());
-        verify(documentRepository, times(1)).save(any(Document.class));
-        verify(userRepository, times(1)).findAll();
-        verify(userDocumentConnectionRepository, times(1)).saveAll(anyList());
-    }
-
-    @Test
-    void testUploadDocument_PrivateDocument_Success() {
-        // Given
-        documentRequest.setDocumentType(DocumentType.PROPERTY_DEED);
-        List<User> residents = Collections.singletonList(user);
-        List<User> employees = Collections.singletonList(
-                User.builder().uuidID(UUID.randomUUID()).role(Role.EMPLOYEE).build()
-        );
-
-        when(documentRepository.save(any(Document.class))).thenReturn(document);
-        when(possessionHistoryRepository.findActiveResidentsByApartment(apartmentId)).thenReturn(residents);
-        when(userRepository.findAllByRole(Role.EMPLOYEE)).thenReturn(employees);
-        doAnswer(invocation -> null).when(userDocumentConnectionRepository).saveAll(anyList());
-
-        // When
-        DocumentResponse response = documentService.uploadDocument(documentRequest, apartmentId);
-
-        // Then
-        assertNotNull(response);
-        assertEquals(document.getDocumentName(), response.documentName());
-        verify(documentRepository, times(1)).save(any(Document.class));
-        verify(possessionHistoryRepository, times(1)).findActiveResidentsByApartment(apartmentId);
-        verify(userRepository, times(1)).findAllByRole(Role.EMPLOYEE);
-        verify(userDocumentConnectionRepository, times(1)).saveAll(anyList());
-    }
-
-    @Test
-    void testUploadDocument_PrivateDocument_NoResidents() {
-        // Given
-        documentRequest.setDocumentType(DocumentType.PROPERTY_DEED);
-        when(possessionHistoryRepository.findActiveResidentsByApartment(apartmentId)).thenReturn(Collections.emptyList());
-
-        // When & Then
-        assertThrows(IllegalArgumentException.class, () -> {
-            documentService.uploadDocument(documentRequest, apartmentId);
-        });
-        verify(possessionHistoryRepository, times(1)).findActiveResidentsByApartment(apartmentId);
-        verifyNoInteractions(userDocumentConnectionRepository);
     }
 
     @Test

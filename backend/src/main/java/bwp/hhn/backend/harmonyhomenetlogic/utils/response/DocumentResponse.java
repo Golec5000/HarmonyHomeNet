@@ -10,6 +10,6 @@ public record DocumentResponse(
         String documentName,
         DocumentType documentType,
         LocalDateTime createdAt,
-        String documentDataBase64
+        byte[] documentDataBase64
 ) {
 }

@@ -12,14 +12,14 @@ import bwp.hhn.backend.harmonyhomenetlogic.repository.sideTables.UserDocumentCon
 import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.DocumentService;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.DocumentType;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Role;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.request.DocumentRequest;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.DocumentResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 
@@ -35,19 +35,19 @@ public class DocumentServiceImp implements DocumentService {
 
     @Override
     @Transactional
-    public DocumentResponse uploadDocument(DocumentRequest document, UUID apartmentId) throws IllegalArgumentException {
+    public DocumentResponse uploadDocument(MultipartFile file, UUID apartmentId, DocumentType documentType) throws IllegalArgumentException, IOException {
 
         Document documentEntity = Document.builder()
-                .documentName(document.getDocumentName())
-                .documentType(document.getDocumentType())
-                .documentData(document.getDocumentData())
+                .documentName(file.getName())
+                .documentData(file.getBytes())
+                .documentType(documentType)
                 .build();
 
         documentRepository.save(documentEntity);
 
         // Pobranie użytkowników do przypisania w zależności od typu dokumentu
         List<User> eligibleUsers;
-        if (!document.getDocumentType().equals(DocumentType.PROPERTY_DEED)) {
+        if (!documentType.equals(DocumentType.PROPERTY_DEED)) {
             // Dokument publiczny - przypisujemy wszystkich użytkowników
             eligibleUsers = userRepository.findAll();
         } else {
@@ -179,17 +179,9 @@ public class DocumentServiceImp implements DocumentService {
         return DocumentResponse.builder()
                 .documentName(document.getDocumentName())
                 .documentType(document.getDocumentType())
-                .documentDataBase64(encodeToBase64(document.getDocumentData()))
+                .documentDataBase64(document.getDocumentData())
                 .createdAt(document.getCreatedAt())
                 .build();
     }
-
-    private String encodeToBase64(byte[] data) {
-
-        if (data == null) throw new IllegalArgumentException("Data is null");
-        return Base64.getEncoder().encodeToString(data);
-
-    }
-
 
 }

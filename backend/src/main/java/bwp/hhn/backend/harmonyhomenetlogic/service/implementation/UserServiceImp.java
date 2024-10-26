@@ -1,5 +1,6 @@
 package bwp.hhn.backend.harmonyhomenetlogic.service.implementation;
 
+import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.NotificationNotFoundException;
 import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.UserNotFoundException;
 import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.NotificationType;
 import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.User;
@@ -48,12 +49,14 @@ public class UserServiceImp implements UserService {
 
     @Override
     public UserResponse updateUser(UUID userId, UserRequest user) throws UserNotFoundException {
-        User userEntity = getUserOrThrow(userId, null);
+        User userEntity = userRepository.findByUuidIDOrEmail(userId, null)
+                .orElseThrow(() -> new UserNotFoundException("User id: " + userId + " not found"));
 
         userEntity.setEmail(user.getEmail() != null ? user.getEmail() : userEntity.getEmail());
         userEntity.setFirstName(user.getFirstName() != null ? user.getFirstName() : userEntity.getFirstName());
         userEntity.setLastName(user.getLastName() != null ? user.getLastName() : userEntity.getLastName());
         userEntity.setPassword(user.getPassword() != null ? user.getPassword() : userEntity.getPassword());
+        userEntity.setPhoneNumber(user.getPhoneNumber() != null ? user.getPhoneNumber() : userEntity.getPhoneNumber());
 
         User saved = userRepository.save(userEntity);
 
@@ -62,12 +65,15 @@ public class UserServiceImp implements UserService {
                 .firstName(saved.getFirstName())
                 .lastName(saved.getLastName())
                 .updatedAt(saved.getUpdatedAt())
+                .createdAt(saved.getCreatedAt())
+                .phoneNumber(saved.getPhoneNumber())
                 .build();
     }
 
     @Override
     public UserResponse assignRoleToUser(UUID userId, Role role) throws UserNotFoundException {
-        User userEntity = getUserOrThrow(userId, null);
+        User userEntity = userRepository.findByUuidIDOrEmail(userId, null)
+                .orElseThrow(() -> new UserNotFoundException("User id: " + userId + " not found"));
 
         userEntity.setRole(role);
 
@@ -77,12 +83,16 @@ public class UserServiceImp implements UserService {
                 .email(saved.getEmail())
                 .firstName(saved.getFirstName())
                 .lastName(saved.getLastName())
+                .role(saved.getRole())
+                .createdAt(saved.getCreatedAt())
+                .updatedAt(saved.getUpdatedAt())
                 .build();
     }
 
     @Override
     public UserResponse getUserById(UUID userId) throws UserNotFoundException {
-        User userEntity = getUserOrThrow(userId, null);
+        User userEntity = userRepository.findByUuidIDOrEmail(userId, null)
+                .orElseThrow(() -> new UserNotFoundException("User id: " + userId + " not found"));
 
         return UserResponse.builder()
                 .email(userEntity.getEmail())
@@ -94,17 +104,21 @@ public class UserServiceImp implements UserService {
     @Override
     public List<UserResponse> getAllUsers() {
         return userRepository.findAll().stream()
-                .map(userEntity -> UserResponse.builder()
+                .map(
+                        userEntity -> UserResponse.builder()
+                        .userId(userEntity.getUuidID())
                         .email(userEntity.getEmail())
                         .firstName(userEntity.getFirstName())
                         .lastName(userEntity.getLastName())
-                        .build())
+                        .build()
+                )
                 .collect(Collectors.toList());
     }
 
     @Override
     public UserResponse getUserByEmail(String email) throws UserNotFoundException {
-        User userEntity = getUserOrThrow(null, email);
+        User userEntity = userRepository.findByUuidIDOrEmail(null, email)
+                .orElseThrow(() -> new UserNotFoundException("User id: " + email + " not found"));
 
         return UserResponse.builder()
                 .email(userEntity.getEmail())
@@ -136,7 +150,10 @@ public class UserServiceImp implements UserService {
 
     @Override
     public String addNotificationToUser(UUID userId, Notification notification) throws UserNotFoundException {
-        User userEntity = getUserOrThrow(userId, null);
+
+        User userEntity = userRepository.findByUuidIDOrEmail(userId, null)
+                .orElseThrow(() -> new UserNotFoundException("User id: " + userId + " not found"));
+
         if (userEntity.getNotificationTypes() == null) userEntity.setNotificationTypes(new ArrayList<>());
 
         NotificationType notificationType = NotificationType.builder()
@@ -153,22 +170,23 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
-    public String removeNotificationFromUser(UUID userId, Notification notification) throws UserNotFoundException {
-        User userEntity = getUserOrThrow(userId, null);
+    public String removeNotificationFromUser(UUID userId, Notification notification) throws UserNotFoundException, NotificationNotFoundException {
+
+        User userEntity = userRepository.findByUuidIDOrEmail(userId, null)
+                .orElseThrow(() -> new UserNotFoundException("User id: " + userId + " not found"));
+
         if (userEntity.getNotificationTypes() == null) userEntity.setNotificationTypes(new ArrayList<>());
 
-        userEntity.getNotificationTypes().removeIf(notificationType -> notificationType.getType().equals(notification));
+        boolean removed = userEntity.getNotificationTypes().removeIf(notificationType -> notificationType.getType().equals(notification));
+
+        if (!removed) {
+            throw new NotificationNotFoundException("Notification " + notification + " not found for user id: " + userId);
+        }
 
         userRepository.save(userEntity);
         notificationTypeRepository.deleteByTypeAndUserUuidID(notification, userId);
 
         return "Notification " + notification + " removed successfully";
-    }
-
-    private User getUserOrThrow(UUID userId, String email) throws UserNotFoundException {
-        return userRepository.findById(userId)
-                .orElseGet(() -> userRepository.findByEmail(email)
-                        .orElseThrow(() -> new UserNotFoundException("User with id: " + userId + " or email: " + email + " not found")));
     }
 
 }

@@ -25,6 +25,7 @@ import java.util.UUID;
 public class User {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "UUID_id")
     private UUID uuidID;
 
@@ -59,7 +60,7 @@ public class User {
     private String phoneNumber;
 
     @CreationTimestamp
-    @Column(name = "Create_at", nullable = false, updatable = false)
+    @Column(name = "Create_at", nullable = false)
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
@@ -91,9 +92,11 @@ public class User {
     private List<Announcement> payments;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Topic> topics;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Post> posts;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)

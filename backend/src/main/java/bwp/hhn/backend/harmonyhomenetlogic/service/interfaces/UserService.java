@@ -1,5 +1,6 @@
 package bwp.hhn.backend.harmonyhomenetlogic.service.interfaces;
 
+import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.NotificationNotFoundException;
 import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.UserNotFoundException;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Notification;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Role;
@@ -29,5 +30,5 @@ public interface UserService {
 
     String addNotificationToUser(UUID userId, Notification notification) throws UserNotFoundException;
 
-    String removeNotificationFromUser(UUID userId, Notification notification) throws UserNotFoundException;
+    String removeNotificationFromUser(UUID userId, Notification notification) throws UserNotFoundException, NotificationNotFoundException;
 }

@@ -19,6 +19,7 @@ import lombok.*;
 public class NotificationType {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID", unique = true)
     private Long id;
 
