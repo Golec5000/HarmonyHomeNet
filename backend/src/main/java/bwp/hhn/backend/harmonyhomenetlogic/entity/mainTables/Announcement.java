@@ -55,7 +55,7 @@ public class Announcement {
     @JsonBackReference
     private User user;
 
-    @OneToMany(mappedBy = "announcement", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "announcement", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<AnnouncementApartment> announcementApartments;
 }

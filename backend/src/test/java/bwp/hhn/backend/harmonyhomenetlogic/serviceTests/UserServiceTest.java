@@ -4,7 +4,6 @@ import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.
 import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.User;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.UserRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.service.implementation.UserServiceImp;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.AccessLevel;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Role;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.UserRequest;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.UserResponse;
@@ -314,54 +313,6 @@ public class UserServiceTest {
         ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
         verify(userRepository).save(userCaptor.capture());
         assertThat(userCaptor.getValue().getRole()).isEqualTo(Role.EMPLOYEE);
-    }
-
-    @Test
-    void shouldRemovePermissionFromUser() throws UserNotFoundException {
-        UUID userId = UUID.randomUUID();
-        AccessLevel accessLevel = AccessLevel.WRITE;
-
-        User user = User.builder()
-                .uuidID(userId)
-                .email("test@example.com")
-                .firstName("John")
-                .lastName("Doe")
-                .accessLevel(AccessLevel.READ.getLevel() | AccessLevel.WRITE.getLevel())
-                .build();
-
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
-        UserResponse response = userService.setAccessLevelRemovePermission(userId, accessLevel);
-
-        assertThat(response.email()).isEqualTo("test@example.com");
-        assertThat(response.firstName()).isEqualTo("John");
-        assertThat(response.lastName()).isEqualTo("Doe");
-        assertThat(user.getAccessLevel()).isEqualTo(AccessLevel.READ.getLevel());
-    }
-
-    @Test
-    void shouldAddPermissionToUser() throws UserNotFoundException {
-        UUID userId = UUID.randomUUID();
-        AccessLevel accessLevel = AccessLevel.WRITE;
-
-        User user = User.builder()
-                .uuidID(userId)
-                .email("test@example.com")
-                .firstName("John")
-                .lastName("Doe")
-                .accessLevel(AccessLevel.READ.getLevel())
-                .build();
-
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
-        UserResponse response = userService.setAccessLevelAddPermission(userId, accessLevel);
-
-        assertThat(response.email()).isEqualTo("test@example.com");
-        assertThat(response.firstName()).isEqualTo("John");
-        assertThat(response.lastName()).isEqualTo("Doe");
-        assertThat(user.getAccessLevel()).isEqualTo(AccessLevel.READ.getLevel() | AccessLevel.WRITE.getLevel());
     }
 
 }

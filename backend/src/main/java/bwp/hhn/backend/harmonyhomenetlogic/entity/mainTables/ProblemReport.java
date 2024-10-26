@@ -32,10 +32,6 @@ public class ProblemReport {
     private Long id;
 
     @NotNull
-    @Column(name = "Filing_date", nullable = false)
-    private LocalDateTime filingDate;
-
-    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "Status", nullable = false)
     private ReportStatus reportStatus;
@@ -49,6 +45,10 @@ public class ProblemReport {
     @Enumerated(EnumType.STRING)
     @Column(name = "Category", nullable = false)
     private Category category;
+
+    @NotNull
+    @Column(name = "Filing_date")
+    private LocalDateTime filingDate;
 
     @CreationTimestamp
     @Column(name = "Created_at", nullable = false, updatable = false)

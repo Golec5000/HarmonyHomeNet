@@ -6,7 +6,6 @@ import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.User;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.NotificationTypeRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.UserRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.UserService;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.AccessLevel;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Notification;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Role;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.UserRequest;
@@ -36,10 +35,6 @@ public class UserServiceImp implements UserService {
                 .phoneNumber(user.getPhoneNumber())
                 .role(user.getRole() != null ? user.getRole() : Role.USER)
                 .build();
-
-        userEntity.setAccessLevel(userEntity.getRole() == Role.ADMIN ? AccessLevel.READ.getLevel() | AccessLevel.WRITE.getLevel() | AccessLevel.DELETE.getLevel() :
-                userEntity.getRole() == Role.EMPLOYEE ? AccessLevel.READ.getLevel() | AccessLevel.WRITE.getLevel() : AccessLevel.READ.getLevel()
-        );
 
         User saved = userRepository.save(userEntity);
 
@@ -137,36 +132,6 @@ public class UserServiceImp implements UserService {
         userRepository.deleteById(userId);
 
         return "User deleted successfully";
-    }
-
-    @Override
-    public UserResponse setAccessLevelAddPermission(UUID userId, AccessLevel accessLevel) throws UserNotFoundException {
-
-        User userEntity = getUserOrThrow(userId, null);
-        userEntity.setAccessLevel(AccessLevel.addPermission(userEntity.getAccessLevel(), accessLevel));
-        userRepository.save(userEntity);
-
-        return UserResponse.builder()
-                .email(userEntity.getEmail())
-                .firstName(userEntity.getFirstName())
-                .lastName(userEntity.getLastName())
-                .updatedAt(userEntity.getUpdatedAt())
-                .build();
-    }
-
-    @Override
-    public UserResponse setAccessLevelRemovePermission(UUID userId, AccessLevel accessLevel) throws UserNotFoundException {
-
-        User userEntity = getUserOrThrow(userId, null);
-        userEntity.setAccessLevel(AccessLevel.removePermission(userEntity.getAccessLevel(), accessLevel));
-        userRepository.save(userEntity);
-
-        return UserResponse.builder()
-                .email(userEntity.getEmail())
-                .firstName(userEntity.getFirstName())
-                .lastName(userEntity.getLastName())
-                .updatedAt(userEntity.getUpdatedAt())
-                .build();
     }
 
     @Override

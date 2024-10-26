@@ -1,25 +1,3 @@
-public interface AnnouncementService {
-    void createAnnouncement(Announcement announcement, List<Long> apartmentIds);
-    void linkApartmentToAnnouncement(Long announcementId, Long apartmentId);
-    List<Announcement> getAnnouncementsByApartment(Long apartmentId);
-    List<Announcement> getAllAnnouncements();
-    Optional<Announcement> getAnnouncementById(Long id);
-}
-
-public interface PaymentService {
-    void createPayment(Payment payment, List<PaymentComponent> components);
-    void addPaymentComponent(Long paymentId, PaymentComponent component);
-    Payment getPaymentDetails(Long paymentId);
-    List<Payment> getPaymentsByUser(Long userId);
-}
-
-public interface ProblemReportService {
-    void createProblemReport(ProblemReport report);
-    List<ProblemReport> getProblemReportsByApartment(Long apartmentId);
-    void updateProblemReportStatus(Long reportId, String status);
-    List<ProblemReport> getAllProblemReports();
-    Optional<ProblemReport> getProblemReportById(Long reportId);
-}
 
     @GetMapping("/download/{documentId}")
     public ResponseEntity<ByteArrayResource> downloadDocument(@PathVariable UUID documentId) {

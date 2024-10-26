@@ -4,12 +4,16 @@ import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.PaymentStatus;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -41,12 +45,21 @@ public class Payment {
     @Column(name = "Payment_time")
     private LocalDateTime paymentTime;
 
+    @DecimalMin(value = "0.0", inclusive = false)
+    @Digits(integer = 8, fraction = 2)
+    @Column(name = "Payment_amount", precision = 10, scale = 2)
+    private BigDecimal paymentAmount;
+
+    @CreationTimestamp
+    @Column(name = "Created_at", nullable = false)
+    private LocalDateTime createdAt;
+
     @ManyToOne
     @JoinColumn(name = "apartment_id", referencedColumnName = "UUID_id")
     @JsonBackReference
     private Apartment apartment;
 
-    @OneToMany(mappedBy = "payment", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "payment", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<PaymentComponent> paymentComponents;
 }
