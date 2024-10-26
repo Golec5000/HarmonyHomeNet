@@ -1,29 +1,29 @@
-# Etap 1: Budowanie aplikacji
+# Stage 1: Build the application
 FROM maven:3.8.5-openjdk-17 AS build
 
-# Ustawienie katalogu roboczego
-WORKDIR /app
+# Set the working directory
+WORKDIR /backend_app
 
-# Kopiowanie pliku pom.xml i pobieranie zależności
+# Copy the pom.xml file and download dependencies
 COPY pom.xml .
 RUN mvn dependency:go-offline
 
-# Kopiowanie kodu źródłowego
+# Copy the source code
 COPY src ./src
 
-# Budowanie aplikacji
+# Build the application
 RUN mvn package -DskipTests
 
-# Etap 2: Uruchamianie aplikacji
+# Stage 2: Run the application
 FROM openjdk:17-jdk-alpine
 
-# Ustawienie katalogu roboczego
+# Set the working directory
 WORKDIR /app
 
-# Kopiowanie zbudowanego pliku JAR z poprzedniego etapu
-COPY --from=build /app/target/*.jar app.jar
+# Copy the built JAR file from the previous stage
+COPY --from=build /backend_app/target/*.jar app.jar
 
-# Generowanie samopodpisanego certyfikatu i keystore.p12 z poprawionym hasłem
+# Generate a self-signed certificate and keystore.p12 with the corrected password
 RUN keytool -genkeypair \
     -alias myalias \
     -keyalg RSA \
@@ -35,10 +35,10 @@ RUN keytool -genkeypair \
     -keypass haslo123 \
     -dname "CN=localhost"
 
-# Eksponowanie portu 8443
+# Expose port 8443
 EXPOSE 8443
 
-# Uruchamianie aplikacji z ustawieniami SSL i poprawionym hasłem
+# Run the application with SSL settings and the corrected password
 ENTRYPOINT ["java", "-jar", "app.jar", \
     "--server.port=8443", \
     "--server.ssl.key-store=/app/keystore.p12", \
