@@ -14,6 +14,7 @@ import bwp.hhn.backend.harmonyhomenetlogic.utils.request.ApartmentRequest;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.ApartmentResponse;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.PossessionHistoryResponse;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.UserResponse;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -152,6 +153,7 @@ public class ApartmentsServiceImp implements ApartmentsService {
     }
 
     @Override
+    @Transactional
     public PossessionHistoryResponse createPossessionHistory(UUID apartmentId, UUID userId) throws ApartmentNotFoundException, UserNotFoundException {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User: " + userId + " not found"));
@@ -162,17 +164,17 @@ public class ApartmentsServiceImp implements ApartmentsService {
         if (possessionHistoryRepository.existsByUserUuidIDAndApartmentUuidID(userId, apartmentId))
             throw new ApartmentNotFoundException("User: " + userId + " already has apartment: " + apartmentId);
 
-        PossessionHistory possessionHistory = possessionHistoryRepository.save(
-                PossessionHistory.builder()
-                        .user(user)
-                        .apartment(apartment)
-                        .build()
-        );
+        PossessionHistory possessionHistory = PossessionHistory.builder()
+                .user(user)
+                .apartment(apartment)
+                .build();
+
+        PossessionHistory saved = possessionHistoryRepository.save(possessionHistory);
 
         return PossessionHistoryResponse.builder()
-                .userName(possessionHistory.getUser().getFirstName() + " " + possessionHistory.getUser().getLastName())
-                .apartmentName(possessionHistory.getApartment().getAddress())
-                .startDate(possessionHistory.getStartDate())
+                .userName(saved.getUser().getFirstName() + " " + saved.getUser().getLastName())
+                .apartmentName(saved.getApartment().getAddress())
+                .startDate(saved.getStartDate())
                 .build();
     }
 

@@ -11,6 +11,7 @@ import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Notification;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Role;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.UserRequest;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.UserResponse;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -148,9 +149,10 @@ public class UserServiceImp implements UserService {
         return "User deleted successfully";
     }
 
-    @Override
-    public String addNotificationToUser(UUID userId, Notification notification) throws UserNotFoundException {
 
+    @Override
+    @Transactional
+    public String addNotificationToUser(UUID userId, Notification notification) throws UserNotFoundException {
         User userEntity = userRepository.findByUuidIDOrEmail(userId, null)
                 .orElseThrow(() -> new UserNotFoundException("User id: " + userId + " not found"));
 
@@ -163,10 +165,8 @@ public class UserServiceImp implements UserService {
 
         userEntity.getNotificationTypes().add(notificationType);
         notificationTypeRepository.save(notificationType);
-        userRepository.save(userEntity);
 
         return "Notification " + notification + " added successfully";
-
     }
 
     @Override

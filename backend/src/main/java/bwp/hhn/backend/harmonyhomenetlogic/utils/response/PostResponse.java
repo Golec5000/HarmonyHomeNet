@@ -9,6 +9,7 @@ import java.util.UUID;
 public record PostResponse(
         UUID id,
         String content,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        String userName
 ) {
 }

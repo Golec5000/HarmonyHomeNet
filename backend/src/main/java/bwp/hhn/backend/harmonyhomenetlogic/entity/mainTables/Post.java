@@ -22,6 +22,7 @@ import java.util.UUID;
 public class Post {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "UUID_id")
     private UUID uuidID;
 

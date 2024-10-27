@@ -27,6 +27,7 @@ import java.util.UUID;
 public class Topic {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "UUID_id")
     private UUID uuidID;
 
@@ -36,7 +37,7 @@ public class Topic {
     private String title;
 
     @CreationTimestamp
-    @Column(name = "Created_at", nullable = false, updatable = false)
+    @Column(name = "Created_at", nullable = false)
     private LocalDateTime createdAt;
 
     @ManyToOne

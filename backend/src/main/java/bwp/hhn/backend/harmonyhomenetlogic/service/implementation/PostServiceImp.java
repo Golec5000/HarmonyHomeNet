@@ -44,13 +44,12 @@ public class PostServiceImp implements PostService {
         if (user.getTopics() == null) user.setTopics(new ArrayList<>());
         user.getTopics().add(topic);
 
-        userRepository.save(user);
-        topicRepository.save(topic);
+        Topic saved = topicRepository.save(topic);
 
         return TopicResponse.builder()
-                .id(topic.getUuidID())
-                .title(topic.getTitle())
-                .createdAt(topic.getCreatedAt())
+                .id(saved.getUuidID())
+                .title(saved.getTitle())
+                .createdAt(saved.getCreatedAt())
                 .build();
     }
 
@@ -59,22 +58,27 @@ public class PostServiceImp implements PostService {
         if (!userRepository.existsById(userId)) throw new UserNotFoundException("User: " + userId + " not found");
 
         return topicRepository.findByUserUuidID(userId).stream()
-                .map(topic -> TopicResponse.builder()
-                        .id(topic.getUuidID())
-                        .title(topic.getTitle())
-                        .createdAt(topic.getCreatedAt())
-                        .build())
+                .map(
+                        topic -> TopicResponse.builder()
+                                .id(topic.getUuidID())
+                                .title(topic.getTitle())
+                                .createdAt(topic.getCreatedAt())
+                                .build()
+                )
                 .toList();
     }
 
     @Override
     public List<TopicResponse> getAllTopics() {
         return topicRepository.findAll().stream()
-                .map(topic -> TopicResponse.builder()
-                        .id(topic.getUuidID())
-                        .title(topic.getTitle())
-                        .createdAt(topic.getCreatedAt())
-                        .build())
+                .map(
+                        topic -> TopicResponse.builder()
+                                .id(topic.getUuidID())
+                                .title(topic.getTitle())
+                                .createdAt(topic.getCreatedAt())
+                                .userName(topic.getUser().getFirstName() + " " + topic.getUser().getLastName())
+                                .build()
+                )
                 .toList();
     }
 
@@ -88,6 +92,7 @@ public class PostServiceImp implements PostService {
     }
 
     @Override
+    @Transactional
     public PostResponse createPost(PostRequest postRequest, UUID topicId, UUID userId) throws UserNotFoundException, TopicNotFoundException {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User: " + userId + " not found"));
@@ -107,14 +112,13 @@ public class PostServiceImp implements PostService {
         if (topic.getPosts() == null) topic.setPosts(new ArrayList<>());
         topic.getPosts().add(post);
 
-        userRepository.save(user);
-        postRepository.save(post);
-        topicRepository.save(topic);
+        Post saved = postRepository.save(post);
 
         return PostResponse.builder()
-                .id(post.getUuidID())
-                .content(post.getContent())
-                .createdAt(post.getCreatedAt())
+                .id(saved.getUuidID())
+                .content(saved.getContent())
+                .createdAt(saved.getCreatedAt())
+                .userName(user.getFirstName() + " " + user.getLastName())
                 .build();
     }
 
@@ -128,12 +132,14 @@ public class PostServiceImp implements PostService {
                                 .id(post.getUuidID())
                                 .content(post.getContent())
                                 .createdAt(post.getCreatedAt())
+                                .userName(post.getUser().getFirstName() + " " + post.getUser().getLastName())
                                 .build()
                 )
                 .toList();
     }
 
     @Override
+    @Transactional
     public String deletePost(UUID postId, UUID userId) throws UserNotFoundException, PostNotFoundException {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User: " + userId + " not found"));
@@ -144,9 +150,7 @@ public class PostServiceImp implements PostService {
         if (!postRepository.canDeletePost(postId, userId, user.getRole().name()))
             throw new IllegalArgumentException("User: " + userId + " is not authorized to delete the post");
 
-
         user.getPosts().remove(post);
-        userRepository.save(user);
         postRepository.delete(post);
 
         return "Post deleted successfully";
@@ -163,6 +167,7 @@ public class PostServiceImp implements PostService {
                                 .id(post.getUuidID())
                                 .content(post.getContent())
                                 .createdAt(post.getCreatedAt())
+                                .userName(post.getUser().getFirstName() + " " + post.getUser().getLastName())
                                 .build()
                 )
                 .toList();
@@ -176,6 +181,7 @@ public class PostServiceImp implements PostService {
                                 .id(post.getUuidID())
                                 .content(post.getContent())
                                 .createdAt(post.getCreatedAt())
+                                .userName(post.getUser().getFirstName() + " " + post.getUser().getLastName())
                                 .build()
                 )
                 .toList();

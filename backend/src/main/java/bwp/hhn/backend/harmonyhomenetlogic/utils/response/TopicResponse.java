@@ -9,6 +9,7 @@ import java.util.UUID;
 public record TopicResponse(
         UUID id,
         String title,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        String userName
 ) {
 }
