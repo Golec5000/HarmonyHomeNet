@@ -1,11 +1,11 @@
 package bwp.hhn.backend.harmonyhomenetlogic;
 
-import bwp.hhn.backend.harmonyhomenetlogic.config.TestcontainersConfiguration;
+import bwp.hhn.backend.harmonyhomenetlogic.config.TestContainersConfiguration;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 
-@Import(TestcontainersConfiguration.class)
+@Import(TestContainersConfiguration.class)
 @SpringBootTest
 class BackendApplicationTests {
 

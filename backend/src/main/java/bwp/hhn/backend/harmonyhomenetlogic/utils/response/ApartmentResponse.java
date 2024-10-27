@@ -4,9 +4,11 @@ import lombok.Builder;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Builder
 public record ApartmentResponse(
+        UUID apartmentId,
         String address,
         String city,
         String zipCode,

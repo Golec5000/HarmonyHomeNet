@@ -21,29 +21,15 @@ public class ApartmentController {
 
     private final ApartmentsService apartmentsService;
 
-    @PostMapping("/create-apartment")
-    public ResponseEntity<ApartmentResponse> createApartment(@RequestBody ApartmentRequest request) {
-        return ResponseEntity.ok(apartmentsService.createApartments(request));
-    }
-
-    @PutMapping("/update-apartment/{apartmentId}")
-    public ResponseEntity<ApartmentResponse> updateApartment(@PathVariable UUID apartmentId, @RequestBody ApartmentRequest request) throws ApartmentNotFoundException {
-        return ResponseEntity.ok(apartmentsService.updateApartment(request, apartmentId));
-    }
-
-    @DeleteMapping("/delete-apartment/{apartmentId}")
-    public ResponseEntity<String> deleteApartment(@PathVariable UUID apartmentId) throws ApartmentNotFoundException {
-        return ResponseEntity.ok(apartmentsService.deleteApartment(apartmentId));
-    }
-
-    @GetMapping("/get-apartment-by-id/{apartmentId}")
-    public ResponseEntity<ApartmentResponse> getApartmentById(@PathVariable UUID apartmentId) throws ApartmentNotFoundException {
+    // GET
+    @GetMapping("/get-apartment-by-id")
+    public ResponseEntity<ApartmentResponse> getApartmentById(@RequestParam UUID apartmentId) throws ApartmentNotFoundException {
         return ResponseEntity.ok(apartmentsService.getApartmentById(apartmentId));
     }
 
-    @GetMapping("/get-apartment-by-user/{userId}")
-    public ResponseEntity<List<ApartmentResponse>> getApartmentsByUserId(@PathVariable UUID userId) throws ApartmentNotFoundException, UserNotFoundException {
-        return ResponseEntity.ok(apartmentsService.getApartmentsByUserId(userId));
+    @GetMapping("/get-apartment-by-user")
+    public ResponseEntity<List<ApartmentResponse>> getApartmentsByUserId(@RequestParam UUID userId) throws ApartmentNotFoundException, UserNotFoundException {
+        return ResponseEntity.ok(apartmentsService.getCurrentApartmentsByUserId(userId));
     }
 
     @GetMapping("/get-all-apartments")
@@ -51,38 +37,62 @@ public class ApartmentController {
         return ResponseEntity.ok(apartmentsService.getAllApartments());
     }
 
-    @GetMapping("/possession-history-for-apartment/{apartmentId}/{userId}")
-    public ResponseEntity<PossessionHistoryResponse> getPossessionHistory(@PathVariable UUID apartmentId, @PathVariable UUID userId) throws ApartmentNotFoundException, UserNotFoundException {
+    @GetMapping("/possession-history-for-apartment")
+    public ResponseEntity<PossessionHistoryResponse> getPossessionHistory(@RequestParam UUID apartmentId, @RequestParam UUID userId) throws ApartmentNotFoundException, UserNotFoundException {
         return ResponseEntity.ok(apartmentsService.getPossessionHistory(apartmentId, userId));
     }
 
-    @PostMapping("/create-possession-history/{apartmentId}/{userId}")
-    public ResponseEntity<PossessionHistoryResponse> createPossessionHistory(@PathVariable UUID apartmentId, @PathVariable UUID userId) throws ApartmentNotFoundException, UserNotFoundException {
-        return ResponseEntity.ok(apartmentsService.createPossessionHistory(apartmentId, userId));
-    }
-
-    @DeleteMapping("/delete-possession-history/{apartmentId}/{userId}")
-    public ResponseEntity<PossessionHistoryResponse> deletePossessionHistory(@PathVariable UUID apartmentId, @PathVariable UUID userId) throws ApartmentNotFoundException, UserNotFoundException {
-        return ResponseEntity.ok(apartmentsService.deletePossessionHistory(apartmentId, userId));
-    }
-
-    @GetMapping("/current-apartment-residents/{apartmentId}")
-    public ResponseEntity<List<UserResponse>> getCurrentResidents(@PathVariable UUID apartmentId) throws ApartmentNotFoundException {
+    @GetMapping("/current-apartment-residents")
+    public ResponseEntity<List<UserResponse>> getCurrentResidents(@RequestParam UUID apartmentId) throws ApartmentNotFoundException {
         return ResponseEntity.ok(apartmentsService.getCurrentResidents(apartmentId));
     }
 
-    @GetMapping("/hole-possession-history-for-apartment/{apartmentId}")
-    public ResponseEntity<List<PossessionHistoryResponse>> getApartmentPossessionHistory(@PathVariable UUID apartmentId) throws ApartmentNotFoundException {
+    @GetMapping("/whole-possession-history-for-apartment")
+    public ResponseEntity<List<PossessionHistoryResponse>> getApartmentPossessionHistory(@RequestParam UUID apartmentId) throws ApartmentNotFoundException {
         return ResponseEntity.ok(apartmentsService.getApartmentPossessionHistory(apartmentId));
     }
 
-    @GetMapping("/user-apartments/{userId}")
-    public ResponseEntity<List<ApartmentResponse>> getAllUserApartments(@PathVariable UUID userId) throws UserNotFoundException {
+    @GetMapping("/user-apartments")
+    public ResponseEntity<List<ApartmentResponse>> getAllUserApartments(@RequestParam UUID userId) throws UserNotFoundException {
         return ResponseEntity.ok(apartmentsService.getAllUserApartments(userId));
     }
 
-    @GetMapping("/apartment-residents/{apartmentId}")
-    public ResponseEntity<List<UserResponse>> getAllResidentsByApartmentId(@PathVariable UUID apartmentId) throws ApartmentNotFoundException {
+    @GetMapping("/apartment-residents")
+    public ResponseEntity<List<UserResponse>> getAllResidentsByApartmentId(@RequestParam UUID apartmentId) throws ApartmentNotFoundException {
         return ResponseEntity.ok(apartmentsService.getAllResidentsByApartmentId(apartmentId));
     }
+
+    //POST
+    @PostMapping("/create-possession-history")
+    public ResponseEntity<PossessionHistoryResponse> createPossessionHistory(@RequestParam UUID apartmentId, @RequestParam UUID userId) throws ApartmentNotFoundException, UserNotFoundException {
+        return ResponseEntity.ok(apartmentsService.createPossessionHistory(apartmentId, userId));
+    }
+
+    @PostMapping("/create-apartment")
+    public ResponseEntity<ApartmentResponse> createApartment(@RequestBody ApartmentRequest request) {
+        return ResponseEntity.ok(apartmentsService.createApartments(request));
+    }
+
+    //DELETE
+    @DeleteMapping("/delete-apartment")
+    public ResponseEntity<String> deleteApartment(@RequestParam UUID apartmentId) throws ApartmentNotFoundException {
+        return ResponseEntity.ok(apartmentsService.deleteApartment(apartmentId));
+    }
+
+    @DeleteMapping("/delete-possession-history/{possessionHistoryId}")
+    public ResponseEntity<String> deletePossessionHistory(@PathVariable Long possessionHistoryId) throws ApartmentNotFoundException {
+        return ResponseEntity.ok(apartmentsService.deletePossessionHistory(possessionHistoryId));
+    }
+
+    //PUT
+    @PutMapping("/update-apartment")
+    public ResponseEntity<ApartmentResponse> updateApartment(@RequestParam UUID apartmentId, @RequestBody ApartmentRequest request) throws ApartmentNotFoundException {
+        return ResponseEntity.ok(apartmentsService.updateApartment(request, apartmentId));
+    }
+
+    @PutMapping("/end-possession-history")
+    public ResponseEntity<PossessionHistoryResponse> endPossessionHistory(@RequestParam UUID apartmentId, @RequestParam UUID userId) throws ApartmentNotFoundException, UserNotFoundException {
+        return ResponseEntity.ok(apartmentsService.endPossessionHistory(apartmentId, userId));
+    }
+
 }

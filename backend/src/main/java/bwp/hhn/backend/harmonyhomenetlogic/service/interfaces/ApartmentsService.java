@@ -1,6 +1,7 @@
 package bwp.hhn.backend.harmonyhomenetlogic.service.interfaces;
 
 import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.ApartmentNotFoundException;
+import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.PossessionHistoryNotFoundException;
 import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.UserNotFoundException;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.ApartmentRequest;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.ApartmentResponse;
@@ -20,7 +21,7 @@ public interface ApartmentsService {
 
     ApartmentResponse getApartmentById(UUID apartmentId) throws ApartmentNotFoundException;
 
-    List<ApartmentResponse> getApartmentsByUserId(UUID userId) throws ApartmentNotFoundException, UserNotFoundException;
+    List<ApartmentResponse> getCurrentApartmentsByUserId(UUID userId) throws ApartmentNotFoundException, UserNotFoundException;
 
     List<ApartmentResponse> getAllApartments();
 
@@ -28,7 +29,9 @@ public interface ApartmentsService {
 
     PossessionHistoryResponse createPossessionHistory(UUID apartmentId, UUID userId) throws ApartmentNotFoundException, UserNotFoundException;
 
-    PossessionHistoryResponse deletePossessionHistory(UUID apartmentId, UUID userId) throws ApartmentNotFoundException, UserNotFoundException;
+    String deletePossessionHistory(Long possessionHistoryId) throws PossessionHistoryNotFoundException;
+
+    PossessionHistoryResponse endPossessionHistory(UUID apartmentId, UUID userId) throws ApartmentNotFoundException, UserNotFoundException;
 
     List<UserResponse> getCurrentResidents(UUID apartmentId) throws ApartmentNotFoundException;
 

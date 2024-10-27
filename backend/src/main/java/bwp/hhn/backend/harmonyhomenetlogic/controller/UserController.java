@@ -21,8 +21,8 @@ public class UserController {
     private final UserService userService;
 
     //GET
-    @GetMapping("/get-user/{userId}")
-    public ResponseEntity<UserResponse> getUserById(@PathVariable UUID userId) throws UserNotFoundException {
+    @GetMapping("/get-user-by-id")
+    public ResponseEntity<UserResponse> getUserById(@RequestParam UUID userId) throws UserNotFoundException {
         return ResponseEntity.ok(userService.getUserById(userId));
     }
 
@@ -48,29 +48,29 @@ public class UserController {
     }
 
     //PUT
-    @PutMapping("/update-user/{userId}")
-    public ResponseEntity<UserResponse> updateUser(@PathVariable UUID userId, @RequestBody UserRequest userRequest) throws UserNotFoundException {
+    @PutMapping("/update-user-by-id")
+    public ResponseEntity<UserResponse> updateUser(@RequestParam UUID userId, @RequestBody UserRequest userRequest) throws UserNotFoundException {
         return ResponseEntity.ok(userService.updateUser(userId, userRequest));
     }
 
-    @PutMapping("/assign-role/{userId}")
-    public ResponseEntity<UserResponse> assignRoleToUser(@PathVariable UUID userId, @RequestParam Role role) throws UserNotFoundException {
+    @PutMapping("/assign-role-to-user")
+    public ResponseEntity<UserResponse> assignRoleToUser(@RequestParam UUID userId, @RequestParam Role role) throws UserNotFoundException {
         return ResponseEntity.ok(userService.assignRoleToUser(userId, role));
     }
 
-    @PutMapping("/remove-notification/{userId}")
-    public ResponseEntity<String> removeNotificationFromUser(@PathVariable UUID userId, @RequestParam Notification notification) throws UserNotFoundException {
+    @PutMapping("/remove-notification-from-user")
+    public ResponseEntity<String> removeNotificationFromUser(@RequestParam UUID userId, @RequestParam Notification notification) throws UserNotFoundException {
         return ResponseEntity.ok(userService.removeNotificationFromUser(userId, notification));
     }
 
-    @PutMapping("/add-notification/{userId}")
-    public ResponseEntity<String> addNotificationToUser(@PathVariable UUID userId, @RequestParam Notification notification) throws UserNotFoundException {
+    @PutMapping("/add-notification-to-user")
+    public ResponseEntity<String> addNotificationToUser(@RequestParam UUID userId, @RequestParam Notification notification) throws UserNotFoundException {
         return ResponseEntity.ok(userService.addNotificationToUser(userId, notification));
     }
 
     //DELETE
-    @DeleteMapping("/delete-user/{userId}")
-    public ResponseEntity<String> deleteUser(@PathVariable UUID userId) throws UserNotFoundException {
+    @DeleteMapping("/delete-user-by-id")
+    public ResponseEntity<String> deleteUser(@RequestParam UUID userId) throws UserNotFoundException {
         return ResponseEntity.ok(userService.deleteUser(userId));
     }
 }

@@ -24,4 +24,6 @@ public interface PossessionHistoryRepository extends JpaRepository<PossessionHis
 
     List<PossessionHistory> findByApartmentUuidID (UUID apartmentId);
 
+    List<PossessionHistory> findByUserUuidIDAndEndDateIsNull(UUID userId);
+
 }

@@ -5,6 +5,7 @@ import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.User;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -22,9 +23,11 @@ import java.time.LocalDateTime;
 public class PossessionHistory {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID")
     private Long id;
 
+    @CreationTimestamp
     @Column(name = "Start_date", nullable = false)
     private LocalDateTime startDate;
 

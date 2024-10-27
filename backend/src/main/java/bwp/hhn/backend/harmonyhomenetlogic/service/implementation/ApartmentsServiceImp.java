@@ -1,6 +1,7 @@
 package bwp.hhn.backend.harmonyhomenetlogic.service.implementation;
 
 import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.ApartmentNotFoundException;
+import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.PossessionHistoryNotFoundException;
 import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.UserNotFoundException;
 import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.Apartment;
 import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.User;
@@ -43,6 +44,7 @@ public class ApartmentsServiceImp implements ApartmentsService {
         Apartment saved = apartmentsRepository.save(apartment);
 
         return ApartmentResponse.builder()
+                .apartmentId(saved.getUuidID())
                 .address(saved.getAddress())
                 .city(saved.getCity())
                 .zipCode(saved.getZipCode())
@@ -103,8 +105,8 @@ public class ApartmentsServiceImp implements ApartmentsService {
     }
 
     @Override
-    public List<ApartmentResponse> getApartmentsByUserId(UUID userId) throws ApartmentNotFoundException, UserNotFoundException {
-        return possessionHistoryRepository.findByUserUuidID(userId).stream()
+    public List<ApartmentResponse> getCurrentApartmentsByUserId(UUID userId) throws ApartmentNotFoundException, UserNotFoundException {
+        return possessionHistoryRepository.findByUserUuidIDAndEndDateIsNull(userId).stream()
                 .map(
                         possessionHistory -> ApartmentResponse.builder()
                                 .address(possessionHistory.getApartment().getAddress())
@@ -123,6 +125,7 @@ public class ApartmentsServiceImp implements ApartmentsService {
         return apartmentsRepository.findAll().stream()
                 .map(
                         apartment -> ApartmentResponse.builder()
+                                .apartmentId(apartment.getUuidID())
                                 .address(apartment.getAddress())
                                 .city(apartment.getCity())
                                 .zipCode(apartment.getZipCode())
@@ -136,11 +139,13 @@ public class ApartmentsServiceImp implements ApartmentsService {
 
     @Override
     public PossessionHistoryResponse getPossessionHistory(UUID apartmentId, UUID userId) throws ApartmentNotFoundException, UserNotFoundException {
-        return possessionHistoryRepository.findByUserUuidIDAndApartmentUuidID(apartmentId, userId)
+        return possessionHistoryRepository.findByUserUuidIDAndApartmentUuidID(userId, apartmentId)
                 .map(
                         possessionHistory -> PossessionHistoryResponse.builder()
                                 .userName(possessionHistory.getUser().getFirstName() + " " + possessionHistory.getUser().getLastName())
                                 .apartmentName(possessionHistory.getApartment().getAddress())
+                                .startDate(possessionHistory.getStartDate())
+                                .endDate(possessionHistory.getEndDate())
                                 .build()
                 )
                 .orElseThrow(() -> new ApartmentNotFoundException("Apartment: " + apartmentId + " not found"));
@@ -167,21 +172,34 @@ public class ApartmentsServiceImp implements ApartmentsService {
         return PossessionHistoryResponse.builder()
                 .userName(possessionHistory.getUser().getFirstName() + " " + possessionHistory.getUser().getLastName())
                 .apartmentName(possessionHistory.getApartment().getAddress())
+                .startDate(possessionHistory.getStartDate())
                 .build();
     }
 
     @Override
-    public PossessionHistoryResponse deletePossessionHistory(UUID apartmentId, UUID userId) throws ApartmentNotFoundException, UserNotFoundException {
+    public String deletePossessionHistory(Long possessionHistoryId) throws PossessionHistoryNotFoundException {
+
+        if (!possessionHistoryRepository.existsById(possessionHistoryId))
+            throw new PossessionHistoryNotFoundException("Possession history: " + possessionHistoryId + " not found");
+
+        possessionHistoryRepository.deleteById(possessionHistoryId);
+
+        return "Possession history deleted successfully";
+    }
+
+    @Override
+    public PossessionHistoryResponse endPossessionHistory(UUID apartmentId, UUID userId) throws ApartmentNotFoundException, UserNotFoundException {
         PossessionHistory possessionHistory = possessionHistoryRepository.findByUserUuidIDAndApartmentUuidID(userId, apartmentId)
                 .orElseThrow(() -> new ApartmentNotFoundException("User: " + userId + " not found in apartment: " + apartmentId));
 
         possessionHistory.setEndDate(LocalDateTime.now());
-
         PossessionHistory saved = possessionHistoryRepository.save(possessionHistory);
 
         return PossessionHistoryResponse.builder()
-                .userName(saved.getUser().getFirstName() + " " + saved.getUser().getLastName())
-                .apartmentName(saved.getApartment().getAddress())
+                .userName(possessionHistory.getUser().getFirstName() + " " + possessionHistory.getUser().getLastName())
+                .apartmentName(possessionHistory.getApartment().getAddress())
+                .startDate(possessionHistory.getStartDate())
+                .endDate(possessionHistory.getEndDate())
                 .build();
     }
 
@@ -205,6 +223,8 @@ public class ApartmentsServiceImp implements ApartmentsService {
                         possessionHistory -> PossessionHistoryResponse.builder()
                                 .userName(possessionHistory.getUser().getFirstName() + " " + possessionHistory.getUser().getLastName())
                                 .apartmentName(possessionHistory.getApartment().getAddress())
+                                .startDate(possessionHistory.getStartDate())
+                                .endDate(possessionHistory.getEndDate())
                                 .build()
                 )
                 .toList();
@@ -238,4 +258,5 @@ public class ApartmentsServiceImp implements ApartmentsService {
                 )
                 .toList();
     }
+
 }
