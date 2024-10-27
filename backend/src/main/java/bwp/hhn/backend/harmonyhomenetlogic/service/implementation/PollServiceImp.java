@@ -13,13 +13,14 @@ import bwp.hhn.backend.harmonyhomenetlogic.repository.sideTables.PossessionHisto
 import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.PollService;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.VoteChoice;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.PollRequest;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.request.VoteRequest;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.PollResponse;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.VoteResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -44,7 +45,6 @@ public class PollServiceImp implements PollService {
                         poll -> PollResponse.builder()
                                 .pollName(poll.getPollName())
                                 .content(poll.getContent())
-                                .uploadData(poll.getUploadData())
                                 .createdAt(poll.getCreatedAt())
                                 .endDate(poll.getEndDate())
                                 .summary(poll.getSummary())
@@ -54,7 +54,7 @@ public class PollServiceImp implements PollService {
     }
 
     @Override
-    public PollResponse createPoll(PollRequest pollRequest, UUID employeeId) throws UserNotFoundException, IllegalArgumentException {
+    public PollResponse createPoll(PollRequest pollRequest, UUID employeeId, MultipartFile file) throws UserNotFoundException, IllegalArgumentException, IOException {
 
         User user = userRepository.findByIdAndRole(employeeId)
                 .orElseThrow(() -> new UserNotFoundException("User: " + employeeId + " not found"));
@@ -65,7 +65,7 @@ public class PollServiceImp implements PollService {
         Poll poll = Poll.builder()
                 .pollName(pollRequest.getPollName())
                 .content(pollRequest.getContent())
-                .uploadData(pollRequest.getUploadData())
+                .uploadData(file.getBytes())
                 .endDate(pollRequest.getEndDate())
                 .summary(BigDecimal.ZERO)
                 .user(user)
@@ -74,16 +74,13 @@ public class PollServiceImp implements PollService {
         if (user.getPolls() == null) user.setPolls(new ArrayList<>());
         user.getPolls().add(poll);
 
-        userRepository.save(user);
-        pollRepository.save(poll);
+        Poll saved = pollRepository.save(poll);
 
         return PollResponse.builder()
-                .pollName(poll.getPollName())
-                .content(poll.getContent())
-                .uploadData(poll.getUploadData())
-                .createdAt(poll.getCreatedAt())
-                .endDate(poll.getEndDate())
-                .summary(poll.getSummary())
+                .id(saved.getUuidID())
+                .pollName(saved.getPollName())
+                .createdAt(saved.getCreatedAt())
+                .endDate(saved.getEndDate())
                 .build();
 
     }
@@ -95,7 +92,6 @@ public class PollServiceImp implements PollService {
                         poll -> PollResponse.builder()
                                 .pollName(poll.getPollName())
                                 .content(poll.getContent())
-                                .uploadData(poll.getUploadData())
                                 .createdAt(poll.getCreatedAt())
                                 .endDate(poll.getEndDate())
                                 .summary(poll.getSummary())
@@ -115,7 +111,7 @@ public class PollServiceImp implements PollService {
 
     @Override
     @Transactional
-    public VoteResponse vote(UUID pollId, UUID userId, UUID apartmentId, VoteRequest voteRequest) throws UserNotFoundException, PollNotFoundException, PossessionHistoryNotFoundException, ApartmentNotFoundException {
+    public VoteResponse vote(UUID pollId, UUID userId, UUID apartmentId, VoteChoice voteChoice) throws UserNotFoundException, PollNotFoundException, PossessionHistoryNotFoundException, ApartmentNotFoundException {
 
         User user = userRepository.findByIdAndRoleUser(userId)
                 .orElseThrow(() -> new UserNotFoundException("User: " + userId + " not found"));
@@ -126,20 +122,17 @@ public class PollServiceImp implements PollService {
         if (poll.getEndDate().isBefore(LocalDateTime.now()))
             throw new IllegalArgumentException("Poll: " + pollId + " has ended");
 
-        // Sprawdzenie, czy użytkownik posiada podane mieszkanie
         if (!possessionHistoryRepository.existsByUserUuidIDAndApartmentUuidID(userId, apartmentId))
             throw new IllegalArgumentException("User: " + userId + " does not own apartment: " + apartmentId);
 
-        // Sprawdzenie, czy użytkownik już głosował dla tego mieszkania w tej ankiecie
         if (voteRepository.existsByPollUuidIDAndUserUuidIDAndApartmentUUID(pollId, userId, apartmentId))
-            throw new IllegalArgumentException("For aparmet: " + apartmentId + " in poll: " + pollId + " owners has already voted");
+            throw new IllegalArgumentException("For apartment: " + apartmentId + " in poll: " + pollId + " owners have already voted");
 
-        // Pobranie mieszkania i jego wartości procentowej
         Apartment apartment = apartmentsRepository.findById(apartmentId)
                 .orElseThrow(() -> new ApartmentNotFoundException("Apartment: " + apartmentId + " not found"));
 
         Vote vote = Vote.builder()
-                .voteChoice(voteRequest.getVoteChoice())
+                .voteChoice(voteChoice)
                 .createdAt(LocalDateTime.now())
                 .user(user)
                 .poll(poll)
@@ -152,22 +145,16 @@ public class PollServiceImp implements PollService {
         if (poll.getVotes() == null) poll.setVotes(new ArrayList<>());
         poll.getVotes().add(vote);
 
-        voteRepository.save(vote);
+        Vote saved = voteRepository.save(vote);
 
-        BigDecimal voteValue = vote.getVoteChoice() == VoteChoice.FOR
-                ? apartment.getApartmentPercentValue()
-                : BigDecimal.ZERO;
-
-        poll.setSummary(poll.getSummary().add(voteValue));
-
-        pollRepository.save(poll);
+        recalculateSummary(poll);
 
         return VoteResponse.builder()
-                .voteChoice(vote.getVoteChoice())
-                .createdAt(vote.getCreatedAt())
+                .id(saved.getId())
+                .voteChoice(saved.getVoteChoice())
+                .createdAt(saved.getCreatedAt())
                 .build();
     }
-
 
     @Override
     public List<VoteResponse> getVotesFromPoll(UUID pollId) throws PollNotFoundException {
@@ -203,11 +190,39 @@ public class PollServiceImp implements PollService {
 
     @Override
     public String deleteVote(Long voteId) throws VoteNotFoundException {
+        Vote vote = voteRepository.findById(voteId)
+                .orElseThrow(() -> new VoteNotFoundException("Vote: " + voteId + " not found"));
 
-        if (!voteRepository.existsById(voteId)) throw new VoteNotFoundException("Vote: " + voteId + " not found");
+        Poll poll = vote.getPoll();
 
         voteRepository.deleteById(voteId);
+
+        // Recalculate summary after removing a vote
+        recalculateSummary(poll);
+
         return "Vote: " + voteId + " deleted";
+    }
+
+    @Override
+    public PollResponse downloadPoll(UUID pollId) throws PollNotFoundException {
+        return pollRepository.findById(pollId)
+                .map(
+                        poll -> PollResponse.builder()
+                                .pollName(poll.getPollName())
+                                .uploadData(poll.getUploadData())
+                                .build()
+                )
+                .orElseThrow(() -> new PollNotFoundException("Poll: " + pollId + " not found"));
+    }
+
+    private void recalculateSummary(Poll poll) {
+        BigDecimal newSummary = poll.getVotes().stream()
+                .filter(vote -> vote.getVoteChoice() == VoteChoice.FOR)
+                .map(vote -> apartmentsRepository.findById(vote.getApartmentUUID())
+                        .map(Apartment::getApartmentPercentValue)
+                        .orElse(BigDecimal.ZERO))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        poll.setSummary(newSummary);
     }
 
 }

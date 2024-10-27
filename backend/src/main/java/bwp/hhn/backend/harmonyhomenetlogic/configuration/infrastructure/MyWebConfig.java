@@ -17,7 +17,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import java.util.Objects;
 
 @Configuration
-public class MyWebConfig {
+public class MyWebConfig implements WebMvcConfigurer {
 
     @Value("${server.port}")
     private int serverPort;

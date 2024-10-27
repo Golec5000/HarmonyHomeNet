@@ -25,6 +25,7 @@ import java.util.UUID;
 public class Vote {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID")
     private Long id;
 

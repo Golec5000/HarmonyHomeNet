@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -15,5 +17,14 @@ public class VoteRequest {
 
     @NotNull
     private VoteChoice voteChoice;
+
+    @NotNull
+    private UUID userId;
+
+    @NotNull
+    private UUID pollId;
+
+    @NotNull
+    private UUID apartmentUUID;
 
 }

@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 
 @Builder
 public record VoteResponse(
+        Long id,
         VoteChoice voteChoice,
         LocalDateTime createdAt
 ) {

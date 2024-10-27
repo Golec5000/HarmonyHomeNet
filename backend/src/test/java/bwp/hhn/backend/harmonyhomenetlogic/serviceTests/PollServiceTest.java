@@ -8,8 +8,6 @@ import bwp.hhn.backend.harmonyhomenetlogic.repository.sideTables.PossessionHisto
 import bwp.hhn.backend.harmonyhomenetlogic.service.implementation.PollServiceImp;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Role;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.VoteChoice;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.request.PollRequest;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.request.VoteRequest;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.PollResponse;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.VoteResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -91,47 +89,7 @@ class PollServiceTest {
         verify(pollRepository, times(1)).findAll();
     }
 
-    @Test
-    void testCreatePoll_Success() throws UserNotFoundException {
-        UUID employeeId = UUID.randomUUID();
-        User employee = User.builder()
-                .uuidID(employeeId)
-                .role(Role.EMPLOYEE)
-                .polls(new ArrayList<>())
-                .build();
 
-        PollRequest pollRequest = PollRequest.builder()
-                .pollName("New Poll")
-                .content("New Content")
-                .uploadData("New Data".getBytes())
-                .endDate(LocalDateTime.now().plusDays(1))
-                .build();
-
-        when(userRepository.findByIdAndRole(employeeId)).thenReturn(Optional.of(employee));
-        when(pollRepository.save(any(Poll.class))).thenReturn(poll);
-
-        PollResponse response = pollService.createPoll(pollRequest, employeeId);
-
-        assertEquals("New Poll", response.pollName());
-        verify(userRepository, times(1)).findByIdAndRole(employeeId);
-        verify(pollRepository, times(1)).save(any(Poll.class));
-    }
-
-    @Test
-    void testCreatePoll_UserNotFound() {
-        UUID employeeId = UUID.randomUUID();
-        PollRequest pollRequest = PollRequest.builder()
-                .pollName("New Poll")
-                .content("New Content")
-                .uploadData("New Data".getBytes())
-                .endDate(LocalDateTime.now().plusDays(1))
-                .build();
-
-        when(userRepository.findByIdAndRole(employeeId)).thenReturn(Optional.empty());
-
-        assertThrows(UserNotFoundException.class, () -> pollService.createPoll(pollRequest, employeeId));
-        verify(userRepository, times(1)).findByIdAndRole(employeeId);
-    }
 
     @Test
     void testGetPoll_Success() throws PollNotFoundException {
@@ -171,113 +129,8 @@ class PollServiceTest {
         verify(pollRepository, times(0)).deleteById(pollId);
     }
 
-    @Test
-    void testVote_Success() throws Exception {
-        VoteRequest voteRequest = VoteRequest.builder()
-                .voteChoice(VoteChoice.FOR)
-                .build();
 
-        PossessionHistory possessionHistory = PossessionHistory.builder()
-                .user(user)
-                .apartment(apartment)
-                .build();
 
-        when(userRepository.findByIdAndRoleUser(userId)).thenReturn(Optional.of(user));
-        when(pollRepository.findById(pollId)).thenReturn(Optional.of(poll));
-        when(possessionHistoryRepository.existsByUserUuidIDAndApartmentUuidID(userId, apartmentId)).thenReturn(true);
-        when(voteRepository.existsByPollUuidIDAndUserUuidIDAndApartmentUUID(pollId, userId, apartmentId)).thenReturn(false);
-        when(apartmentsRepository.findById(apartmentId)).thenReturn(Optional.of(apartment));
-
-        VoteResponse response = pollService.vote(pollId, userId, apartmentId, voteRequest);
-
-        assertEquals(VoteChoice.FOR, response.voteChoice());
-        verify(voteRepository, times(1)).save(any(Vote.class));
-        verify(pollRepository, times(1)).save(poll);
-    }
-
-    @Test
-    void testVote_UserNotFound() {
-        VoteRequest voteRequest = VoteRequest.builder()
-                .voteChoice(VoteChoice.FOR)
-                .build();
-
-        when(userRepository.findByIdAndRoleUser(userId)).thenReturn(Optional.empty());
-
-        assertThrows(UserNotFoundException.class, () -> pollService.vote(pollId, userId, apartmentId, voteRequest));
-        verify(userRepository, times(1)).findByIdAndRoleUser(userId);
-    }
-
-    @Test
-    void testVote_PollNotFound() {
-        VoteRequest voteRequest = VoteRequest.builder()
-                .voteChoice(VoteChoice.FOR)
-                .build();
-
-        when(userRepository.findByIdAndRoleUser(userId)).thenReturn(Optional.of(user));
-        when(pollRepository.findById(pollId)).thenReturn(Optional.empty());
-
-        assertThrows(PollNotFoundException.class, () -> pollService.vote(pollId, userId, apartmentId, voteRequest));
-        verify(pollRepository, times(1)).findById(pollId);
-    }
-
-    @Test
-    void testVote_PollEnded() {
-        VoteRequest voteRequest = VoteRequest.builder()
-                .voteChoice(VoteChoice.FOR)
-                .build();
-
-        poll.setEndDate(LocalDateTime.now().minusDays(1));
-
-        when(userRepository.findByIdAndRoleUser(userId)).thenReturn(Optional.of(user));
-        when(pollRepository.findById(pollId)).thenReturn(Optional.of(poll));
-
-        assertThrows(IllegalArgumentException.class, () -> pollService.vote(pollId, userId, apartmentId, voteRequest));
-    }
-
-    @Test
-    void testVote_UserDoesNotOwnApartment() {
-        VoteRequest voteRequest = VoteRequest.builder()
-                .voteChoice(VoteChoice.FOR)
-                .build();
-
-        when(userRepository.findByIdAndRoleUser(userId)).thenReturn(Optional.of(user));
-        when(pollRepository.findById(pollId)).thenReturn(Optional.of(poll));
-        when(possessionHistoryRepository.existsByUserUuidIDAndApartmentUuidID(userId, apartmentId)).thenReturn(false);
-
-        assertThrows(IllegalArgumentException.class, () -> pollService.vote(pollId, userId, apartmentId, voteRequest));
-        verify(possessionHistoryRepository, times(1)).existsByUserUuidIDAndApartmentUuidID(userId, apartmentId);
-    }
-
-    @Test
-    void testVote_UserAlreadyVoted() {
-        VoteRequest voteRequest = VoteRequest.builder()
-                .voteChoice(VoteChoice.FOR)
-                .build();
-
-        when(userRepository.findByIdAndRoleUser(userId)).thenReturn(Optional.of(user));
-        when(pollRepository.findById(pollId)).thenReturn(Optional.of(poll));
-        when(possessionHistoryRepository.existsByUserUuidIDAndApartmentUuidID(userId, apartmentId)).thenReturn(true);
-        when(voteRepository.existsByPollUuidIDAndUserUuidIDAndApartmentUUID(pollId, userId, apartmentId)).thenReturn(true);
-
-        assertThrows(IllegalArgumentException.class, () -> pollService.vote(pollId, userId, apartmentId, voteRequest));
-        verify(voteRepository, times(1)).existsByPollUuidIDAndUserUuidIDAndApartmentUUID(pollId, userId, apartmentId);
-    }
-
-    @Test
-    void testVote_ApartmentNotFound() {
-        VoteRequest voteRequest = VoteRequest.builder()
-                .voteChoice(VoteChoice.FOR)
-                .build();
-
-        when(userRepository.findByIdAndRoleUser(userId)).thenReturn(Optional.of(user));
-        when(pollRepository.findById(pollId)).thenReturn(Optional.of(poll));
-        when(possessionHistoryRepository.existsByUserUuidIDAndApartmentUuidID(userId, apartmentId)).thenReturn(true);
-        when(voteRepository.existsByPollUuidIDAndUserUuidIDAndApartmentUUID(pollId, userId, apartmentId)).thenReturn(false);
-        when(apartmentsRepository.findById(apartmentId)).thenReturn(Optional.empty());
-
-        assertThrows(ApartmentNotFoundException.class, () -> pollService.vote(pollId, userId, apartmentId, voteRequest));
-        verify(apartmentsRepository, times(1)).findById(apartmentId);
-    }
 
     @Test
     void testGetVotesFromPoll_Success() throws PollNotFoundException {

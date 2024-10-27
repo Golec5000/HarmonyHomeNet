@@ -27,6 +27,7 @@ import java.util.UUID;
 public class Poll {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "UUID_id")
     private UUID uuidID;
 
@@ -46,15 +47,14 @@ public class Poll {
     private byte[] uploadData;
 
     @CreationTimestamp
-    @NotNull
-    @Column(name = "Created_at", nullable = false, updatable = false)
+    @Column(name = "Created_at", nullable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "End_date")
     private LocalDateTime endDate;
 
     @NotNull
-    @DecimalMin(value = "0.0", inclusive = false)
+    @DecimalMin(value = "0.0")
     @Digits(integer = 3, fraction = 2)
     @Column(name = "Summary", precision = 5, scale = 2)
     private BigDecimal summary;

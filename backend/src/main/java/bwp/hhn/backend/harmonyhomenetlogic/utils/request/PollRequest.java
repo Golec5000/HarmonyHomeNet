@@ -25,9 +25,6 @@ public class PollRequest {
     private String content;
 
     @NotNull
-    private byte[] uploadData;
-
-    @NotNull
     private LocalDateTime endDate;
 
 }
