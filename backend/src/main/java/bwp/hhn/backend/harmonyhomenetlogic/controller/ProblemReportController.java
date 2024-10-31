@@ -44,9 +44,9 @@ public class ProblemReportController {
         return ResponseEntity.ok(problemReportService.getProblemReportsByUserId(userId));
     }
 
-    @GetMapping("/get-report-by-apartment/{apartmentId}")
-    public ResponseEntity<List<ProblemReportResponse>> getProblemReportsByApartmentId(@PathVariable UUID apartmentId) throws ApartmentNotFoundException {
-        return ResponseEntity.ok(problemReportService.getProblemReportsByApartmentId(apartmentId));
+    @GetMapping("/get-report-by-apartment/{apartmentSignature}")
+    public ResponseEntity<List<ProblemReportResponse>> getProblemReportsByApartmentId(@PathVariable String apartmentSignature) throws ApartmentNotFoundException {
+        return ResponseEntity.ok(problemReportService.getProblemReportsByApartmentSignature(apartmentSignature));
     }
 
     @GetMapping("/get-all-reports")

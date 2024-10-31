@@ -75,7 +75,7 @@ public class PollController {
     @PutMapping("/vote")
     public ResponseEntity<VoteResponse> vote(@RequestBody VoteRequest voteRequest)
             throws UserNotFoundException, PollNotFoundException, PossessionHistoryNotFoundException, ApartmentNotFoundException {
-        return ResponseEntity.ok(pollService.vote(voteRequest.getPollId(), voteRequest.getUserId(), voteRequest.getApartmentUUID(), voteRequest.getVoteChoice()));
+        return ResponseEntity.ok(pollService.vote(voteRequest.getPollId(), voteRequest.getUserId(), voteRequest.getApartmentSignature(), voteRequest.getVoteChoice()));
     }
 
     //DELETE

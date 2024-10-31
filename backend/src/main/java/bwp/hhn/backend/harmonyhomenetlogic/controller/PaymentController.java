@@ -42,9 +42,9 @@ public class PaymentController {
         return ResponseEntity.ok(paymentService.getAllPayments());
     }
 
-    @GetMapping("/get-payment-by-apartment/{apartmentId}")
-    public ResponseEntity<List<PaymentResponse>> getPaymentsByApartmentId(@PathVariable UUID apartmentId) throws ApartmentNotFoundException {
-        return ResponseEntity.ok(paymentService.getPaymentsByApartmentId(apartmentId));
+    @GetMapping("/get-payment-by-apartment/{apartmentSignature}")
+    public ResponseEntity<List<PaymentResponse>> getPaymentsByApartmentId(@PathVariable String apartmentSignature) throws ApartmentNotFoundException {
+        return ResponseEntity.ok(paymentService.getPaymentsByApartmentSignature(apartmentSignature));
     }
 
     @PostMapping("/pay/{paymentId}")

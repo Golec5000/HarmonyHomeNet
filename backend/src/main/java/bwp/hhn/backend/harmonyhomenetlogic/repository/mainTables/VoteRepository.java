@@ -6,6 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.UUID;
 
 public interface VoteRepository extends JpaRepository<Vote, Long> {
-    boolean existsByPollUuidIDAndUserUuidIDAndApartmentUUID(UUID pollId, UUID userId, UUID apartmentId);
+    boolean existsByPollUuidIDAndUserUuidIDAndApartmentSignature(UUID pollId, UUID userId, String apartmentSignature);
     boolean existsById(Long voteId);
 }

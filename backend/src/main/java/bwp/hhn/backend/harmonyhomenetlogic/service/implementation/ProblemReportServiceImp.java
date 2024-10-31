@@ -12,6 +12,7 @@ import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.UserRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.ProblemReportService;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.ReportStatus;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.ProblemReportRequest;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.PaymentResponse;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.ProblemReportResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -146,13 +147,12 @@ public class ProblemReportServiceImp implements ProblemReportService {
     }
 
     @Override
-    public List<ProblemReportResponse> getProblemReportsByApartmentId(UUID apartmentId) throws ApartmentNotFoundException {
+    public List<ProblemReportResponse> getProblemReportsByApartmentSignature(String apartmentSignature) throws ApartmentNotFoundException {
 
-        if (!apartmentsRepository.existsById(apartmentId)) {
-            throw new ApartmentNotFoundException("Apartment not found with id: " + apartmentId);
-        }
+        Apartment apartment = apartmentsRepository.findByApartmentSignature(apartmentSignature)
+                .orElseThrow(() -> new ApartmentNotFoundException("Apartment not found with signature: " + apartmentSignature));
 
-        return problemReportRepository.findAllByApartmentUuidID(apartmentId)
+        return problemReportRepository.findAllByApartmentUuidID(apartment.getUuidID())
                 .stream()
                 .map(problemReport -> ProblemReportResponse.builder()
                         .id(problemReport.getId())

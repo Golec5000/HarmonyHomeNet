@@ -21,7 +21,7 @@ public interface PollService {
 
     String deletePoll(UUID pollId) throws PollNotFoundException;
 
-    VoteResponse vote(UUID pollId, UUID userId, UUID apartmentId, VoteChoice voteChoice) throws UserNotFoundException, PollNotFoundException, PossessionHistoryNotFoundException, ApartmentNotFoundException;
+    VoteResponse vote(UUID pollId, UUID userId, String apartmentSignature, VoteChoice voteChoice) throws UserNotFoundException, PollNotFoundException, PossessionHistoryNotFoundException, ApartmentNotFoundException;
 
     List<VoteResponse> getVotesFromPoll(UUID pollId) throws PollNotFoundException;
 

@@ -155,13 +155,13 @@ public class AnnouncementServiceImp implements AnnouncementService {
     }
 
     @Transactional
-    public String linkAnnouncementsToApartments(Long announcementId, List<UUID> apartmentIds) throws AnnouncementNotFoundException, ApartmentNotFoundException {
+    public String linkAnnouncementsToApartments(Long announcementId, List<String> apartmentSignature) throws AnnouncementNotFoundException, ApartmentNotFoundException {
         Announcement announcement = announcementRepository.findById(announcementId)
                 .orElseThrow(() -> new AnnouncementNotFoundException("Announcement: " + announcementId + " not found"));
 
-        List<AnnouncementApartment> newAnnouncementApartments = apartmentIds.stream()
+        List<AnnouncementApartment> newAnnouncementApartments = apartmentSignature.stream()
                 .map(apartmentId -> {
-                    Apartment apartment = apartmentsRepository.findById(apartmentId)
+                    Apartment apartment = apartmentsRepository.findByApartmentSignature(apartmentId)
                             .orElseThrow(() -> new ApartmentNotFoundException("Apartment: " + apartmentId + " not found"));
 
                     AnnouncementApartment newLink = AnnouncementApartment.builder()
@@ -191,12 +191,12 @@ public class AnnouncementServiceImp implements AnnouncementService {
 
     @Override
     @Transactional
-    public String unlinkAnnouncementsFromApartments(Long announcementId, List<UUID> apartmentIds) throws AnnouncementNotFoundException {
+    public String unlinkAnnouncementsFromApartments(Long announcementId, List<String> apartmentSignature) throws AnnouncementNotFoundException {
         Announcement announcement = announcementRepository.findById(announcementId)
                 .orElseThrow(() -> new AnnouncementNotFoundException("Announcement: " + announcementId + " not found"));
 
         List<AnnouncementApartment> announcementApartmentsToRemove = announcement.getAnnouncementApartments().stream()
-                .filter(announcementApartment -> apartmentIds.contains(announcementApartment.getApartment().getUuidID()))
+                .filter(announcementApartment -> apartmentSignature.contains(announcementApartment.getApartment().getApartmentSignature()))
                 .toList();
 
         announcement.getAnnouncementApartments().removeAll(announcementApartmentsToRemove);

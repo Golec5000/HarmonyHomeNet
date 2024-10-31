@@ -22,7 +22,7 @@ public interface ProblemReportService {
 
     List<ProblemReportResponse> getProblemReportsByUserId(UUID userId) throws UserNotFoundException;
 
-    List<ProblemReportResponse> getProblemReportsByApartmentId(UUID apartmentId) throws ApartmentNotFoundException;
+    List<ProblemReportResponse> getProblemReportsByApartmentSignature(String apartmentSignature) throws ApartmentNotFoundException;
 
     List<ProblemReportResponse> getAllProblemReports();
 

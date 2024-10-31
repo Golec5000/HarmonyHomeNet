@@ -25,6 +25,7 @@ public class VoteRequest {
     private UUID pollId;
 
     @NotNull
-    private UUID apartmentUUID;
+    private String apartmentSignature;
+
 
 }

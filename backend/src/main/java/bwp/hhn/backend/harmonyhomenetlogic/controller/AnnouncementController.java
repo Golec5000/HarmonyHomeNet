@@ -57,12 +57,12 @@ public class AnnouncementController {
     }
 
     @PostMapping("/link-announcement-to-apartments/{announcementId}")
-    public ResponseEntity<String> linkAnnouncementsToApartments(@PathVariable Long announcementId, @RequestBody List<UUID> apartmentIds) throws AnnouncementNotFoundException, ApartmentNotFoundException {
-        return ResponseEntity.ok(announcementService.linkAnnouncementsToApartments(announcementId, apartmentIds));
+    public ResponseEntity<String> linkAnnouncementsToApartments(@PathVariable Long announcementId, @RequestBody List<String> apartmentSignature) throws AnnouncementNotFoundException, ApartmentNotFoundException {
+        return ResponseEntity.ok(announcementService.linkAnnouncementsToApartments(announcementId, apartmentSignature));
     }
 
     @PostMapping("/unlink-announcement-from-apartments/{announcementId}")
-    public ResponseEntity<String> unlinkAnnouncementsFromApartments(@PathVariable Long announcementId, @RequestBody List<UUID> apartmentIds) throws AnnouncementNotFoundException {
-        return ResponseEntity.ok(announcementService.unlinkAnnouncementsFromApartments(announcementId, apartmentIds));
+    public ResponseEntity<String> unlinkAnnouncementsFromApartments(@PathVariable Long announcementId, @RequestBody List<String> apartmentSignature) throws AnnouncementNotFoundException {
+        return ResponseEntity.ok(announcementService.unlinkAnnouncementsFromApartments(announcementId, apartmentSignature));
     }
 }

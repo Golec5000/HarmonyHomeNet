@@ -26,8 +26,8 @@ public interface AnnouncementService {
 
     List<AnnouncementResponse> getAnnouncementsFromStartDateTOEndDate(DateRequest dateRequest);
 
-    String linkAnnouncementsToApartments(Long announcementId, List<UUID> apartmentIds) throws AnnouncementNotFoundException, ApartmentNotFoundException;
+    String linkAnnouncementsToApartments(Long announcementId, List<String> apartmentSignature) throws AnnouncementNotFoundException, ApartmentNotFoundException;
 
-    String unlinkAnnouncementsFromApartments(Long announcementId, List<UUID> apartmentIds) throws AnnouncementNotFoundException;
+    String unlinkAnnouncementsFromApartments(Long announcementId, List<String> apartmentSignature) throws AnnouncementNotFoundException;
 
 }

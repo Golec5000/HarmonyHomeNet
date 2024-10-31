@@ -111,7 +111,7 @@ public class PollServiceImp implements PollService {
 
     @Override
     @Transactional
-    public VoteResponse vote(UUID pollId, UUID userId, UUID apartmentId, VoteChoice voteChoice) throws UserNotFoundException, PollNotFoundException, PossessionHistoryNotFoundException, ApartmentNotFoundException {
+    public VoteResponse vote(UUID pollId, UUID userId, String apartmentSignature, VoteChoice voteChoice) throws UserNotFoundException, PollNotFoundException, PossessionHistoryNotFoundException, ApartmentNotFoundException {
 
         User user = userRepository.findByIdAndRoleUser(userId)
                 .orElseThrow(() -> new UserNotFoundException("User: " + userId + " not found"));
@@ -119,24 +119,24 @@ public class PollServiceImp implements PollService {
         Poll poll = pollRepository.findById(pollId)
                 .orElseThrow(() -> new PollNotFoundException("Poll: " + pollId + " not found"));
 
+        Apartment apartment = apartmentsRepository.findByApartmentSignature(apartmentSignature)
+                .orElseThrow(() -> new ApartmentNotFoundException("Apartment: " + apartmentSignature + " not found"));
+
         if (poll.getEndDate().isBefore(LocalDateTime.now()))
             throw new IllegalArgumentException("Poll: " + pollId + " has ended");
 
-        if (!possessionHistoryRepository.existsByUserUuidIDAndApartmentUuidID(userId, apartmentId))
-            throw new IllegalArgumentException("User: " + userId + " does not own apartment: " + apartmentId);
+        if (!possessionHistoryRepository.existsByUserUuidIDAndApartmentUuidID(userId, apartment.getUuidID()))
+            throw new IllegalArgumentException("User: " + userId + " does not own apartment: " + apartment.getUuidID());
 
-        if (voteRepository.existsByPollUuidIDAndUserUuidIDAndApartmentUUID(pollId, userId, apartmentId))
-            throw new IllegalArgumentException("For apartment: " + apartmentId + " in poll: " + pollId + " owners have already voted");
-
-        Apartment apartment = apartmentsRepository.findById(apartmentId)
-                .orElseThrow(() -> new ApartmentNotFoundException("Apartment: " + apartmentId + " not found"));
+        if (voteRepository.existsByPollUuidIDAndUserUuidIDAndApartmentSignature(pollId, userId, apartmentSignature))
+            throw new IllegalArgumentException("For apartment: " + apartmentSignature + " in poll: " + pollId + " owners have already voted");
 
         Vote vote = Vote.builder()
                 .voteChoice(voteChoice)
                 .createdAt(LocalDateTime.now())
                 .user(user)
                 .poll(poll)
-                .apartmentUUID(apartmentId)
+                .apartmentSignature(apartmentSignature)
                 .build();
 
         if (user.getVotes() == null) user.setVotes(new ArrayList<>());
@@ -218,7 +218,7 @@ public class PollServiceImp implements PollService {
     private void recalculateSummary(Poll poll) {
         BigDecimal newSummary = poll.getVotes().stream()
                 .filter(vote -> vote.getVoteChoice() == VoteChoice.FOR)
-                .map(vote -> apartmentsRepository.findById(vote.getApartmentUUID())
+                .map(vote -> apartmentsRepository.findByApartmentSignature(vote.getApartmentSignature())
                         .map(Apartment::getApartmentPercentValue)
                         .orElse(BigDecimal.ZERO))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);

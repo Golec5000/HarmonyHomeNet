@@ -109,13 +109,12 @@ public class PaymentServiceImp implements PaymentService {
     }
 
     @Override
-    public List<PaymentResponse> getPaymentsByApartmentId(UUID apartmentId) throws ApartmentNotFoundException {
+    public List<PaymentResponse> getPaymentsByApartmentSignature(String apartmentSignature) throws ApartmentNotFoundException {
 
-        if (!apartmentsRepository.existsById(apartmentId)) {
-            throw new ApartmentNotFoundException("Apartment: " + apartmentId + " not found");
-        }
+        Apartment apartment = apartmentsRepository.findByApartmentSignature(apartmentSignature)
+                .orElseThrow(() -> new ApartmentNotFoundException("Apartment: " + apartmentSignature + " not found"));
 
-        return paymentRepository.findAllByApartmentUuidID(apartmentId).stream()
+        return paymentRepository.findAllByApartmentUuidID(apartment.getUuidID()).stream()
                 .map(payment -> PaymentResponse.builder()
                         .paymentId(payment.getUuidID())
                         .paymentStatus(payment.getPaymentStatus())
