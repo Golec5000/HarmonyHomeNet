@@ -9,6 +9,7 @@ import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.User;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.ApartmentsRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.ProblemReportRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.UserRepository;
+import bwp.hhn.backend.harmonyhomenetlogic.repository.sideTables.PossessionHistoryRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.ProblemReportService;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.ReportStatus;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.ProblemReportRequest;
@@ -18,6 +19,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -29,20 +31,25 @@ public class ProblemReportServiceImp implements ProblemReportService {
     private final ProblemReportRepository problemReportRepository;
     private final UserRepository userRepository;
     private final ApartmentsRepository apartmentsRepository;
+    private final PossessionHistoryRepository possessionHistoryRepository;
 
 
     @Override
     @Transactional
     public ProblemReportResponse createProblemReport(ProblemReportRequest problemReportRequest) throws UserNotFoundException, ApartmentNotFoundException {
 
-        UUID apartmentId = problemReportRequest.getApartmentId();
+        String apartmentSignature = problemReportRequest.getApartmentSignature();
+        Apartment apartment = apartmentsRepository.findByApartmentSignature(apartmentSignature)
+                .orElseThrow(() -> new ApartmentNotFoundException("Apartment not found with id: " + apartmentSignature));
+
         UUID userId = problemReportRequest.getUserId();
+
+        if (!possessionHistoryRepository.existsByUserUuidIDAndApartmentUuidID(userId, apartment.getUuidID())) {
+            throw new UserNotFoundException("User with id: " + userId + " does not have access to apartment with signature: " + apartmentSignature);
+        }
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
-
-        Apartment apartment = apartmentsRepository.findById(apartmentId)
-                .orElseThrow(() -> new ApartmentNotFoundException("Apartment not found with id: " + apartmentId));
 
         ProblemReport newProblemReport = ProblemReport.builder()
                 .note(problemReportRequest.getNote())
@@ -83,6 +90,8 @@ public class ProblemReportServiceImp implements ProblemReportService {
         problemReportToUpdate.setReportStatus(problemReportRequest.getReportStatus() != null ? problemReportRequest.getReportStatus() : problemReportToUpdate.getReportStatus());
         problemReportToUpdate.setCategory(problemReportRequest.getCategory() != null ? problemReportRequest.getCategory() : problemReportToUpdate.getCategory());
 
+        if (ReportStatus.DONE.equals(problemReportRequest.getReportStatus())) problemReportToUpdate.setEndDate(LocalDateTime.now());
+
         ProblemReport updated = problemReportRepository.save(problemReportToUpdate);
 
         return ProblemReportResponse.builder()
@@ -92,6 +101,7 @@ public class ProblemReportServiceImp implements ProblemReportService {
                 .category(updated.getCategory())
                 .userName(updated.getUser().getFirstName() + " " + updated.getUser().getLastName())
                 .apartmentAddress(updated.getApartment().getAddress())
+                .endDate(updated.getEndDate())
                 .build();
 
     }
@@ -119,6 +129,7 @@ public class ProblemReportServiceImp implements ProblemReportService {
                         .category(problemReport.getCategory())
                         .userName(problemReport.getUser().getFirstName() + " " + problemReport.getUser().getLastName())
                         .apartmentAddress(problemReport.getApartment().getAddress())
+                        .endDate(problemReport.getEndDate())
                         .build())
                 .orElseThrow(() -> new ProblemReportNotFoundException("Problem report not found with id: " + problemReportId));
 
@@ -140,6 +151,7 @@ public class ProblemReportServiceImp implements ProblemReportService {
                         .category(problemReport.getCategory())
                         .userName(problemReport.getUser().getFirstName() + " " + problemReport.getUser().getLastName())
                         .apartmentAddress(problemReport.getApartment().getAddress())
+                        .endDate(problemReport.getEndDate())
                         .build())
                 .toList();
 
@@ -161,6 +173,7 @@ public class ProblemReportServiceImp implements ProblemReportService {
                         .category(problemReport.getCategory())
                         .userName(problemReport.getUser().getFirstName() + " " + problemReport.getUser().getLastName())
                         .apartmentAddress(problemReport.getApartment().getAddress())
+                        .endDate(problemReport.getEndDate())
                         .build())
                 .toList();
 
@@ -178,6 +191,7 @@ public class ProblemReportServiceImp implements ProblemReportService {
                         .category(problemReport.getCategory())
                         .userName(problemReport.getUser().getFirstName() + " " + problemReport.getUser().getLastName())
                         .apartmentAddress(problemReport.getApartment().getAddress())
+                        .endDate(problemReport.getEndDate())
                         .build())
                 .toList();
 
@@ -195,6 +209,7 @@ public class ProblemReportServiceImp implements ProblemReportService {
                         .category(problemReport.getCategory())
                         .userName(problemReport.getUser().getFirstName() + " " + problemReport.getUser().getLastName())
                         .apartmentAddress(problemReport.getApartment().getAddress())
+                        .endDate(problemReport.getEndDate())
                         .build())
                 .toList();
 

@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Data
@@ -29,6 +30,7 @@ public class ProblemReportRequest {
     private UUID userId;
 
     @NotEmpty
-    private UUID apartmentId;
+    private String apartmentSignature;
 
+    private LocalDateTime filingDate;
 }

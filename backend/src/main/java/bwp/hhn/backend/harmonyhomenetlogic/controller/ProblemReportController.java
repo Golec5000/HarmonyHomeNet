@@ -19,21 +19,7 @@ public class ProblemReportController {
 
     private final ProblemReportService problemReportService;
 
-    @PostMapping("/create-report")
-    public ResponseEntity<ProblemReportResponse> createProblemReport(@RequestBody ProblemReportRequest problemReportRequest) throws UserNotFoundException, ApartmentNotFoundException {
-        return ResponseEntity.ok(problemReportService.createProblemReport(problemReportRequest));
-    }
-
-    @PutMapping("/update-report/{problemReportId}")
-    public ResponseEntity<ProblemReportResponse> updateProblemReport(@PathVariable Long problemReportId, @RequestBody ProblemReportRequest problemReportRequest) throws ProblemReportNotFoundException {
-        return ResponseEntity.ok(problemReportService.updateProblemReport(problemReportId, problemReportRequest));
-    }
-
-    @DeleteMapping("/delete-report/{problemReportId}")
-    public ResponseEntity<String> deleteProblemReport(@PathVariable Long problemReportId) throws ProblemReportNotFoundException {
-        return ResponseEntity.ok(problemReportService.deleteProblemReport(problemReportId));
-    }
-
+    //GET
     @GetMapping("/get-report-by-id/{problemReportId}")
     public ResponseEntity<ProblemReportResponse> getProblemReportById(@PathVariable Long problemReportId) throws ProblemReportNotFoundException {
         return ResponseEntity.ok(problemReportService.getProblemReportById(problemReportId));
@@ -58,4 +44,23 @@ public class ProblemReportController {
     public ResponseEntity<List<ProblemReportResponse>> getProblemReportsByStatus(@RequestParam ReportStatus status) {
         return ResponseEntity.ok(problemReportService.getProblemReportsByStatus(status));
     }
+
+    //POST
+    @PostMapping("/create-report")
+    public ResponseEntity<ProblemReportResponse> createProblemReport(@RequestBody ProblemReportRequest problemReportRequest) throws UserNotFoundException, ApartmentNotFoundException {
+        return ResponseEntity.ok(problemReportService.createProblemReport(problemReportRequest));
+    }
+
+    //PUT
+    @PutMapping("/update-report/{problemReportId}")
+    public ResponseEntity<ProblemReportResponse> updateProblemReport(@PathVariable Long problemReportId, @RequestBody ProblemReportRequest problemReportRequest) throws ProblemReportNotFoundException {
+        return ResponseEntity.ok(problemReportService.updateProblemReport(problemReportId, problemReportRequest));
+    }
+
+    //DELETE
+    @DeleteMapping("/delete-report/{problemReportId}")
+    public ResponseEntity<String> deleteProblemReport(@PathVariable Long problemReportId) throws ProblemReportNotFoundException {
+        return ResponseEntity.ok(problemReportService.deleteProblemReport(problemReportId));
+    }
+
 }

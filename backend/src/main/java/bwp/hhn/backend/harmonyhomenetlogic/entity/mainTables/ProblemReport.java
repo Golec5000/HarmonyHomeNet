@@ -28,6 +28,7 @@ import java.time.LocalDateTime;
 public class ProblemReport {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID")
     private Long id;
 
@@ -46,12 +47,11 @@ public class ProblemReport {
     @Column(name = "Category", nullable = false)
     private Category category;
 
-    @NotNull
-    @Column(name = "Filing_date")
-    private LocalDateTime filingDate;
+    @Column(name = "End_date")
+    private LocalDateTime endDate;
 
     @CreationTimestamp
-    @Column(name = "Created_at", nullable = false, updatable = false)
+    @Column(name = "Created_at", nullable = false)
     private LocalDateTime createdAt;
 
     @ManyToOne
