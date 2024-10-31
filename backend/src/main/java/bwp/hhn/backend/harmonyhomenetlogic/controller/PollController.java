@@ -2,7 +2,6 @@ package bwp.hhn.backend.harmonyhomenetlogic.controller;
 
 import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.*;
 import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.PollService;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.VoteChoice;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.PollRequest;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.VoteRequest;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.PollResponse;

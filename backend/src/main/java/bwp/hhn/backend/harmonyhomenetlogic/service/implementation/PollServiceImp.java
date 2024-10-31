@@ -174,18 +174,10 @@ public class PollServiceImp implements PollService {
 
     @Override
     public List<VoteResponse> getVotesFromUser(UUID userId) throws UserNotFoundException {
-        return userRepository.findById(userId)
-                .map(
-                        user -> user.getVotes().stream()
-                                .map(
-                                        vote -> VoteResponse.builder()
-                                                .voteChoice(vote.getVoteChoice())
-                                                .createdAt(vote.getCreatedAt())
-                                                .build()
-                                )
-                                .toList()
-                )
-                .orElseThrow(() -> new UserNotFoundException("User: " + userId + " not found"));
+        if (!userRepository.existsById(userId)) {
+            throw new UserNotFoundException("User: " + userId + " not found");
+        }
+        return voteRepository.findVotesByUserId(userId);
     }
 
     @Override
@@ -223,6 +215,7 @@ public class PollServiceImp implements PollService {
                         .orElse(BigDecimal.ZERO))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         poll.setSummary(newSummary);
+        pollRepository.save(poll);
     }
 
 }

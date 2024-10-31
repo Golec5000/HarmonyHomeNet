@@ -12,7 +12,9 @@ import java.util.UUID;
 
 public interface DocumentService {
 
-    DocumentResponse uploadDocument(MultipartFile file, UUID apartmentId, DocumentType documentType) throws IllegalArgumentException, IOException;
+    List<DocumentResponse> getAllDocuments();
+
+    DocumentResponse uploadDocument(MultipartFile file, String apartmentSignature, DocumentType documentType) throws IllegalArgumentException, IOException;
 
 
     List<DocumentResponse> getAllDocumentsByUserId(UUID userId) throws UserNotFoundException;

@@ -4,12 +4,10 @@ import bwp.hhn.backend.harmonyhomenetlogic.entity.sideTables.UserDocumentConnect
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.DocumentType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,6 +22,7 @@ import java.util.UUID;
 public class Document {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "UUID_id")
     private UUID uuidID;
 
@@ -32,10 +31,9 @@ public class Document {
     @Column(name = "Document_name", nullable = false, length = 50)
     private String documentName;
 
-    @NotEmpty
-    @Size(max = 15)
+    @NonNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "Document_type", nullable = false, length = 15)
+    @Column(name = "Document_type", nullable = false)
     private DocumentType documentType;
 
     @Lob

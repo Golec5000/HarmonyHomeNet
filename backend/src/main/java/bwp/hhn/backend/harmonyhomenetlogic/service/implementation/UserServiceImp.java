@@ -2,11 +2,16 @@ package bwp.hhn.backend.harmonyhomenetlogic.service.implementation;
 
 import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.NotificationNotFoundException;
 import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.UserNotFoundException;
+import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.Document;
 import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.NotificationType;
 import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.User;
+import bwp.hhn.backend.harmonyhomenetlogic.entity.sideTables.UserDocumentConnection;
+import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.DocumentRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.NotificationTypeRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.UserRepository;
+import bwp.hhn.backend.harmonyhomenetlogic.repository.sideTables.UserDocumentConnectionRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.UserService;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.DocumentType;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Notification;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Role;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.UserRequest;
@@ -26,6 +31,8 @@ public class UserServiceImp implements UserService {
 
     private final UserRepository userRepository;
     private final NotificationTypeRepository notificationTypeRepository;
+    private final UserDocumentConnectionRepository userDocumentConnectionRepository;
+    private final DocumentRepository documentRepository;
 
     @Override
     public UserResponse creatUser(UserRequest user) {
@@ -39,6 +46,25 @@ public class UserServiceImp implements UserService {
                 .build();
 
         User saved = userRepository.save(userEntity);
+
+        List<Document> documents = documentRepository.findByDocumentTypeNot(DocumentType.PROPERTY_DEED);
+
+        for (Document document : documents) {
+            if (!userDocumentConnectionRepository.existsByDocumentUuidIDAndUserUuidID(document.getUuidID(), userEntity.getUuidID())) {
+                UserDocumentConnection connection = UserDocumentConnection.builder()
+                        .document(document)
+                        .user(userEntity)
+                        .build();
+
+                userDocumentConnectionRepository.save(connection);
+
+                if (userEntity.getUserDocumentConnections() == null) userEntity.setUserDocumentConnections(new ArrayList<>());
+                userEntity.getUserDocumentConnections().add(connection);
+
+                if (document.getUserDocumentConnections() == null) document.setUserDocumentConnections(new ArrayList<>());
+                document.getUserDocumentConnections().add(connection);
+            }
+        }
 
         return UserResponse.builder()
                 .email(saved.getEmail())

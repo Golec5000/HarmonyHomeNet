@@ -215,10 +215,8 @@ public class ApartmentsServiceImp implements ApartmentsService {
 
     @Override
     public List<UserResponse> getCurrentResidents(String apartmentSignature) throws ApartmentNotFoundException {
-        Apartment apartment = apartmentsRepository.findByApartmentSignature(apartmentSignature)
-                .orElseThrow(() -> new ApartmentNotFoundException("Apartment with signature: " + apartmentSignature + " not found"));
 
-        return possessionHistoryRepository.findActiveResidentsByApartment(apartment.getUuidID()).stream()
+        return possessionHistoryRepository.findActiveResidentsByApartment(apartmentSignature).stream()
                 .map(
                         user -> UserResponse.builder()
                                 .firstName(user.getFirstName())

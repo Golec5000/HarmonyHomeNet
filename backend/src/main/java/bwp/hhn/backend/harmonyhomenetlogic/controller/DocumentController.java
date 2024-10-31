@@ -4,6 +4,7 @@ import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.
 import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.UserNotFoundException;
 import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.DocumentService;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.DocumentType;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.request.DocumentDeleteRequest;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.DocumentResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -21,23 +23,24 @@ public class DocumentController {
 
     private final DocumentService documentService;
 
-    @PostMapping("/upload-document")
-    public ResponseEntity<DocumentResponse> uploadDocument(@RequestParam("file") MultipartFile file, @RequestParam UUID apartmentId, @RequestParam DocumentType documentType) throws IllegalArgumentException, IOException {
-        return ResponseEntity.ok(documentService.uploadDocument(file, apartmentId, documentType));
+    //GET
+    @GetMapping("/get-all-documents")
+    public ResponseEntity<List<DocumentResponse>> getAllDocuments() {
+        return ResponseEntity.ok(documentService.getAllDocuments());
     }
 
-    @DeleteMapping("/delete-document/{documentId}")
-    public ResponseEntity<String> deleteDocument(@PathVariable UUID documentId, @RequestParam UUID userId, @RequestParam boolean deleteCompletely) throws DocumentNotFoundException, UserNotFoundException {
-        return ResponseEntity.ok(documentService.deleteDocument(documentId, userId, deleteCompletely));
-    }
-
-    @GetMapping("/get-document-by-id/{documentId}")
-    public ResponseEntity<DocumentResponse> getDocumentById(@PathVariable UUID documentId) throws DocumentNotFoundException {
+    @GetMapping("/get-document-by-id")
+    public ResponseEntity<DocumentResponse> getDocumentById(@RequestParam UUID documentId) throws DocumentNotFoundException {
         return ResponseEntity.ok(documentService.getDocumentById(documentId));
     }
 
-    @GetMapping("/download-document/{documentId}")
-    public ResponseEntity<ByteArrayResource> downloadDocument(@PathVariable UUID documentId) throws DocumentNotFoundException {
+    @GetMapping("/get-all-documents-by-user-id")
+    public ResponseEntity<List<DocumentResponse>> getAllDocumentsByUserId(@RequestParam UUID userId) throws UserNotFoundException {
+        return ResponseEntity.ok(documentService.getAllDocumentsByUserId(userId));
+    }
+
+    @GetMapping("/download-document")
+    public ResponseEntity<ByteArrayResource> downloadDocument(@RequestParam UUID documentId) throws DocumentNotFoundException {
         DocumentResponse documentResponse = documentService.downloadDocument(documentId);
 
         ByteArrayResource resource = new ByteArrayResource(documentResponse.documentDataBase64());
@@ -47,6 +50,18 @@ public class DocumentController {
                 .header("Content-type", "application/octet-stream")
                 .header("Content-disposition", "attachment; filename=\"" + documentResponse.documentName() + "\"")
                 .body(resource);
+    }
+
+    //POST
+    @PostMapping("/upload-document")
+    public ResponseEntity<DocumentResponse> uploadDocument(@RequestPart("file") MultipartFile file, @RequestParam String apartmentSignature, @RequestParam DocumentType documentType) throws IllegalArgumentException, IOException {
+        return ResponseEntity.ok(documentService.uploadDocument(file, apartmentSignature, documentType));
+    }
+
+    //DELETE
+    @DeleteMapping("/delete-document")
+    public ResponseEntity<String> deleteDocument(@RequestBody DocumentDeleteRequest documentDeleteRequest) throws DocumentNotFoundException, UserNotFoundException {
+        return ResponseEntity.ok(documentService.deleteDocument(documentDeleteRequest.getDocumentId(), documentDeleteRequest.getUserId(), documentDeleteRequest.isDeleteCompletely()));
     }
 
 }

@@ -17,4 +17,6 @@ public interface UserDocumentConnectionRepository extends JpaRepository<UserDocu
     Optional<UserDocumentConnection> findByDocumentUuidIDAndUserUuidID(UUID documentId, UUID userId);
 
     List<UserDocumentConnection> findByDocumentUuidID(UUID documentId);
+
+    boolean existsByDocumentUuidIDAndUserUuidID(UUID documentUuid, UUID userUuid);
 }

@@ -8,6 +8,8 @@ spring:
     username: user
     password: admin
     driver-class-name: org.postgresql.Driver
+    hikari:
+      auto-commit: false
   jpa:
     properties:
       hibernate:
