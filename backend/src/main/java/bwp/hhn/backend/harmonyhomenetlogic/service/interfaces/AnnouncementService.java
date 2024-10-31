@@ -30,4 +30,6 @@ public interface AnnouncementService {
 
     String unlinkAnnouncementsFromApartments(Long announcementId, List<String> apartmentSignature) throws AnnouncementNotFoundException;
 
+    List<AnnouncementResponse> getAnnouncementsByApartmentSignature(String apartmentSignature) throws ApartmentNotFoundException;
+
 }
