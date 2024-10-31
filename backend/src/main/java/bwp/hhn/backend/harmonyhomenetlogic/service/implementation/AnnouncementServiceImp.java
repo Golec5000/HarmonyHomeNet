@@ -76,11 +76,6 @@ public class AnnouncementServiceImp implements AnnouncementService {
         Announcement announcement = announcementRepository.findById(announcementId)
                 .orElseThrow(() -> new AnnouncementNotFoundException("Announcement: " + announcementId + " not found"));
 
-        UUID userId = announcementRequest.getUserId();
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User: " + userId + " not found"));
-
         announcement.setTitle(announcementRequest.getTitle());
         announcement.setContent(announcementRequest.getContent());
 
