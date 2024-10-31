@@ -59,7 +59,6 @@ public class Apartment {
 
     @NotNull
     @DecimalMin(value = "0.0", inclusive = false)
-    @Digits(integer = 3, fraction = 2)
     @Column(name = "Apartment_percent_value", nullable = false, precision = 5, scale = 2)
     private BigDecimal apartmentPercentValue;
 

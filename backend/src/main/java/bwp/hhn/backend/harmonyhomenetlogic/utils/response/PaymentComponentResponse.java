@@ -12,7 +12,9 @@ public record PaymentComponentResponse(
         BigDecimal unitPrice,
         BigDecimal specialMultiplier,
         BigDecimal componentAmount,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        LocalDateTime updatedAt,
+        String unit
 
 ) {
 }

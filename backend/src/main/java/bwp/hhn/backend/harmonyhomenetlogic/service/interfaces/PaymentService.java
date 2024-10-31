@@ -25,8 +25,6 @@ public interface PaymentService {
 
     PaymentResponse payPayment(UUID paymentId) throws PaymentNotFoundException, IllegalArgumentException;
 
-    PaymentResponse changePaymentStatus(UUID paymentId, PaymentRequest paymentRequest) throws PaymentNotFoundException;
-
     PaymentResponse addPaymentComponent(UUID paymentId, PaymentComponentRequest paymentComponentRequest) throws PaymentNotFoundException;
 
     PaymentResponse removePaymentComponent(UUID paymentId, Long paymentComponentId) throws PaymentNotFoundException;
