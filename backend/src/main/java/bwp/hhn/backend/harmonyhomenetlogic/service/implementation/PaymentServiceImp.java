@@ -40,15 +40,13 @@ public class PaymentServiceImp implements PaymentService {
     @Transactional
     public PaymentResponse createPayment(PaymentRequest paymentRequest) throws ApartmentNotFoundException {
 
-        UUID apartmentId = paymentRequest.getApartmentId();
-
-        Apartment apartment = apartmentsRepository.findById(apartmentId)
-                .orElseThrow(() -> new ApartmentNotFoundException("Apartment: " + apartmentId + " not found"));
+        Apartment apartment = apartmentsRepository.findByApartmentSignature(paymentRequest.getApartmentSignature())
+                .orElseThrow(() -> new ApartmentNotFoundException("Apartment: " + paymentRequest.getApartmentSignature() + " not found"));
 
         Payment payment = Payment.builder()
-                .paymentStatus(paymentRequest.getPaymentStatus())
                 .paymentDate(paymentRequest.getPaymentDate())
                 .paymentComponents(new ArrayList<>())
+                .paymentStatus(PaymentStatus.UNPAID)
                 .apartment(apartment)
                 .paymentAmount(BigDecimal.ZERO)
                 .build();
@@ -109,13 +107,12 @@ public class PaymentServiceImp implements PaymentService {
     }
 
     @Override
-    public List<PaymentResponse> getPaymentsByApartmentId(UUID apartmentId) throws ApartmentNotFoundException {
+    public List<PaymentResponse> getPaymentsByApartmentSignature(String apartmentSignature) throws ApartmentNotFoundException {
 
-        if (!apartmentsRepository.existsById(apartmentId)) {
-            throw new ApartmentNotFoundException("Apartment: " + apartmentId + " not found");
-        }
+        Apartment apartment = apartmentsRepository.findByApartmentSignature(apartmentSignature)
+                .orElseThrow(() -> new ApartmentNotFoundException("Apartment: " + apartmentSignature + " not found"));
 
-        return paymentRepository.findAllByApartmentUuidID(apartmentId).stream()
+        return paymentRepository.findAllByApartmentUuidID(apartment.getUuidID()).stream()
                 .map(payment -> PaymentResponse.builder()
                         .paymentId(payment.getUuidID())
                         .paymentStatus(payment.getPaymentStatus())
@@ -155,27 +152,6 @@ public class PaymentServiceImp implements PaymentService {
     }
 
     @Override
-    public PaymentResponse changePaymentStatus(UUID paymentId, PaymentRequest paymentRequest) throws PaymentNotFoundException {
-
-        Payment payment = paymentRepository.findById(paymentId)
-                .orElseThrow(() -> new PaymentNotFoundException("Payment: " + paymentId + " not found"));
-
-        payment.setPaymentStatus(paymentRequest.getPaymentStatus() != null ? paymentRequest.getPaymentStatus() : payment.getPaymentStatus());
-
-        Payment saved = paymentRepository.save(payment);
-
-        return PaymentResponse.builder()
-                .paymentId(saved.getUuidID())
-                .paymentStatus(saved.getPaymentStatus())
-                .paymentDate(saved.getPaymentDate())
-                .paymentTime(saved.getPaymentTime())
-                .paymentAmount(saved.getPaymentAmount())
-                .createdAt(saved.getCreatedAt())
-                .build();
-
-    }
-
-    @Override
     @Transactional
     public PaymentResponse addPaymentComponent(UUID paymentId, PaymentComponentRequest paymentComponentRequest) throws PaymentNotFoundException {
 
@@ -194,6 +170,7 @@ public class PaymentServiceImp implements PaymentService {
                 .componentAmount(paymentComponentRequest.getComponentAmount())
                 .unitPrice(paymentComponentRequest.getUnitPrice())
                 .specialMultiplier(specialMultiplier)
+                .unit(paymentComponentRequest.getUnit())
                 .build();
 
         if (payment.getPaymentComponents() == null) payment.setPaymentComponents(new ArrayList<>());
@@ -254,6 +231,7 @@ public class PaymentServiceImp implements PaymentService {
         paymentComponent.setComponentType(paymentComponentRequest.getComponentType() != null ? paymentComponentRequest.getComponentType() : paymentComponent.getComponentType());
         paymentComponent.setComponentAmount(paymentComponentRequest.getComponentAmount() != null ? paymentComponentRequest.getComponentAmount() : paymentComponent.getComponentAmount());
         paymentComponent.setUnitPrice(paymentComponentRequest.getUnitPrice() != null ? paymentComponentRequest.getUnitPrice() : paymentComponent.getUnitPrice());
+        paymentComponent.setUnit(paymentComponentRequest.getUnit() != null ? paymentComponentRequest.getUnit() : paymentComponent.getUnit());
 
 
         BigDecimal specialMultiplier = paymentComponentRequest.getSpecialMultiplier();
@@ -286,7 +264,9 @@ public class PaymentServiceImp implements PaymentService {
                         .componentAmount(paymentComponent.getComponentAmount())
                         .unitPrice(paymentComponent.getUnitPrice())
                         .specialMultiplier(paymentComponent.getSpecialMultiplier())
+                        .updatedAt(paymentComponent.getUpdatedAt())
                         .createdAt(paymentComponent.getCreatedAt())
+                        .unit(paymentComponent.getUnit())
                         .build())
                 .toList();
     }

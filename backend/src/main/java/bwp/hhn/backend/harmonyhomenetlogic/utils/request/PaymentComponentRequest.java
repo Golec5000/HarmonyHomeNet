@@ -23,12 +23,15 @@ public class PaymentComponentRequest {
     @Digits(integer = 8, fraction = 2)
     private BigDecimal unitPrice;
 
-    @DecimalMin(value = "0.0", inclusive = false)
+    @DecimalMin(value = "1.0")
     @Digits(integer = 8, fraction = 2)
     private BigDecimal specialMultiplier;
 
     @DecimalMin(value = "0.0", inclusive = false)
     @Digits(integer = 8, fraction = 2)
     private BigDecimal componentAmount;
+
+    @NotEmpty
+    private String unit;
 
 }

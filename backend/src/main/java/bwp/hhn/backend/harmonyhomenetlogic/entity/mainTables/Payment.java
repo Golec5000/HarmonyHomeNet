@@ -30,6 +30,7 @@ import java.util.UUID;
 public class Payment {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "UUID_id")
     private UUID uuidID;
 
@@ -45,8 +46,7 @@ public class Payment {
     @Column(name = "Payment_time")
     private LocalDateTime paymentTime;
 
-    @DecimalMin(value = "0.0", inclusive = false)
-    @Digits(integer = 8, fraction = 2)
+    @DecimalMin(value = "0.0")
     @Column(name = "Payment_amount", precision = 10, scale = 2)
     private BigDecimal paymentAmount;
 

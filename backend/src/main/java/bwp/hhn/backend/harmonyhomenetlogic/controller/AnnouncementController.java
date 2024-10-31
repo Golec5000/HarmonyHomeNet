@@ -21,21 +21,7 @@ public class AnnouncementController {
 
     private final AnnouncementService announcementService;
 
-    @PostMapping("/create-announcement")
-    public ResponseEntity<AnnouncementResponse> createAnnouncement(@RequestBody AnnouncementRequest request) throws UserNotFoundException {
-        return ResponseEntity.ok(announcementService.createAnnouncement(request));
-    }
-
-    @DeleteMapping("/delete-announcement/{announcementId}")
-    public ResponseEntity<String> deleteAnnouncement(@PathVariable Long announcementId) throws AnnouncementNotFoundException {
-        return ResponseEntity.ok(announcementService.deleteAnnouncement(announcementId));
-    }
-
-    @PutMapping("/update-announcement/{announcementId}")
-    public ResponseEntity<AnnouncementResponse> updateAnnouncement(@PathVariable Long announcementId, @RequestBody AnnouncementRequest request) throws AnnouncementNotFoundException, UserNotFoundException {
-        return ResponseEntity.ok(announcementService.updateAnnouncement(announcementId, request));
-    }
-
+    //GET
     @GetMapping("/get-announcement/{announcementId}")
     public ResponseEntity<AnnouncementResponse> getAnnouncement(@PathVariable Long announcementId) throws AnnouncementNotFoundException {
         return ResponseEntity.ok(announcementService.getAnnouncement(announcementId));
@@ -46,23 +32,46 @@ public class AnnouncementController {
         return ResponseEntity.ok(announcementService.getAllAnnouncements());
     }
 
-    @GetMapping("/get-announcements-by-user/{userId}")
-    public ResponseEntity<List<AnnouncementResponse>> getAnnouncementsByUserId(@PathVariable UUID userId) throws UserNotFoundException {
+    @GetMapping("/get-announcements-by-user")
+    public ResponseEntity<List<AnnouncementResponse>> getAnnouncementsByUserId(@RequestParam UUID userId) throws UserNotFoundException {
         return ResponseEntity.ok(announcementService.getAnnouncementsByUserId(userId));
     }
 
-    @PostMapping("/get-announcement-by-date-range")
+    @GetMapping("/get-announcement-by-date-range")
     public ResponseEntity<List<AnnouncementResponse>> getAnnouncementsFromStartDateToEndDate(@RequestBody DateRequest dateRequest) {
         return ResponseEntity.ok(announcementService.getAnnouncementsFromStartDateTOEndDate(dateRequest));
     }
 
-    @PostMapping("/link-announcement-to-apartments/{announcementId}")
-    public ResponseEntity<String> linkAnnouncementsToApartments(@PathVariable Long announcementId, @RequestBody List<UUID> apartmentIds) throws AnnouncementNotFoundException, ApartmentNotFoundException {
-        return ResponseEntity.ok(announcementService.linkAnnouncementsToApartments(announcementId, apartmentIds));
+    @GetMapping("/get-announcements-by-apartment")
+    public ResponseEntity<List<AnnouncementResponse>> getAnnouncementsByApartmentSignature(@RequestParam String apartmentSignature) throws ApartmentNotFoundException {
+        return ResponseEntity.ok(announcementService.getAnnouncementsByApartmentSignature(apartmentSignature));
     }
 
-    @PostMapping("/unlink-announcement-from-apartments/{announcementId}")
-    public ResponseEntity<String> unlinkAnnouncementsFromApartments(@PathVariable Long announcementId, @RequestBody List<UUID> apartmentIds) throws AnnouncementNotFoundException {
-        return ResponseEntity.ok(announcementService.unlinkAnnouncementsFromApartments(announcementId, apartmentIds));
+    //POST
+    @PostMapping("/create-announcement")
+    public ResponseEntity<AnnouncementResponse> createAnnouncement(@RequestBody AnnouncementRequest request) throws UserNotFoundException {
+        return ResponseEntity.ok(announcementService.createAnnouncement(request));
+    }
+
+    @PostMapping("/link-announcement-to-apartments/{announcementId}")
+    public ResponseEntity<String> linkAnnouncementsToApartments(@PathVariable Long announcementId, @RequestBody List<String> apartmentSignature) throws AnnouncementNotFoundException, ApartmentNotFoundException {
+        return ResponseEntity.ok(announcementService.linkAnnouncementsToApartments(announcementId, apartmentSignature));
+    }
+
+    //PUT
+    @PutMapping("/update-announcement/{announcementId}")
+    public ResponseEntity<AnnouncementResponse> updateAnnouncement(@PathVariable Long announcementId, @RequestBody AnnouncementRequest request) throws AnnouncementNotFoundException, UserNotFoundException {
+        return ResponseEntity.ok(announcementService.updateAnnouncement(announcementId, request));
+    }
+
+    //DELETE
+    @DeleteMapping("/delete-announcement/{announcementId}")
+    public ResponseEntity<String> deleteAnnouncement(@PathVariable Long announcementId) throws AnnouncementNotFoundException {
+        return ResponseEntity.ok(announcementService.deleteAnnouncement(announcementId));
+    }
+
+    @DeleteMapping("/unlink-announcement-from-apartments/{announcementId}")
+    public ResponseEntity<String> unlinkAnnouncementsFromApartments(@PathVariable Long announcementId, @RequestBody List<String> apartmentSignature) throws AnnouncementNotFoundException {
+        return ResponseEntity.ok(announcementService.unlinkAnnouncementsFromApartments(announcementId, apartmentSignature));
     }
 }

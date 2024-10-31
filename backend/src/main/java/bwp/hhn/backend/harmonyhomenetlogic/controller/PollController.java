@@ -2,7 +2,6 @@ package bwp.hhn.backend.harmonyhomenetlogic.controller;
 
 import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.*;
 import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.PollService;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.VoteChoice;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.PollRequest;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.VoteRequest;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.PollResponse;
@@ -75,7 +74,7 @@ public class PollController {
     @PutMapping("/vote")
     public ResponseEntity<VoteResponse> vote(@RequestBody VoteRequest voteRequest)
             throws UserNotFoundException, PollNotFoundException, PossessionHistoryNotFoundException, ApartmentNotFoundException {
-        return ResponseEntity.ok(pollService.vote(voteRequest.getPollId(), voteRequest.getUserId(), voteRequest.getApartmentUUID(), voteRequest.getVoteChoice()));
+        return ResponseEntity.ok(pollService.vote(voteRequest.getPollId(), voteRequest.getUserId(), voteRequest.getApartmentSignature(), voteRequest.getVoteChoice()));
     }
 
     //DELETE

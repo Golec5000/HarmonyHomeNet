@@ -22,7 +22,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-
 @Service
 @RequiredArgsConstructor
 public class ApartmentsServiceImp implements ApartmentsService {
@@ -30,7 +29,6 @@ public class ApartmentsServiceImp implements ApartmentsService {
     private final UserRepository userRepository;
     private final PossessionHistoryRepository possessionHistoryRepository;
     private final ApartmentsRepository apartmentsRepository;
-
 
     @Override
     public ApartmentResponse createApartments(ApartmentRequest request) {
@@ -40,6 +38,7 @@ public class ApartmentsServiceImp implements ApartmentsService {
                 .zipCode(request.getZipCode())
                 .apartmentArea(request.getApartmentArea())
                 .apartmentPercentValue(request.getApartmentPercentValue())
+                .apartmentSignature(request.getApartmentSignature())
                 .build();
 
         Apartment saved = apartmentsRepository.save(apartment);
@@ -52,13 +51,14 @@ public class ApartmentsServiceImp implements ApartmentsService {
                 .apartmentArea(saved.getApartmentArea())
                 .createdAt(saved.getCreatedAt())
                 .updatedAt(saved.getUpdatedAt())
+                .apartmentSignature(saved.getApartmentSignature())
                 .build();
     }
 
     @Override
-    public ApartmentResponse updateApartment(ApartmentRequest request, UUID apartmentId) throws ApartmentNotFoundException {
-        Apartment apartment = apartmentsRepository.findById(apartmentId)
-                .orElseThrow(() -> new ApartmentNotFoundException("Apartment: " + apartmentId + " not found"));
+    public ApartmentResponse updateApartment(ApartmentRequest request, String apartmentSignature) throws ApartmentNotFoundException {
+        Apartment apartment = apartmentsRepository.findByApartmentSignature(apartmentSignature)
+                .orElseThrow(() -> new ApartmentNotFoundException("Apartment with signature: " + apartmentSignature + " not found"));
 
         apartment.setAddress(request.getAddress() != null ? request.getAddress() : apartment.getAddress());
         apartment.setCity(request.getCity() != null ? request.getCity() : apartment.getCity());
@@ -75,23 +75,23 @@ public class ApartmentsServiceImp implements ApartmentsService {
                 .apartmentArea(saved.getApartmentArea())
                 .createdAt(saved.getCreatedAt())
                 .updatedAt(saved.getUpdatedAt())
+                .apartmentSignature(saved.getApartmentSignature())
                 .build();
     }
 
     @Override
-    public String deleteApartment(UUID apartmentId) throws ApartmentNotFoundException {
+    public String deleteApartment(String apartmentSignature) throws ApartmentNotFoundException {
+        Apartment apartment = apartmentsRepository.findByApartmentSignature(apartmentSignature)
+                .orElseThrow(() -> new ApartmentNotFoundException("Apartment with signature: " + apartmentSignature + " not found"));
 
-        if (!apartmentsRepository.existsById(apartmentId))
-            throw new ApartmentNotFoundException("Apartment: " + apartmentId + " not found");
-
-        apartmentsRepository.deleteById(apartmentId);
+        apartmentsRepository.delete(apartment);
 
         return "Apartment deleted successfully";
     }
 
     @Override
-    public ApartmentResponse getApartmentById(UUID apartmentId) throws ApartmentNotFoundException {
-        return apartmentsRepository.findById(apartmentId)
+    public ApartmentResponse getApartmentBySignature(String apartmentSignature) throws ApartmentNotFoundException {
+        return apartmentsRepository.findByApartmentSignature(apartmentSignature)
                 .map(
                         apartment -> ApartmentResponse.builder()
                                 .address(apartment.getAddress())
@@ -100,9 +100,10 @@ public class ApartmentsServiceImp implements ApartmentsService {
                                 .apartmentArea(apartment.getApartmentArea())
                                 .createdAt(apartment.getCreatedAt())
                                 .updatedAt(apartment.getUpdatedAt())
+                                .apartmentSignature(apartment.getApartmentSignature())
                                 .build()
                 )
-                .orElseThrow(() -> new ApartmentNotFoundException("Apartment: " + apartmentId + " not found"));
+                .orElseThrow(() -> new ApartmentNotFoundException("Apartment with signature: " + apartmentSignature + " not found"));
     }
 
     @Override
@@ -116,6 +117,7 @@ public class ApartmentsServiceImp implements ApartmentsService {
                                 .apartmentArea(possessionHistory.getApartment().getApartmentArea())
                                 .createdAt(possessionHistory.getApartment().getCreatedAt())
                                 .updatedAt(possessionHistory.getApartment().getUpdatedAt())
+                                .apartmentSignature(possessionHistory.getApartment().getApartmentSignature())
                                 .build()
                 )
                 .toList();
@@ -133,14 +135,18 @@ public class ApartmentsServiceImp implements ApartmentsService {
                                 .apartmentArea(apartment.getApartmentArea())
                                 .createdAt(apartment.getCreatedAt())
                                 .updatedAt(apartment.getUpdatedAt())
+                                .apartmentSignature(apartment.getApartmentSignature())
                                 .build()
                 )
                 .toList();
     }
 
     @Override
-    public PossessionHistoryResponse getPossessionHistory(UUID apartmentId, UUID userId) throws ApartmentNotFoundException, UserNotFoundException {
-        return possessionHistoryRepository.findByUserUuidIDAndApartmentUuidID(userId, apartmentId)
+    public PossessionHistoryResponse getPossessionHistory(String apartmentSignature, UUID userId) throws ApartmentNotFoundException, UserNotFoundException {
+        Apartment apartment = apartmentsRepository.findByApartmentSignature(apartmentSignature)
+                .orElseThrow(() -> new ApartmentNotFoundException("Apartment with signature: " + apartmentSignature + " not found"));
+
+        return possessionHistoryRepository.findByUserUuidIDAndApartmentUuidID(userId, apartment.getUuidID())
                 .map(
                         possessionHistory -> PossessionHistoryResponse.builder()
                                 .userName(possessionHistory.getUser().getFirstName() + " " + possessionHistory.getUser().getLastName())
@@ -149,20 +155,20 @@ public class ApartmentsServiceImp implements ApartmentsService {
                                 .endDate(possessionHistory.getEndDate())
                                 .build()
                 )
-                .orElseThrow(() -> new ApartmentNotFoundException("Apartment: " + apartmentId + " not found"));
+                .orElseThrow(() -> new ApartmentNotFoundException("Possession history not found for user: " + userId + " and apartment: " + apartmentSignature));
     }
 
     @Override
     @Transactional
-    public PossessionHistoryResponse createPossessionHistory(UUID apartmentId, UUID userId) throws ApartmentNotFoundException, UserNotFoundException {
+    public PossessionHistoryResponse createPossessionHistory(String apartmentSignature, UUID userId) throws ApartmentNotFoundException, UserNotFoundException {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User: " + userId + " not found"));
 
-        Apartment apartment = apartmentsRepository.findById(apartmentId)
-                .orElseThrow(() -> new ApartmentNotFoundException("Apartment: " + apartmentId + " not found"));
+        Apartment apartment = apartmentsRepository.findByApartmentSignature(apartmentSignature)
+                .orElseThrow(() -> new ApartmentNotFoundException("Apartment with signature: " + apartmentSignature + " not found"));
 
-        if (possessionHistoryRepository.existsByUserUuidIDAndApartmentUuidID(userId, apartmentId))
-            throw new ApartmentNotFoundException("User: " + userId + " already has apartment: " + apartmentId);
+        if (possessionHistoryRepository.existsByUserUuidIDAndApartmentUuidID(userId, apartment.getUuidID()))
+            throw new ApartmentNotFoundException("User: " + userId + " already has apartment: " + apartmentSignature);
 
         PossessionHistory possessionHistory = PossessionHistory.builder()
                 .user(user)
@@ -180,7 +186,6 @@ public class ApartmentsServiceImp implements ApartmentsService {
 
     @Override
     public String deletePossessionHistory(Long possessionHistoryId) throws PossessionHistoryNotFoundException {
-
         if (!possessionHistoryRepository.existsById(possessionHistoryId))
             throw new PossessionHistoryNotFoundException("Possession history: " + possessionHistoryId + " not found");
 
@@ -190,9 +195,12 @@ public class ApartmentsServiceImp implements ApartmentsService {
     }
 
     @Override
-    public PossessionHistoryResponse endPossessionHistory(UUID apartmentId, UUID userId) throws ApartmentNotFoundException, UserNotFoundException {
-        PossessionHistory possessionHistory = possessionHistoryRepository.findByUserUuidIDAndApartmentUuidID(userId, apartmentId)
-                .orElseThrow(() -> new ApartmentNotFoundException("User: " + userId + " not found in apartment: " + apartmentId));
+    public PossessionHistoryResponse endPossessionHistory(String apartmentSignature, UUID userId) throws ApartmentNotFoundException, UserNotFoundException {
+        Apartment apartment = apartmentsRepository.findByApartmentSignature(apartmentSignature)
+                .orElseThrow(() -> new ApartmentNotFoundException("Apartment with signature: " + apartmentSignature + " not found"));
+
+        PossessionHistory possessionHistory = possessionHistoryRepository.findByUserUuidIDAndApartmentUuidID(userId, apartment.getUuidID())
+                .orElseThrow(() -> new ApartmentNotFoundException("User: " + userId + " not found in apartment: " + apartmentSignature));
 
         possessionHistory.setEndDate(LocalDateTime.now());
         PossessionHistory saved = possessionHistoryRepository.save(possessionHistory);
@@ -206,8 +214,9 @@ public class ApartmentsServiceImp implements ApartmentsService {
     }
 
     @Override
-    public List<UserResponse> getCurrentResidents(UUID apartmentId) throws ApartmentNotFoundException {
-        return possessionHistoryRepository.findActiveResidentsByApartment(apartmentId).stream()
+    public List<UserResponse> getCurrentResidents(String apartmentSignature) throws ApartmentNotFoundException {
+
+        return possessionHistoryRepository.findActiveResidentsByApartment(apartmentSignature).stream()
                 .map(
                         user -> UserResponse.builder()
                                 .firstName(user.getFirstName())
@@ -219,8 +228,11 @@ public class ApartmentsServiceImp implements ApartmentsService {
     }
 
     @Override
-    public List<PossessionHistoryResponse> getApartmentPossessionHistory(UUID apartmentId) throws ApartmentNotFoundException {
-        return possessionHistoryRepository.findByApartmentUuidID(apartmentId).stream()
+    public List<PossessionHistoryResponse> getApartmentPossessionHistory(String apartmentSignature) throws ApartmentNotFoundException {
+        Apartment apartment = apartmentsRepository.findByApartmentSignature(apartmentSignature)
+                .orElseThrow(() -> new ApartmentNotFoundException("Apartment with signature: " + apartmentSignature + " not found"));
+
+        return possessionHistoryRepository.findByApartmentUuidID(apartment.getUuidID()).stream()
                 .map(
                         possessionHistory -> PossessionHistoryResponse.builder()
                                 .userName(possessionHistory.getUser().getFirstName() + " " + possessionHistory.getUser().getLastName())
@@ -243,14 +255,18 @@ public class ApartmentsServiceImp implements ApartmentsService {
                                 .apartmentArea(possessionHistory.getApartment().getApartmentArea())
                                 .createdAt(possessionHistory.getApartment().getCreatedAt())
                                 .updatedAt(possessionHistory.getApartment().getUpdatedAt())
+                                .apartmentSignature(possessionHistory.getApartment().getApartmentSignature())
                                 .build()
                 )
                 .toList();
     }
 
     @Override
-    public List<UserResponse> getAllResidentsByApartmentId(UUID apartmentId) throws ApartmentNotFoundException {
-        return possessionHistoryRepository.findByApartmentUuidID(apartmentId).stream()
+    public List<UserResponse> getAllResidentsByApartmentId(String apartmentSignature) throws ApartmentNotFoundException {
+        Apartment apartment = apartmentsRepository.findByApartmentSignature(apartmentSignature)
+                .orElseThrow(() -> new ApartmentNotFoundException("Apartment with signature: " + apartmentSignature + " not found"));
+
+        return possessionHistoryRepository.findByApartmentUuidID(apartment.getUuidID()).stream()
                 .map(
                         possessionHistory -> UserResponse.builder()
                                 .firstName(possessionHistory.getUser().getFirstName())
@@ -260,5 +276,4 @@ public class ApartmentsServiceImp implements ApartmentsService {
                 )
                 .toList();
     }
-
 }

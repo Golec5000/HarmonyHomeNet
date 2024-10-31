@@ -22,6 +22,10 @@ public class ApartmentRequest {
     @Size(max = 20)
     private String city;
 
+    @NotNull
+    @Size(min = 1, max = 60)
+    private String apartmentSignature;
+
     @NotEmpty
     @Size(max = 6)
     @Pattern(regexp = "^\\d{2}-\\d{3}$", message = "Invalid zip code format")

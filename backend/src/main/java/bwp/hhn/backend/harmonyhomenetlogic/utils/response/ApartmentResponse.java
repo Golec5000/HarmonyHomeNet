@@ -14,6 +14,7 @@ public record ApartmentResponse(
         String zipCode,
         BigDecimal apartmentArea,
         LocalDateTime createdAt,
-        LocalDateTime updatedAt
+        LocalDateTime updatedAt,
+        String apartmentSignature
 ) {
 }

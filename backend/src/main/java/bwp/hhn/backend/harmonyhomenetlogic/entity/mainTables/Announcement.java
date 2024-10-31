@@ -29,6 +29,7 @@ import java.util.List;
 public class Announcement {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID")
     private Long id;
 
@@ -43,7 +44,7 @@ public class Announcement {
     private String content;
 
     @CreationTimestamp
-    @Column(name = "Created_at", nullable = false, updatable = false)
+    @Column(name = "Created_at", nullable = false)
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
@@ -55,7 +56,8 @@ public class Announcement {
     @JsonBackReference
     private User user;
 
-    @OneToMany(mappedBy = "announcement", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "announcement", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonManagedReference
     private List<AnnouncementApartment> announcementApartments;
+
 }

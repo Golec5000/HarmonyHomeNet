@@ -27,15 +27,28 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class DocumentServiceImp implements DocumentService {
 
-    // @TODO - sprawdzenie czy użytkownik ma uprawnienia do dodawania dokumentów zostanie przeniesiona do @hasRole w dostepie do endpointu
     private final UserDocumentConnectionRepository userDocumentConnectionRepository;
     private final DocumentRepository documentRepository;
     private final UserRepository userRepository;
     private final PossessionHistoryRepository possessionHistoryRepository;
 
     @Override
+    public List<DocumentResponse> getAllDocuments() {
+        return documentRepository.findAll().stream()
+                .map(
+                        document -> DocumentResponse.builder()
+                                .documentId(document.getUuidID())
+                                .documentName(document.getDocumentName())
+                                .documentType(document.getDocumentType())
+                                .createdAt(document.getCreatedAt())
+                                .build()
+                )
+                .toList();
+    }
+
+    @Override
     @Transactional
-    public DocumentResponse uploadDocument(MultipartFile file, UUID apartmentId, DocumentType documentType) throws IllegalArgumentException, IOException {
+    public DocumentResponse uploadDocument(MultipartFile file, String apartmentSignature, DocumentType documentType) throws IllegalArgumentException, IOException {
 
         Document documentEntity = Document.builder()
                 .documentName(file.getName())
@@ -52,10 +65,10 @@ public class DocumentServiceImp implements DocumentService {
             eligibleUsers = userRepository.findAll();
         } else {
             // Dokument prywatny - pobierz mieszkańców apartamentu i pracowników oraz adminów
-            List<User> residents = possessionHistoryRepository.findActiveResidentsByApartment(apartmentId);
+            List<User> residents = possessionHistoryRepository.findActiveResidentsByApartment(apartmentSignature);
 
             if (residents.isEmpty()) {
-                throw new IllegalArgumentException("No residents found in apartment id: " + apartmentId);
+                throw new IllegalArgumentException("No residents found in apartment id: " + apartmentSignature);
             }
 
             List<User> employees = userRepository.findAllByRole(Role.EMPLOYEE);
@@ -67,6 +80,11 @@ public class DocumentServiceImp implements DocumentService {
         // Tworzenie połączeń dokumentu z wybranymi użytkownikami
         List<UserDocumentConnection> connections = new ArrayList<>();
         for (User user : eligibleUsers) {
+            // Sprawdzenie, czy połączenie już istnieje
+            if (userDocumentConnectionRepository.existsByDocumentUuidIDAndUserUuidID(documentEntity.getUuidID(), user.getUuidID())) {
+                continue; // Pomijamy tworzenie połączenia, jeśli już istnieje
+            }
+
             UserDocumentConnection connection = UserDocumentConnection.builder()
                     .document(documentEntity)
                     .user(user)
@@ -99,15 +117,7 @@ public class DocumentServiceImp implements DocumentService {
         if (!userRepository.existsByUuidID(userId))
             throw new UserNotFoundException("User id: " + userId + " not found");
 
-        return userDocumentConnectionRepository.findDocumentsByUserId(userId).stream()
-                .map(
-                        document -> DocumentResponse.builder()
-                                .documentName(document.getDocumentName())
-                                .documentType(document.getDocumentType())
-                                .createdAt(document.getCreatedAt())
-                                .build()
-                )
-                .toList();
+        return documentRepository.findDocumentsByUserId(userId);
     }
 
     @Override

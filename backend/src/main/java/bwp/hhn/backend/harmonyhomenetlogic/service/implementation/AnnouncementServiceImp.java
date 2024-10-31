@@ -17,9 +17,11 @@ import bwp.hhn.backend.harmonyhomenetlogic.utils.request.DateRequest;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.AnnouncementResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -46,12 +48,15 @@ public class AnnouncementServiceImp implements AnnouncementService {
 
         Announcement saved = announcementRepository.save(announcement);
 
+        if (user.getAnnouncements() == null) user.setAnnouncements(new ArrayList<>());
+        user.getAnnouncements().add(saved);
+
         return AnnouncementResponse.builder()
-                .id(announcement.getId())
-                .title(announcement.getTitle())
-                .content(announcement.getContent())
-                .createdAt(announcement.getCreatedAt())
-                .updatedAt(announcement.getUpdatedAt())
+                .id(saved.getId())
+                .title(saved.getTitle())
+                .content(saved.getContent())
+                .createdAt(saved.getCreatedAt())
+                .updatedAt(saved.getUpdatedAt())
                 .build();
 
     }
@@ -70,11 +75,6 @@ public class AnnouncementServiceImp implements AnnouncementService {
 
         Announcement announcement = announcementRepository.findById(announcementId)
                 .orElseThrow(() -> new AnnouncementNotFoundException("Announcement: " + announcementId + " not found"));
-
-        UUID userId = announcementRequest.getUserId();
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User: " + userId + " not found"));
 
         announcement.setTitle(announcementRequest.getTitle());
         announcement.setContent(announcementRequest.getContent());
@@ -154,57 +154,70 @@ public class AnnouncementServiceImp implements AnnouncementService {
                 .toList();
     }
 
+    @Override
     @Transactional
-    public String linkAnnouncementsToApartments(Long announcementId, List<UUID> apartmentIds) throws AnnouncementNotFoundException, ApartmentNotFoundException {
+    public String linkAnnouncementsToApartments(Long announcementId, List<String> apartmentSignatures) throws AnnouncementNotFoundException, ApartmentNotFoundException {
         Announcement announcement = announcementRepository.findById(announcementId)
                 .orElseThrow(() -> new AnnouncementNotFoundException("Announcement: " + announcementId + " not found"));
 
-        List<AnnouncementApartment> newAnnouncementApartments = apartmentIds.stream()
-                .map(apartmentId -> {
-                    Apartment apartment = apartmentsRepository.findById(apartmentId)
-                            .orElseThrow(() -> new ApartmentNotFoundException("Apartment: " + apartmentId + " not found"));
+        // Pobierz istniejące identyfikatory apartamentów
+        Set<UUID> existingApartmentIds = new HashSet<>(announcementApartmentRepository.findApartmentIdsByAnnouncementId(announcementId));
 
+        List<AnnouncementApartment> newAnnouncementApartments = apartmentSignatures.stream()
+                .map(apartmentSignature -> apartmentsRepository.findByApartmentSignature(apartmentSignature)
+                        .orElseThrow(() -> new ApartmentNotFoundException("Apartment: " + apartmentSignature + " not found")))
+                .filter(apartment -> !existingApartmentIds.contains(apartment.getUuidID()))
+                .map(apartment -> {
                     AnnouncementApartment newLink = AnnouncementApartment.builder()
                             .announcement(announcement)
                             .apartment(apartment)
                             .build();
-
-                    if (apartment.getAnnouncementApartments() == null)
-                        apartment.setAnnouncementApartments(new ArrayList<>());
-                    apartment.getAnnouncementApartments().add(newLink);
-
+                    announcement.getAnnouncementApartments().add(newLink);
                     return newLink;
                 })
-                .filter(newLink -> announcement.getAnnouncementApartments() == null || !announcement.getAnnouncementApartments().contains(newLink))
                 .toList();
 
-
-        if (announcement.getAnnouncementApartments() == null) announcement.setAnnouncementApartments(new ArrayList<>());
-        announcement.getAnnouncementApartments().addAll(newAnnouncementApartments);
-
         announcementRepository.save(announcement);
-
-        announcementApartmentRepository.saveAll(newAnnouncementApartments);
 
         return "Linked " + newAnnouncementApartments.size() + " apartments to announcement: " + announcementId;
     }
 
+
+
     @Override
     @Transactional
-    public String unlinkAnnouncementsFromApartments(Long announcementId, List<UUID> apartmentIds) throws AnnouncementNotFoundException {
-        Announcement announcement = announcementRepository.findById(announcementId)
+    public String unlinkAnnouncementsFromApartments(Long announcementId, List<String> apartmentSignature) throws AnnouncementNotFoundException {
+
+        Announcement announcement = announcementRepository.findByIdWithApartments(announcementId)
                 .orElseThrow(() -> new AnnouncementNotFoundException("Announcement: " + announcementId + " not found"));
 
         List<AnnouncementApartment> announcementApartmentsToRemove = announcement.getAnnouncementApartments().stream()
-                .filter(announcementApartment -> apartmentIds.contains(announcementApartment.getApartment().getUuidID()))
+                .filter(announcementApartment -> apartmentSignature.contains(announcementApartment.getApartment().getApartmentSignature()))
                 .toList();
 
-        announcement.getAnnouncementApartments().removeAll(announcementApartmentsToRemove);
+        for (AnnouncementApartment aa : announcementApartmentsToRemove) {
+            aa.removeAssociation();
+        }
 
+        // Zapisz ogłoszenie po usunięciu powiązań
         announcementRepository.save(announcement);
-        announcementApartmentRepository.deleteAll(announcementApartmentsToRemove);
 
         return "Unlinked " + announcementApartmentsToRemove.size() + " apartments from announcement: " + announcementId;
+    }
+
+
+    @Override
+    public List<AnnouncementResponse> getAnnouncementsByApartmentSignature(String apartmentSignature) throws ApartmentNotFoundException {
+
+        return announcementApartmentRepository.findByApartmentSignature(apartmentSignature).stream()
+                .map(announcementApartment -> AnnouncementResponse.builder()
+                        .id(announcementApartment.getAnnouncement().getId())
+                        .title(announcementApartment.getAnnouncement().getTitle())
+                        .content(announcementApartment.getAnnouncement().getContent())
+                        .createdAt(announcementApartment.getAnnouncement().getCreatedAt())
+                        .updatedAt(announcementApartment.getAnnouncement().getUpdatedAt())
+                        .build())
+                .toList();
     }
 
 }

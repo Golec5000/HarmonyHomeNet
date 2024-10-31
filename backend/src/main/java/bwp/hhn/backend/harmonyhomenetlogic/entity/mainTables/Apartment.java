@@ -17,10 +17,12 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 @Builder
 @Entity
 @Table(name = "Apartments", indexes = {
-        @Index(name = "idx_apartments_address", columnList = "Address")
+        @Index(name = "idx_apartment_unq", columnList = "Apartment_signature", unique = true)
 })
 public class Apartment {
 
@@ -28,6 +30,11 @@ public class Apartment {
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "UUID_id")
     private UUID uuidID;
+
+    @NotNull
+    @Size(min = 1, max = 60)
+    @Column(name = "Apartment_signature", nullable = false, unique = true, length = 60)
+    private String apartmentSignature;
 
     @NotEmpty
     @Size(max = 50)
@@ -52,7 +59,6 @@ public class Apartment {
 
     @NotNull
     @DecimalMin(value = "0.0", inclusive = false)
-    @Digits(integer = 3, fraction = 2)
     @Column(name = "Apartment_percent_value", nullable = false, precision = 5, scale = 2)
     private BigDecimal apartmentPercentValue;
 

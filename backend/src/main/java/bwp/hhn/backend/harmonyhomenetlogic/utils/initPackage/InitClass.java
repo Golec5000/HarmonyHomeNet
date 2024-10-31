@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Optional;
 import java.util.Random;
 
 @Component
@@ -24,61 +25,42 @@ public class InitClass {
     public void init() {
         System.out.println("Init class");
 
-        User user1 = User.builder()
-                .firstName("John")
-                .lastName("Doe")
-                .email("john.doe@example.com")
-                .password("password123")
-                .phoneNumber("123456789")
-                .role(Role.ADMIN)
-                .build();
-        userRepository.save(user1);
+        createUserIfNotExists("John", "Doe", "john.doe@example.com", "password123", "123456789", Role.ADMIN);
+        createUserIfNotExists("Jane", "Smith", "jane.smith@example.com", "password123", "987654321", Role.USER);
+        createUserIfNotExists("Alice", "Johnson", "alice.johnson@example.com", "password123", "555555555", Role.USER);
 
-        User user2 = User.builder()
-                .firstName("Jane")
-                .lastName("Smith")
-                .email("jane.smith@example.com")
-                .password("password123")
-                .phoneNumber("987654321")
-                .role(Role.USER)
-                .build();
-        userRepository.save(user2);
+        createApartment("Balonowa 5/10", "Kraków", "30-000", "SIG001");
+        createApartment("Zakopiańska 12/100", "Kraków", "00-000", "SIG002");
+        createApartment("Kwiatowa 1/1", "Kraków", "80-000", "SIG003");
+    }
 
-        User user3 = User.builder()
-                .firstName("Alice")
-                .lastName("Johnson")
-                .email("alice.johnson@example.com")
-                .password("password123")
-                .phoneNumber("555555555")
-                .role(Role.USER)
-                .build();
-        userRepository.save(user3);
+    private void createUserIfNotExists(String firstName, String lastName, String email, String password, String phoneNumber, Role role) {
+        Optional<User> existingUser = userRepository.findByEmail(email);
+        if (existingUser.isEmpty()) {
+            User user = User.builder()
+                    .firstName(firstName)
+                    .lastName(lastName)
+                    .email(email)
+                    .password(password)
+                    .phoneNumber(phoneNumber)
+                    .role(role)
+                    .build();
+            userRepository.save(user);
+        }
+    }
 
-        Apartment apartment1 = Apartment.builder()
-                .address("Balonowa 5/10")
-                .city("Kraków")
-                .zipCode("30-000")
-                .apartmentArea(BigDecimal.valueOf(new Random().nextDouble() * 100).setScale(2, RoundingMode.HALF_UP))
-                .apartmentPercentValue(BigDecimal.valueOf(50.00))
-                .build();
-        apartmentsRepository.save(apartment1);
-
-        Apartment apartment2 = Apartment.builder()
-                .address("Zakopiańska 12/100")
-                .city("Kraków")
-                .zipCode("00-000")
-                .apartmentArea(BigDecimal.valueOf(new Random().nextDouble() * 100).setScale(2, RoundingMode.HALF_UP))
-                .apartmentPercentValue(BigDecimal.valueOf(50.00))
-                .build();
-        apartmentsRepository.save(apartment2);
-
-        Apartment apartment3 = Apartment.builder()
-                .address("Kwiatowa 1/1")
-                .city("Kraków")
-                .zipCode("80-000")
-                .apartmentArea(BigDecimal.valueOf(new Random().nextDouble() * 100).setScale(2, RoundingMode.HALF_UP))
-                .apartmentPercentValue(BigDecimal.valueOf(50.00))
-                .build();
-        apartmentsRepository.save(apartment3);
+    private void createApartment(String address, String city, String zipCode, String signature) {
+        Optional<Apartment> existingApartments = apartmentsRepository.findByApartmentSignature(signature);
+        if (existingApartments.isEmpty()) {
+            Apartment apartment = Apartment.builder()
+                    .address(address)
+                    .city(city)
+                    .zipCode(zipCode)
+                    .apartmentArea(BigDecimal.valueOf(new Random().nextDouble() * 100).setScale(2, RoundingMode.HALF_UP))
+                    .apartmentPercentValue(BigDecimal.valueOf(50.00))
+                    .apartmentSignature(signature)
+                    .build();
+            apartmentsRepository.save(apartment);
+        }
     }
 }

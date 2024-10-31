@@ -38,8 +38,8 @@ public class Vote {
     @Column(name = "Created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "Apartment_UUID")
-    private UUID apartmentUUID;
+    @Column(name = "Apartment_signature")
+    private String apartmentSignature;
 
     @ManyToOne
     @JoinColumn(name = "poll_id", referencedColumnName = "UUID_id")

@@ -15,30 +15,30 @@ public interface ApartmentsService {
 
     ApartmentResponse createApartments(ApartmentRequest request);
 
-    ApartmentResponse updateApartment(ApartmentRequest request, UUID apartmentId) throws ApartmentNotFoundException;
+    ApartmentResponse updateApartment(ApartmentRequest request, String apartmentSignature) throws ApartmentNotFoundException;
 
-    String deleteApartment(UUID apartmentId) throws ApartmentNotFoundException;
+    String deleteApartment(String apartmentSignature) throws ApartmentNotFoundException;
 
-    ApartmentResponse getApartmentById(UUID apartmentId) throws ApartmentNotFoundException;
+    ApartmentResponse getApartmentBySignature(String apartmentSignature) throws ApartmentNotFoundException;
 
     List<ApartmentResponse> getCurrentApartmentsByUserId(UUID userId) throws ApartmentNotFoundException, UserNotFoundException;
 
     List<ApartmentResponse> getAllApartments();
 
-    PossessionHistoryResponse getPossessionHistory(UUID apartmentId, UUID userId) throws ApartmentNotFoundException, UserNotFoundException;
+    PossessionHistoryResponse getPossessionHistory(String apartmentSignature, UUID userId) throws ApartmentNotFoundException, UserNotFoundException;
 
-    PossessionHistoryResponse createPossessionHistory(UUID apartmentId, UUID userId) throws ApartmentNotFoundException, UserNotFoundException;
+    PossessionHistoryResponse createPossessionHistory(String apartmentSignature, UUID userId) throws ApartmentNotFoundException, UserNotFoundException;
 
     String deletePossessionHistory(Long possessionHistoryId) throws PossessionHistoryNotFoundException;
 
-    PossessionHistoryResponse endPossessionHistory(UUID apartmentId, UUID userId) throws ApartmentNotFoundException, UserNotFoundException;
+    PossessionHistoryResponse endPossessionHistory(String apartmentSignature, UUID userId) throws ApartmentNotFoundException, UserNotFoundException;
 
-    List<UserResponse> getCurrentResidents(UUID apartmentId) throws ApartmentNotFoundException;
+    List<UserResponse> getCurrentResidents(String apartmentSignature) throws ApartmentNotFoundException;
 
-    List<PossessionHistoryResponse> getApartmentPossessionHistory(UUID apartmentId) throws ApartmentNotFoundException;
+    List<PossessionHistoryResponse> getApartmentPossessionHistory(String apartmentSignature) throws ApartmentNotFoundException;
 
     List<ApartmentResponse> getAllUserApartments(UUID userId) throws UserNotFoundException;
 
-    List<UserResponse> getAllResidentsByApartmentId(UUID apartmentId) throws ApartmentNotFoundException;
+    List<UserResponse> getAllResidentsByApartmentId(String apartmentSignature) throws ApartmentNotFoundException;
 
 }

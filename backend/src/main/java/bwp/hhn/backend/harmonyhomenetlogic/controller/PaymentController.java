@@ -22,19 +22,10 @@ public class PaymentController {
 
     private final PaymentService paymentService;
 
-    @PostMapping("/create-payment")
-    public ResponseEntity<PaymentResponse> createPayment(@RequestBody PaymentRequest paymentRequest) throws ApartmentNotFoundException {
-        return ResponseEntity.ok(paymentService.createPayment(paymentRequest));
-    }
-
-    @GetMapping("/get-payment/{paymentId}")
-    public ResponseEntity<PaymentResponse> getPaymentById(@PathVariable UUID paymentId) throws PaymentNotFoundException {
+    //GET
+    @GetMapping("/get-payment")
+    public ResponseEntity<PaymentResponse> getPaymentById(@RequestParam UUID paymentId) throws PaymentNotFoundException {
         return ResponseEntity.ok(paymentService.getPaymentById(paymentId));
-    }
-
-    @DeleteMapping("/delete-payment/{paymentId}")
-    public ResponseEntity<String> deletePaymentById(@PathVariable UUID paymentId) throws PaymentNotFoundException {
-        return ResponseEntity.ok(paymentService.deletePaymentById(paymentId));
     }
 
     @GetMapping("/get-all-payments")
@@ -42,38 +33,47 @@ public class PaymentController {
         return ResponseEntity.ok(paymentService.getAllPayments());
     }
 
-    @GetMapping("/get-payment-by-apartment/{apartmentId}")
-    public ResponseEntity<List<PaymentResponse>> getPaymentsByApartmentId(@PathVariable UUID apartmentId) throws ApartmentNotFoundException {
-        return ResponseEntity.ok(paymentService.getPaymentsByApartmentId(apartmentId));
+    @GetMapping("/get-payment-by-apartment")
+    public ResponseEntity<List<PaymentResponse>> getPaymentsByApartmentId(@RequestParam String apartmentSignature) throws ApartmentNotFoundException {
+        return ResponseEntity.ok(paymentService.getPaymentsByApartmentSignature(apartmentSignature));
     }
 
-    @PostMapping("/pay/{paymentId}")
-    public ResponseEntity<PaymentResponse> payPayment(@PathVariable UUID paymentId) throws PaymentNotFoundException, IllegalArgumentException {
+    @GetMapping("/get-payment-components")
+    public ResponseEntity<List<PaymentComponentResponse>> getPaymentComponents(@RequestParam UUID paymentId) throws PaymentNotFoundException {
+        return ResponseEntity.ok(paymentService.getPaymentComponents(paymentId));
+    }
+
+    //POST
+    @PostMapping("/pay")
+    public ResponseEntity<PaymentResponse> payPayment(@RequestParam UUID paymentId) throws PaymentNotFoundException, IllegalArgumentException {
         return ResponseEntity.ok(paymentService.payPayment(paymentId));
     }
 
-    @PutMapping("/change-payment-status/{paymentId}")
-    public ResponseEntity<PaymentResponse> changePaymentStatus(@PathVariable UUID paymentId, @RequestBody PaymentRequest paymentRequest) throws PaymentNotFoundException {
-        return ResponseEntity.ok(paymentService.changePaymentStatus(paymentId, paymentRequest));
-    }
-
-    @PostMapping("/add-component-to-payment/{paymentId}")
-    public ResponseEntity<PaymentResponse> addPaymentComponent(@PathVariable UUID paymentId, @RequestBody PaymentComponentRequest paymentComponentRequest) throws PaymentNotFoundException {
+    @PostMapping("/add-component-to-payment")
+    public ResponseEntity<PaymentResponse> addPaymentComponent(@RequestParam UUID paymentId, @RequestBody PaymentComponentRequest paymentComponentRequest) throws PaymentNotFoundException {
         return ResponseEntity.ok(paymentService.addPaymentComponent(paymentId, paymentComponentRequest));
     }
 
-    @DeleteMapping("/remove-component-from-payment/{paymentId}/{paymentComponentId}")
-    public ResponseEntity<PaymentResponse> removePaymentComponent(@PathVariable UUID paymentId, @PathVariable Long paymentComponentId) throws PaymentNotFoundException {
+    @PostMapping("/create-payment")
+    public ResponseEntity<PaymentResponse> createPayment(@RequestBody PaymentRequest paymentRequest) throws ApartmentNotFoundException {
+        return ResponseEntity.ok(paymentService.createPayment(paymentRequest));
+    }
+
+    //PUT
+    @PutMapping("/remove-component-from-payment/{paymentComponentId}")
+    public ResponseEntity<PaymentResponse> removePaymentComponent(@RequestParam UUID paymentId, @PathVariable Long paymentComponentId) throws PaymentNotFoundException {
         return ResponseEntity.ok(paymentService.removePaymentComponent(paymentId, paymentComponentId));
     }
 
-    @PutMapping("/update-payment-component/{paymentId}/{paymentComponentId}")
-    public ResponseEntity<PaymentResponse> updatePaymentComponent(@PathVariable UUID paymentId, @PathVariable Long paymentComponentId, @RequestBody PaymentComponentRequest paymentComponentRequest) throws PaymentNotFoundException, PaymentComponentNotFoundException {
+    @PutMapping("/update-payment-component/{paymentComponentId}")
+    public ResponseEntity<PaymentResponse> updatePaymentComponent(@RequestParam UUID paymentId, @PathVariable Long paymentComponentId, @RequestBody PaymentComponentRequest paymentComponentRequest) throws PaymentNotFoundException, PaymentComponentNotFoundException {
         return ResponseEntity.ok(paymentService.updatePaymentComponent(paymentId, paymentComponentId, paymentComponentRequest));
     }
 
-    @GetMapping("/get-payment-components/{paymentId}")
-    public ResponseEntity<List<PaymentComponentResponse>> getPaymentComponents(@PathVariable UUID paymentId) throws PaymentNotFoundException {
-        return ResponseEntity.ok(paymentService.getPaymentComponents(paymentId));
+    //DELETE
+    @DeleteMapping("/delete-payment")
+    public ResponseEntity<String> deletePaymentById(@RequestParam UUID paymentId) throws PaymentNotFoundException {
+        return ResponseEntity.ok(paymentService.deletePaymentById(paymentId));
     }
+
 }

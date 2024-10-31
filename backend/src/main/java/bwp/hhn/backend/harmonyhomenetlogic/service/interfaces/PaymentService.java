@@ -21,11 +21,9 @@ public interface PaymentService {
 
     List<PaymentResponse> getAllPayments();
 
-    List<PaymentResponse> getPaymentsByApartmentId(UUID apartmentId) throws ApartmentNotFoundException;
+    List<PaymentResponse> getPaymentsByApartmentSignature(String apartmentSignature) throws ApartmentNotFoundException;
 
     PaymentResponse payPayment(UUID paymentId) throws PaymentNotFoundException, IllegalArgumentException;
-
-    PaymentResponse changePaymentStatus(UUID paymentId, PaymentRequest paymentRequest) throws PaymentNotFoundException;
 
     PaymentResponse addPaymentComponent(UUID paymentId, PaymentComponentRequest paymentComponentRequest) throws PaymentNotFoundException;
 
