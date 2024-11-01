@@ -15,6 +15,7 @@ public record PaymentResponse(
         LocalDateTime paymentDate,
         LocalDateTime paymentTime,
         BigDecimal paymentAmount,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        String description
 ) {
 }

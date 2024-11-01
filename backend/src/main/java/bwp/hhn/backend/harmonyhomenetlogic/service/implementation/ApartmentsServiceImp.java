@@ -9,7 +9,9 @@ import bwp.hhn.backend.harmonyhomenetlogic.entity.sideTables.PossessionHistory;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.ApartmentsRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.UserRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.sideTables.PossessionHistoryRepository;
+import bwp.hhn.backend.harmonyhomenetlogic.service.adapters.SmsService;
 import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.ApartmentsService;
+import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.MailService;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.ApartmentRequest;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.ApartmentResponse;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.PossessionHistoryResponse;
@@ -29,6 +31,8 @@ public class ApartmentsServiceImp implements ApartmentsService {
     private final UserRepository userRepository;
     private final PossessionHistoryRepository possessionHistoryRepository;
     private final ApartmentsRepository apartmentsRepository;
+    private final MailService mailService;
+    private final SmsService smsService;
 
     @Override
     public ApartmentResponse createApartments(ApartmentRequest request) {
@@ -161,28 +165,59 @@ public class ApartmentsServiceImp implements ApartmentsService {
     @Override
     @Transactional
     public PossessionHistoryResponse createPossessionHistory(String apartmentSignature, UUID userId) throws ApartmentNotFoundException, UserNotFoundException {
+        // Pobranie użytkownika
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User: " + userId + " not found"));
 
+        // Pobranie mieszkania na podstawie sygnatury
         Apartment apartment = apartmentsRepository.findByApartmentSignature(apartmentSignature)
                 .orElseThrow(() -> new ApartmentNotFoundException("Apartment with signature: " + apartmentSignature + " not found"));
 
-        if (possessionHistoryRepository.existsByUserUuidIDAndApartmentUuidID(userId, apartment.getUuidID()))
+        // Sprawdzenie, czy użytkownik już jest właścicielem tego mieszkania
+        if (possessionHistoryRepository.existsByUserUuidIDAndApartmentUuidID(userId, apartment.getUuidID())) {
             throw new ApartmentNotFoundException("User: " + userId + " already has apartment: " + apartmentSignature);
+        }
 
+        // Utworzenie nowego rekordu w historii posiadania
         PossessionHistory possessionHistory = PossessionHistory.builder()
                 .user(user)
                 .apartment(apartment)
                 .build();
 
+        // Zapis rekordu w repozytorium
         PossessionHistory saved = possessionHistoryRepository.save(possessionHistory);
 
+        // Wysyłanie powiadomienia do użytkownika o nowym przypisaniu mieszkania
+        if (user.getNotificationTypes() != null) {
+            user.getNotificationTypes().forEach(notificationType -> {
+                switch (notificationType.getType()) {
+                    case EMAIL:
+                        mailService.sendNotificationMail(
+                                "Aktualizacja własności",
+                                "Gratulacje! Zostałeś przypisany jako właściciel mieszkania znajdującego się pod adresem: " + apartment.getAddress(),
+                                user.getEmail()
+                        );
+                        break;
+                    case SMS:
+                        smsService.sendSms(
+                                "Gratulacje! Zostałeś przypisany jako właściciel mieszkania znajdującego się pod adresem: " + apartment.getAddress(),
+                                user.getPhoneNumber()
+                        );
+                        break;
+                    default:
+                        throw new IllegalStateException("Unexpected value: " + notificationType.getType());
+                }
+            });
+        }
+
+        // Zwracanie odpowiedzi z informacjami o przypisaniu mieszkania
         return PossessionHistoryResponse.builder()
                 .userName(saved.getUser().getFirstName() + " " + saved.getUser().getLastName())
                 .apartmentName(saved.getApartment().getAddress())
                 .startDate(saved.getStartDate())
                 .build();
     }
+
 
     @Override
     public String deletePossessionHistory(Long possessionHistoryId) throws PossessionHistoryNotFoundException {

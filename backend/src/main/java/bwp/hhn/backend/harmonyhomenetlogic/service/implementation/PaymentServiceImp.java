@@ -9,6 +9,7 @@ import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.PaymentComponent;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.ApartmentsRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.PaymentComponentRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.PaymentRepository;
+import bwp.hhn.backend.harmonyhomenetlogic.service.adapters.BankingService;
 import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.PaymentService;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.PaymentStatus;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.PaymentComponentRequest;
@@ -33,8 +34,7 @@ public class PaymentServiceImp implements PaymentService {
     private final PaymentRepository paymentRepository;
     private final ApartmentsRepository apartmentsRepository;
     private final PaymentComponentRepository paymentComponentRepository;
-
-    private static final Logger LOGGER = Logger.getLogger(PaymentServiceImp.class.getName());
+    private final BankingService bankingService;
 
     @Override
     @Transactional
@@ -44,10 +44,10 @@ public class PaymentServiceImp implements PaymentService {
                 .orElseThrow(() -> new ApartmentNotFoundException("Apartment: " + paymentRequest.getApartmentSignature() + " not found"));
 
         Payment payment = Payment.builder()
-                .paymentDate(paymentRequest.getPaymentDate())
                 .paymentComponents(new ArrayList<>())
                 .paymentStatus(PaymentStatus.UNPAID)
                 .apartment(apartment)
+                .description(paymentRequest.getDescription())
                 .paymentAmount(BigDecimal.ZERO)
                 .build();
 
@@ -64,6 +64,7 @@ public class PaymentServiceImp implements PaymentService {
                 .paymentTime(saved.getPaymentTime())
                 .paymentAmount(saved.getPaymentAmount())
                 .createdAt(saved.getCreatedAt())
+                .description(saved.getDescription())
                 .build();
     }
 
@@ -77,6 +78,7 @@ public class PaymentServiceImp implements PaymentService {
                         .paymentTime(payment.getPaymentTime())
                         .paymentAmount(payment.getPaymentAmount())
                         .createdAt(payment.getCreatedAt())
+                        .description(payment.getDescription())
                         .build())
                 .orElseThrow(() -> new PaymentNotFoundException("Payment: " + paymentId + " not found"));
     }
@@ -102,6 +104,7 @@ public class PaymentServiceImp implements PaymentService {
                         .paymentTime(payment.getPaymentTime())
                         .paymentAmount(payment.getPaymentAmount())
                         .createdAt(payment.getCreatedAt())
+                        .description(payment.getDescription())
                         .build())
                 .toList();
     }
@@ -120,6 +123,7 @@ public class PaymentServiceImp implements PaymentService {
                         .paymentTime(payment.getPaymentTime())
                         .paymentAmount(payment.getPaymentAmount())
                         .createdAt(payment.getCreatedAt())
+                        .description(payment.getDescription())
                         .build())
                 .toList();
 
@@ -139,7 +143,7 @@ public class PaymentServiceImp implements PaymentService {
 
         Payment saved = paymentRepository.save(payment);
 
-        LOGGER.info("Payment: " + paymentId + " paid with amount: " + saved.getPaymentAmount());
+        bankingService.pay(payment.getPaymentAmount());
 
         return PaymentResponse.builder()
                 .paymentId(saved.getUuidID())
@@ -148,6 +152,7 @@ public class PaymentServiceImp implements PaymentService {
                 .paymentTime(saved.getPaymentTime())
                 .paymentAmount(saved.getPaymentAmount())
                 .createdAt(saved.getCreatedAt())
+                .description(saved.getDescription())
                 .build();
     }
 
@@ -188,6 +193,7 @@ public class PaymentServiceImp implements PaymentService {
                 .paymentTime(saved.getPaymentTime())
                 .paymentAmount(saved.getPaymentAmount())
                 .createdAt(saved.getCreatedAt())
+                .description(saved.getDescription())
                 .build();
     }
 
@@ -215,6 +221,7 @@ public class PaymentServiceImp implements PaymentService {
                 .paymentTime(saved.getPaymentTime())
                 .paymentAmount(saved.getPaymentAmount())
                 .createdAt(saved.getCreatedAt())
+                .description(saved.getDescription())
                 .build();
     }
 
@@ -252,6 +259,7 @@ public class PaymentServiceImp implements PaymentService {
                 .paymentTime(saved.getPaymentTime())
                 .paymentAmount(saved.getPaymentAmount())
                 .createdAt(saved.getCreatedAt())
+                .description(saved.getDescription())
                 .build();
     }
 

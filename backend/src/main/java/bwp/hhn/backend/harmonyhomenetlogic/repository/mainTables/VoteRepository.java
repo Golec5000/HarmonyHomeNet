@@ -9,10 +9,11 @@ import java.util.List;
 import java.util.UUID;
 
 public interface VoteRepository extends JpaRepository<Vote, Long> {
-    boolean existsByPollUuidIDAndUserUuidIDAndApartmentSignature(UUID pollId, UUID userId, String apartmentSignature);
     boolean existsById(Long voteId);
 
     @Query("SELECT new bwp.hhn.backend.harmonyhomenetlogic.utils.response.VoteResponse(v.id, v.voteChoice, v.createdAt) " +
             "FROM Vote v WHERE v.user.uuidID = :userId")
     List<VoteResponse> findVotesByUserId(UUID userId);
+
+    boolean existsByPollUuidIDAndApartmentSignature(UUID pollId, String apartmentSignature);
 }

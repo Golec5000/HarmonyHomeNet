@@ -4,9 +4,7 @@ import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.User;
 import bwp.hhn.backend.harmonyhomenetlogic.entity.sideTables.PossessionHistory;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -26,4 +24,8 @@ public interface PossessionHistoryRepository extends JpaRepository<PossessionHis
 
     List<PossessionHistory> findByUserUuidIDAndEndDateIsNull(UUID userId);
 
+    @Query("SELECT DISTINCT ph.user FROM PossessionHistory ph")
+    List<User> findAllUniqueOwners();
+
+    String findApartmentSignatureByUserUuidID(UUID userId);
 }

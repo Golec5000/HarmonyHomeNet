@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -34,13 +35,17 @@ public class Payment {
     @Column(name = "UUID_id")
     private UUID uuidID;
 
+    @NotEmpty
+    @Column(name = "Description", nullable = false)
+    private String description;
+
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "Payment_status", nullable = false, length = 8)
     private PaymentStatus paymentStatus;
 
     @NotNull
-    @Column(name = "Payment_date", nullable = false)
+    @Column(name = "Payment_date")
     private LocalDateTime paymentDate;
 
     @Column(name = "Payment_time")
@@ -62,4 +67,9 @@ public class Payment {
     @OneToMany(mappedBy = "payment", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<PaymentComponent> paymentComponents;
+
+    @PrePersist
+    public void prePersist() {
+        this.setPaymentDate(LocalDateTime.now().plusMonths(1));
+    }
 }

@@ -184,6 +184,23 @@ public class UserServiceImp implements UserService {
 
         if (userEntity.getNotificationTypes() == null) userEntity.setNotificationTypes(new ArrayList<>());
 
+        // Check if the user has the required information for the notification type
+        switch (notification) {
+            case EMAIL:
+                if (userEntity.getEmail() == null || userEntity.getEmail().isEmpty()) {
+                    throw new IllegalArgumentException("User does not have an email address.");
+                }
+                break;
+            case SMS:
+                if (userEntity.getPhoneNumber() == null || userEntity.getPhoneNumber().isEmpty()) {
+                    throw new IllegalArgumentException("User does not have a phone number.");
+                }
+                break;
+            // Add other notification types and their required checks here
+            default:
+                throw new IllegalArgumentException("Unsupported notification type: " + notification);
+        }
+
         NotificationType notificationType = NotificationType.builder()
                 .type(notification)
                 .user(userEntity)

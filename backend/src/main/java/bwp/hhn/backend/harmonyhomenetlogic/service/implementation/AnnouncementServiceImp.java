@@ -4,24 +4,24 @@ import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.
 import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.ApartmentNotFoundException;
 import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.UserNotFoundException;
 import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.Announcement;
-import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.Apartment;
 import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.User;
 import bwp.hhn.backend.harmonyhomenetlogic.entity.sideTables.AnnouncementApartment;
+import bwp.hhn.backend.harmonyhomenetlogic.entity.sideTables.PossessionHistory;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.AnnouncementRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.ApartmentsRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.UserRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.sideTables.AnnouncementApartmentRepository;
+import bwp.hhn.backend.harmonyhomenetlogic.service.adapters.SmsService;
 import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.AnnouncementService;
+import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.MailService;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.AnnouncementRequest;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.DateRequest;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.AnnouncementResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +31,8 @@ public class AnnouncementServiceImp implements AnnouncementService {
     private final UserRepository userRepository;
     private final ApartmentsRepository apartmentsRepository;
     private final AnnouncementApartmentRepository announcementApartmentRepository;
+    private final MailService mailService;
+    private final SmsService smsService;
 
     @Override
     public AnnouncementResponse createAnnouncement(AnnouncementRequest announcementRequest) throws UserNotFoundException {
@@ -179,8 +181,40 @@ public class AnnouncementServiceImp implements AnnouncementService {
 
         announcementRepository.save(announcement);
 
+        newAnnouncementApartments.forEach(announcementApartment -> {
+            List<User> residents = announcementApartment.getApartment().getPossessionHistories().stream()
+                    .map(PossessionHistory::getUser)
+                    .distinct()
+                    .toList();
+
+            residents.forEach(resident -> {
+                if (resident.getNotificationTypes() != null) {
+                    resident.getNotificationTypes().forEach(notificationType -> {
+                        switch (notificationType.getType()) {
+                            case EMAIL:
+                                mailService.sendNotificationMail(
+                                        "Nowe ogłoszenie",
+                                        "Nowe ogłoszenie zostało oddane: " + announcement.getTitle(),
+                                        resident.getEmail()
+                                );
+                                break;
+                            case SMS:
+                                smsService.sendSms(
+                                        "Nowe ogłoszenie zostało oddane: " + announcement.getTitle(),
+                                        resident.getPhoneNumber()
+                                );
+                                break;
+                            default:
+                                throw new IllegalStateException("Unexpected value: " + notificationType.getType());
+                        }
+                    });
+                }
+            });
+        });
+
         return "Linked " + newAnnouncementApartments.size() + " apartments to announcement: " + announcementId;
     }
+
 
 
 

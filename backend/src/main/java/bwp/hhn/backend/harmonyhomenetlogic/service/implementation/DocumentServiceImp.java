@@ -9,7 +9,9 @@ import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.DocumentReposit
 import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.UserRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.sideTables.PossessionHistoryRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.sideTables.UserDocumentConnectionRepository;
+import bwp.hhn.backend.harmonyhomenetlogic.service.adapters.SmsService;
 import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.DocumentService;
+import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.MailService;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.DocumentType;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Role;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.DocumentResponse;
@@ -31,6 +33,8 @@ public class DocumentServiceImp implements DocumentService {
     private final DocumentRepository documentRepository;
     private final UserRepository userRepository;
     private final PossessionHistoryRepository possessionHistoryRepository;
+    private final MailService mailService;
+    private final SmsService smsService;
 
     @Override
     public List<DocumentResponse> getAllDocuments() {
@@ -50,12 +54,14 @@ public class DocumentServiceImp implements DocumentService {
     @Transactional
     public DocumentResponse uploadDocument(MultipartFile file, String apartmentSignature, DocumentType documentType) throws IllegalArgumentException, IOException {
 
+        // Tworzenie nowego obiektu dokumentu
         Document documentEntity = Document.builder()
                 .documentName(file.getName())
                 .documentData(file.getBytes())
                 .documentType(documentType)
                 .build();
 
+        // Zapis dokumentu w repozytorium
         documentRepository.save(documentEntity);
 
         // Pobranie użytkowników do przypisania w zależności od typu dokumentu
@@ -68,7 +74,7 @@ public class DocumentServiceImp implements DocumentService {
             List<User> residents = possessionHistoryRepository.findActiveResidentsByApartment(apartmentSignature);
 
             if (residents.isEmpty()) {
-                throw new IllegalArgumentException("No residents found in apartment id: " + apartmentSignature);
+                throw new IllegalArgumentException("No residents found in apartment with signature: " + apartmentSignature);
             }
 
             List<User> employees = userRepository.findAllByRole(Role.EMPLOYEE);
@@ -91,11 +97,11 @@ public class DocumentServiceImp implements DocumentService {
                     .build();
             connections.add(connection);
 
-            // Przypisz połączenie użytkownikowi
+            // Przypisanie połączenia użytkownikowi
             if (user.getUserDocumentConnections() == null) user.setUserDocumentConnections(new ArrayList<>());
             user.getUserDocumentConnections().add(connection);
 
-            // Przypisz połączenie dokumentowi
+            // Przypisanie połączenia dokumentowi
             if (documentEntity.getUserDocumentConnections() == null)
                 documentEntity.setUserDocumentConnections(new ArrayList<>());
 
@@ -105,12 +111,39 @@ public class DocumentServiceImp implements DocumentService {
         // Zapis wszystkich połączeń w bazie danych
         userDocumentConnectionRepository.saveAll(connections);
 
+        // Wysyłanie powiadomień do użytkowników na podstawie ich preferencji
+        eligibleUsers.forEach(user -> {
+            if (user.getNotificationTypes() != null) {
+                user.getNotificationTypes().forEach(notificationType -> {
+                    switch (notificationType.getType()) {
+                        case EMAIL:
+                            mailService.sendNotificationMail(
+                                    "Nowy dokument",
+                                    "Nowy dokument został oddany: " + documentEntity.getDocumentName(),
+                                    user.getEmail()
+                            );
+                            break;
+                        case SMS:
+                            smsService.sendSms(
+                                    "Nowy dokument został oddany: " + documentEntity.getDocumentName(),
+                                    user.getPhoneNumber()
+                            );
+                            break;
+                        default:
+                            throw new IllegalStateException("Unexpected value: " + notificationType.getType());
+                    }
+                });
+            }
+        });
+
+        // Zwracanie odpowiedzi z informacjami o nowo załadowanym dokumencie
         return DocumentResponse.builder()
                 .documentName(documentEntity.getDocumentName())
                 .documentType(documentEntity.getDocumentType())
                 .createdAt(documentEntity.getCreatedAt())
                 .build();
     }
+
 
     @Override
     public List<DocumentResponse> getAllDocumentsByUserId(UUID userId) throws UserNotFoundException {

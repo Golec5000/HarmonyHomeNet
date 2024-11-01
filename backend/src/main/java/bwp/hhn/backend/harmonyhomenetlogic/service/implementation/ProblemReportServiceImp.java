@@ -10,10 +10,10 @@ import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.ApartmentsRepos
 import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.ProblemReportRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.UserRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.sideTables.PossessionHistoryRepository;
+import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.MailService;
 import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.ProblemReportService;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.ReportStatus;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.ProblemReportRequest;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.response.PaymentResponse;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.ProblemReportResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +32,7 @@ public class ProblemReportServiceImp implements ProblemReportService {
     private final UserRepository userRepository;
     private final ApartmentsRepository apartmentsRepository;
     private final PossessionHistoryRepository possessionHistoryRepository;
+    private final MailService mailService;
 
 
     @Override
@@ -91,6 +92,8 @@ public class ProblemReportServiceImp implements ProblemReportService {
         problemReportToUpdate.setCategory(problemReportRequest.getCategory() != null ? problemReportRequest.getCategory() : problemReportToUpdate.getCategory());
 
         if (ReportStatus.DONE.equals(problemReportRequest.getReportStatus())) problemReportToUpdate.setEndDate(LocalDateTime.now());
+
+        mailService.sendNotificationMail("Problem report updated", "Your problem report has been updated", problemReportToUpdate.getUser().getEmail());
 
         ProblemReport updated = problemReportRepository.save(problemReportToUpdate);
 

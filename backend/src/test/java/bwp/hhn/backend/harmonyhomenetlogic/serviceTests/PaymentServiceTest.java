@@ -71,7 +71,6 @@ class PaymentServiceTest {
     void testCreatePayment_Success() throws ApartmentNotFoundException {
         PaymentRequest paymentRequest = new PaymentRequest();
         paymentRequest.setApartmentSignature("A1");
-        paymentRequest.setPaymentDate(LocalDateTime.now());
 
         when(apartmentsRepository.findByApartmentSignature("A1")).thenReturn(Optional.of(apartment));
         when(paymentRepository.save(any(Payment.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -92,7 +91,6 @@ class PaymentServiceTest {
     void testCreatePayment_ApartmentNotFound() {
         PaymentRequest paymentRequest = new PaymentRequest();
         paymentRequest.setApartmentSignature("A1");
-        paymentRequest.setPaymentDate(LocalDateTime.now());
 
         when(apartmentsRepository.findByApartmentSignature("A1")).thenReturn(Optional.empty());
 

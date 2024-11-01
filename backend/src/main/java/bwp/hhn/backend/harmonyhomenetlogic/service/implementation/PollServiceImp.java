@@ -10,6 +10,7 @@ import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.PollRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.UserRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.VoteRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.sideTables.PossessionHistoryRepository;
+import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.MailService;
 import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.PollService;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.VoteChoice;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.PollRequest;
@@ -36,6 +37,7 @@ public class PollServiceImp implements PollService {
     private final UserRepository userRepository;
     private final PossessionHistoryRepository possessionHistoryRepository;
     private final ApartmentsRepository apartmentsRepository;
+    private final MailService mailService;
 
 
     @Override
@@ -43,6 +45,7 @@ public class PollServiceImp implements PollService {
         return pollRepository.findAll().stream()
                 .map(
                         poll -> PollResponse.builder()
+                                .id(poll.getUuidID())
                                 .pollName(poll.getPollName())
                                 .content(poll.getContent())
                                 .createdAt(poll.getCreatedAt())
@@ -76,13 +79,20 @@ public class PollServiceImp implements PollService {
 
         Poll saved = pollRepository.save(poll);
 
+        List<User> uniqueOwners = possessionHistoryRepository.findAllUniqueOwners();
+
+        uniqueOwners.forEach(owner -> {
+            String subject = "Nowe głosowanie";
+            String message = "Utworzono nowe głosowanie nad: " + poll.getPollName();
+            mailService.sendNotificationMail(subject, message, owner.getEmail());
+        });
+
         return PollResponse.builder()
                 .id(saved.getUuidID())
                 .pollName(saved.getPollName())
                 .createdAt(saved.getCreatedAt())
                 .endDate(saved.getEndDate())
                 .build();
-
     }
 
     @Override
@@ -128,7 +138,7 @@ public class PollServiceImp implements PollService {
         if (!possessionHistoryRepository.existsByUserUuidIDAndApartmentUuidID(userId, apartment.getUuidID()))
             throw new IllegalArgumentException("User: " + userId + " does not own apartment: " + apartment.getUuidID());
 
-        if (voteRepository.existsByPollUuidIDAndUserUuidIDAndApartmentSignature(pollId, userId, apartmentSignature))
+        if (voteRepository.existsByPollUuidIDAndApartmentSignature(pollId, apartmentSignature))
             throw new IllegalArgumentException("For apartment: " + apartmentSignature + " in poll: " + pollId + " owners have already voted");
 
         Vote vote = Vote.builder()

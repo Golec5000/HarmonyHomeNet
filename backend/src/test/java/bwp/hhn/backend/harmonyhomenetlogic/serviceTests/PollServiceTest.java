@@ -204,7 +204,7 @@ class PollServiceTest {
         when(pollRepository.findById(pollId)).thenReturn(Optional.of(poll));
         when(apartmentsRepository.findByApartmentSignature(apartmentSignature)).thenReturn(Optional.of(apartment));
         when(possessionHistoryRepository.existsByUserUuidIDAndApartmentUuidID(ownerId, apartment.getUuidID())).thenReturn(true);
-        when(voteRepository.existsByPollUuidIDAndUserUuidIDAndApartmentSignature(pollId, ownerId, apartmentSignature)).thenReturn(false);
+        when(voteRepository.existsByPollUuidIDAndApartmentSignature(pollId, apartmentSignature)).thenReturn(false);
         when(voteRepository.save(any(Vote.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(pollRepository.save(any(Poll.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -217,7 +217,7 @@ class PollServiceTest {
         verify(pollRepository, times(1)).findById(pollId);
         verify(apartmentsRepository, times(2)).findByApartmentSignature(apartmentSignature);
         verify(possessionHistoryRepository, times(1)).existsByUserUuidIDAndApartmentUuidID(ownerId, apartment.getUuidID());
-        verify(voteRepository, times(1)).existsByPollUuidIDAndUserUuidIDAndApartmentSignature(pollId, ownerId, apartmentSignature);
+        verify(voteRepository, times(1)).existsByPollUuidIDAndApartmentSignature(pollId, apartmentSignature);
         verify(voteRepository, times(1)).save(any(Vote.class));
         verify(pollRepository, times(1)).save(any(Poll.class));
     }
