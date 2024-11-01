@@ -1,7 +1,7 @@
 package bwp.hhn.backend.harmonyhomenetlogic.utils.enums;
 
 public enum Role {
-    USER,
+    OWNER,
     ADMIN,
     EMPLOYEE
 }

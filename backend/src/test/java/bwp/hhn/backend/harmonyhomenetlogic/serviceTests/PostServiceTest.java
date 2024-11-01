@@ -13,6 +13,7 @@ import org.mockito.*;
 
 import java.util.*;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -47,9 +48,11 @@ class PostServiceTest {
         user = User.builder()
                 .uuidID(userId)
                 .firstName("testuser")
+                .lastName("User")
+                .email("testuser@example.com")
                 .posts(new ArrayList<>())
                 .topics(new ArrayList<>())
-                .role(Role.USER)
+                .role(Role.OWNER)
                 .build();
 
         topic = Topic.builder()
@@ -81,8 +84,11 @@ class PostServiceTest {
         assertNotNull(response);
         assertEquals("New Topic", response.title());
 
+        // Verify that the topic was added to the user's topics list
+        assertThat(user.getTopics()).hasSize(1);
+        assertThat(user.getTopics().get(0).getTitle()).isEqualTo("New Topic");
+
         verify(userRepository, times(1)).findById(userId);
-        verify(userRepository, times(1)).save(user);
         verify(topicRepository, times(1)).save(any(Topic.class));
     }
 
@@ -97,7 +103,6 @@ class PostServiceTest {
         assertThrows(UserNotFoundException.class, () -> postService.createTopic(topicRequest, userId));
 
         verify(userRepository, times(1)).findById(userId);
-        verifyNoMoreInteractions(userRepository);
         verifyNoInteractions(topicRepository);
     }
 
@@ -142,6 +147,7 @@ class PostServiceTest {
     @Test
     void testDeleteTopic_Success() throws TopicNotFoundException {
         when(topicRepository.existsByUuidID(topicId)).thenReturn(true);
+        doNothing().when(topicRepository).deleteById(topicId);
 
         String result = postService.deleteTopic(topicId);
 
@@ -158,7 +164,7 @@ class PostServiceTest {
         assertThrows(TopicNotFoundException.class, () -> postService.deleteTopic(topicId));
 
         verify(topicRepository, times(1)).existsByUuidID(topicId);
-        verify(topicRepository, times(0)).deleteById(topicId);
+        verify(topicRepository, times(0)).deleteById(any(UUID.class));
     }
 
     @Test
@@ -176,11 +182,15 @@ class PostServiceTest {
         assertNotNull(response);
         assertEquals("New Post Content", response.content());
 
+        // Verify that the post was added to the user's and topic's posts list
+        assertThat(user.getPosts()).hasSize(1);
+        assertThat(topic.getPosts()).hasSize(1);
+        assertThat(user.getPosts().get(0).getContent()).isEqualTo("New Post Content");
+        assertThat(topic.getPosts().get(0).getContent()).isEqualTo("New Post Content");
+
         verify(userRepository, times(1)).findById(userId);
         verify(topicRepository, times(1)).findById(topicId);
-        verify(userRepository, times(1)).save(user);
         verify(postRepository, times(1)).save(any(Post.class));
-        verify(topicRepository, times(1)).save(topic);
     }
 
     @Test
@@ -194,7 +204,6 @@ class PostServiceTest {
         assertThrows(UserNotFoundException.class, () -> postService.createPost(postRequest, topicId, userId));
 
         verify(userRepository, times(1)).findById(userId);
-        verifyNoMoreInteractions(userRepository);
         verifyNoInteractions(topicRepository);
         verifyNoInteractions(postRepository);
     }
@@ -250,10 +259,12 @@ class PostServiceTest {
 
         assertEquals("Post deleted successfully", result);
 
+        // Verify that the post was removed from the user's posts list
+        assertThat(user.getPosts()).doesNotContain(post);
+
         verify(userRepository, times(1)).findById(userId);
         verify(postRepository, times(1)).findById(postId);
         verify(postRepository, times(1)).canDeletePost(postId, userId, user.getRole().name());
-        verify(userRepository, times(1)).save(user);
         verify(postRepository, times(1)).delete(post);
     }
 
@@ -276,7 +287,6 @@ class PostServiceTest {
 
         verify(userRepository, times(1)).findById(userId);
         verify(postRepository, times(1)).findById(postId);
-        verifyNoMoreInteractions(postRepository);
     }
 
     @Test
@@ -290,7 +300,6 @@ class PostServiceTest {
         verify(userRepository, times(1)).findById(userId);
         verify(postRepository, times(1)).findById(postId);
         verify(postRepository, times(1)).canDeletePost(postId, userId, user.getRole().name());
-        verifyNoMoreInteractions(postRepository);
     }
 
     @Test

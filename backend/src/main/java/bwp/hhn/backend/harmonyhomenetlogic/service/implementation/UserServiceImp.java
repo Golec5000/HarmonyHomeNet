@@ -42,7 +42,7 @@ public class UserServiceImp implements UserService {
                 .lastName(user.getLastName())
                 .password(user.getPassword())
                 .phoneNumber(user.getPhoneNumber())
-                .role(user.getRole() != null ? user.getRole() : Role.USER)
+                .role(user.getRole() != null ? user.getRole() : Role.OWNER)
                 .build();
 
         User saved = userRepository.save(userEntity);

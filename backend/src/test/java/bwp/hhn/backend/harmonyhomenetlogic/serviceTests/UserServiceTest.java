@@ -2,25 +2,30 @@ package bwp.hhn.backend.harmonyhomenetlogic.serviceTests;
 
 import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.UserNotFoundException;
 import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.User;
+import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.DocumentRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.UserRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.service.implementation.UserServiceImp;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.DocumentType;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Role;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.UserRequest;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.UserResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
+
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-
 public class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private DocumentRepository documentRepository;
 
     @InjectMocks
     private UserServiceImp userService;
@@ -39,7 +44,7 @@ public class UserServiceTest {
                 .lastName("Kowalski")
                 .password("password1")
                 .email("test@gmail.com")
-                .role(Role.USER)
+                .role(Role.OWNER)
                 .build();
     }
 
@@ -52,7 +57,14 @@ public class UserServiceTest {
                 .email("test@gmail.com")
                 .build();
 
-        when(userRepository.save(any(User.class))).thenReturn(existingUser);
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
+            User user = invocation.getArgument(0);
+            user.setUuidID(UUID.randomUUID()); // Simulate that the user has been saved with an ID
+            return user;
+        });
+
+        when(documentRepository.findByDocumentTypeNot(DocumentType.PROPERTY_DEED))
+                .thenReturn(new ArrayList<>()); // Assuming no documents
 
         UserResponse savedUser = userService.creatUser(userRequest);
 
@@ -61,7 +73,6 @@ public class UserServiceTest {
 
         verify(userRepository).save(any(User.class));
     }
-
 
     @Test
     public void testUpdateUser_Success() throws UserNotFoundException {
@@ -72,7 +83,7 @@ public class UserServiceTest {
                 .email("newemail@gmail.com")
                 .build();
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(existingUser));
+        when(userRepository.findByUuidIDOrEmail(userId, null)).thenReturn(Optional.of(existingUser));
         when(userRepository.save(any(User.class))).thenReturn(existingUser);
 
         UserResponse updatedUser = userService.updateUser(userId, userRequest);
@@ -81,7 +92,7 @@ public class UserServiceTest {
         assertThat(updatedUser.lastName()).isEqualTo("Nowak");
         assertThat(updatedUser.email()).isEqualTo("newemail@gmail.com");
 
-        verify(userRepository).findById(userId);
+        verify(userRepository).findByUuidIDOrEmail(userId, null);
         verify(userRepository).save(any(User.class));
     }
 
@@ -92,17 +103,17 @@ public class UserServiceTest {
                 .lastName("Nowak")
                 .build();
 
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+        when(userRepository.findByUuidIDOrEmail(userId, null)).thenReturn(Optional.empty());
 
         assertThrows(UserNotFoundException.class, () -> userService.updateUser(userId, userRequest));
 
-        verify(userRepository).findById(userId);
+        verify(userRepository).findByUuidIDOrEmail(userId, null);
         verify(userRepository, never()).save(any(User.class));
     }
 
     @Test
     public void testAssignRoleToUser_Success() throws UserNotFoundException {
-        when(userRepository.findById(userId)).thenReturn(Optional.of(existingUser));
+        when(userRepository.findByUuidIDOrEmail(userId, null)).thenReturn(Optional.of(existingUser));
         when(userRepository.save(any(User.class))).thenReturn(existingUser);
 
         UserResponse userResponse = userService.assignRoleToUser(userId, Role.ADMIN);
@@ -110,39 +121,39 @@ public class UserServiceTest {
         assertThat(userResponse).isNotNull();
         assertThat(existingUser.getRole()).isEqualTo(Role.ADMIN);
 
-        verify(userRepository).findById(userId);
+        verify(userRepository).findByUuidIDOrEmail(userId, null);
         verify(userRepository).save(existingUser);
     }
 
     @Test
     public void testAssignRoleToUser_UserNotFound() {
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+        when(userRepository.findByUuidIDOrEmail(userId, null)).thenReturn(Optional.empty());
 
         assertThrows(UserNotFoundException.class, () -> userService.assignRoleToUser(userId, Role.ADMIN));
 
-        verify(userRepository).findById(userId);
+        verify(userRepository).findByUuidIDOrEmail(userId, null);
         verify(userRepository, never()).save(any(User.class));
     }
 
     @Test
     public void testGetUserById_ValidUUID() throws UserNotFoundException {
-        when(userRepository.findById(userId)).thenReturn(Optional.of(existingUser));
+        when(userRepository.findByUuidIDOrEmail(userId, null)).thenReturn(Optional.of(existingUser));
 
         UserResponse userResponse = userService.getUserById(userId);
 
         assertThat(userResponse).isNotNull();
         assertThat(userResponse.email()).isEqualTo("test@gmail.com");
 
-        verify(userRepository).findById(userId);
+        verify(userRepository).findByUuidIDOrEmail(userId, null);
     }
 
     @Test
     public void testGetUserById_InvalidUUID() {
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+        when(userRepository.findByUuidIDOrEmail(userId, null)).thenReturn(Optional.empty());
 
         assertThrows(UserNotFoundException.class, () -> userService.getUserById(userId));
 
-        verify(userRepository).findById(userId);
+        verify(userRepository).findByUuidIDOrEmail(userId, null);
     }
 
     @Test
@@ -153,7 +164,7 @@ public class UserServiceTest {
                 .lastName("Nowak")
                 .email("anna@gmail.com")
                 .password("password2")
-                .role(Role.USER)
+                .role(Role.OWNER)
                 .build());
 
         when(userRepository.findAll()).thenReturn(users);
@@ -180,23 +191,23 @@ public class UserServiceTest {
 
     @Test
     public void testGetUserByEmail_UserExists() throws UserNotFoundException {
-        when(userRepository.findByEmail("test@gmail.com")).thenReturn(Optional.of(existingUser));
+        when(userRepository.findByUuidIDOrEmail(null, "test@gmail.com")).thenReturn(Optional.of(existingUser));
 
         UserResponse userResponse = userService.getUserByEmail("test@gmail.com");
 
         assertThat(userResponse).isNotNull();
         assertThat(userResponse.email()).isEqualTo("test@gmail.com");
 
-        verify(userRepository).findByEmail("test@gmail.com");
+        verify(userRepository).findByUuidIDOrEmail(null, "test@gmail.com");
     }
 
     @Test
     public void testGetUserByEmail_UserNotFound() {
-        when(userRepository.findByEmail("nonexistent@gmail.com")).thenReturn(Optional.empty());
+        when(userRepository.findByUuidIDOrEmail(null, "nonexistent@gmail.com")).thenReturn(Optional.empty());
 
         assertThrows(UserNotFoundException.class, () -> userService.getUserByEmail("nonexistent@gmail.com"));
 
-        verify(userRepository).findByEmail("nonexistent@gmail.com");
+        verify(userRepository).findByUuidIDOrEmail(null, "nonexistent@gmail.com");
     }
 
     @Test
@@ -207,16 +218,16 @@ public class UserServiceTest {
                 .lastName("Nowak")
                 .email("anna@gmail.com")
                 .password("password2")
-                .role(Role.USER)
+                .role(Role.OWNER)
                 .build());
 
-        when(userRepository.findAllByRole(Role.USER)).thenReturn(users);
+        when(userRepository.findAllByRole(Role.OWNER)).thenReturn(users);
 
-        List<UserResponse> userResponses = userService.getUsersByRole(Role.USER);
+        List<UserResponse> userResponses = userService.getUsersByRole(Role.OWNER);
 
         assertThat(userResponses).hasSize(2);
 
-        verify(userRepository).findAllByRole(Role.USER);
+        verify(userRepository).findAllByRole(Role.OWNER);
     }
 
     @Test
@@ -232,6 +243,7 @@ public class UserServiceTest {
 
     @Test
     public void testDeleteUser_Success() throws UserNotFoundException {
+
         when(userRepository.existsByUuidID(userId)).thenReturn(true);
         doNothing().when(userRepository).deleteById(userId);
 
@@ -263,16 +275,14 @@ public class UserServiceTest {
                 .role(null)
                 .build();
 
-        User userWithDefaultRole = User.builder()
-                .uuidID(UUID.randomUUID())
-                .firstName("Jan")
-                .lastName("Kowalski")
-                .password("password1")
-                .email("test@gmail.com")
-                .role(Role.USER)
-                .build();
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
+            User user = invocation.getArgument(0);
+            user.setUuidID(UUID.randomUUID()); // Simulate that the user has been saved with an ID
+            return user;
+        });
 
-        when(userRepository.save(any(User.class))).thenReturn(userWithDefaultRole);
+        when(documentRepository.findByDocumentTypeNot(DocumentType.PROPERTY_DEED))
+                .thenReturn(new ArrayList<>()); // Assuming no documents
 
         UserResponse savedUser = userService.creatUser(userRequest);
 
@@ -281,7 +291,7 @@ public class UserServiceTest {
 
         ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
         verify(userRepository).save(userCaptor.capture());
-        assertThat(userCaptor.getValue().getRole()).isEqualTo(Role.USER);
+        assertThat(userCaptor.getValue().getRole()).isEqualTo(Role.OWNER);
     }
 
     @Test
@@ -294,16 +304,14 @@ public class UserServiceTest {
                 .role(Role.EMPLOYEE)
                 .build();
 
-        User userWithSpecifiedRole = User.builder()
-                .uuidID(UUID.randomUUID())
-                .firstName("Jan")
-                .lastName("Kowalski")
-                .password("password1")
-                .email("test@gmail.com")
-                .role(Role.EMPLOYEE)
-                .build();
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
+            User user = invocation.getArgument(0);
+            user.setUuidID(UUID.randomUUID()); // Simulate that the user has been saved with an ID
+            return user;
+        });
 
-        when(userRepository.save(any(User.class))).thenReturn(userWithSpecifiedRole);
+        when(documentRepository.findByDocumentTypeNot(DocumentType.PROPERTY_DEED))
+                .thenReturn(new ArrayList<>()); // Assuming no documents
 
         UserResponse savedUser = userService.creatUser(userRequest);
 
@@ -314,5 +322,8 @@ public class UserServiceTest {
         verify(userRepository).save(userCaptor.capture());
         assertThat(userCaptor.getValue().getRole()).isEqualTo(Role.EMPLOYEE);
     }
+
+    // Additional test methods for methods involving other repositories can be added here,
+    // mocking the respective repository methods used in the service implementation.
 
 }

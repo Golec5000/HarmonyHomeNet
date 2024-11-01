@@ -1,7 +1,7 @@
 package bwp.hhn.backend.harmonyhomenetlogic.utils.enums;
 
 public enum ReportStatus {
-    PENDING,
+    OPEN,
     IN_PROGRESS,
     DONE
 }

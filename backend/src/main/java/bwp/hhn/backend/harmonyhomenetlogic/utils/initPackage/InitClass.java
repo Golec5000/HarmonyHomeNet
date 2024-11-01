@@ -26,8 +26,8 @@ public class InitClass {
         System.out.println("Init class");
 
         createUserIfNotExists("John", "Doe", "john.doe@example.com", "password123", "123456789", Role.ADMIN);
-        createUserIfNotExists("Jane", "Smith", "jane.smith@example.com", "password123", "987654321", Role.USER);
-        createUserIfNotExists("Alice", "Johnson", "alice.johnson@example.com", "password123", "555555555", Role.USER);
+        createUserIfNotExists("Jane", "Smith", "jane.smith@example.com", "password123", "987654321", Role.OWNER);
+        createUserIfNotExists("Alice", "Johnson", "alice.johnson@example.com", "password123", "555555555", Role.OWNER);
 
         createApartment("Balonowa 5/10", "Kraków", "30-000", "SIG001");
         createApartment("Zakopiańska 12/100", "Kraków", "00-000", "SIG002");
