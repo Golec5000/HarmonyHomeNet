@@ -44,4 +44,10 @@ ENTRYPOINT ["java", "-jar", "app.jar", \
     "--server.ssl.key-store=/app/keystore.p12", \
     "--server.ssl.key-store-password=haslo123", \
     "--server.ssl.key-store-type=PKCS12", \
-    "--server.ssl.key-alias=myalias"]
+    "--server.ssl.key-alias=myalias", \
+    "--spring.mail.host=smtp.gmail.com", \
+    "--spring.mail.port=587", \
+    "--spring.mail.username=your_email", \
+    "--spring.mail.password=your_password", \
+    "--spring.mail.properties.mail.smtp.auth=true", \
+    "--spring.mail.properties.mail.smtp.starttls.enable=true"]
