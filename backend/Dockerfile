@@ -17,11 +17,23 @@ RUN mvn package -DskipTests
 # Stage 2: Run the application
 FROM openjdk:17-jdk-alpine
 
+# Install openssl
+RUN apk add --no-cache openssl
+
 # Set the working directory
 WORKDIR /app
 
 # Copy the built JAR file from the previous stage
 COPY --from=build /backend_app/target/*.jar app.jar
+
+# Generate RSA key pair
+RUN openssl genrsa -out keypair.pem 2048
+
+# Extract the public key
+RUN openssl rsa -in keypair.pem -pubout -out publicKey.pem
+
+# Convert the private key to PKCS#8 format
+RUN openssl pkcs8 -topk8 -inform PEM -outform PEM -nocrypt -in keypair.pem -out privateKey.pem
 
 # Generate a self-signed certificate and keystore.p12 with the corrected password
 RUN keytool -genkeypair \

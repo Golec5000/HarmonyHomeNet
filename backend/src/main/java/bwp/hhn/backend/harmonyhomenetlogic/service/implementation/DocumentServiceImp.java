@@ -77,10 +77,12 @@ public class DocumentServiceImp implements DocumentService {
                 throw new IllegalArgumentException("No residents found in apartment with signature: " + apartmentSignature);
             }
 
-            List<User> employees = userRepository.findAllByRole(Role.EMPLOYEE);
+            List<User> employees = userRepository.findAllByRole(Role.ROLE_EMPLOYEE);
+            List<User> admins = userRepository.findAllByRole(Role.ROLE_ADMIN);
 
             eligibleUsers = new ArrayList<>(residents);
             eligibleUsers.addAll(employees);
+            eligibleUsers.addAll(admins);
         }
 
         // Tworzenie połączeń dokumentu z wybranymi użytkownikami

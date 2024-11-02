@@ -52,7 +52,7 @@ class PostServiceTest {
                 .email("testuser@example.com")
                 .posts(new ArrayList<>())
                 .topics(new ArrayList<>())
-                .role(Role.OWNER)
+                .role(Role.ROLE_OWNER)
                 .build();
 
         topic = Topic.builder()

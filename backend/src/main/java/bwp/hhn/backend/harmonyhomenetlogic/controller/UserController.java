@@ -8,6 +8,7 @@ import bwp.hhn.backend.harmonyhomenetlogic.utils.request.UserRequest;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.UserResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,6 +27,7 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserById(userId));
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_EMPLOYEE')")
     @GetMapping("/get-all-users")
     public ResponseEntity<List<UserResponse>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());

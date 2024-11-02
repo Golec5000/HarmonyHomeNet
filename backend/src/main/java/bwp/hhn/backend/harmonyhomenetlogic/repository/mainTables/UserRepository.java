@@ -11,8 +11,11 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface UserRepository extends JpaRepository<User, UUID> {
+
     Optional<User> findByEmail(String email);
+
     List<User> findAllByRole(Role role);
+
     boolean existsByUuidID (UUID uuidID);
 
     @Query("SELECT u FROM User u WHERE u.uuidID = :id AND (u.role = 'ADMIN' OR u.role = 'EMPLOYEE')")

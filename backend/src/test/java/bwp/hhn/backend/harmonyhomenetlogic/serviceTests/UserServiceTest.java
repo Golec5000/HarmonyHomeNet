@@ -44,7 +44,7 @@ public class UserServiceTest {
                 .lastName("Kowalski")
                 .password("password1")
                 .email("test@gmail.com")
-                .role(Role.OWNER)
+                .role(Role.ROLE_OWNER)
                 .build();
     }
 
@@ -116,10 +116,10 @@ public class UserServiceTest {
         when(userRepository.findByUuidIDOrEmail(userId, null)).thenReturn(Optional.of(existingUser));
         when(userRepository.save(any(User.class))).thenReturn(existingUser);
 
-        UserResponse userResponse = userService.assignRoleToUser(userId, Role.ADMIN);
+        UserResponse userResponse = userService.assignRoleToUser(userId, Role.ROLE_ADMIN);
 
         assertThat(userResponse).isNotNull();
-        assertThat(existingUser.getRole()).isEqualTo(Role.ADMIN);
+        assertThat(existingUser.getRole()).isEqualTo(Role.ROLE_ADMIN);
 
         verify(userRepository).findByUuidIDOrEmail(userId, null);
         verify(userRepository).save(existingUser);
@@ -129,7 +129,7 @@ public class UserServiceTest {
     public void testAssignRoleToUser_UserNotFound() {
         when(userRepository.findByUuidIDOrEmail(userId, null)).thenReturn(Optional.empty());
 
-        assertThrows(UserNotFoundException.class, () -> userService.assignRoleToUser(userId, Role.ADMIN));
+        assertThrows(UserNotFoundException.class, () -> userService.assignRoleToUser(userId, Role.ROLE_ADMIN));
 
         verify(userRepository).findByUuidIDOrEmail(userId, null);
         verify(userRepository, never()).save(any(User.class));
@@ -164,7 +164,7 @@ public class UserServiceTest {
                 .lastName("Nowak")
                 .email("anna@gmail.com")
                 .password("password2")
-                .role(Role.OWNER)
+                .role(Role.ROLE_OWNER)
                 .build());
 
         when(userRepository.findAll()).thenReturn(users);
@@ -218,27 +218,27 @@ public class UserServiceTest {
                 .lastName("Nowak")
                 .email("anna@gmail.com")
                 .password("password2")
-                .role(Role.OWNER)
+                .role(Role.ROLE_OWNER)
                 .build());
 
-        when(userRepository.findAllByRole(Role.OWNER)).thenReturn(users);
+        when(userRepository.findAllByRole(Role.ROLE_OWNER)).thenReturn(users);
 
-        List<UserResponse> userResponses = userService.getUsersByRole(Role.OWNER);
+        List<UserResponse> userResponses = userService.getUsersByRole(Role.ROLE_OWNER);
 
         assertThat(userResponses).hasSize(2);
 
-        verify(userRepository).findAllByRole(Role.OWNER);
+        verify(userRepository).findAllByRole(Role.ROLE_OWNER);
     }
 
     @Test
     public void testGetUsersByRole_NoUsers() {
-        when(userRepository.findAllByRole(Role.ADMIN)).thenReturn(Collections.emptyList());
+        when(userRepository.findAllByRole(Role.ROLE_ADMIN)).thenReturn(Collections.emptyList());
 
-        List<UserResponse> userResponses = userService.getUsersByRole(Role.ADMIN);
+        List<UserResponse> userResponses = userService.getUsersByRole(Role.ROLE_ADMIN);
 
         assertThat(userResponses).isEmpty();
 
-        verify(userRepository).findAllByRole(Role.ADMIN);
+        verify(userRepository).findAllByRole(Role.ROLE_ADMIN);
     }
 
     @Test
@@ -291,7 +291,7 @@ public class UserServiceTest {
 
         ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
         verify(userRepository).save(userCaptor.capture());
-        assertThat(userCaptor.getValue().getRole()).isEqualTo(Role.OWNER);
+        assertThat(userCaptor.getValue().getRole()).isEqualTo(Role.ROLE_OWNER);
     }
 
     @Test
@@ -301,7 +301,7 @@ public class UserServiceTest {
                 .lastName("Kowalski")
                 .password("password1")
                 .email("test@gmail.com")
-                .role(Role.EMPLOYEE)
+                .role(Role.ROLE_EMPLOYEE)
                 .build();
 
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
@@ -320,7 +320,7 @@ public class UserServiceTest {
 
         ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
         verify(userRepository).save(userCaptor.capture());
-        assertThat(userCaptor.getValue().getRole()).isEqualTo(Role.EMPLOYEE);
+        assertThat(userCaptor.getValue().getRole()).isEqualTo(Role.ROLE_EMPLOYEE);
     }
 
     // Additional test methods for methods involving other repositories can be added here,

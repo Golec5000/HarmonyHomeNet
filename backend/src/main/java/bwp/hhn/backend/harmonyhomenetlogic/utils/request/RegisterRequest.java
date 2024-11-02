@@ -1,15 +1,20 @@
 package bwp.hhn.backend.harmonyhomenetlogic.utils.request;
 
-import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Role;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import jakarta.validation.constraints.*;
-import lombok.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class UserRequest {
+public class RegisterRequest {
 
     @NotEmpty
     @Size(min = 3, max = 50)
@@ -31,7 +36,5 @@ public class UserRequest {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @Pattern(regexp = "^\\d{9,11}$", message = "Invalid phone number format")
     private String phoneNumber;
-
-    private Role role;
 
 }

@@ -18,6 +18,7 @@ import bwp.hhn.backend.harmonyhomenetlogic.utils.request.UserRequest;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.UserResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -33,6 +34,7 @@ public class UserServiceImp implements UserService {
     private final NotificationTypeRepository notificationTypeRepository;
     private final UserDocumentConnectionRepository userDocumentConnectionRepository;
     private final DocumentRepository documentRepository;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Override
     public UserResponse creatUser(UserRequest user) {
@@ -40,9 +42,9 @@ public class UserServiceImp implements UserService {
                 .email(user.getEmail())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
-                .password(user.getPassword())
+                .password(bCryptPasswordEncoder.encode(user.getPassword()))
                 .phoneNumber(user.getPhoneNumber())
-                .role(user.getRole() != null ? user.getRole() : Role.OWNER)
+                .role(user.getRole() != null ? user.getRole() : Role.ROLE_OWNER)
                 .build();
 
         User saved = userRepository.save(userEntity);
@@ -82,7 +84,6 @@ public class UserServiceImp implements UserService {
         userEntity.setEmail(user.getEmail() != null ? user.getEmail() : userEntity.getEmail());
         userEntity.setFirstName(user.getFirstName() != null ? user.getFirstName() : userEntity.getFirstName());
         userEntity.setLastName(user.getLastName() != null ? user.getLastName() : userEntity.getLastName());
-        userEntity.setPassword(user.getPassword() != null ? user.getPassword() : userEntity.getPassword());
         userEntity.setPhoneNumber(user.getPhoneNumber() != null ? user.getPhoneNumber() : userEntity.getPhoneNumber());
 
         User saved = userRepository.save(userEntity);

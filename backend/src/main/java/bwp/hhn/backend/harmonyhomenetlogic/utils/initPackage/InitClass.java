@@ -7,6 +7,7 @@ import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.UserRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Role;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -20,14 +21,15 @@ public class InitClass {
 
     private final UserRepository userRepository;
     private final ApartmentsRepository apartmentsRepository;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @PostConstruct
     public void init() {
         System.out.println("Init class");
 
-        createUserIfNotExists("John", "Doe", "john.doe@example.com", "password123", "123456789", Role.ADMIN);
-        createUserIfNotExists("Jane", "Smith", "jane.smith@example.com", "password123", "987654321", Role.OWNER);
-        createUserIfNotExists("Alice", "Johnson", "alice.johnson@example.com", "password123", "555555555", Role.OWNER);
+        createUserIfNotExists("John", "Doe", "john.doe@example.com", bCryptPasswordEncoder.encode("password123"), "123456789", Role.ROLE_ADMIN);
+        createUserIfNotExists("Jane", "Smith", "jane.smith@example.com", bCryptPasswordEncoder.encode("password123"), "987654321", Role.ROLE_OWNER);
+        createUserIfNotExists("Alice", "Johnson", "alice.johnson@example.com", bCryptPasswordEncoder.encode("password123"), "555555555", Role.ROLE_OWNER);
 
         createApartment("Balonowa 5/10", "Kraków", "30-000", "SIG001");
         createApartment("Zakopiańska 12/100", "Kraków", "00-000", "SIG002");
