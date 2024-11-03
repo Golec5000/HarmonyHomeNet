@@ -13,7 +13,7 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @Table(name = "Refresh_Token", indexes = {
-        @Index(name = "idx_refresh_token_user_id", columnList = "user_id")
+        @Index(name = "idx_refresh_token_token", columnList = "Token")
 })
 public class RefreshToken {
 

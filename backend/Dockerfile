@@ -62,4 +62,6 @@ ENTRYPOINT ["java", "-jar", "app.jar", \
     "--spring.mail.username=your_email", \
     "--spring.mail.password=your_password", \
     "--spring.mail.properties.mail.smtp.auth=true", \
-    "--spring.mail.properties.mail.smtp.starttls.enable=true"]
+    "--spring.mail.properties.mail.smtp.starttls.enable=true", \
+    "--spring.security.oauth2.resourceserver.jwt.public-key-location=classpath:publicKey.pem", \
+    "--spring.security.oauth2.resourceserver.jwt.private-key-location=classpath:privateKey.pem"]
