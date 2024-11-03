@@ -61,7 +61,7 @@ class PollServiceTest {
 
         user = User.builder()
                 .uuidID(userId)
-                .role(Role.EMPLOYEE)
+                .role(Role.ROLE_EMPLOYEE)
                 .polls(new ArrayList<>())
                 .votes(new ArrayList<>())
                 .build();
@@ -193,7 +193,7 @@ class PollServiceTest {
         UUID ownerId = UUID.randomUUID();
         User owner = User.builder()
                 .uuidID(ownerId)
-                .role(Role.OWNER)
+                .role(Role.ROLE_OWNER)
                 .votes(new ArrayList<>())
                 .build();
 
@@ -227,7 +227,7 @@ class PollServiceTest {
         UUID ownerId = UUID.randomUUID();
         User owner = User.builder()
                 .uuidID(ownerId)
-                .role(Role.OWNER)
+                .role(Role.ROLE_OWNER)
                 .votes(new ArrayList<>())
                 .build();
 

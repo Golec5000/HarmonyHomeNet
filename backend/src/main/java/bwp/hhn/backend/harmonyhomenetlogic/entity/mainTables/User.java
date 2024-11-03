@@ -1,5 +1,6 @@
 package bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables;
 
+import bwp.hhn.backend.harmonyhomenetlogic.configuration.security.jwtUtils.aboutEntity.RefreshToken;
 import bwp.hhn.backend.harmonyhomenetlogic.entity.sideTables.PossessionHistory;
 import bwp.hhn.backend.harmonyhomenetlogic.entity.sideTables.UserDocumentConnection;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Role;
@@ -9,8 +10,12 @@ import jakarta.validation.constraints.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -20,9 +25,10 @@ import java.util.UUID;
 @Builder
 @Entity
 @Table(name = "Users", indexes = {
-        @Index(name = "idx_user_email_unq", columnList = "Email", unique = true)
+        @Index(name = "idx_user_email_unq", columnList = "Email", unique = true),
+        @Index(name = "idx_user_uuid", columnList = "UUID_id", unique = true)
 })
-public class User {
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -50,7 +56,7 @@ public class User {
     @Column(name = "Password", nullable = false)
     private String password;
 
-    @Column(name = "Role", length = 8)
+    @Column(name = "Role", length = 15)
     @Enumerated(EnumType.STRING)
     private Role role;
 
@@ -102,4 +108,24 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<UserDocumentConnection> userDocumentConnections;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<RefreshToken> refreshTokens;
+
+    @Column(name = "reset_token")
+    private String resetToken;
+
+    @Column(name = "reset_token_expiry")
+    private Instant resetTokenExpiry;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(role);
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
 }
