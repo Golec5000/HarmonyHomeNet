@@ -1,4 +1,4 @@
-package bwp.hhn.backend.harmonyhomenetlogic.utils.response;
+package bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage;
 
 import lombok.Builder;
 

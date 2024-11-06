@@ -2,17 +2,18 @@ package bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables;
 
 import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.ProblemReport;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.ReportStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
 import java.util.UUID;
 
 public interface ProblemReportRepository extends JpaRepository<ProblemReport, Long> {
 
-    List<ProblemReport> findAllByUserUuidID(UUID userId);
+    Page<ProblemReport> findAllByUserUuidID(UUID userId, Pageable pageable);
 
-    List<ProblemReport> findAllByApartmentUuidID(UUID apartmentId);
+    Page<ProblemReport> findAllByApartmentUuidID(UUID apartmentId, Pageable pageable);
 
-    List<ProblemReport> findAllByReportStatus(ReportStatus status);
+    Page<ProblemReport> findAllByReportStatus(ReportStatus status, Pageable pageable);
 
 }

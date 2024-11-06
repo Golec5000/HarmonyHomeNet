@@ -5,9 +5,9 @@ import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.
 import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.UserNotFoundException;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.ReportStatus;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.ProblemReportRequest;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.response.ProblemReportResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.page.PageResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.ProblemReportResponse;
 
-import java.util.List;
 import java.util.UUID;
 
 public interface ProblemReportService {
@@ -20,13 +20,13 @@ public interface ProblemReportService {
 
     ProblemReportResponse getProblemReportById(Long problemReportId) throws ProblemReportNotFoundException;
 
-    List<ProblemReportResponse> getProblemReportsByUserId(UUID userId) throws UserNotFoundException;
+    PageResponse<ProblemReportResponse> getProblemReportsByUserId(UUID userId, int pageNo, int pageSize) throws UserNotFoundException;
 
-    List<ProblemReportResponse> getProblemReportsByApartmentSignature(String apartmentSignature) throws ApartmentNotFoundException;
+    PageResponse<ProblemReportResponse> getProblemReportsByApartmentSignature(String apartmentSignature, int pageNo, int pageSize) throws ApartmentNotFoundException;
 
-    List<ProblemReportResponse> getAllProblemReports();
+    PageResponse<ProblemReportResponse> getAllProblemReports(int pageNo, int pageSize);
 
-    List<ProblemReportResponse> getProblemReportsByStatus(ReportStatus status);
+    PageResponse<ProblemReportResponse> getProblemReportsByStatus(ReportStatus status, int pageNo, int pageSize);
 
 
 }

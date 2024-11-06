@@ -4,14 +4,14 @@ import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.
 import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.UserNotFoundException;
 import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.ApartmentsService;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.ApartmentRequest;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.response.ApartmentResponse;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.response.PossessionHistoryResponse;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.response.UserResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.page.PageResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.ApartmentResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.PossessionHistoryResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.UserResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -28,13 +28,20 @@ public class ApartmentController {
     }
 
     @GetMapping("/get-apartment-by-user")
-    public ResponseEntity<List<ApartmentResponse>> getApartmentsByUserId(@RequestParam UUID userId) throws ApartmentNotFoundException, UserNotFoundException {
-        return ResponseEntity.ok(apartmentsService.getCurrentApartmentsByUserId(userId));
+    public ResponseEntity<PageResponse<ApartmentResponse>> getApartmentsByUserId(
+            @RequestParam UUID userId,
+            @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize
+            ) throws ApartmentNotFoundException, UserNotFoundException {
+        return ResponseEntity.ok(apartmentsService.getCurrentApartmentsByUserId(userId, pageNo, pageSize));
     }
 
     @GetMapping("/get-all-apartments")
-    public ResponseEntity<List<ApartmentResponse>> getAllApartments() {
-        return ResponseEntity.ok(apartmentsService.getAllApartments());
+    public ResponseEntity<PageResponse<ApartmentResponse>> getAllApartments(
+            @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize
+    ) {
+        return ResponseEntity.ok(apartmentsService.getAllApartments(pageNo, pageSize));
     }
 
     @GetMapping("/possession-history-for-apartment")
@@ -43,23 +50,39 @@ public class ApartmentController {
     }
 
     @GetMapping("/current-apartment-residents")
-    public ResponseEntity<List<UserResponse>> getCurrentResidents(@RequestParam String apartmentSignature) throws ApartmentNotFoundException {
-        return ResponseEntity.ok(apartmentsService.getCurrentResidents(apartmentSignature));
+    public ResponseEntity<PageResponse<UserResponse>> getCurrentResidents(
+            @RequestParam String apartmentSignature,
+            @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize
+    ) throws ApartmentNotFoundException {
+        return ResponseEntity.ok(apartmentsService.getCurrentResidents(apartmentSignature, pageNo, pageSize));
     }
 
     @GetMapping("/whole-possession-history-for-apartment")
-    public ResponseEntity<List<PossessionHistoryResponse>> getApartmentPossessionHistory(@RequestParam String apartmentSignature) throws ApartmentNotFoundException {
-        return ResponseEntity.ok(apartmentsService.getApartmentPossessionHistory(apartmentSignature));
+    public ResponseEntity<PageResponse<PossessionHistoryResponse>> getApartmentPossessionHistory(
+            @RequestParam String apartmentSignature,
+            @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize
+    ) throws ApartmentNotFoundException {
+        return ResponseEntity.ok(apartmentsService.getApartmentPossessionHistory(apartmentSignature, pageNo, pageSize));
     }
 
     @GetMapping("/apartment-residents")
-    public ResponseEntity<List<UserResponse>> getAllResidentsByApartmentId(@RequestParam String apartmentSignature) throws ApartmentNotFoundException {
-        return ResponseEntity.ok(apartmentsService.getAllResidentsByApartmentId(apartmentSignature));
+    public ResponseEntity<PageResponse<UserResponse>> getAllResidentsByApartmentId(
+            @RequestParam String apartmentSignature,
+            @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize
+    ) throws ApartmentNotFoundException {
+        return ResponseEntity.ok(apartmentsService.getAllResidentsByApartmentId(apartmentSignature, pageNo, pageSize));
     }
 
     @GetMapping("/get-all-user-apartments")
-    public ResponseEntity<List<ApartmentResponse>> getAllUserApartments(@RequestParam UUID userId) throws UserNotFoundException {
-        return ResponseEntity.ok(apartmentsService.getAllUserApartments(userId));
+    public ResponseEntity<PageResponse<ApartmentResponse>> getAllUserApartments(
+            @RequestParam UUID userId,
+            @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize
+    ) throws UserNotFoundException {
+        return ResponseEntity.ok(apartmentsService.getAllUserApartments(userId, pageNo, pageSize));
     }
 
     // POST

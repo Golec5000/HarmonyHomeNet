@@ -14,9 +14,13 @@ import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.DocumentService;
 import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.MailService;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.DocumentType;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Role;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.response.DocumentResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.page.PageResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.DocumentResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -37,17 +41,26 @@ public class DocumentServiceImp implements DocumentService {
     private final SmsService smsService;
 
     @Override
-    public List<DocumentResponse> getAllDocuments() {
-        return documentRepository.findAll().stream()
-                .map(
-                        document -> DocumentResponse.builder()
-                                .documentId(document.getUuidID())
-                                .documentName(document.getDocumentName())
-                                .documentType(document.getDocumentType())
-                                .createdAt(document.getCreatedAt())
-                                .build()
-                )
-                .toList();
+    public PageResponse<DocumentResponse> getAllDocuments(int pageNo, int pageSize) {
+
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<Document> documents = documentRepository.findAll(pageable);
+
+        return new PageResponse<>(
+                documents.getNumber(),
+                documents.getSize(),
+                documents.getContent().stream()
+                        .map(
+                                document -> DocumentResponse.builder()
+                                        .documentId(document.getUuidID())
+                                        .documentName(document.getDocumentName())
+                                        .documentType(document.getDocumentType())
+                                        .createdAt(document.getCreatedAt())
+                                        .build()
+                        )
+                        .toList(),
+                documents.isLast()
+        );
     }
 
     @Override
@@ -146,13 +159,31 @@ public class DocumentServiceImp implements DocumentService {
                 .build();
     }
 
-
     @Override
-    public List<DocumentResponse> getAllDocumentsByUserId(UUID userId) throws UserNotFoundException {
+    public PageResponse<DocumentResponse> getAllDocumentsByUserId(UUID userId, int pageNo, int pageSize) throws UserNotFoundException {
         if (!userRepository.existsByUuidID(userId))
             throw new UserNotFoundException("User id: " + userId + " not found");
 
-        return documentRepository.findDocumentsByUserId(userId);
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<Document> documents = documentRepository.findDocumentsByUserId(userId, pageable);
+
+
+        return new PageResponse<>(
+                documents.getNumber(),
+                documents.getSize(),
+                documents.getContent().stream()
+                        .map(
+                                document -> DocumentResponse.builder()
+                                        .documentId(document.getUuidID())
+                                        .documentName(document.getDocumentName())
+                                        .documentType(document.getDocumentType())
+                                        .createdAt(document.getCreatedAt())
+                                        .build()
+                        )
+                        .toList(),
+                documents.isLast()
+        );
+
     }
 
     @Override
@@ -214,7 +245,6 @@ public class DocumentServiceImp implements DocumentService {
             return "Document id: " + documentId + " disconnected successfully for user id: " + userId;
         }
     }
-
 
     @Override
     public DocumentResponse downloadDocument(UUID documentId) throws DocumentNotFoundException {

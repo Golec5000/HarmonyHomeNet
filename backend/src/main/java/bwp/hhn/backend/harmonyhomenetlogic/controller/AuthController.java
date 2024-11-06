@@ -4,14 +4,14 @@ import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.AuthService;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.PasswordResetRequest;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.PasswordUpdateRequest;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.RegisterRequest;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.response.LoginResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.LoginResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 @RequiredArgsConstructor

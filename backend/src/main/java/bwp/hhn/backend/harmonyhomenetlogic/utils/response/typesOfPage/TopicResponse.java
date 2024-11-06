@@ -1,4 +1,4 @@
-package bwp.hhn.backend.harmonyhomenetlogic.utils.response;
+package bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage;
 
 import lombok.Builder;
 
@@ -6,9 +6,9 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Builder
-public record PostResponse(
+public record TopicResponse(
         UUID id,
-        String content,
+        String title,
         LocalDateTime createdAt,
         String userName
 ) {

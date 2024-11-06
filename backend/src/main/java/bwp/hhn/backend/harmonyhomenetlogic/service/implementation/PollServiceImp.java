@@ -14,10 +14,14 @@ import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.MailService;
 import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.PollService;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.VoteChoice;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.PollRequest;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.response.PollResponse;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.response.VoteResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.page.PageResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.PollResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.VoteResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -41,19 +45,28 @@ public class PollServiceImp implements PollService {
 
 
     @Override
-    public List<PollResponse> getAllPolls() {
-        return pollRepository.findAll().stream()
-                .map(
-                        poll -> PollResponse.builder()
-                                .id(poll.getUuidID())
-                                .pollName(poll.getPollName())
-                                .content(poll.getContent())
-                                .createdAt(poll.getCreatedAt())
-                                .endDate(poll.getEndDate())
-                                .summary(poll.getSummary())
-                                .build()
-                )
-                .toList();
+    public PageResponse<PollResponse> getAllPolls(int pageNo, int pageSize) {
+
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<Poll> polls = pollRepository.findAll(pageable);
+
+        return new PageResponse<>(
+                polls.getNumber(),
+                polls.getSize(),
+                polls.getContent().stream()
+                        .map(
+                                poll -> PollResponse.builder()
+                                        .id(poll.getUuidID())
+                                        .pollName(poll.getPollName())
+                                        .content(poll.getContent())
+                                        .createdAt(poll.getCreatedAt())
+                                        .endDate(poll.getEndDate())
+                                        .summary(poll.getSummary())
+                                        .build()
+                        )
+                        .toList(),
+                polls.isLast()
+        );
     }
 
     @Override
@@ -167,27 +180,52 @@ public class PollServiceImp implements PollService {
     }
 
     @Override
-    public List<VoteResponse> getVotesFromPoll(UUID pollId) throws PollNotFoundException {
-        return pollRepository.findById(pollId)
-                .map(
-                        poll -> poll.getVotes().stream()
-                                .map(
-                                        vote -> VoteResponse.builder()
-                                                .voteChoice(vote.getVoteChoice())
-                                                .createdAt(vote.getCreatedAt())
-                                                .build()
-                                )
-                                .toList()
-                )
-                .orElseThrow(() -> new PollNotFoundException("Poll: " + pollId + " not found"));
+    public PageResponse<VoteResponse> getVotesFromPoll(UUID pollId, int pageNo, int pageSize) throws PollNotFoundException {
+
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<Vote> votes = voteRepository.findVotesByPollUuidID(pollId, pageable);
+
+        return new PageResponse<>(
+                votes.getNumber(),
+                votes.getSize(),
+                votes.getContent().stream()
+                        .map(
+                                vote -> VoteResponse.builder()
+                                        .id(vote.getId())
+                                        .voteChoice(vote.getVoteChoice())
+                                        .createdAt(vote.getCreatedAt())
+                                        .build()
+                        )
+                        .toList(),
+                votes.isLast()
+        );
     }
 
     @Override
-    public List<VoteResponse> getVotesFromUser(UUID userId) throws UserNotFoundException {
+    public PageResponse<VoteResponse> getVotesFromUser(UUID userId, int pageNo, int pageSize) throws UserNotFoundException {
         if (!userRepository.existsById(userId)) {
             throw new UserNotFoundException("User: " + userId + " not found");
         }
-        return voteRepository.findVotesByUserId(userId);
+
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<Vote> votes = voteRepository.findVotesByUserUuidID(userId, pageable);
+
+
+        return new PageResponse<>(
+                votes.getNumber(),
+                votes.getSize(),
+                votes.getContent().stream()
+                        .map(
+                                vote -> VoteResponse.builder()
+                                        .id(vote.getId())
+                                        .voteChoice(vote.getVoteChoice())
+                                        .createdAt(vote.getCreatedAt())
+                                        .build()
+                        )
+                        .toList(),
+                votes.isLast()
+        );
+
     }
 
     @Override

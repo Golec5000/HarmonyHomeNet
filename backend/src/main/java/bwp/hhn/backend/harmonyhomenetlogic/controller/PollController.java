@@ -4,8 +4,9 @@ import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.
 import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.PollService;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.PollRequest;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.VoteRequest;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.response.PollResponse;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.response.VoteResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.page.PageResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.PollResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.VoteResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
@@ -14,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -26,18 +26,29 @@ public class PollController {
 
     //GET
     @GetMapping("/get-all-polls")
-    public ResponseEntity<List<PollResponse>> getAllPolls() {
-        return ResponseEntity.ok(pollService.getAllPolls());
+    public ResponseEntity<PageResponse<PollResponse>> getAllPolls(
+            @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize
+    ) {
+        return ResponseEntity.ok(pollService.getAllPolls(pageNo, pageSize));
     }
 
     @GetMapping("/get-votes-from-poll")
-    public ResponseEntity<List<VoteResponse>> getVotesFromPoll(@RequestParam UUID pollId) throws PollNotFoundException {
-        return ResponseEntity.ok(pollService.getVotesFromPoll(pollId));
+    public ResponseEntity<PageResponse<VoteResponse>> getVotesFromPoll(
+            @RequestParam UUID pollId,
+            @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize
+    ) throws PollNotFoundException {
+        return ResponseEntity.ok(pollService.getVotesFromPoll(pollId, pageNo, pageSize));
     }
 
     @GetMapping("/get-votes-by-user")
-    public ResponseEntity<List<VoteResponse>> getVotesFromUser(@RequestParam UUID userId) throws UserNotFoundException {
-        return ResponseEntity.ok(pollService.getVotesFromUser(userId));
+    public ResponseEntity<PageResponse<VoteResponse>> getVotesFromUser(
+            @RequestParam UUID userId,
+            @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize
+    ) throws UserNotFoundException {
+        return ResponseEntity.ok(pollService.getVotesFromUser(userId, pageNo, pageSize));
     }
 
     @GetMapping("/get-poll")

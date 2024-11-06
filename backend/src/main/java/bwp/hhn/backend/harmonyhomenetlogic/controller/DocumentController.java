@@ -5,7 +5,8 @@ import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.
 import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.DocumentService;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.DocumentType;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.DocumentDeleteRequest;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.response.DocumentResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.page.PageResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.DocumentResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -25,8 +25,11 @@ public class DocumentController {
 
     //GET
     @GetMapping("/get-all-documents")
-    public ResponseEntity<List<DocumentResponse>> getAllDocuments() {
-        return ResponseEntity.ok(documentService.getAllDocuments());
+    public ResponseEntity<PageResponse<DocumentResponse>> getAllDocuments(
+            @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize
+    ) {
+        return ResponseEntity.ok(documentService.getAllDocuments(pageNo, pageSize));
     }
 
     @GetMapping("/get-document-by-id")
@@ -35,8 +38,12 @@ public class DocumentController {
     }
 
     @GetMapping("/get-all-documents-by-user-id")
-    public ResponseEntity<List<DocumentResponse>> getAllDocumentsByUserId(@RequestParam UUID userId) throws UserNotFoundException {
-        return ResponseEntity.ok(documentService.getAllDocumentsByUserId(userId));
+    public ResponseEntity<PageResponse<DocumentResponse>> getAllDocumentsByUserId(
+            @RequestParam UUID userId,
+            @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize
+    ) throws UserNotFoundException {
+        return ResponseEntity.ok(documentService.getAllDocumentsByUserId(userId, pageNo, pageSize));
     }
 
     @GetMapping("/download-document")

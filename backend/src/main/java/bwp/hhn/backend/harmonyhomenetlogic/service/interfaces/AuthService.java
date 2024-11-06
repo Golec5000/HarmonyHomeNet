@@ -2,7 +2,7 @@ package bwp.hhn.backend.harmonyhomenetlogic.service.interfaces;
 
 import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.UserNotFoundException;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.RegisterRequest;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.response.LoginResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.LoginResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.core.Authentication;
 

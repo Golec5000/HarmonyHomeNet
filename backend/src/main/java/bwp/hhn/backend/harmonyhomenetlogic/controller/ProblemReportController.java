@@ -1,15 +1,17 @@
 package bwp.hhn.backend.harmonyhomenetlogic.controller;
 
-import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.*;
+import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.ApartmentNotFoundException;
+import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.ProblemReportNotFoundException;
+import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.UserNotFoundException;
 import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.ProblemReportService;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.ReportStatus;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.ProblemReportRequest;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.response.ProblemReportResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.page.PageResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.ProblemReportResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -26,23 +28,38 @@ public class ProblemReportController {
     }
 
     @GetMapping("/get-report-by-user/{userId}")
-    public ResponseEntity<List<ProblemReportResponse>> getProblemReportsByUserId(@PathVariable UUID userId) throws UserNotFoundException {
-        return ResponseEntity.ok(problemReportService.getProblemReportsByUserId(userId));
+    public ResponseEntity<PageResponse<ProblemReportResponse>> getProblemReportsByUserId(
+            @PathVariable UUID userId,
+            @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize)
+            throws UserNotFoundException {
+        return ResponseEntity.ok(problemReportService.getProblemReportsByUserId(userId, pageNo, pageSize));
     }
 
     @GetMapping("/get-report-by-apartment/{apartmentSignature}")
-    public ResponseEntity<List<ProblemReportResponse>> getProblemReportsByApartmentId(@PathVariable String apartmentSignature) throws ApartmentNotFoundException {
-        return ResponseEntity.ok(problemReportService.getProblemReportsByApartmentSignature(apartmentSignature));
+    public ResponseEntity<PageResponse<ProblemReportResponse>> getProblemReportsByApartmentId(
+            @PathVariable String apartmentSignature,
+            @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize
+    ) throws ApartmentNotFoundException {
+        return ResponseEntity.ok(problemReportService.getProblemReportsByApartmentSignature(apartmentSignature, pageNo, pageSize));
     }
 
     @GetMapping("/get-all-reports")
-    public ResponseEntity<List<ProblemReportResponse>> getAllProblemReports() {
-        return ResponseEntity.ok(problemReportService.getAllProblemReports());
+    public ResponseEntity<PageResponse<ProblemReportResponse>> getAllProblemReports(
+            @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize
+    ) {
+        return ResponseEntity.ok(problemReportService.getAllProblemReports(pageNo, pageSize));
     }
 
     @GetMapping("/get-reposts-by-status")
-    public ResponseEntity<List<ProblemReportResponse>> getProblemReportsByStatus(@RequestParam ReportStatus status) {
-        return ResponseEntity.ok(problemReportService.getProblemReportsByStatus(status));
+    public ResponseEntity<PageResponse<ProblemReportResponse>> getProblemReportsByStatus(
+            @RequestParam ReportStatus status,
+            @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize
+    ){
+        return ResponseEntity.ok(problemReportService.getProblemReportsByStatus(status, pageNo, pageSize));
     }
 
     //POST

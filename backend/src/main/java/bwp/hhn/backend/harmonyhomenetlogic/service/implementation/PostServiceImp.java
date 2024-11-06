@@ -12,14 +12,17 @@ import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.UserRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.PostService;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.PostRequest;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.TopicRequest;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.response.PostResponse;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.response.TopicResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.page.PageResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.PostResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.TopicResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -54,32 +57,50 @@ public class PostServiceImp implements PostService {
     }
 
     @Override
-    public List<TopicResponse> getUserTopics(UUID userId) throws UserNotFoundException {
+    public PageResponse<TopicResponse> getUserTopics(UUID userId, int pageNo, int pageSize) throws UserNotFoundException {
         if (!userRepository.existsById(userId)) throw new UserNotFoundException("User: " + userId + " not found");
 
-        return topicRepository.findByUserUuidID(userId).stream()
-                .map(
-                        topic -> TopicResponse.builder()
-                                .id(topic.getUuidID())
-                                .title(topic.getTitle())
-                                .createdAt(topic.getCreatedAt())
-                                .build()
-                )
-                .toList();
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<Topic> topics = topicRepository.findByUserUuidID(userId, pageable);
+
+        return new PageResponse<>(
+                topics.getNumber(),
+                topics.getSize(),
+                topics.getContent().stream()
+                        .map(
+                                topic -> TopicResponse.builder()
+                                        .id(topic.getUuidID())
+                                        .title(topic.getTitle())
+                                        .createdAt(topic.getCreatedAt())
+                                        .userName(topic.getUser().getFirstName() + " " + topic.getUser().getLastName())
+                                        .build()
+                        )
+                        .toList(),
+                topics.isLast()
+        );
     }
 
     @Override
-    public List<TopicResponse> getAllTopics() {
-        return topicRepository.findAll().stream()
-                .map(
-                        topic -> TopicResponse.builder()
-                                .id(topic.getUuidID())
-                                .title(topic.getTitle())
-                                .createdAt(topic.getCreatedAt())
-                                .userName(topic.getUser().getFirstName() + " " + topic.getUser().getLastName())
-                                .build()
-                )
-                .toList();
+    public PageResponse<TopicResponse> getAllTopics(int pageNo, int pageSize) {
+
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<Topic> topics = topicRepository.findAll(pageable);
+
+        return new PageResponse<>(
+                topics.getNumber(),
+                topics.getSize(),
+                topics.getContent().stream()
+                        .map(
+                                topic -> TopicResponse.builder()
+                                        .id(topic.getUuidID())
+                                        .title(topic.getTitle())
+                                        .createdAt(topic.getCreatedAt())
+                                        .userName(topic.getUser().getFirstName() + " " + topic.getUser().getLastName())
+                                        .build()
+                        )
+                        .toList(),
+                topics.isLast()
+        );
     }
 
     @Override
@@ -123,19 +144,27 @@ public class PostServiceImp implements PostService {
     }
 
     @Override
-    public List<PostResponse> getTopicPosts(UUID topicId) throws TopicNotFoundException {
+    public PageResponse<PostResponse> getTopicPosts(UUID topicId, int pageNo, int pageSize) throws TopicNotFoundException {
         if (!topicRepository.existsById(topicId)) throw new TopicNotFoundException("Topic: " + topicId + " not found");
 
-        return postRepository.findByTopicUuidID(topicId).stream()
-                .map(
-                        post -> PostResponse.builder()
-                                .id(post.getUuidID())
-                                .content(post.getContent())
-                                .createdAt(post.getCreatedAt())
-                                .userName(post.getUser().getFirstName() + " " + post.getUser().getLastName())
-                                .build()
-                )
-                .toList();
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<Post> posts = postRepository.findByTopicUuidID(topicId, pageable);
+
+        return new PageResponse<>(
+                posts.getNumber(),
+                posts.getSize(),
+                posts.getContent().stream()
+                        .map(
+                                post -> PostResponse.builder()
+                                        .id(post.getUuidID())
+                                        .content(post.getContent())
+                                        .createdAt(post.getCreatedAt())
+                                        .userName(post.getUser().getFirstName() + " " + post.getUser().getLastName())
+                                        .build()
+                        )
+                        .toList(),
+                posts.isLast()
+        );
     }
 
     @Override
@@ -157,33 +186,49 @@ public class PostServiceImp implements PostService {
     }
 
     @Override
-    public List<PostResponse> getUserPosts(UUID userId) throws UserNotFoundException {
+    public PageResponse<PostResponse> getUserPosts(UUID userId, int pageNo, int pageSize) throws UserNotFoundException {
 
         if (!userRepository.existsById(userId)) throw new UserNotFoundException("User: " + userId + " not found");
 
-        return postRepository.findByUserUuidID(userId).stream()
-                .map(
-                        post -> PostResponse.builder()
-                                .id(post.getUuidID())
-                                .content(post.getContent())
-                                .createdAt(post.getCreatedAt())
-                                .userName(post.getUser().getFirstName() + " " + post.getUser().getLastName())
-                                .build()
-                )
-                .toList();
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<Post> posts = postRepository.findByUserUuidID(userId, pageable);
+
+        return new PageResponse<>(
+                posts.getNumber(),
+                posts.getSize(),
+                posts.getContent().stream()
+                        .map(
+                                post -> PostResponse.builder()
+                                        .id(post.getUuidID())
+                                        .content(post.getContent())
+                                        .createdAt(post.getCreatedAt())
+                                        .userName(post.getUser().getFirstName() + " " + post.getUser().getLastName())
+                                        .build()
+                        )
+                        .toList(),
+                posts.isLast()
+        );
     }
 
     @Override
-    public List<PostResponse> getAllPosts() {
-        return postRepository.findAll().stream()
-                .map(
-                        post -> PostResponse.builder()
-                                .id(post.getUuidID())
-                                .content(post.getContent())
-                                .createdAt(post.getCreatedAt())
-                                .userName(post.getUser().getFirstName() + " " + post.getUser().getLastName())
-                                .build()
-                )
-                .toList();
+    public PageResponse<PostResponse> getAllPosts(int pageNo, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<Post> posts = postRepository.findAll(pageable);
+
+        return new PageResponse<>(
+                posts.getNumber(),
+                posts.getSize(),
+                posts.getContent().stream()
+                        .map(
+                                post -> PostResponse.builder()
+                                        .id(post.getUuidID())
+                                        .content(post.getContent())
+                                        .createdAt(post.getCreatedAt())
+                                        .userName(post.getUser().getFirstName() + " " + post.getUser().getLastName())
+                                        .build()
+                        )
+                        .toList(),
+                posts.isLast()
+        );
     }
 }

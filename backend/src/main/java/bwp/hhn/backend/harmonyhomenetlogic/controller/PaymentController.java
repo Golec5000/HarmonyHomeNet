@@ -6,13 +6,13 @@ import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.
 import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.PaymentService;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.PaymentComponentRequest;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.PaymentRequest;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.response.PaymentComponentResponse;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.response.PaymentResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.page.PageResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.PaymentComponentResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.PaymentResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -29,18 +29,29 @@ public class PaymentController {
     }
 
     @GetMapping("/get-all-payments")
-    public ResponseEntity<List<PaymentResponse>> getAllPayments() {
-        return ResponseEntity.ok(paymentService.getAllPayments());
+    public ResponseEntity<PageResponse<PaymentResponse>> getAllPayments(
+            @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize
+    ) {
+        return ResponseEntity.ok(paymentService.getAllPayments(pageNo, pageSize));
     }
 
     @GetMapping("/get-payment-by-apartment")
-    public ResponseEntity<List<PaymentResponse>> getPaymentsByApartmentId(@RequestParam String apartmentSignature) throws ApartmentNotFoundException {
-        return ResponseEntity.ok(paymentService.getPaymentsByApartmentSignature(apartmentSignature));
+    public ResponseEntity<PageResponse<PaymentResponse>> getPaymentsByApartmentId(
+            @RequestParam String apartmentSignature,
+            @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize
+    ) throws ApartmentNotFoundException {
+        return ResponseEntity.ok(paymentService.getPaymentsByApartmentSignature(apartmentSignature, pageNo, pageSize));
     }
 
     @GetMapping("/get-payment-components")
-    public ResponseEntity<List<PaymentComponentResponse>> getPaymentComponents(@RequestParam UUID paymentId) throws PaymentNotFoundException {
-        return ResponseEntity.ok(paymentService.getPaymentComponents(paymentId));
+    public ResponseEntity<PageResponse<PaymentComponentResponse>> getPaymentComponents(
+            @RequestParam UUID paymentId,
+            @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize
+    ) throws PaymentNotFoundException {
+        return ResponseEntity.ok(paymentService.getPaymentComponents(paymentId, pageNo, pageSize));
     }
 
     //POST

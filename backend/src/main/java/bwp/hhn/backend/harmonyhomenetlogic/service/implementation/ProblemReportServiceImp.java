@@ -14,14 +14,17 @@ import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.MailService;
 import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.ProblemReportService;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.ReportStatus;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.ProblemReportRequest;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.response.ProblemReportResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.page.PageResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.ProblemReportResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -139,82 +142,70 @@ public class ProblemReportServiceImp implements ProblemReportService {
     }
 
     @Override
-    public List<ProblemReportResponse> getProblemReportsByUserId(UUID userId) throws UserNotFoundException {
+    public PageResponse<ProblemReportResponse> getProblemReportsByUserId(UUID userId, int pageNo, int pageSize) throws UserNotFoundException {
 
         if (!userRepository.existsById(userId)) {
             throw new UserNotFoundException("User not found with id: " + userId);
         }
 
-        return problemReportRepository.findAllByUserUuidID(userId)
-                .stream()
-                .map(problemReport -> ProblemReportResponse.builder()
-                        .id(problemReport.getId())
-                        .note(problemReport.getNote())
-                        .reportStatus(problemReport.getReportStatus())
-                        .category(problemReport.getCategory())
-                        .userName(problemReport.getUser().getFirstName() + " " + problemReport.getUser().getLastName())
-                        .apartmentAddress(problemReport.getApartment().getAddress())
-                        .endDate(problemReport.getEndDate())
-                        .build())
-                .toList();
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<ProblemReport> problemReports = problemReportRepository.findAllByUserUuidID(userId, pageable);
+
+        return getProblemReportResponsePageResponse(problemReports);
 
 
     }
 
     @Override
-    public List<ProblemReportResponse> getProblemReportsByApartmentSignature(String apartmentSignature) throws ApartmentNotFoundException {
+    public PageResponse<ProblemReportResponse> getProblemReportsByApartmentSignature(String apartmentSignature, int pageNo, int pageSize) throws ApartmentNotFoundException {
 
         Apartment apartment = apartmentsRepository.findByApartmentSignature(apartmentSignature)
                 .orElseThrow(() -> new ApartmentNotFoundException("Apartment not found with signature: " + apartmentSignature));
 
-        return problemReportRepository.findAllByApartmentUuidID(apartment.getUuidID())
-                .stream()
-                .map(problemReport -> ProblemReportResponse.builder()
-                        .id(problemReport.getId())
-                        .note(problemReport.getNote())
-                        .reportStatus(problemReport.getReportStatus())
-                        .category(problemReport.getCategory())
-                        .userName(problemReport.getUser().getFirstName() + " " + problemReport.getUser().getLastName())
-                        .apartmentAddress(problemReport.getApartment().getAddress())
-                        .endDate(problemReport.getEndDate())
-                        .build())
-                .toList();
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<ProblemReport> problemReports = problemReportRepository.findAllByApartmentUuidID(apartment.getUuidID(), pageable);
+
+        return getProblemReportResponsePageResponse(problemReports);
 
     }
 
     @Override
-    public List<ProblemReportResponse> getAllProblemReports() {
+    public PageResponse<ProblemReportResponse> getAllProblemReports(int pageNo, int pageSize) {
 
-        return problemReportRepository.findAll()
-                .stream()
-                .map(problemReport -> ProblemReportResponse.builder()
-                        .id(problemReport.getId())
-                        .note(problemReport.getNote())
-                        .reportStatus(problemReport.getReportStatus())
-                        .category(problemReport.getCategory())
-                        .userName(problemReport.getUser().getFirstName() + " " + problemReport.getUser().getLastName())
-                        .apartmentAddress(problemReport.getApartment().getAddress())
-                        .endDate(problemReport.getEndDate())
-                        .build())
-                .toList();
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<ProblemReport> problemReports = problemReportRepository.findAll(pageable);
+
+        return getProblemReportResponsePageResponse(problemReports);
 
     }
 
     @Override
-    public List<ProblemReportResponse> getProblemReportsByStatus(ReportStatus status) {
+    public PageResponse<ProblemReportResponse>getProblemReportsByStatus(ReportStatus status,  int pageNo, int pageSize) {
 
-        return problemReportRepository.findAllByReportStatus(status)
-                .stream()
-                .map(problemReport -> ProblemReportResponse.builder()
-                        .id(problemReport.getId())
-                        .note(problemReport.getNote())
-                        .reportStatus(problemReport.getReportStatus())
-                        .category(problemReport.getCategory())
-                        .userName(problemReport.getUser().getFirstName() + " " + problemReport.getUser().getLastName())
-                        .apartmentAddress(problemReport.getApartment().getAddress())
-                        .endDate(problemReport.getEndDate())
-                        .build())
-                .toList();
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<ProblemReport> problemReports = problemReportRepository.findAllByReportStatus(status, pageable);
+
+        return getProblemReportResponsePageResponse(problemReports);
 
     }
+
+    private PageResponse<ProblemReportResponse> getProblemReportResponsePageResponse(Page<ProblemReport> problemReports) {
+        return new PageResponse<>(
+                problemReports.getNumber(),
+                problemReports.getSize(),
+                problemReports.getContent().stream()
+                        .map(problemReport -> ProblemReportResponse.builder()
+                                .id(problemReport.getId())
+                                .note(problemReport.getNote())
+                                .reportStatus(problemReport.getReportStatus())
+                                .category(problemReport.getCategory())
+                                .userName(problemReport.getUser().getFirstName() + " " + problemReport.getUser().getLastName())
+                                .apartmentAddress(problemReport.getApartment().getAddress())
+                                .endDate(problemReport.getEndDate())
+                                .build())
+                        .toList(),
+                problemReports.isLast()
+        );
+    }
+
 }

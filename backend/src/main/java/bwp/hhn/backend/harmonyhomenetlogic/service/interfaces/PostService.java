@@ -5,30 +5,30 @@ import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.
 import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.UserNotFoundException;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.PostRequest;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.TopicRequest;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.response.PostResponse;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.response.TopicResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.page.PageResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.PostResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.TopicResponse;
 
-import java.util.List;
 import java.util.UUID;
 
 public interface PostService {
 
     TopicResponse createTopic(TopicRequest topicRequest, UUID userId) throws UserNotFoundException;
 
-    List<TopicResponse> getUserTopics(UUID userId) throws UserNotFoundException;
+    PageResponse<TopicResponse> getUserTopics(UUID userId, int pageNo, int pageSize) throws UserNotFoundException;
 
-    List<TopicResponse> getAllTopics();
+    PageResponse<TopicResponse> getAllTopics(int pageNo, int pageSize);
 
     String deleteTopic(UUID topicId) throws TopicNotFoundException;
 
     PostResponse createPost(PostRequest postRequest, UUID topicId, UUID userId) throws UserNotFoundException, TopicNotFoundException;
 
-    List<PostResponse> getTopicPosts(UUID topicId) throws TopicNotFoundException;
+    PageResponse<PostResponse> getTopicPosts(UUID topicId, int pageNo, int pageSize) throws TopicNotFoundException;
 
     String deletePost(UUID postId, UUID userId) throws UserNotFoundException, PostNotFoundException;
 
-    List<PostResponse> getUserPosts(UUID userId) throws UserNotFoundException;
+    PageResponse<PostResponse> getUserPosts(UUID userId, int pageNo, int pageSize) throws UserNotFoundException;
 
-    List<PostResponse> getAllPosts();
+    PageResponse<PostResponse> getAllPosts(int pageNo, int pageSize);
 
 }

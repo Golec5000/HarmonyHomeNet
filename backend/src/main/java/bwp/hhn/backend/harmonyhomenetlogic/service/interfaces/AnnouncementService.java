@@ -5,7 +5,8 @@ import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.
 import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.UserNotFoundException;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.AnnouncementRequest;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.DateRequest;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.response.AnnouncementResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.page.PageResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.AnnouncementResponse;
 
 import java.util.List;
 import java.util.UUID;
@@ -20,16 +21,16 @@ public interface AnnouncementService {
 
     AnnouncementResponse getAnnouncement(Long announcementId) throws AnnouncementNotFoundException;
 
-    List<AnnouncementResponse> getAllAnnouncements();
+    PageResponse<AnnouncementResponse> getAllAnnouncements(int pageNo, int pageSize);
 
-    List<AnnouncementResponse> getAnnouncementsByUserId(UUID userId) throws UserNotFoundException;
+    PageResponse<AnnouncementResponse> getAnnouncementsByUserId(UUID userId, int pageNo, int pageSize) throws UserNotFoundException;
 
-    List<AnnouncementResponse> getAnnouncementsFromStartDateTOEndDate(DateRequest dateRequest);
+    PageResponse<AnnouncementResponse> getAnnouncementsFromStartDateTOEndDate(DateRequest dateRequest, int pageNo, int pageSize);
 
     String linkAnnouncementsToApartments(Long announcementId, List<String> apartmentSignature) throws AnnouncementNotFoundException, ApartmentNotFoundException;
 
     String unlinkAnnouncementsFromApartments(Long announcementId, List<String> apartmentSignature) throws AnnouncementNotFoundException;
 
-    List<AnnouncementResponse> getAnnouncementsByApartmentSignature(String apartmentSignature) throws ApartmentNotFoundException;
+    PageResponse<AnnouncementResponse> getAnnouncementsByApartmentSignature(String apartmentSignature, int pageNo, int pageSize) throws ApartmentNotFoundException;
 
 }

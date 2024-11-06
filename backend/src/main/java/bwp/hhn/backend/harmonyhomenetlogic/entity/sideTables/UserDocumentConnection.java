@@ -3,7 +3,10 @@ package bwp.hhn.backend.harmonyhomenetlogic.entity.sideTables;
 import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.Document;
 import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.User;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;

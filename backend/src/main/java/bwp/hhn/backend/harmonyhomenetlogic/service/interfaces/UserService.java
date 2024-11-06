@@ -5,9 +5,9 @@ import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Notification;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Role;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.UserRequest;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.response.UserResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.page.PageResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.UserResponse;
 
-import java.util.List;
 import java.util.UUID;
 
 public interface UserService {
@@ -20,11 +20,11 @@ public interface UserService {
 
     UserResponse getUserById(UUID userId) throws UserNotFoundException;
 
-    List<UserResponse> getAllUsers();
+    PageResponse<UserResponse> getAllUsers(int pageNo, int pageSize);
 
     UserResponse getUserByEmail(String email) throws UserNotFoundException;
 
-    List<UserResponse> getUsersByRole(Role role);
+    PageResponse<UserResponse> getUsersByRole(Role role, int pageNo, int pageSize);
 
     String deleteUser(UUID userId) throws UserNotFoundException;
 

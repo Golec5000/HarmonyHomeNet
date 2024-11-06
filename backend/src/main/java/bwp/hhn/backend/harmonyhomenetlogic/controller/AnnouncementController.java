@@ -6,7 +6,8 @@ import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.
 import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.AnnouncementService;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.AnnouncementRequest;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.DateRequest;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.response.AnnouncementResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.page.PageResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.AnnouncementResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,23 +29,38 @@ public class AnnouncementController {
     }
 
     @GetMapping("/get-all-announcements")
-    public ResponseEntity<List<AnnouncementResponse>> getAllAnnouncements() {
-        return ResponseEntity.ok(announcementService.getAllAnnouncements());
+    public ResponseEntity<PageResponse<AnnouncementResponse>> getAllAnnouncements(
+            @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize
+    ) {
+        return ResponseEntity.ok(announcementService.getAllAnnouncements(pageNo, pageSize));
     }
 
     @GetMapping("/get-announcements-by-user")
-    public ResponseEntity<List<AnnouncementResponse>> getAnnouncementsByUserId(@RequestParam UUID userId) throws UserNotFoundException {
-        return ResponseEntity.ok(announcementService.getAnnouncementsByUserId(userId));
+    public ResponseEntity<PageResponse<AnnouncementResponse>> getAnnouncementsByUserId(
+            @RequestParam UUID userId,
+            @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize
+    ) throws UserNotFoundException {
+        return ResponseEntity.ok(announcementService.getAnnouncementsByUserId(userId, pageNo, pageSize));
     }
 
     @GetMapping("/get-announcement-by-date-range")
-    public ResponseEntity<List<AnnouncementResponse>> getAnnouncementsFromStartDateToEndDate(@RequestBody DateRequest dateRequest) {
-        return ResponseEntity.ok(announcementService.getAnnouncementsFromStartDateTOEndDate(dateRequest));
+    public ResponseEntity<PageResponse<AnnouncementResponse>> getAnnouncementsFromStartDateToEndDate(
+            @RequestBody DateRequest dateRequest,
+            @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize
+    ) {
+        return ResponseEntity.ok(announcementService.getAnnouncementsFromStartDateTOEndDate(dateRequest, pageNo, pageSize));
     }
 
     @GetMapping("/get-announcements-by-apartment")
-    public ResponseEntity<List<AnnouncementResponse>> getAnnouncementsByApartmentSignature(@RequestParam String apartmentSignature) throws ApartmentNotFoundException {
-        return ResponseEntity.ok(announcementService.getAnnouncementsByApartmentSignature(apartmentSignature));
+    public ResponseEntity<PageResponse<AnnouncementResponse>> getAnnouncementsByApartmentSignature(
+            @RequestParam String apartmentSignature,
+            @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize
+    ) throws ApartmentNotFoundException {
+        return ResponseEntity.ok(announcementService.getAnnouncementsByApartmentSignature(apartmentSignature, pageNo, pageSize));
     }
 
     //POST

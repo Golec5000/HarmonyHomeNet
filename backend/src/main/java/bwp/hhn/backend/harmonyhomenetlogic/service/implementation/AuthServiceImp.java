@@ -10,14 +10,16 @@ import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.MailService;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Role;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.TokenType;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.RegisterRequest;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.response.LoginResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.LoginResponse;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.oauth2.jwt.*;
+import org.springframework.security.oauth2.jwt.JwtClaimsSet;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 

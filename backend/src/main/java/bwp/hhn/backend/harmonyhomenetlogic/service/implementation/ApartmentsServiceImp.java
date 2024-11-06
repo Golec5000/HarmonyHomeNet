@@ -13,15 +13,18 @@ import bwp.hhn.backend.harmonyhomenetlogic.service.adapters.SmsService;
 import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.ApartmentsService;
 import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.MailService;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.ApartmentRequest;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.response.ApartmentResponse;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.response.PossessionHistoryResponse;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.response.UserResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.page.PageResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.ApartmentResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.PossessionHistoryResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.UserResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -111,38 +114,22 @@ public class ApartmentsServiceImp implements ApartmentsService {
     }
 
     @Override
-    public List<ApartmentResponse> getCurrentApartmentsByUserId(UUID userId) throws ApartmentNotFoundException, UserNotFoundException {
-        return possessionHistoryRepository.findByUserUuidIDAndEndDateIsNull(userId).stream()
-                .map(
-                        possessionHistory -> ApartmentResponse.builder()
-                                .address(possessionHistory.getApartment().getAddress())
-                                .city(possessionHistory.getApartment().getCity())
-                                .zipCode(possessionHistory.getApartment().getZipCode())
-                                .apartmentArea(possessionHistory.getApartment().getApartmentArea())
-                                .createdAt(possessionHistory.getApartment().getCreatedAt())
-                                .updatedAt(possessionHistory.getApartment().getUpdatedAt())
-                                .apartmentSignature(possessionHistory.getApartment().getApartmentSignature())
-                                .build()
-                )
-                .toList();
+    public PageResponse<ApartmentResponse> getCurrentApartmentsByUserId(UUID userId, int pageNo, int pageSize)
+            throws ApartmentNotFoundException, UserNotFoundException {
+
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<Apartment> apartments = possessionHistoryRepository.findByUserUuidIDAndEndDateIsNull(userId, pageable);
+
+        return getApartmentResponsePageResponse(apartments);
     }
 
     @Override
-    public List<ApartmentResponse> getAllApartments() {
-        return apartmentsRepository.findAll().stream()
-                .map(
-                        apartment -> ApartmentResponse.builder()
-                                .apartmentId(apartment.getUuidID())
-                                .address(apartment.getAddress())
-                                .city(apartment.getCity())
-                                .zipCode(apartment.getZipCode())
-                                .apartmentArea(apartment.getApartmentArea())
-                                .createdAt(apartment.getCreatedAt())
-                                .updatedAt(apartment.getUpdatedAt())
-                                .apartmentSignature(apartment.getApartmentSignature())
-                                .build()
-                )
-                .toList();
+    public PageResponse<ApartmentResponse> getAllApartments(int pageNo, int pageSize) {
+
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<Apartment> apartments = apartmentsRepository.findAll(pageable);
+
+        return getApartmentResponsePageResponse(apartments);
     }
 
     @Override
@@ -218,7 +205,6 @@ public class ApartmentsServiceImp implements ApartmentsService {
                 .build();
     }
 
-
     @Override
     public String deletePossessionHistory(Long possessionHistoryId) throws PossessionHistoryNotFoundException {
         if (!possessionHistoryRepository.existsById(possessionHistoryId))
@@ -249,66 +235,103 @@ public class ApartmentsServiceImp implements ApartmentsService {
     }
 
     @Override
-    public List<UserResponse> getCurrentResidents(String apartmentSignature) throws ApartmentNotFoundException {
+    public PageResponse<UserResponse> getCurrentResidents(String apartmentSignature, int pageNo, int pageSize) throws ApartmentNotFoundException {
 
-        return possessionHistoryRepository.findActiveResidentsByApartment(apartmentSignature).stream()
-                .map(
-                        user -> UserResponse.builder()
-                                .firstName(user.getFirstName())
-                                .lastName(user.getLastName())
-                                .email(user.getEmail())
-                                .build()
-                )
-                .toList();
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<User> users = possessionHistoryRepository.findActiveResidentsByApartment(apartmentSignature, pageable);
+
+        return new PageResponse<>(
+                users.getNumber(),
+                users.getSize(),
+                users.getContent().stream()
+                        .map(
+                                user -> UserResponse.builder()
+                                        .firstName(user.getFirstName())
+                                        .lastName(user.getLastName())
+                                        .email(user.getEmail())
+                                        .build()
+                        )
+                        .toList(),
+                users.isLast()
+        );
     }
 
     @Override
-    public List<PossessionHistoryResponse> getApartmentPossessionHistory(String apartmentSignature) throws ApartmentNotFoundException {
+    public PageResponse<PossessionHistoryResponse> getApartmentPossessionHistory(String apartmentSignature, int pageNo, int pageSize) throws ApartmentNotFoundException {
         Apartment apartment = apartmentsRepository.findByApartmentSignature(apartmentSignature)
                 .orElseThrow(() -> new ApartmentNotFoundException("Apartment with signature: " + apartmentSignature + " not found"));
 
-        return possessionHistoryRepository.findByApartmentUuidID(apartment.getUuidID()).stream()
-                .map(
-                        possessionHistory -> PossessionHistoryResponse.builder()
-                                .userName(possessionHistory.getUser().getFirstName() + " " + possessionHistory.getUser().getLastName())
-                                .apartmentName(possessionHistory.getApartment().getAddress())
-                                .startDate(possessionHistory.getStartDate())
-                                .endDate(possessionHistory.getEndDate())
-                                .build()
-                )
-                .toList();
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<PossessionHistory> possessionHistories = possessionHistoryRepository.findByApartmentUuidID(apartment.getUuidID(), pageable);
+
+        return new PageResponse<>(
+                possessionHistories.getNumber(),
+                possessionHistories.getSize(),
+                possessionHistories.getContent().stream()
+                        .map(
+                                possessionHistory -> PossessionHistoryResponse.builder()
+                                        .userName(possessionHistory.getUser().getFirstName() + " " + possessionHistory.getUser().getLastName())
+                                        .apartmentName(possessionHistory.getApartment().getAddress())
+                                        .startDate(possessionHistory.getStartDate())
+                                        .endDate(possessionHistory.getEndDate())
+                                        .build()
+                        )
+                        .toList(),
+                possessionHistories.isLast()
+        );
     }
 
     @Override
-    public List<ApartmentResponse> getAllUserApartments(UUID userId) throws UserNotFoundException {
-        return possessionHistoryRepository.findByUserUuidID(userId).stream()
-                .map(
-                        possessionHistory -> ApartmentResponse.builder()
-                                .address(possessionHistory.getApartment().getAddress())
-                                .city(possessionHistory.getApartment().getCity())
-                                .zipCode(possessionHistory.getApartment().getZipCode())
-                                .apartmentArea(possessionHistory.getApartment().getApartmentArea())
-                                .createdAt(possessionHistory.getApartment().getCreatedAt())
-                                .updatedAt(possessionHistory.getApartment().getUpdatedAt())
-                                .apartmentSignature(possessionHistory.getApartment().getApartmentSignature())
-                                .build()
-                )
-                .toList();
+    public PageResponse<ApartmentResponse> getAllUserApartments(UUID userId, int pageNo, int pageSize) throws UserNotFoundException {
+
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<Apartment> apartments = possessionHistoryRepository.findByUserUuidID(userId, pageable);
+        return getApartmentResponsePageResponse(apartments);
     }
 
+
     @Override
-    public List<UserResponse> getAllResidentsByApartmentId(String apartmentSignature) throws ApartmentNotFoundException {
+    public PageResponse<UserResponse> getAllResidentsByApartmentId(String apartmentSignature, int pageNo, int pageSize) throws ApartmentNotFoundException {
         Apartment apartment = apartmentsRepository.findByApartmentSignature(apartmentSignature)
                 .orElseThrow(() -> new ApartmentNotFoundException("Apartment with signature: " + apartmentSignature + " not found"));
 
-        return possessionHistoryRepository.findByApartmentUuidID(apartment.getUuidID()).stream()
-                .map(
-                        possessionHistory -> UserResponse.builder()
-                                .firstName(possessionHistory.getUser().getFirstName())
-                                .lastName(possessionHistory.getUser().getLastName())
-                                .email(possessionHistory.getUser().getEmail())
-                                .build()
-                )
-                .toList();
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<PossessionHistory> possessionHistories = possessionHistoryRepository.findByApartmentUuidID(apartment.getUuidID(), pageable);
+
+        return new PageResponse<>(
+                possessionHistories.getNumber(),
+                possessionHistories.getSize(),
+                possessionHistories.getContent().stream()
+                        .map(
+                                possessionHistory -> UserResponse.builder()
+                                        .firstName(possessionHistory.getUser().getFirstName())
+                                        .lastName(possessionHistory.getUser().getLastName())
+                                        .email(possessionHistory.getUser().getEmail())
+                                        .build()
+                        )
+                        .toList(),
+                possessionHistories.isLast()
+        );
+    }
+
+    private PageResponse<ApartmentResponse> getApartmentResponsePageResponse(Page<Apartment> apartments) {
+        return new PageResponse<>(
+                apartments.getNumber(),
+                apartments.getSize(),
+                apartments.getContent().stream()
+                        .map(
+                                apartment -> ApartmentResponse.builder()
+                                        .address(apartment.getAddress())
+                                        .city(apartment.getCity())
+                                        .zipCode(apartment.getZipCode())
+                                        .apartmentArea(apartment.getApartmentArea())
+                                        .createdAt(apartment.getCreatedAt())
+                                        .updatedAt(apartment.getUpdatedAt())
+                                        .apartmentSignature(apartment.getApartmentSignature())
+                                        .build()
+                        )
+                        .toList(),
+                apartments.isLast()
+        );
     }
 }

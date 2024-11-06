@@ -3,11 +3,11 @@ package bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables;
 import bwp.hhn.backend.harmonyhomenetlogic.entity.sideTables.UserDocumentConnection;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.DocumentType;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import java.time.LocalDateTime;
 import java.util.List;

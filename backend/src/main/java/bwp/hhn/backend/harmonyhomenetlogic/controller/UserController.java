@@ -5,13 +5,13 @@ import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.UserService;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Notification;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Role;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.UserRequest;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.response.UserResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.page.PageResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.UserResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -29,8 +29,11 @@ public class UserController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_EMPLOYEE')")
     @GetMapping("/get-all-users")
-    public ResponseEntity<List<UserResponse>> getAllUsers() {
-        return ResponseEntity.ok(userService.getAllUsers());
+    public ResponseEntity<PageResponse<UserResponse>> getAllUsers(
+            @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize
+    ) {
+        return ResponseEntity.ok(userService.getAllUsers(pageNo, pageSize));
     }
 
     @GetMapping("/get-user-by-email/{email}")
@@ -39,8 +42,11 @@ public class UserController {
     }
 
     @GetMapping("/get-users-by-role")
-    public ResponseEntity<List<UserResponse>> getUsersByRole(@RequestParam Role role) {
-        return ResponseEntity.ok(userService.getUsersByRole(role));
+    public ResponseEntity<PageResponse<UserResponse>> getUsersByRole(
+            @RequestParam Role role,
+            @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize) {
+        return ResponseEntity.ok(userService.getUsersByRole(role, pageNo, pageSize));
     }
 
     //POST

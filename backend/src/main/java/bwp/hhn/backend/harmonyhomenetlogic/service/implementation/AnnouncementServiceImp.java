@@ -16,9 +16,13 @@ import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.AnnouncementServic
 import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.MailService;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.AnnouncementRequest;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.DateRequest;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.response.AnnouncementResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.page.PageResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.AnnouncementResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -109,23 +113,15 @@ public class AnnouncementServiceImp implements AnnouncementService {
     }
 
     @Override
-    public List<AnnouncementResponse> getAllAnnouncements() {
-        return announcementRepository.findAll().stream()
-                .map(announcement -> AnnouncementResponse.builder()
-                        .id(announcement.getId())
-                        .title(announcement.getTitle())
-                        .content(announcement.getContent())
-                        .createdAt(announcement.getCreatedAt())
-                        .updatedAt(announcement.getUpdatedAt())
-                        .build())
-                .toList();
-    }
+    public PageResponse<AnnouncementResponse> getAllAnnouncements(int pageNo, int pageSize) {
 
-    @Override
-    public List<AnnouncementResponse> getAnnouncementsByUserId(UUID userId) throws UserNotFoundException {
-
-        return userRepository.findById(userId)
-                .map(user -> announcementRepository.findByUserUuidID(userId).stream()
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<Announcement> announcements = announcementRepository.findAll(pageable);
+        
+        return new PageResponse<>(
+                announcements.getNumber(),
+                announcements.getSize(),
+                announcements.getContent().stream()
                         .map(announcement -> AnnouncementResponse.builder()
                                 .id(announcement.getId())
                                 .title(announcement.getTitle())
@@ -133,27 +129,58 @@ public class AnnouncementServiceImp implements AnnouncementService {
                                 .createdAt(announcement.getCreatedAt())
                                 .updatedAt(announcement.getUpdatedAt())
                                 .build())
-                        .toList())
-                .orElseThrow(() -> new UserNotFoundException("User: " + userId + " not found"));
+                        .toList(),
+                announcements.isLast()
+        );
+    }
+
+    @Override
+    public PageResponse<AnnouncementResponse> getAnnouncementsByUserId(UUID userId, int pageNo, int pageSize) throws UserNotFoundException {
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<Announcement> announcements =announcementRepository.findByUserUuidID(userId, pageable);
+
+
+        return new PageResponse<>(
+                announcements.getNumber(),
+                announcements.getSize(),
+                announcements.getContent().stream()
+                        .map(announcement -> AnnouncementResponse.builder()
+                                .id(announcement.getId())
+                                .title(announcement.getTitle())
+                                .content(announcement.getContent())
+                                .createdAt(announcement.getCreatedAt())
+                                .updatedAt(announcement.getUpdatedAt())
+                                .build())
+                        .toList(),
+                announcements.isLast()
+        );
 
     }
 
     @Override
-    public List<AnnouncementResponse> getAnnouncementsFromStartDateTOEndDate(DateRequest dateRequest) {
+    public PageResponse<AnnouncementResponse> getAnnouncementsFromStartDateTOEndDate(DateRequest dateRequest, int pageNo, int pageSize) {
 
-        List<Announcement> announcements = announcementRepository.findDistinctByCreatedAtOrUpdatedAtBetween(
-                dateRequest.getStartDate(), dateRequest.getEndDate()
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<Announcement> announcements =announcementRepository.findDistinctByCreatedAtOrUpdatedAtBetween(
+                dateRequest.getStartDate(),
+                dateRequest.getEndDate(),
+                pageable
         );
 
-        return announcements.stream()
-                .map(announcement -> AnnouncementResponse.builder()
-                        .id(announcement.getId())
-                        .title(announcement.getTitle())
-                        .content(announcement.getContent())
-                        .createdAt(announcement.getCreatedAt())
-                        .updatedAt(announcement.getUpdatedAt())
-                        .build())
-                .toList();
+        return new PageResponse<>(
+                announcements.getNumber(),
+                announcements.getSize(),
+                announcements.getContent().stream()
+                        .map(announcement -> AnnouncementResponse.builder()
+                                .id(announcement.getId())
+                                .title(announcement.getTitle())
+                                .content(announcement.getContent())
+                                .createdAt(announcement.getCreatedAt())
+                                .updatedAt(announcement.getUpdatedAt())
+                                .build())
+                        .toList(),
+                announcements.isLast()
+        );
     }
 
     @Override
@@ -215,9 +242,6 @@ public class AnnouncementServiceImp implements AnnouncementService {
         return "Linked " + newAnnouncementApartments.size() + " apartments to announcement: " + announcementId;
     }
 
-
-
-
     @Override
     @Transactional
     public String unlinkAnnouncementsFromApartments(Long announcementId, List<String> apartmentSignature) throws AnnouncementNotFoundException {
@@ -239,19 +263,26 @@ public class AnnouncementServiceImp implements AnnouncementService {
         return "Unlinked " + announcementApartmentsToRemove.size() + " apartments from announcement: " + announcementId;
     }
 
-
     @Override
-    public List<AnnouncementResponse> getAnnouncementsByApartmentSignature(String apartmentSignature) throws ApartmentNotFoundException {
+    public PageResponse<AnnouncementResponse> getAnnouncementsByApartmentSignature(String apartmentSignature, int pageNo, int pageSize) throws ApartmentNotFoundException {
 
-        return announcementApartmentRepository.findByApartmentSignature(apartmentSignature).stream()
-                .map(announcementApartment -> AnnouncementResponse.builder()
-                        .id(announcementApartment.getAnnouncement().getId())
-                        .title(announcementApartment.getAnnouncement().getTitle())
-                        .content(announcementApartment.getAnnouncement().getContent())
-                        .createdAt(announcementApartment.getAnnouncement().getCreatedAt())
-                        .updatedAt(announcementApartment.getAnnouncement().getUpdatedAt())
-                        .build())
-                .toList();
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<AnnouncementApartment> announcementApartments = announcementApartmentRepository.findByApartmentSignature(apartmentSignature, pageable);
+
+        return new PageResponse<>(
+                announcementApartments.getNumber(),
+                announcementApartments.getSize(),
+                announcementApartments.getContent().stream()
+                        .map(announcementApartment -> AnnouncementResponse.builder()
+                                .id(announcementApartment.getAnnouncement().getId())
+                                .title(announcementApartment.getAnnouncement().getTitle())
+                                .content(announcementApartment.getAnnouncement().getContent())
+                                .createdAt(announcementApartment.getAnnouncement().getCreatedAt())
+                                .updatedAt(announcementApartment.getAnnouncement().getUpdatedAt())
+                                .build())
+                        .toList(),
+                announcementApartments.isLast()
+        );
     }
 
 }

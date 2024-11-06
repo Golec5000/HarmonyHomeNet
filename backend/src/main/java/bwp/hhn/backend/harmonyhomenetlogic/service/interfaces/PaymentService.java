@@ -5,10 +5,10 @@ import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.
 import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.PaymentNotFoundException;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.PaymentComponentRequest;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.PaymentRequest;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.response.PaymentComponentResponse;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.response.PaymentResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.page.PageResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.PaymentComponentResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.PaymentResponse;
 
-import java.util.List;
 import java.util.UUID;
 
 public interface PaymentService {
@@ -19,9 +19,9 @@ public interface PaymentService {
 
     String deletePaymentById(UUID paymentId) throws PaymentNotFoundException;
 
-    List<PaymentResponse> getAllPayments();
+    PageResponse<PaymentResponse> getAllPayments(int pageNo, int pageSize);
 
-    List<PaymentResponse> getPaymentsByApartmentSignature(String apartmentSignature) throws ApartmentNotFoundException;
+    PageResponse<PaymentResponse> getPaymentsByApartmentSignature(String apartmentSignature, int pageNo, int pageSize) throws ApartmentNotFoundException;
 
     PaymentResponse payPayment(UUID paymentId) throws PaymentNotFoundException, IllegalArgumentException;
 
@@ -31,6 +31,6 @@ public interface PaymentService {
 
     PaymentResponse updatePaymentComponent(UUID paymentId, Long paymentComponentId, PaymentComponentRequest paymentComponentRequest) throws PaymentNotFoundException, PaymentComponentNotFoundException;
 
-    List<PaymentComponentResponse> getPaymentComponents(UUID paymentId) throws PaymentNotFoundException;
+    PageResponse<PaymentComponentResponse> getPaymentComponents(UUID paymentId, int pageNo, int pageSize) throws PaymentNotFoundException;
 
 }

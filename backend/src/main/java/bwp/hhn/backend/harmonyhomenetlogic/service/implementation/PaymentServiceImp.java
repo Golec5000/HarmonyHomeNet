@@ -14,18 +14,20 @@ import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.PaymentService;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.PaymentStatus;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.PaymentComponentRequest;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.PaymentRequest;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.response.PaymentComponentResponse;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.response.PaymentResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.page.PageResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.PaymentComponentResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.PaymentResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
-import java.util.logging.Logger;
 
 @Service
 @RequiredArgsConstructor
@@ -95,39 +97,28 @@ public class PaymentServiceImp implements PaymentService {
     }
 
     @Override
-    public List<PaymentResponse> getAllPayments() {
-        return paymentRepository.findAll().stream()
-                .map(payment -> PaymentResponse.builder()
-                        .paymentId(payment.getUuidID())
-                        .paymentStatus(payment.getPaymentStatus())
-                        .paymentDate(payment.getPaymentDate())
-                        .paymentTime(payment.getPaymentTime())
-                        .paymentAmount(payment.getPaymentAmount())
-                        .createdAt(payment.getCreatedAt())
-                        .description(payment.getDescription())
-                        .build())
-                .toList();
+    public PageResponse<PaymentResponse> getAllPayments(int pageNo, int pageSize) {
+
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<Payment> payments = paymentRepository.findAll(pageable);
+
+        return getPaymentResponsePageResponse(payments);
     }
 
     @Override
-    public List<PaymentResponse> getPaymentsByApartmentSignature(String apartmentSignature) throws ApartmentNotFoundException {
+    public PageResponse<PaymentResponse> getPaymentsByApartmentSignature(String apartmentSignature, int pageNo, int pageSize) throws ApartmentNotFoundException {
 
         Apartment apartment = apartmentsRepository.findByApartmentSignature(apartmentSignature)
                 .orElseThrow(() -> new ApartmentNotFoundException("Apartment: " + apartmentSignature + " not found"));
 
-        return paymentRepository.findAllByApartmentUuidID(apartment.getUuidID()).stream()
-                .map(payment -> PaymentResponse.builder()
-                        .paymentId(payment.getUuidID())
-                        .paymentStatus(payment.getPaymentStatus())
-                        .paymentDate(payment.getPaymentDate())
-                        .paymentTime(payment.getPaymentTime())
-                        .paymentAmount(payment.getPaymentAmount())
-                        .createdAt(payment.getCreatedAt())
-                        .description(payment.getDescription())
-                        .build())
-                .toList();
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<Payment> payments = paymentRepository.findAllByApartmentUuidID(apartment.getUuidID(), pageable);
+
+
+        return getPaymentResponsePageResponse(payments);
 
     }
+
 
     @Override
     public PaymentResponse payPayment(UUID paymentId) throws PaymentNotFoundException, IllegalArgumentException {
@@ -264,19 +255,27 @@ public class PaymentServiceImp implements PaymentService {
     }
 
     @Override
-    public List<PaymentComponentResponse> getPaymentComponents(UUID paymentId) throws PaymentNotFoundException {
-        return paymentComponentRepository.findAllByPaymentUuidID(paymentId)
-                .stream()
-                .map(paymentComponent -> PaymentComponentResponse.builder()
-                        .componentType(paymentComponent.getComponentType())
-                        .componentAmount(paymentComponent.getComponentAmount())
-                        .unitPrice(paymentComponent.getUnitPrice())
-                        .specialMultiplier(paymentComponent.getSpecialMultiplier())
-                        .updatedAt(paymentComponent.getUpdatedAt())
-                        .createdAt(paymentComponent.getCreatedAt())
-                        .unit(paymentComponent.getUnit())
-                        .build())
-                .toList();
+    public PageResponse<PaymentComponentResponse> getPaymentComponents(UUID paymentId, int pageNo, int pageSize) throws PaymentNotFoundException {
+
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<PaymentComponent> paymentComponents = paymentComponentRepository.findAllByPaymentUuidID(paymentId, pageable);
+
+        return new PageResponse<>(
+                paymentComponents.getNumber(),
+                paymentComponents.getSize(),
+                paymentComponents.getContent().stream()
+                        .map(paymentComponent -> PaymentComponentResponse.builder()
+                                .componentType(paymentComponent.getComponentType())
+                                .componentAmount(paymentComponent.getComponentAmount())
+                                .unitPrice(paymentComponent.getUnitPrice())
+                                .specialMultiplier(paymentComponent.getSpecialMultiplier())
+                                .updatedAt(paymentComponent.getUpdatedAt())
+                                .createdAt(paymentComponent.getCreatedAt())
+                                .unit(paymentComponent.getUnit())
+                                .build())
+                        .toList(),
+                paymentComponents.isLast()
+        );
     }
 
     private void recalculatePaymentAmount(Payment payment) {
@@ -291,5 +290,22 @@ public class PaymentServiceImp implements PaymentService {
         payment.setPaymentAmount(totalAmount);
     }
 
-
+    private PageResponse<PaymentResponse> getPaymentResponsePageResponse(Page<Payment> payments) {
+        return new PageResponse<>(
+                payments.getNumber(),
+                payments.getSize(),
+                payments.getContent().stream()
+                        .map(payment -> PaymentResponse.builder()
+                                .paymentId(payment.getUuidID())
+                                .paymentStatus(payment.getPaymentStatus())
+                                .paymentDate(payment.getPaymentDate())
+                                .paymentTime(payment.getPaymentTime())
+                                .paymentAmount(payment.getPaymentAmount())
+                                .createdAt(payment.getCreatedAt())
+                                .description(payment.getDescription())
+                                .build())
+                        .toList(),
+                payments.isLast()
+        );
+    }
 }

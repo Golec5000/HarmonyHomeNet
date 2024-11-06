@@ -1,19 +1,18 @@
 package bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables;
 
 import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.Vote;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.response.VoteResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 
-import java.util.List;
 import java.util.UUID;
 
 public interface VoteRepository extends JpaRepository<Vote, Long> {
     boolean existsById(Long voteId);
 
-    @Query("SELECT new bwp.hhn.backend.harmonyhomenetlogic.utils.response.VoteResponse(v.id, v.voteChoice, v.createdAt) " +
-            "FROM Vote v WHERE v.user.uuidID = :userId")
-    List<VoteResponse> findVotesByUserId(UUID userId);
+    Page<Vote> findVotesByUserUuidID(UUID userId, Pageable pageable);
 
     boolean existsByPollUuidIDAndApartmentSignature(UUID pollId, String apartmentSignature);
+
+    Page<Vote> findVotesByPollUuidID(UUID pollId, Pageable pageable);
 }

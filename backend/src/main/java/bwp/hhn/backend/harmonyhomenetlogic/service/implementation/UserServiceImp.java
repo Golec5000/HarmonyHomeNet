@@ -15,9 +15,13 @@ import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.DocumentType;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Notification;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Role;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.UserRequest;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.response.UserResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.page.PageResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.UserResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -60,10 +64,12 @@ public class UserServiceImp implements UserService {
 
                 userDocumentConnectionRepository.save(connection);
 
-                if (userEntity.getUserDocumentConnections() == null) userEntity.setUserDocumentConnections(new ArrayList<>());
+                if (userEntity.getUserDocumentConnections() == null)
+                    userEntity.setUserDocumentConnections(new ArrayList<>());
                 userEntity.getUserDocumentConnections().add(connection);
 
-                if (document.getUserDocumentConnections() == null) document.setUserDocumentConnections(new ArrayList<>());
+                if (document.getUserDocumentConnections() == null)
+                    document.setUserDocumentConnections(new ArrayList<>());
                 document.getUserDocumentConnections().add(connection);
             }
         }
@@ -130,17 +136,26 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
-    public List<UserResponse> getAllUsers() {
-        return userRepository.findAll().stream()
-                .map(
-                        userEntity -> UserResponse.builder()
-                        .userId(userEntity.getUuidID())
-                        .email(userEntity.getEmail())
-                        .firstName(userEntity.getFirstName())
-                        .lastName(userEntity.getLastName())
-                        .build()
-                )
-                .collect(Collectors.toList());
+    public PageResponse<UserResponse> getAllUsers(int pageNo, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<User> users = userRepository.findAll(pageable);
+
+
+        return new PageResponse<>(
+                users.getNumber(),
+                users.getSize(),
+                users.getContent().stream()
+                        .map(userEntity -> UserResponse.builder()
+                                .userId(userEntity.getUuidID())
+                                .email(userEntity.getEmail())
+                                .firstName(userEntity.getFirstName())
+                                .lastName(userEntity.getLastName())
+                                .build()
+                        )
+                        .collect(Collectors.toList()),
+                users.isLast()
+        );
+
     }
 
     @Override
@@ -156,14 +171,27 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
-    public List<UserResponse> getUsersByRole(Role role) {
-        return userRepository.findAllByRole(role).stream()
-                .map(userEntity -> UserResponse.builder()
-                        .email(userEntity.getEmail())
-                        .firstName(userEntity.getFirstName())
-                        .lastName(userEntity.getLastName())
-                        .build())
-                .collect(Collectors.toList());
+    public PageResponse<UserResponse> getUsersByRole(Role role, int pageNo, int pageSize) {
+
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<User> users = userRepository.findAllByRole(role, pageable);
+
+        return new PageResponse<>(
+                users.getNumber(),
+                users.getSize(),
+                users.getContent().stream()
+                        .map(userEntity -> UserResponse.builder()
+                                .userId(userEntity.getUuidID())
+                                .email(userEntity.getEmail())
+                                .firstName(userEntity.getFirstName())
+                                .lastName(userEntity.getLastName())
+                                .build()
+                        )
+                        .collect(Collectors.toList()),
+                users.isLast()
+        );
+
+
     }
 
     @Override
@@ -175,7 +203,6 @@ public class UserServiceImp implements UserService {
 
         return "User deleted successfully";
     }
-
 
     @Override
     @Transactional
