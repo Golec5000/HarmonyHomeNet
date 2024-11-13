@@ -47,10 +47,3 @@ spring:
 
 server:
   port: 8444
-  ssl:
-    enabled: true
-    protocol: TLSv1.3
-    key-store: classpath:keystore.p12
-    key-store-password: 123456
-    key-store-type: PKCS12
-    key-alias: bwp

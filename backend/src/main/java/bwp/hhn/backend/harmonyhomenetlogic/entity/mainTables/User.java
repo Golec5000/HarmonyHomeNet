@@ -1,6 +1,5 @@
 package bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables;
 
-import bwp.hhn.backend.harmonyhomenetlogic.configuration.security.jwtUtils.aboutEntity.RefreshToken;
 import bwp.hhn.backend.harmonyhomenetlogic.entity.sideTables.PossessionHistory;
 import bwp.hhn.backend.harmonyhomenetlogic.entity.sideTables.UserDocumentConnection;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Role;
@@ -114,10 +113,6 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<UserDocumentConnection> userDocumentConnections;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
-    private List<RefreshToken> refreshTokens;
 
     @Column(name = "reset_token")
     private String resetToken;

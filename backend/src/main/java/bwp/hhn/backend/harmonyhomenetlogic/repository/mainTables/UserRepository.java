@@ -2,6 +2,7 @@ package bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables;
 
 import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.User;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Role;
+import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
@@ -38,6 +39,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     Optional<User> findByResetToken(String resetToken);
 
     @Modifying
+    @Transactional
     @Query("UPDATE User u SET u.resetToken = null, u.resetTokenExpiry = null WHERE u.resetTokenExpiry <= :now")
     void deleteAllExpiredResetTokens(Instant now);
 
