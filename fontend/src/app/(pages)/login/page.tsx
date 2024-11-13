@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Home, LogIn } from 'lucide-react';
 import Link from 'next/link';
 import { ModeToggle } from "@/components/ModeToggle";
-import {jwtDecode} from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 
 const loginSchema = yup.object().shape({
     email: yup.string().email('Invalid email format').required('Email is required'),
@@ -47,13 +47,22 @@ function LoginForm() {
 
             if (response.ok) {
                 const data = await response.json();
-                const accessToken = data.accessToken;
-                localStorage.setItem('jwt_accessToken', accessToken);
-                const outAccessToken = localStorage.getItem('jwt_accessToken');
-                if (outAccessToken) {
-                    const decodedToken = jwtDecode(outAccessToken);
-                    console.log('Decoded Token:', decodedToken);
+                const myAccessToken = data.accessToken;
+                localStorage.setItem('jwt_accessToken', myAccessToken);
+
+                // Decode the token to get the user's role
+                const decodedToken = jwtDecode(myAccessToken);
+                const userRole = decodedToken.role;
+
+                // Redirect based on the user's role
+                if (userRole === 'ROLE_ADMIN' || userRole === 'ROLE_EMPLOYEE') {
+                    window.location.href = '/admin-home';
+                } else if (userRole === 'ROLE_OWNER') {
+                    window.location.href = '/owner-home';
+                } else {
+                    window.location.href = '/welcome-home';
                 }
+
                 console.log('Login successful:');
             } else {
                 console.error('Login failed:', response.statusText);
