@@ -117,21 +117,8 @@ public class AnnouncementServiceImp implements AnnouncementService {
 
         Pageable pageable = PageRequest.of(pageNo, pageSize);
         Page<Announcement> announcements = announcementRepository.findAll(pageable);
-        
-        return new PageResponse<>(
-                announcements.getNumber(),
-                announcements.getSize(),
-                announcements.getContent().stream()
-                        .map(announcement -> AnnouncementResponse.builder()
-                                .id(announcement.getId())
-                                .title(announcement.getTitle())
-                                .content(announcement.getContent())
-                                .createdAt(announcement.getCreatedAt())
-                                .updatedAt(announcement.getUpdatedAt())
-                                .build())
-                        .toList(),
-                announcements.isLast()
-        );
+
+        return getAnnouncementResponsePageResponse(announcements);
     }
 
     @Override
@@ -140,20 +127,7 @@ public class AnnouncementServiceImp implements AnnouncementService {
         Page<Announcement> announcements =announcementRepository.findByUserUuidID(userId, pageable);
 
 
-        return new PageResponse<>(
-                announcements.getNumber(),
-                announcements.getSize(),
-                announcements.getContent().stream()
-                        .map(announcement -> AnnouncementResponse.builder()
-                                .id(announcement.getId())
-                                .title(announcement.getTitle())
-                                .content(announcement.getContent())
-                                .createdAt(announcement.getCreatedAt())
-                                .updatedAt(announcement.getUpdatedAt())
-                                .build())
-                        .toList(),
-                announcements.isLast()
-        );
+        return getAnnouncementResponsePageResponse(announcements);
 
     }
 
@@ -167,20 +141,7 @@ public class AnnouncementServiceImp implements AnnouncementService {
                 pageable
         );
 
-        return new PageResponse<>(
-                announcements.getNumber(),
-                announcements.getSize(),
-                announcements.getContent().stream()
-                        .map(announcement -> AnnouncementResponse.builder()
-                                .id(announcement.getId())
-                                .title(announcement.getTitle())
-                                .content(announcement.getContent())
-                                .createdAt(announcement.getCreatedAt())
-                                .updatedAt(announcement.getUpdatedAt())
-                                .build())
-                        .toList(),
-                announcements.isLast()
-        );
+        return getAnnouncementResponsePageResponse(announcements);
     }
 
     @Override
@@ -269,20 +230,26 @@ public class AnnouncementServiceImp implements AnnouncementService {
         Pageable pageable = PageRequest.of(pageNo, pageSize);
         Page<AnnouncementApartment> announcementApartments = announcementApartmentRepository.findByApartmentSignature(apartmentSignature, pageable);
 
-        return new PageResponse<>(
-                announcementApartments.getNumber(),
-                announcementApartments.getSize(),
-                announcementApartments.getContent().stream()
-                        .map(announcementApartment -> AnnouncementResponse.builder()
-                                .id(announcementApartment.getAnnouncement().getId())
-                                .title(announcementApartment.getAnnouncement().getTitle())
-                                .content(announcementApartment.getAnnouncement().getContent())
-                                .createdAt(announcementApartment.getAnnouncement().getCreatedAt())
-                                .updatedAt(announcementApartment.getAnnouncement().getUpdatedAt())
-                                .build())
-                        .toList(),
-                announcementApartments.isLast()
-        );
+        return getAnnouncementResponsePageResponse(announcementApartments.map(AnnouncementApartment::getAnnouncement));
     }
 
+    private PageResponse<AnnouncementResponse> getAnnouncementResponsePageResponse(Page<Announcement> announcements) {
+        return new PageResponse<>(
+                announcements.getNumber(),
+                announcements.getSize(),
+                announcements.getTotalPages(),
+                announcements.getContent().stream()
+                        .map(announcement -> AnnouncementResponse.builder()
+                                .id(announcement.getId())
+                                .title(announcement.getTitle())
+                                .content(announcement.getContent())
+                                .createdAt(announcement.getCreatedAt())
+                                .updatedAt(announcement.getUpdatedAt())
+                                .build())
+                        .toList(),
+                announcements.isLast(),
+                announcements.hasNext(),
+                announcements.hasPrevious()
+        );
+    }
 }

@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -77,12 +78,8 @@ public class ApartmentController {
     }
 
     @GetMapping("/get-all-user-apartments")
-    public ResponseEntity<PageResponse<ApartmentResponse>> getAllUserApartments(
-            @RequestParam UUID userId,
-            @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
-            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize
-    ) throws UserNotFoundException {
-        return ResponseEntity.ok(apartmentsService.getAllUserApartments(userId, pageNo, pageSize));
+    public ResponseEntity<List<ApartmentResponse>> getAllUserApartments(@RequestParam UUID userId) throws UserNotFoundException {
+        return ResponseEntity.ok(apartmentsService.getAllUserApartments(userId));
     }
 
     // POST

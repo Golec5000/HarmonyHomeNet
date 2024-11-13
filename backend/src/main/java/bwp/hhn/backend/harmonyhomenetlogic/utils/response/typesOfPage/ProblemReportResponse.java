@@ -4,7 +4,7 @@ import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Category;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.ReportStatus;
 import lombok.Builder;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Builder
 public record ProblemReportResponse(
@@ -14,6 +14,6 @@ public record ProblemReportResponse(
         Category category,
         String userName,
         String apartmentAddress,
-        LocalDateTime endDate
+        Instant endDate
 ) {
 }

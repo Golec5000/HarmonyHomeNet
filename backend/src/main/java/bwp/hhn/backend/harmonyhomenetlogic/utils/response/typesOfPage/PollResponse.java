@@ -3,7 +3,7 @@ package bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage;
 import lombok.Builder;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 @Builder
@@ -12,8 +12,8 @@ public record PollResponse(
         String pollName,
         String content,
         byte[] uploadData,
-        LocalDateTime createdAt,
-        LocalDateTime endDate,
+        Instant createdAt,
+        Instant endDate,
         BigDecimal summary
 ) {
 }

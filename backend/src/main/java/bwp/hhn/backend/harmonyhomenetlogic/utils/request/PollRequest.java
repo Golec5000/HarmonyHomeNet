@@ -8,7 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Data
 @AllArgsConstructor
@@ -25,6 +25,6 @@ public class PollRequest {
     private String content;
 
     @NotNull
-    private LocalDateTime endDate;
+    private Instant endDate;
 
 }

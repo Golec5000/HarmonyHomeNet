@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -48,10 +48,10 @@ public class Poll {
 
     @CreationTimestamp
     @Column(name = "Created_at", nullable = false)
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     @Column(name = "End_date")
-    private LocalDateTime endDate;
+    private Instant endDate;
 
     @NotNull
     @DecimalMin(value = "0.0")

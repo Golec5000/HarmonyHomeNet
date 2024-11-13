@@ -14,7 +14,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Data
 @AllArgsConstructor
@@ -55,11 +55,11 @@ public class PaymentComponent {
 
     @CreationTimestamp
     @Column(name = "Created_at", nullable = false)
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     @UpdateTimestamp
     @Column(name = "Updated_at")
-    private LocalDateTime updatedAt;
+    private Instant updatedAt;
 
     @ManyToOne
     @JoinColumn(name = "payment_id", referencedColumnName = "UUID_id")

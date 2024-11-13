@@ -13,7 +13,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Data
 @AllArgsConstructor
@@ -50,11 +50,11 @@ public class ProblemReport {
     private Category category;
 
     @Column(name = "End_date")
-    private LocalDateTime endDate;
+    private Instant endDate;
 
     @CreationTimestamp
     @Column(name = "Created_at", nullable = false)
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "UUID_id")

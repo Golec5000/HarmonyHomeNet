@@ -9,7 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 @Data
@@ -36,7 +36,7 @@ public class Post {
 
     @CreationTimestamp
     @Column(name = "Created_at", nullable = false)
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     @ManyToOne
     @JoinColumn(name = "topic_id", referencedColumnName = "UUID_id")

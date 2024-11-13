@@ -27,7 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -53,6 +53,7 @@ public class PollServiceImp implements PollService {
         return new PageResponse<>(
                 polls.getNumber(),
                 polls.getSize(),
+                polls.getTotalPages(),
                 polls.getContent().stream()
                         .map(
                                 poll -> PollResponse.builder()
@@ -65,7 +66,9 @@ public class PollServiceImp implements PollService {
                                         .build()
                         )
                         .toList(),
-                polls.isLast()
+                polls.isLast(),
+                polls.hasNext(),
+                polls.hasPrevious()
         );
     }
 
@@ -75,7 +78,7 @@ public class PollServiceImp implements PollService {
         User user = userRepository.findByIdAndRole(employeeId)
                 .orElseThrow(() -> new UserNotFoundException("User: " + employeeId + " not found"));
 
-        if (pollRequest.getEndDate().isBefore(LocalDateTime.now()))
+        if (pollRequest.getEndDate().isBefore(Instant.now()))
             throw new IllegalArgumentException("End date must be after current date");
 
         Poll poll = Poll.builder()
@@ -145,7 +148,7 @@ public class PollServiceImp implements PollService {
         Apartment apartment = apartmentsRepository.findByApartmentSignature(apartmentSignature)
                 .orElseThrow(() -> new ApartmentNotFoundException("Apartment: " + apartmentSignature + " not found"));
 
-        if (poll.getEndDate().isBefore(LocalDateTime.now()))
+        if (poll.getEndDate().isBefore(Instant.now()))
             throw new IllegalArgumentException("Poll: " + pollId + " has ended");
 
         if (!possessionHistoryRepository.existsByUserUuidIDAndApartmentUuidID(userId, apartment.getUuidID()))
@@ -156,7 +159,7 @@ public class PollServiceImp implements PollService {
 
         Vote vote = Vote.builder()
                 .voteChoice(voteChoice)
-                .createdAt(LocalDateTime.now())
+                .createdAt(Instant.now())
                 .user(user)
                 .poll(poll)
                 .apartmentSignature(apartmentSignature)
@@ -188,6 +191,7 @@ public class PollServiceImp implements PollService {
         return new PageResponse<>(
                 votes.getNumber(),
                 votes.getSize(),
+                votes.getTotalPages(),
                 votes.getContent().stream()
                         .map(
                                 vote -> VoteResponse.builder()
@@ -197,7 +201,9 @@ public class PollServiceImp implements PollService {
                                         .build()
                         )
                         .toList(),
-                votes.isLast()
+                votes.isLast(),
+                votes.hasNext(),
+                votes.hasPrevious()
         );
     }
 
@@ -214,6 +220,7 @@ public class PollServiceImp implements PollService {
         return new PageResponse<>(
                 votes.getNumber(),
                 votes.getSize(),
+                votes.getTotalPages(),
                 votes.getContent().stream()
                         .map(
                                 vote -> VoteResponse.builder()
@@ -223,7 +230,9 @@ public class PollServiceImp implements PollService {
                                         .build()
                         )
                         .toList(),
-                votes.isLast()
+                votes.isLast(),
+                votes.hasNext(),
+                votes.hasPrevious()
         );
 
     }

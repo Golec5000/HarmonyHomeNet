@@ -104,7 +104,7 @@ public class AuthServiceImp implements AuthService {
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer("harmony-home-net")
                 .issuedAt(Instant.now())
-                .expiresAt(Instant.now().plus(10, ChronoUnit.MINUTES))
+                .expiresAt(Instant.now().plus(1, ChronoUnit.HOURS))
                 .subject(user.getEmail())
                 .claim("userId", user.getUuidID())
                 .claim("role", user.getRole().name())

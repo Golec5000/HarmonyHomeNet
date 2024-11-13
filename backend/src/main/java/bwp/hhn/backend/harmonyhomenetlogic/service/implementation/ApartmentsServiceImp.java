@@ -24,7 +24,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -133,7 +134,8 @@ public class ApartmentsServiceImp implements ApartmentsService {
     }
 
     @Override
-    public PossessionHistoryResponse getPossessionHistory(String apartmentSignature, UUID userId) throws ApartmentNotFoundException, UserNotFoundException {
+    public PossessionHistoryResponse getPossessionHistory(String apartmentSignature, UUID userId)
+            throws ApartmentNotFoundException, UserNotFoundException {
         Apartment apartment = apartmentsRepository.findByApartmentSignature(apartmentSignature)
                 .orElseThrow(() -> new ApartmentNotFoundException("Apartment with signature: " + apartmentSignature + " not found"));
 
@@ -151,7 +153,8 @@ public class ApartmentsServiceImp implements ApartmentsService {
 
     @Override
     @Transactional
-    public PossessionHistoryResponse createPossessionHistory(String apartmentSignature, UUID userId) throws ApartmentNotFoundException, UserNotFoundException {
+    public PossessionHistoryResponse createPossessionHistory(String apartmentSignature, UUID userId)
+            throws ApartmentNotFoundException, UserNotFoundException {
         // Pobranie użytkownika
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User: " + userId + " not found"));
@@ -216,14 +219,15 @@ public class ApartmentsServiceImp implements ApartmentsService {
     }
 
     @Override
-    public PossessionHistoryResponse endPossessionHistory(String apartmentSignature, UUID userId) throws ApartmentNotFoundException, UserNotFoundException {
+    public PossessionHistoryResponse endPossessionHistory(String apartmentSignature, UUID userId)
+            throws ApartmentNotFoundException, UserNotFoundException {
         Apartment apartment = apartmentsRepository.findByApartmentSignature(apartmentSignature)
                 .orElseThrow(() -> new ApartmentNotFoundException("Apartment with signature: " + apartmentSignature + " not found"));
 
         PossessionHistory possessionHistory = possessionHistoryRepository.findByUserUuidIDAndApartmentUuidID(userId, apartment.getUuidID())
                 .orElseThrow(() -> new ApartmentNotFoundException("User: " + userId + " not found in apartment: " + apartmentSignature));
 
-        possessionHistory.setEndDate(LocalDateTime.now());
+        possessionHistory.setEndDate(Instant.now());
         PossessionHistory saved = possessionHistoryRepository.save(possessionHistory);
 
         return PossessionHistoryResponse.builder()
@@ -235,7 +239,8 @@ public class ApartmentsServiceImp implements ApartmentsService {
     }
 
     @Override
-    public PageResponse<UserResponse> getCurrentResidents(String apartmentSignature, int pageNo, int pageSize) throws ApartmentNotFoundException {
+    public PageResponse<UserResponse> getCurrentResidents(String apartmentSignature, int pageNo, int pageSize)
+            throws ApartmentNotFoundException {
 
         Pageable pageable = PageRequest.of(pageNo, pageSize);
         Page<User> users = possessionHistoryRepository.findActiveResidentsByApartment(apartmentSignature, pageable);
@@ -243,6 +248,7 @@ public class ApartmentsServiceImp implements ApartmentsService {
         return new PageResponse<>(
                 users.getNumber(),
                 users.getSize(),
+                users.getTotalPages(),
                 users.getContent().stream()
                         .map(
                                 user -> UserResponse.builder()
@@ -252,12 +258,15 @@ public class ApartmentsServiceImp implements ApartmentsService {
                                         .build()
                         )
                         .toList(),
-                users.isLast()
+                users.isLast(),
+                users.hasNext(),
+                users.hasPrevious()
         );
     }
 
     @Override
-    public PageResponse<PossessionHistoryResponse> getApartmentPossessionHistory(String apartmentSignature, int pageNo, int pageSize) throws ApartmentNotFoundException {
+    public PageResponse<PossessionHistoryResponse> getApartmentPossessionHistory(String apartmentSignature, int pageNo, int pageSize)
+            throws ApartmentNotFoundException {
         Apartment apartment = apartmentsRepository.findByApartmentSignature(apartmentSignature)
                 .orElseThrow(() -> new ApartmentNotFoundException("Apartment with signature: " + apartmentSignature + " not found"));
 
@@ -267,6 +276,7 @@ public class ApartmentsServiceImp implements ApartmentsService {
         return new PageResponse<>(
                 possessionHistories.getNumber(),
                 possessionHistories.getSize(),
+                possessionHistories.getTotalPages(),
                 possessionHistories.getContent().stream()
                         .map(
                                 possessionHistory -> PossessionHistoryResponse.builder()
@@ -277,21 +287,33 @@ public class ApartmentsServiceImp implements ApartmentsService {
                                         .build()
                         )
                         .toList(),
-                possessionHistories.isLast()
+                possessionHistories.isLast(),
+                possessionHistories.hasNext(),
+                possessionHistories.hasPrevious()
         );
     }
 
     @Override
-    public PageResponse<ApartmentResponse> getAllUserApartments(UUID userId, int pageNo, int pageSize) throws UserNotFoundException {
+    public List<ApartmentResponse> getAllUserApartments(UUID userId) throws UserNotFoundException {
 
-        Pageable pageable = PageRequest.of(pageNo, pageSize);
-        Page<Apartment> apartments = possessionHistoryRepository.findByUserUuidID(userId, pageable);
-        return getApartmentResponsePageResponse(apartments);
+        return  possessionHistoryRepository.findApartmentsByUserUuidID(userId).stream()
+                .map(
+                        apartment -> ApartmentResponse.builder()
+                                .address(apartment.getAddress())
+                                .city(apartment.getCity())
+                                .zipCode(apartment.getZipCode())
+                                .apartmentArea(apartment.getApartmentArea())
+                                .createdAt(apartment.getCreatedAt())
+                                .updatedAt(apartment.getUpdatedAt())
+                                .apartmentSignature(apartment.getApartmentSignature())
+                                .build()
+                )
+                .toList();
     }
 
-
     @Override
-    public PageResponse<UserResponse> getAllResidentsByApartmentId(String apartmentSignature, int pageNo, int pageSize) throws ApartmentNotFoundException {
+    public PageResponse<UserResponse> getAllResidentsByApartmentId(String apartmentSignature, int pageNo, int pageSize)
+            throws ApartmentNotFoundException {
         Apartment apartment = apartmentsRepository.findByApartmentSignature(apartmentSignature)
                 .orElseThrow(() -> new ApartmentNotFoundException("Apartment with signature: " + apartmentSignature + " not found"));
 
@@ -301,6 +323,7 @@ public class ApartmentsServiceImp implements ApartmentsService {
         return new PageResponse<>(
                 possessionHistories.getNumber(),
                 possessionHistories.getSize(),
+                possessionHistories.getTotalPages(),
                 possessionHistories.getContent().stream()
                         .map(
                                 possessionHistory -> UserResponse.builder()
@@ -310,7 +333,9 @@ public class ApartmentsServiceImp implements ApartmentsService {
                                         .build()
                         )
                         .toList(),
-                possessionHistories.isLast()
+                possessionHistories.isLast(),
+                possessionHistories.hasNext(),
+                possessionHistories.hasPrevious()
         );
     }
 
@@ -318,6 +343,7 @@ public class ApartmentsServiceImp implements ApartmentsService {
         return new PageResponse<>(
                 apartments.getNumber(),
                 apartments.getSize(),
+                apartments.getTotalPages(),
                 apartments.getContent().stream()
                         .map(
                                 apartment -> ApartmentResponse.builder()
@@ -331,7 +357,9 @@ public class ApartmentsServiceImp implements ApartmentsService {
                                         .build()
                         )
                         .toList(),
-                apartments.isLast()
+                apartments.isLast(),
+                apartments.hasNext(),
+                apartments.hasPrevious()
         );
     }
 }

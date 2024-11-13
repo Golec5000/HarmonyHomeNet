@@ -49,6 +49,7 @@ public class DocumentServiceImp implements DocumentService {
         return new PageResponse<>(
                 documents.getNumber(),
                 documents.getSize(),
+                documents.getTotalPages(),
                 documents.getContent().stream()
                         .map(
                                 document -> DocumentResponse.builder()
@@ -59,7 +60,9 @@ public class DocumentServiceImp implements DocumentService {
                                         .build()
                         )
                         .toList(),
-                documents.isLast()
+                documents.isLast(),
+                documents.hasNext(),
+                documents.hasPrevious()
         );
     }
 
@@ -171,6 +174,7 @@ public class DocumentServiceImp implements DocumentService {
         return new PageResponse<>(
                 documents.getNumber(),
                 documents.getSize(),
+                documents.getTotalPages(),
                 documents.getContent().stream()
                         .map(
                                 document -> DocumentResponse.builder()
@@ -181,7 +185,9 @@ public class DocumentServiceImp implements DocumentService {
                                         .build()
                         )
                         .toList(),
-                documents.isLast()
+                documents.isLast(),
+                documents.hasNext(),
+                documents.hasPrevious()
         );
 
     }

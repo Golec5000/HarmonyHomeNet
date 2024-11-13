@@ -4,7 +4,7 @@ import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.PaymentStatus;
 import lombok.Builder;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 @Builder
@@ -12,10 +12,10 @@ public record PaymentResponse(
 
         UUID paymentId,
         PaymentStatus paymentStatus,
-        LocalDateTime paymentDate,
-        LocalDateTime paymentTime,
+        Instant paymentDate,
+        Instant paymentTime,
         BigDecimal paymentAmount,
-        LocalDateTime createdAt,
+        Instant createdAt,
         String description
 ) {
 }

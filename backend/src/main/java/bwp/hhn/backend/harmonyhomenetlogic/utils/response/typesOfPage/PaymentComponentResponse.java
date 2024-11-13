@@ -3,7 +3,7 @@ package bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage;
 import lombok.Builder;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Builder
 public record PaymentComponentResponse(
@@ -12,8 +12,8 @@ public record PaymentComponentResponse(
         BigDecimal unitPrice,
         BigDecimal specialMultiplier,
         BigDecimal componentAmount,
-        LocalDateTime createdAt,
-        LocalDateTime updatedAt,
+        Instant createdAt,
+        Instant updatedAt,
         String unit
 
 ) {

@@ -14,7 +14,8 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
 
@@ -45,10 +46,10 @@ public class Payment {
 
     @NotNull
     @Column(name = "Payment_date")
-    private LocalDateTime paymentDate;
+    private Instant paymentDate;
 
     @Column(name = "Payment_time")
-    private LocalDateTime paymentTime;
+    private Instant paymentTime;
 
     @DecimalMin(value = "0.0")
     @Column(name = "Payment_amount", precision = 10, scale = 2)
@@ -56,7 +57,7 @@ public class Payment {
 
     @CreationTimestamp
     @Column(name = "Created_at", nullable = false)
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     @ManyToOne
     @JoinColumn(name = "apartment_id", referencedColumnName = "UUID_id")
@@ -69,6 +70,6 @@ public class Payment {
 
     @PrePersist
     public void prePersist() {
-        this.setPaymentDate(LocalDateTime.now().plusMonths(1));
+        this.setPaymentDate(Instant.now().plus(1, ChronoUnit.MONTHS));
     }
 }

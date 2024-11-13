@@ -144,6 +144,7 @@ public class UserServiceImp implements UserService {
         return new PageResponse<>(
                 users.getNumber(),
                 users.getSize(),
+                users.getTotalPages(),
                 users.getContent().stream()
                         .map(userEntity -> UserResponse.builder()
                                 .userId(userEntity.getUuidID())
@@ -153,7 +154,9 @@ public class UserServiceImp implements UserService {
                                 .build()
                         )
                         .collect(Collectors.toList()),
-                users.isLast()
+                users.isLast(),
+                users.hasNext(),
+                users.hasPrevious()
         );
 
     }
@@ -179,6 +182,7 @@ public class UserServiceImp implements UserService {
         return new PageResponse<>(
                 users.getNumber(),
                 users.getSize(),
+                users.getTotalPages(),
                 users.getContent().stream()
                         .map(userEntity -> UserResponse.builder()
                                 .userId(userEntity.getUuidID())
@@ -188,7 +192,9 @@ public class UserServiceImp implements UserService {
                                 .build()
                         )
                         .collect(Collectors.toList()),
-                users.isLast()
+                users.isLast(),
+                users.hasNext(),
+                users.hasPrevious()
         );
 
 

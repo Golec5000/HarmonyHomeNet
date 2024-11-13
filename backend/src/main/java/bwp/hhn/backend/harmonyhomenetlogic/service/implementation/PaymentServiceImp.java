@@ -25,7 +25,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -130,7 +130,7 @@ public class PaymentServiceImp implements PaymentService {
             throw new IllegalArgumentException("Payment: " + paymentId + " already paid");
 
         payment.setPaymentStatus(PaymentStatus.PAID);
-        payment.setPaymentTime(LocalDateTime.now());
+        payment.setPaymentTime(Instant.now());
 
         Payment saved = paymentRepository.save(payment);
 
@@ -263,6 +263,7 @@ public class PaymentServiceImp implements PaymentService {
         return new PageResponse<>(
                 paymentComponents.getNumber(),
                 paymentComponents.getSize(),
+                paymentComponents.getTotalPages(),
                 paymentComponents.getContent().stream()
                         .map(paymentComponent -> PaymentComponentResponse.builder()
                                 .componentType(paymentComponent.getComponentType())
@@ -274,7 +275,9 @@ public class PaymentServiceImp implements PaymentService {
                                 .unit(paymentComponent.getUnit())
                                 .build())
                         .toList(),
-                paymentComponents.isLast()
+                paymentComponents.isLast(),
+                paymentComponents.hasNext(),
+                paymentComponents.hasPrevious()
         );
     }
 
@@ -294,6 +297,7 @@ public class PaymentServiceImp implements PaymentService {
         return new PageResponse<>(
                 payments.getNumber(),
                 payments.getSize(),
+                payments.getTotalPages(),
                 payments.getContent().stream()
                         .map(payment -> PaymentResponse.builder()
                                 .paymentId(payment.getUuidID())
@@ -305,7 +309,9 @@ public class PaymentServiceImp implements PaymentService {
                                 .description(payment.getDescription())
                                 .build())
                         .toList(),
-                payments.isLast()
+                payments.isLast(),
+                payments.hasNext(),
+                payments.hasPrevious()
         );
     }
 }

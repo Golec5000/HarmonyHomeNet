@@ -8,6 +8,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.Instant;
 
 @Data
 @AllArgsConstructor
@@ -30,6 +33,10 @@ public class NotificationType {
     @Enumerated(EnumType.STRING)
     @Column(name = "Type", nullable = false, length = 5)
     private Notification type;
+
+    @CreationTimestamp
+    @Column(name = "Created_at", nullable = false)
+    private Instant createdAt;
 
     @ManyToOne
     @JoinColumn(name = "users_id", referencedColumnName = "UUID_id")

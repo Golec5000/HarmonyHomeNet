@@ -9,6 +9,7 @@ import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.ApartmentR
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.PossessionHistoryResponse;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.UserResponse;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface ApartmentsService {
@@ -37,7 +38,7 @@ public interface ApartmentsService {
 
     PageResponse<PossessionHistoryResponse> getApartmentPossessionHistory(String apartmentSignature, int pageNo, int pageSize) throws ApartmentNotFoundException;
 
-    PageResponse<ApartmentResponse> getAllUserApartments(UUID userId, int pageNo, int pageSize) throws UserNotFoundException;
+    List<ApartmentResponse> getAllUserApartments(UUID userId) throws UserNotFoundException;
 
     PageResponse<UserResponse> getAllResidentsByApartmentId(String apartmentSignature, int pageNo, int pageSize) throws ApartmentNotFoundException;
 

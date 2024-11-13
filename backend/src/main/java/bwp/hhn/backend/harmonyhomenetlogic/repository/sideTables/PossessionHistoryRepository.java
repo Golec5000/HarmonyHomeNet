@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -22,16 +23,20 @@ public interface PossessionHistoryRepository extends JpaRepository<PossessionHis
 
     boolean existsByUserUuidIDAndApartmentUuidID(UUID userId, UUID apartmentId);
 
-    Page<Apartment> findByUserUuidID (UUID userId, Pageable pageable);
+    @Query("SELECT ph.apartment FROM PossessionHistory ph WHERE ph.user.uuidID = :userId")
+    List<Apartment> findApartmentsByUserUuidID(UUID userId);
 
-    Optional<PossessionHistory> findByUserUuidIDAndApartmentUuidID (UUID userId, UUID apartmentId);
+    Optional<PossessionHistory> findByUserUuidIDAndApartmentUuidID(UUID userId, UUID apartmentId);
 
-    Page<PossessionHistory> findByApartmentUuidID (UUID apartmentId, Pageable pageable);
+    Page<PossessionHistory> findByApartmentUuidID(UUID apartmentId, Pageable pageable);
 
-    Page<Apartment> findByUserUuidIDAndEndDateIsNull(UUID userId, Pageable pageable);
+    @Query("SELECT ph.apartment FROM PossessionHistory ph WHERE ph.user.uuidID = :userId AND ph.endDate IS NULL")
+    Page<Apartment> findByUserUuidIDAndEndDateIsNull(@Param("userId") UUID userId, Pageable pageable);
 
     @Query("SELECT DISTINCT ph.user FROM PossessionHistory ph")
     List<User> findAllUniqueOwners();
 
     String findApartmentSignatureByUserUuidID(UUID userId);
+
+    boolean existsByUserAndApartment(User user, Apartment apartment);
 }

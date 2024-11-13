@@ -20,6 +20,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -68,8 +69,8 @@ class AnnouncementServiceTest {
                 .title("Test Announcement")
                 .content("Test Content")
                 .user(user)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
+                .createdAt(Instant.now())
+                .updatedAt(Instant.now())
                 .announcementApartments(new ArrayList<>())
                 .build();
 

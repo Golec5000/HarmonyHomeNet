@@ -10,7 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Data
 @AllArgsConstructor
@@ -32,10 +32,10 @@ public class PossessionHistory {
 
     @CreationTimestamp
     @Column(name = "Start_date", nullable = false)
-    private LocalDateTime startDate;
+    private Instant startDate;
 
     @Column(name = "End_date")
-    private LocalDateTime endDate;
+    private Instant endDate;
 
     @Column(name = "Status_notes", length = 1000)
     private String statusNotes;

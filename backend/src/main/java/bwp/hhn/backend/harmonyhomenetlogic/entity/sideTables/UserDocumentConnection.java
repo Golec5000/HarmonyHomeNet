@@ -9,7 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 @Entity
@@ -36,6 +36,6 @@ public class UserDocumentConnection {
 
     @CreationTimestamp
     @Column(name = "granted_at", nullable = false)
-    private LocalDateTime grantedAt;
+    private Instant grantedAt;
 
 }

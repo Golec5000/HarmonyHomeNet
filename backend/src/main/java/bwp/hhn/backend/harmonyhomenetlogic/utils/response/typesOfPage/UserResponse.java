@@ -3,7 +3,7 @@ package bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Role;
 import lombok.Builder;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 @Builder
@@ -13,8 +13,8 @@ public record UserResponse(
         String lastName,
         String email,
         String phoneNumber,
-        LocalDateTime createdAt,
-        LocalDateTime updatedAt,
+        Instant createdAt,
+        Instant updatedAt,
         Role role
 ) {
 }

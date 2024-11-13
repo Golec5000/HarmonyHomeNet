@@ -3,7 +3,7 @@ package bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage;
 import lombok.Builder;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 @Builder
@@ -13,8 +13,8 @@ public record ApartmentResponse(
         String city,
         String zipCode,
         BigDecimal apartmentArea,
-        LocalDateTime createdAt,
-        LocalDateTime updatedAt,
+        Instant createdAt,
+        Instant updatedAt,
         String apartmentSignature
 ) {
 }

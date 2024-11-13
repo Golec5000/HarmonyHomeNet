@@ -23,7 +23,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -94,7 +94,8 @@ public class ProblemReportServiceImp implements ProblemReportService {
         problemReportToUpdate.setReportStatus(problemReportRequest.getReportStatus() != null ? problemReportRequest.getReportStatus() : problemReportToUpdate.getReportStatus());
         problemReportToUpdate.setCategory(problemReportRequest.getCategory() != null ? problemReportRequest.getCategory() : problemReportToUpdate.getCategory());
 
-        if (ReportStatus.DONE.equals(problemReportRequest.getReportStatus())) problemReportToUpdate.setEndDate(LocalDateTime.now());
+        if (ReportStatus.DONE.equals(problemReportRequest.getReportStatus()))
+            problemReportToUpdate.setEndDate(Instant.now());
 
         mailService.sendNotificationMail("Problem report updated", "Your problem report has been updated", problemReportToUpdate.getUser().getEmail());
 
@@ -157,7 +158,8 @@ public class ProblemReportServiceImp implements ProblemReportService {
     }
 
     @Override
-    public PageResponse<ProblemReportResponse> getProblemReportsByApartmentSignature(String apartmentSignature, int pageNo, int pageSize) throws ApartmentNotFoundException {
+    public PageResponse<ProblemReportResponse> getProblemReportsByApartmentSignature(String apartmentSignature, int pageNo, int pageSize)
+            throws ApartmentNotFoundException {
 
         Apartment apartment = apartmentsRepository.findByApartmentSignature(apartmentSignature)
                 .orElseThrow(() -> new ApartmentNotFoundException("Apartment not found with signature: " + apartmentSignature));
@@ -180,7 +182,7 @@ public class ProblemReportServiceImp implements ProblemReportService {
     }
 
     @Override
-    public PageResponse<ProblemReportResponse>getProblemReportsByStatus(ReportStatus status,  int pageNo, int pageSize) {
+    public PageResponse<ProblemReportResponse> getProblemReportsByStatus(ReportStatus status, int pageNo, int pageSize) {
 
         Pageable pageable = PageRequest.of(pageNo, pageSize);
         Page<ProblemReport> problemReports = problemReportRepository.findAllByReportStatus(status, pageable);
@@ -193,6 +195,7 @@ public class ProblemReportServiceImp implements ProblemReportService {
         return new PageResponse<>(
                 problemReports.getNumber(),
                 problemReports.getSize(),
+                problemReports.getTotalPages(),
                 problemReports.getContent().stream()
                         .map(problemReport -> ProblemReportResponse.builder()
                                 .id(problemReport.getId())
@@ -204,7 +207,9 @@ public class ProblemReportServiceImp implements ProblemReportService {
                                 .endDate(problemReport.getEndDate())
                                 .build())
                         .toList(),
-                problemReports.isLast()
+                problemReports.isLast(),
+                problemReports.hasNext(),
+                problemReports.hasPrevious()
         );
     }
 

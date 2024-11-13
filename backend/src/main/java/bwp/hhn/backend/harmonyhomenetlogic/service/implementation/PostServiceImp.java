@@ -63,21 +63,7 @@ public class PostServiceImp implements PostService {
         Pageable pageable = PageRequest.of(pageNo, pageSize);
         Page<Topic> topics = topicRepository.findByUserUuidID(userId, pageable);
 
-        return new PageResponse<>(
-                topics.getNumber(),
-                topics.getSize(),
-                topics.getContent().stream()
-                        .map(
-                                topic -> TopicResponse.builder()
-                                        .id(topic.getUuidID())
-                                        .title(topic.getTitle())
-                                        .createdAt(topic.getCreatedAt())
-                                        .userName(topic.getUser().getFirstName() + " " + topic.getUser().getLastName())
-                                        .build()
-                        )
-                        .toList(),
-                topics.isLast()
-        );
+        return getTopicResponsePageResponse(topics);
     }
 
     @Override
@@ -86,21 +72,7 @@ public class PostServiceImp implements PostService {
         Pageable pageable = PageRequest.of(pageNo, pageSize);
         Page<Topic> topics = topicRepository.findAll(pageable);
 
-        return new PageResponse<>(
-                topics.getNumber(),
-                topics.getSize(),
-                topics.getContent().stream()
-                        .map(
-                                topic -> TopicResponse.builder()
-                                        .id(topic.getUuidID())
-                                        .title(topic.getTitle())
-                                        .createdAt(topic.getCreatedAt())
-                                        .userName(topic.getUser().getFirstName() + " " + topic.getUser().getLastName())
-                                        .build()
-                        )
-                        .toList(),
-                topics.isLast()
-        );
+        return getTopicResponsePageResponse(topics);
     }
 
     @Override
@@ -150,21 +122,7 @@ public class PostServiceImp implements PostService {
         Pageable pageable = PageRequest.of(pageNo, pageSize);
         Page<Post> posts = postRepository.findByTopicUuidID(topicId, pageable);
 
-        return new PageResponse<>(
-                posts.getNumber(),
-                posts.getSize(),
-                posts.getContent().stream()
-                        .map(
-                                post -> PostResponse.builder()
-                                        .id(post.getUuidID())
-                                        .content(post.getContent())
-                                        .createdAt(post.getCreatedAt())
-                                        .userName(post.getUser().getFirstName() + " " + post.getUser().getLastName())
-                                        .build()
-                        )
-                        .toList(),
-                posts.isLast()
-        );
+        return getPostResponsePageResponse(posts);
     }
 
     @Override
@@ -193,31 +151,44 @@ public class PostServiceImp implements PostService {
         Pageable pageable = PageRequest.of(pageNo, pageSize);
         Page<Post> posts = postRepository.findByUserUuidID(userId, pageable);
 
-        return new PageResponse<>(
-                posts.getNumber(),
-                posts.getSize(),
-                posts.getContent().stream()
-                        .map(
-                                post -> PostResponse.builder()
-                                        .id(post.getUuidID())
-                                        .content(post.getContent())
-                                        .createdAt(post.getCreatedAt())
-                                        .userName(post.getUser().getFirstName() + " " + post.getUser().getLastName())
-                                        .build()
-                        )
-                        .toList(),
-                posts.isLast()
-        );
+        return getPostResponsePageResponse(posts);
     }
+
 
     @Override
     public PageResponse<PostResponse> getAllPosts(int pageNo, int pageSize) {
         Pageable pageable = PageRequest.of(pageNo, pageSize);
         Page<Post> posts = postRepository.findAll(pageable);
 
+        return getPostResponsePageResponse(posts);
+    }
+
+    private PageResponse<TopicResponse> getTopicResponsePageResponse(Page<Topic> topics) {
+        return new PageResponse<>(
+                topics.getNumber(),
+                topics.getSize(),
+                topics.getTotalPages(),
+                topics.getContent().stream()
+                        .map(
+                                topic -> TopicResponse.builder()
+                                        .id(topic.getUuidID())
+                                        .title(topic.getTitle())
+                                        .createdAt(topic.getCreatedAt())
+                                        .userName(topic.getUser().getFirstName() + " " + topic.getUser().getLastName())
+                                        .build()
+                        )
+                        .toList(),
+                topics.isLast(),
+                topics.hasNext(),
+                topics.hasPrevious()
+        );
+    }
+
+    private PageResponse<PostResponse> getPostResponsePageResponse(Page<Post> posts) {
         return new PageResponse<>(
                 posts.getNumber(),
                 posts.getSize(),
+                posts.getTotalPages(),
                 posts.getContent().stream()
                         .map(
                                 post -> PostResponse.builder()
@@ -228,7 +199,9 @@ public class PostServiceImp implements PostService {
                                         .build()
                         )
                         .toList(),
-                posts.isLast()
+                posts.isLast(),
+                posts.hasNext(),
+                posts.hasPrevious()
         );
     }
 }
