@@ -2,9 +2,7 @@
 Analiza wymagań to kluczowy etap procesu tworzenia oprogramowania, który ma na celu zrozumienie potrzeb użytkowników oraz opracowanie poprawnej specyfikacji systemu. Oprócz wymagań funkcjonalnych, analiza powinna uwzględniać również aspekty związane ze skalowalnością, bezpieczeństwem i utrzymaniem systemu. W przypadku projektowania aplikacji typu eBOK dla wspólnoty mieszkaniowej istotne jest zidentyfikowanie wszystkich niezbędnych funkcji, które będą odpowiadały zarówno mieszkańcom, jak i administratorom. Ponadto, kluczowe zagadnienia, takie jak bezpieczeństwo, wydajność, intuicyjność interfejsu, architektura oraz integracja z innymi systemami, muszą zostać dokładnie przeanalizowane.
 
 \section{Architektura systemu} 
-Zaprojektowanie architektury systemu przed jego implementacją umożliwia stworzenie efektywnego i funkcjonalnego rozwiązania. Proces projektowania architektury zazwyczaj rozpoczyna się od szkicowania jej zarysu, z wyszczególnieniem głównych komponentów systemu oraz ich wzajemnych interakcji. Taki szkic przedstawiono na rysunku~\ref{fig:zarys_architektury}, 
-% TO DO: proszę dopilnować spójności i poprawności w odwoływaniach do rysunków (na rysunku ...., (rys. ....))
-który pokazuje współpracujące ze sobą komponenty wdrożone przy użyciu technologii konteneryzacji.
+Zaprojektowanie architektury systemu przed jego implementacją umożliwia stworzenie efektywnego i funkcjonalnego rozwiązania. Proces projektowania architektury zazwyczaj rozpoczyna się od szkicowania jej zarysu, z wyszczególnieniem głównych komponentów systemu oraz ich wzajemnych interakcji. W zarysie architektury, przedstawionym na rysunku \ref{fig:zarys_architektury}, uwzględniono współpracujące ze sobą komponenty wdrożone przy użyciu technologii konteneryzacji.
 
 \begin{figure}[ht]
     \centering
@@ -13,51 +11,45 @@ który pokazuje współpracujące ze sobą komponenty wdrożone przy użyciu tec
     \label{fig:zarys_architektury}
 \end{figure}
 
-% DONE: Udało mi się chyba w odpowiedni sposób odnieść się do zaleceń z rodziału 5 
 \subsection{Komponenty systemu}
-System składa się z następujących elementów, przedstawionych na schemacie (rys.~\ref{fig:zarys_architektury}): 
+System składa się z następujących elementów, zilustrowanych na schemacie (rys. \ref{fig:zarys_architektury}): 
 % TO DO: przypominam o regułach związanych z kropkami na końcach zdań i przy skrótach - mówiłem o tym na spotkaniu on-line!!!
 
-% TO DO: czy numeracja coś tutaj wnosi? Jeśli nie, to jest niepotrzebna. O numeracji wspominałem, ale przy wyliczaniu funkcji systemu
-%\begin{enumerate}[label=\arabic*.]
 \begin{itemize}
-	\item \textbf{Interfejs użytkownika (Frontend)} – warstwa prezentacyjna aplikacji, zrealizowana przy użyciu frameworka Next.js (TypeScript), odpowiada za interakcje z użytkownikami oraz prezentację danych. Na schemacie (rys. \ref{fig:zarys_architektury}) warstwa ta została umieszczona po prawej stronie, gdzie obsługuje mieszkańców oraz administratorów. Komunikacja z backendem odbywa się przy użyciu bezpiecznego protokołu HTTPS, który szyfruje dane za pomocą protokołu TLS.
 
-	\item \textbf{Serwer (Backend)} – centralny moduł aplikacyjny, oparty na Spring Boot, uruchamiany w kontenerze Docker. Odpowiada on za zarządzanie logiką biznesową oraz przetwarzanie danych. Na schemacie (rys. \ref{fig:zarys_architektury}) serwer został umieszczony w centrum, pośrednicząc między interfejsem użytkownika, bazą danych i zewnętrznymi systemami. Warstwa ta realizuje zadania takie jak autoryzacja użytkowników (OAuth 2.0), zarządzanie zgłoszeniami technicznymi oraz obsługa transakcji finansowych. Konteneryzacja za pomocą Dockera zapewnia elastyczność oraz ułatwia skalowanie.
+    \item \textbf{Interfejs użytkownika (Frontend)} – jest warstwą prezentacyjną aplikacji, zrealizowaną przy użyciu frameworka Next.js (TypeScript), odpowiedzialną za interakcje z użytkownikami oraz prezentację danych. Na schemacie (rys.~\ref{fig:zarys_architektury}) frontend został umieszczony po prawej stronie, gdzie obsługuje mieszkańców oraz pracowników. Komunikacja z backendem odbywa się przy użyciu protokołu HTTP. Frontend jest również uruchamiany w kontenerze Dockerowym, co zapewnia jego izolację i ułatwia wdrożenie w środowiskach produkcyjnych.
 
-	\item \textbf{Logika biznesowa} – odpowiada za realizację procesów biznesowych, koordynując przepływ danych pomiędzy warstwami systemu, takimi jak interfejs użytkownika, baza danych oraz zewnętrzne systemy. Na schemacie (rys. \ref{fig:zarys_architektury}) warstwa logiki biznesowej została wyraźnie wyodrębniona i pełni kluczową rolę w przetwarzaniu zgłoszeń technicznych, zarządzaniu danymi użytkowników oraz integracji z systemami zewnętrznymi.
+    \item \textbf{Serwer (Backend)} – stanowi centralny moduł aplikacyjny, oparty na Spring Boot i uruchamiany w kontenerze Docker. Backend zarządza logiką biznesową oraz przetwarzaniem danych. Na schemacie (rys.~\ref{fig:zarys_architektury}) serwer znajduje się w centrum i pośredniczy między interfejsem użytkownika, bazą danych i zewnętrznymi systemami. Odpowiada za zadania takie jak autoryzacja użytkowników (OAuth 2.0), zarządzanie zgłoszeniami technicznymi oraz obsługę transakcji finansowych. Konteneryzacja przy użyciu Dockera zapewnia elastyczność oraz ułatwia skalowanie.
 
-	\item \textbf{Warstwa dostępu do danych} – odpowiada za operacje na bazie danych PostgreSQL, która przechowuje kluczowe informacje dotyczące użytkowników, zgłoszeń oraz transakcji. Na schemacie (rys. \ref{fig:zarys_architektury}) system bazodanowy został umieszczony po prawej stronie i bezpośrednio połączony z modułem serwerowym, co umożliwia efektywne zarządzanie danymi.
+    \item \textbf{Logika biznesowa} – pełni funkcję koordynatora procesów biznesowych, odpowiedzialnego za przepływ danych pomiędzy warstwami systemu, takimi jak interfejs użytkownika, baza danych oraz systemy zewnętrzne. Na schemacie (rys.~\ref{fig:zarys_architektury}) jest wyraźnie wyodrębniona jako kluczowy element przetwarzania zgłoszeń technicznych, zarządzania danymi użytkowników oraz integracji z systemami zewnętrznymi.
 
-	\item \textbf{System bazodanowy} – % TO DO: powyżej zdania po myślniku odnoszą się bezpośrednio do nazwy napisanej pogrubioną czcionką. Ta zaś pozycja jest zredagowana w innym stylu. Proszę to poprawić, np. "- jest elementem odpowiadającym za przechowywanie danych przetwarzanych w systemie. " - po tym można kontynuować opis mniej wiecej tak, jak to Pan zredagował.
-	aplikacja korzysta z obrazu PostgreSQL uruchamianego w kontenerze Docker. Na schemacie (rys. \ref{fig:zarys_architektury}) baza danych PostgreSQL została przedstawiona jako kluczowy element infrastruktury, odpowiedzialny za przechowywanie wszystkich danych aplikacji. Konteneryzacja bazy danych pozwala na łatwe zarządzanie środowiskiem oraz zwiększa bezpieczeństwo i skalowalność~\cite{Docker-docs,vsupalov}.
+    \item \textbf{Warstwa dostępu do danych} – odpowiada za operacje na bazie danych PostgreSQL, która przechowuje kluczowe informacje dotyczące użytkowników, zgłoszeń oraz transakcji. Na schemacie (rys.~\ref{fig:zarys_architektury}) system bazodanowy został umieszczony po prawej stronie i bezpośrednio połączony z modułem serwerowym, co umożliwia efektywne zarządzanie danymi.
 
-	\item \textbf{Moduł autoryzacji (OAuth 2.0)} – umożliwia bezpieczny dostęp do zasobów systemu, zarządzając autoryzacją użytkowników. Na schemacie (rys. \ref{fig:zarys_architektury}) serwer OAuth 2.0 został pokazany jako kluczowy element komunikacji pomiędzy warstwą serwerową a użytkownikami, kontrolując uprawnienia i dostęp do danych.
+    \item \textbf{System bazodanowy} – jest elementem odpowiadającym za przechowywanie wszystkich danych przetwarzanych w systemie. Aplikacja korzysta z obrazu PostgreSQL uruchamianego w kontenerze Docker. Na schemacie (rys.~\ref{fig:zarys_architektury}) baza danych PostgreSQL stanowi kluczowy element infrastruktury. Konteneryzacja bazy danych pozwala na łatwe zarządzanie środowiskiem oraz zwiększa bezpieczeństwo i skalowalność~\cite{Docker-docs,vsupalov}.
 
-	\item \textbf{Systemy zewnętrzne} – aplikacja integruje się z zewnętrznymi systemami, takimi jak systemy bankowe czy urządzenia pomiarowe (np. liczniki zużycia mediów). Jak przedstawiono na Rysunku \ref{fig:zarys_architektury}, systemy te współpracują z backendem, wymieniając dane za pośrednictwem API.
+    \item \textbf{Moduł autoryzacji (OAuth 2.0)} – zapewnia bezpieczny dostęp do zasobów systemu, zarządzając autoryzacją użytkowników. Na schemacie (rys. \ref{fig:zarys_architektury}) moduł autoryzacji pełni kluczową rolę w komunikacji pomiędzy warstwą serwerową a użytkownikami, kontrolując uprawnienia i dostęp do danych.
 
-\end{itemize}	
-%\end{enumerate}
+    \item \textbf{Systemy zewnętrzne} – obejmują zewnętrzne systemy, takie jak systemy bankowe czy urządzenia pomiarowe (np. liczniki zużycia mediów), z którymi integruje się aplikacja. W lewej części schematu (rys.~\ref{fig:zarys_architektury}) widoczna jest współpraca systemów zewnętrznych z backendem, co umożliwia wymianę danych za pośrednictwem API.
+		
+\end{itemize}  
+
 
 \subsection{Interakcje między komponentami}
 
-Interakcje między komponentami są przedstawione na schemacie (\ref{fig:zarys_architektury}) i stanowią kluczowy element funkcjonowania aplikacji. Konteneryzacja Dockera umożliwia izolację poszczególnych modułów, co sprzyja ich łatwej skalowalności i zarządzaniu.
-% TO DO: czy numeracja coś tutaj wnosi? Jeśli nie, to jest niepotrzebna
-\begin{enumerate}[label=\arabic*.]
-% TO DO: proszę uspójnić wyliczenia (z muślnikiem lub dwukropkiem). Jeśli jest myślnik lub dwukropek, to tekst następujący po nim powinien zaczynać się z małej litery
-	\item \textbf{Interfejs użytkownika i Serwer} – moduł prezentacyjny (interfejs użytkownika) komunikuje się z warstwą serwerową poprzez żądania HTTPS, szyfrowane protokołem TLS. Na schemacie (rys. \ref{fig:zarys_architektury}) połączenie to jest oznaczone ikoną „Encrypted data” oraz ikoną „Checklist security”, symbolizującą kontrolę ról i uprawnień użytkowników podczas przetwarzania danych. Warstwa serwerowa przetwarza zapytania i odsyła odpowiedzi w formacie JSON.
+Interakcje między komponentami, przedstawione na schemacie (rys.~\ref{fig:zarys_architektury}), stanowią kluczowy element funkcjonowania aplikacji. Konteneryzacja Dockera umożliwia izolację poszczególnych modułów, co sprzyja ich łatwej skalowalności i zarządzaniu.
 
-	\item \textbf{Moduł serwerowy i baza danych} – warstwa serwerowa łączy się z bazą danych PostgreSQL uruchomioną w kontenerze Docker. Na schemacie (rys. \ref{fig:zarys_architektury}) interakcja ta została przedstawiona jako bezpośrednie połączenie między tymi dwoma komponentami, co umożliwia bezproblemowe wykonywanie operacji odczytu i zapisu danych.
+\begin{itemize}
 
-	\item \textbf{Zarządzanie płatnościami} – Moduł serwerowy integruje się z systemami płatności, zapewniając obsługę transakcji finansowych. Schemat (rys. \ref{fig:zarys_architektury}) przedstawia ten proces po lewej stronie, 
-% TO DO: schemat "nie przedstawia" - bo jest nieżywotny. Pisałem o tym w szablonie pracy !!!! Chyba jednak muszę zrobić test sprawdzający, czy dyplomanci uważnie przeczytali wszystkie zalecenia.
-% Proszę poprawić, np.: "przedstawiono to w lewej części schematu ... " czy też "widać to na schemacie ... po jego lewej stronie"
-gdzie systemy płatności wymieniają dane z warstwą serwerową, umożliwiając aktualizację statusu transakcji w bazie danych.
+	\item \textbf{Interfejs użytkownika i Serwer} – moduł prezentacyjny (interfejs użytkownika) komunikuje się z warstwą serwerową poprzez żądania HTTP. Na schemacie (rys.~\ref{fig:zarys_architektury}) połączenie pomiędzy tymi dwoma komponentami posiada ikonę „Checklist security”, symbolizującą kontrolę ról i uprawnień użytkowników do konkretnych zasobów serwera. Warstwa serwerowa przetwarza zapytania i odsyła odpowiedzi w formacie JSON.
 
-	\item \textbf{Powiadomienia dla użytkowników} – Powiadomienia są generowane bezpośrednio przez serwer i przesyłane do interfejsu użytkownika jako proste informacje, np. o zgłoszeniach, płatnościach lub głosowaniach. Na schemacie (rys. \ref{fig:zarys_architektury}) komunikacja ta została przedstawiona jako przepływ danych między serwerem a interfejsem użytkownika, co umożliwia informowanie użytkowników o istotnych wydarzeniach w aplikacji. Powiadomienia są wyświetlane w interfejsie użytkownika bez potrzeby korzystania z osobnego systemu powiadomień.
+	\item \textbf{Moduł serwerowy i baza danych} – warstwa serwerowa łączy się z bazą danych PostgreSQL uruchomioną w kontenerze Docker. Na schemacie (rys.~\ref{fig:zarys_architektury}) przedstawiono to jako bezpośrednie połączenie między komponentami, co umożliwia efektywne wykonywanie operacji odczytu i zapisu danych.
+
+	\item \textbf{Zarządzanie płatnościami} – moduł serwerowy integruje się z systemami płatności, zapewniając obsługę transakcji finansowych. Widać to na schemacie (rys.~\ref{fig:zarys_architektury}) po lewej stronie, gdzie systemy płatności wymieniają dane z warstwą serwerową, umożliwiając aktualizację statusu transakcji w bazie danych.
+
+	\item \textbf{Powiadomienia dla użytkowników} – powiadomienia są generowane bezpośrednio przez serwer i przesyłane do interfejsu użytkownika jako proste informacje, np. o zgłoszeniach, płatnościach lub głosowaniach. Na schemacie (rys.~\ref{fig:zarys_architektury}) komunikację tę przedstawiono jako przepływ danych między serwerem, a interfejsem użytkownika, umożliwiając informowanie użytkowników o istotnych wydarzeniach w aplikacji.
 
 	
-\end{enumerate}
+\end{itemize}
 
 
 \section{Wymagania aplikacji} %DONE: aktualizaja opisu rozmowy na ostanim spotkaniu
@@ -116,7 +108,7 @@ Wymagania funkcjonalne aplikacji eBOK koncentrują się na kluczowych działania
 
    \item \textbf{Skalowalność}: System musi być elastyczny, aby obsługiwać zarówno małe wspólnoty, jak i duże spółdzielnie, zarządzające setkami lub tysiącami lokali. Zastosowanie technologii Docker do konteneryzacji umożliwia skalowanie poziome (dodawanie instancji), co pozwala na efektywne rozdzielenie obciążenia.
 
-	\item \textbf{Bezpieczeństwo}: Wszystkie dane muszą być przechowywane i przesyłane w sposób bezpieczny. Wymagana jest komunikacja szyfrowana (TLS) oraz autoryzacja za pomocą OAuth 2.0. System musi także chronić dane przed nieautoryzowanym dostępem i atakami, np. SQL Injection czy XSS.
+	\item \textbf{Bezpieczeństwo}: Wszystkie dane muszą być przechowywane i przesyłane w sposób bezpieczny. Autoryzacja za pomocą OAuth 2.0. System musi także chronić dane przed nieautoryzowanym dostępem i atakami, np. SQL Injection czy XSS.
 
 	\item \textbf{Wydajność}: System powinien zapewniać szybki czas odpowiedzi, szczególnie podczas przetwarzania dużych ilości danych, takich jak zgłoszenia techniczne czy płatności. Warstwa serwerowa oparta na Spring Boot oraz baza danych PostgreSQL muszą być odpowiednio zoptymalizowane.
 
