@@ -1,6 +1,6 @@
 'use client'
 
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {toast} from "sonner";
 import {Button} from "@/components/ui/button";
 import {Home, FileText, CreditCard, Bell, User, Vote, Settings, LogOut, BookUser} from 'lucide-react';
@@ -11,6 +11,8 @@ import Link from 'next/link';
 import {HomePage} from '@/components/owner-components/owner-main-page';
 import Announcements from "@/components/owner-components/announcements";
 import {DocumentsSection} from "@/components/owner-components/owner-documents";
+import {jwtDecode} from "jwt-decode";
+import {ContactAdmin} from "@/components/owner-components/contact-admin";
 
 const navItems = [
     {label: 'Strona główna', icon: Home},
@@ -25,6 +27,26 @@ const navItems = [
 export default function MainResidentsPage() {
     const [selectedItem, setSelectedItem] = useState(navItems[0].label);
     const [selectedApartment, setSelectedApartment] = useState<string | null>(null);
+
+    useEffect(() => {
+        const token = localStorage.getItem('jwt_accessToken');
+        if (!token) {
+            window.location.href = '/login';
+            return;
+        }
+
+        try {
+            const decodedToken = jwtDecode<{ exp: number }>(token);
+            if (decodedToken.exp * 1000 < Date.now()) {
+                localStorage.removeItem('jwt_accessToken');
+                window.location.href = '/login';
+            }
+        } catch (error) {
+            console.error('Error decoding token:', error);
+            localStorage.removeItem('jwt_accessToken');
+            window.location.href = '/login';
+        }
+    }, []);
 
     const handleSelectApartment = (value: string) => {
         toast("Apartment Selected", {
@@ -41,6 +63,8 @@ export default function MainResidentsPage() {
                 return <Announcements apartmentSignature={selectedApartment}/>;
             case 'Dokumenty':
                 return <DocumentsSection/>;
+            case 'Zgłoszenie problemu':
+                return <ContactAdmin apartmentSignature={selectedApartment}/>;
             default:
                 return <div>Content for {selectedItem}</div>;
         }
@@ -86,15 +110,24 @@ export default function MainResidentsPage() {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent>
                                 <DropdownMenuItem asChild>
-                                    <Link href="/home/residents/settings">
-                                        <a className="flex items-center">
-                                            <Settings className="mr-2 h-4 w-4"/>
-                                            Settings
-                                        </a>
-                                    </Link>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem asChild>
-                                    <Link href="/welcome-home">
+                                    <Link href="/welcome-home" onClick={async () => {
+                                        try {
+                                            const response = await fetch('http://localhost:8444/bwp/hhn/api/v1/logout', {
+                                                method: 'POST',
+                                                headers: {
+                                                    'Authorization': `Bearer ${localStorage.getItem('jwt_accessToken')}`
+                                                }
+                                            });
+                                            if (response.ok) {
+                                                localStorage.removeItem('jwt_accessToken');
+                                                window.location.href = '/welcome-home';
+                                            } else {
+                                                window.location.href = '/welcome-home';
+                                            }
+                                        } catch (error) {
+                                            console.error('Error logging out:', error);
+                                        }
+                                    }}>
                                         <a className="flex items-center">
                                             <LogOut className="mr-2 h-4 w-4"/>
                                             Logout

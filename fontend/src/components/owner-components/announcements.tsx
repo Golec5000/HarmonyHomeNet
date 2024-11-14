@@ -1,16 +1,17 @@
 'use client'
 
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import React, {useState, useEffect} from 'react';
+import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card';
+import {Button} from '@/components/ui/button';
 import {Bell, ChevronLeft, ChevronRight, FileText} from 'lucide-react';
-import { format, parseISO } from 'date-fns';
+import {format, parseISO} from 'date-fns';
 
 interface Announcement {
     id: number;
     title: string;
     content: string;
-    date: string;
+    createdAt: string;
+    updatedAt: string;
 }
 
 interface PageResponse {
@@ -27,7 +28,7 @@ interface AnnouncementsProps {
     apartmentSignature: string | null;
 }
 
-export default function Announcements({ apartmentSignature }: AnnouncementsProps) {
+export default function Announcements({apartmentSignature}: AnnouncementsProps) {
     const [announcements, setAnnouncements] = useState<Announcement[]>([]);
     const [currentPage, setCurrentPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
@@ -39,7 +40,6 @@ export default function Announcements({ apartmentSignature }: AnnouncementsProps
         }
 
         try {
-            console.log(`Fetching announcements for apartment: ${apartmentSignature}, page: ${page}`);
             const response = await fetch(`http://localhost:8444/bwp/hhn/api/v1/announcement/get-announcements-by-apartment?apartmentSignature=${apartmentSignature}&pageNo=${page}&pageSize=5`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('jwt_accessToken')}`
@@ -121,7 +121,10 @@ export default function Announcements({ apartmentSignature }: AnnouncementsProps
                         </CardHeader>
                         <CardContent>
                             <p className="text-sm text-muted-foreground mb-2">
-                                {announcement.date ? format(parseISO(announcement.date), 'MMMM d, yyyy') : 'Invalid date'}
+                                Stworzone: {announcement.createdAt ? format(parseISO(announcement.createdAt), 'MMMM d, yyyy HH:mm:ss') : 'Invalid date'}
+                            </p>
+                            <p className="text-sm text-muted-foreground mb-2">
+                                Zaktualizowane: {announcement.updatedAt ? format(parseISO(announcement.updatedAt), 'MMMM d, yyyy HH:mm:ss') : 'Invalid date'}
                             </p>
                             <p>{announcement.content}</p>
                         </CardContent>

@@ -40,7 +40,10 @@ export default function ApartmentCombobox({onSelect}: ApartmentComboboxProps) {
                 return data || []; // Ensure data.content is an array
             } else if (response.status === 401 || response.status === 403) {
                 window.location.href = '/login';
+            } else {
+                console.error('Failed to fetch apartments:', response.statusText);
             }
+
         } catch (error) {
             console.error('Failed to fetch apartments:', error);
         }
@@ -55,9 +58,8 @@ export default function ApartmentCombobox({onSelect}: ApartmentComboboxProps) {
         const fetchApartments = async () => {
             const token = localStorage.getItem('jwt_accessToken');
             if (token) {
-                const userId = getUserIdFromToken(token);
                 try {
-                    const apartments = await fetchApartmentsByUserId(userId);
+                    const apartments = await fetchApartmentsByUserId(getUserIdFromToken(token));
                     setApartments(apartments.map((apartment: any) => ({
                         label: apartment.address + ', ' + apartment.city,
                         value: apartment.apartmentSignature,

@@ -9,7 +9,7 @@ const App = () => {
             <Routes>
                 <Route path="/login" element={<LoginForm />} />
                 <Route path="/welcome-home" element={<Welcome />} />
-                <Route path="*" element={<Navigate to="/welcome-home" />} />
+                <Route path="/*" element={<Navigate to="/welcome-home" />} />
             </Routes>
         </Router>
     );

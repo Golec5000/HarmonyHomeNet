@@ -1,18 +1,20 @@
 'use client'
 
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { FileText, Download, ChevronLeft, ChevronRight } from 'lucide-react';
-import { jwtDecode } from "jwt-decode";
+import React, {useState, useEffect} from 'react';
+import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
+import {Button} from "@/components/ui/button";
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
+import {FileText, Download, ChevronLeft, ChevronRight} from 'lucide-react';
+import {jwtDecode} from "jwt-decode";
 import {toast} from "sonner";
 import {format, parseISO} from "date-fns";
+import {saveAs} from 'file-saver';
 
 interface Document {
-    documentId: number;
+    documentId: string;
     documentName: string;
     documentType: string;
+    documentExtension: string;
     createdAt: string;
 }
 
@@ -28,6 +30,7 @@ interface PageResponse {
 
 export function DocumentsSection() {
     const [documents, setDocuments] = useState<Document[]>([]);
+    const [documentIds, setDocumentIds] = useState<string[]>([]);
     const [currentPage, setCurrentPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
@@ -46,6 +49,7 @@ export function DocumentsSection() {
             if (response.ok) {
                 const data: PageResponse = await response.json();
                 setDocuments(data.content);
+                setDocumentIds(data.content.map(doc => doc.documentId)); // Store document IDs
                 setTotalPages(data.totalPages);
             } else if (response.status === 401 || response.status === 403) {
                 window.location.href = '/login';
@@ -75,14 +79,34 @@ export function DocumentsSection() {
         }
     };
 
-    const handleDownload = (documentId: number) => {
-        console.log(`Downloading document with ID: ${documentId}`);
+    const handleDownload = async (documentId: string, documentName: string, documentExtention : string) => {
+        try {
+            const token = localStorage.getItem('jwt_accessToken');
+            const response = await fetch(`http://localhost:8444/bwp/hhn/api/v1/document/download-document?documentId=${documentId}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (response.ok) {
+                const blob = await response.blob();
+                saveAs(blob, documentName + '.' + documentExtention);
+                toast.success('Document downloaded successfully');
+            } else if (response.status === 401 || response.status === 403) {
+                window.location.href = '/login';
+            } else {
+                console.error('Failed to fetch documents:', response.statusText);
+            }
+        } catch (error) {
+            console.error('Error downloading document:', error);
+            toast.error('Failed to download document. Please try again.');
+        }
     };
 
     return (
         <div className="space-y-6">
             <h1 className="text-3xl font-bold flex items-center">
-                <FileText className="mr-2 h-8 w-8 text-primary" />
+                <FileText className="mr-2 h-8 w-8 text-primary"/>
                 Documents
             </h1>
 
@@ -102,6 +126,7 @@ export function DocumentsSection() {
                                     <TableRow>
                                         <TableHead>Nazwa dokumenty</TableHead>
                                         <TableHead>Typ dokumentu</TableHead>
+                                        <TableHead>Typ pliku</TableHead>
                                         <TableHead>Data dodania</TableHead>
                                     </TableRow>
                                 </TableHeader>
@@ -114,15 +139,12 @@ export function DocumentsSection() {
                                                 </div>
                                             </TableCell>
                                             <TableCell>{doc.documentType}</TableCell>
+                                            <TableCell>{doc.documentExtension}</TableCell>
                                             <TableCell>{format(parseISO(doc.createdAt), 'MMMM d, yyyy HH:mm:ss')}</TableCell>
                                             <TableCell>
-                                                <Button variant="outline" size="sm" onClick={() => {
-                                                    handleDownload(doc.documentId);
-                                                    toast("Document Downloaded", {
-                                                        description: `Downloaded document ID: ${doc.documentName}`
-                                                    });
-                                                }}>
-                                                    <Download className="mr-2 h-4 w-4" />
+                                                <Button variant="outline" size="sm"
+                                                        onClick={() => handleDownload(doc.documentId, doc.documentName, doc.documentExtension)}>
+                                                    <Download className="mr-2 h-4 w-4"/>
                                                     Pobierz plik
                                                 </Button>
                                             </TableCell>
@@ -137,8 +159,8 @@ export function DocumentsSection() {
                                     onClick={handlePrevious}
                                     disabled={currentPage === 0}
                                 >
-                                    <ChevronLeft className="h-4 w-4" />
-                                    Previous
+                                    <ChevronLeft className="h-4 w-4"/>
+                                    Poprzednia
                                 </Button>
                                 <span className="text-sm">
                                     Page {currentPage + 1} of {totalPages}
@@ -149,8 +171,8 @@ export function DocumentsSection() {
                                     onClick={handleNext}
                                     disabled={currentPage === totalPages - 1}
                                 >
-                                    Next
-                                    <ChevronRight className="h-4 w-4" />
+                                    Nasępna
+                                    <ChevronRight className="h-4 w-4"/>
                                 </Button>
                             </div>
                         </>
