@@ -3,16 +3,18 @@
 import React, {useState, useEffect} from 'react';
 import {toast} from "sonner";
 import {Button} from "@/components/ui/button";
-import {Home, FileText, CreditCard, Bell, User, Vote, Settings, LogOut, BookUser} from 'lucide-react';
+import {Home, FileText, CreditCard, Bell, User, Vote, Settings, LogOut, BookUser, Clock} from 'lucide-react';
 import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from "@/components/ui/dropdown-menu";
 import {ModeToggle} from "@/components/ModeToggle";
 import ApartmentCombobox from "@/components/owner-components/ApartmentCombobox";
 import Link from 'next/link';
 import {HomePage} from '@/components/owner-components/owner-main-page';
-import Announcements from "@/components/owner-components/announcements";
+import {Announcements} from "@/components/owner-components/announcements";
 import {DocumentsSection} from "@/components/owner-components/owner-documents";
 import {jwtDecode} from "jwt-decode";
 import {ContactAdmin} from "@/components/owner-components/contact-admin";
+import {Payments} from "@/components/owner-components/payments";
+import {UserSettings} from "@/hooks/user-settings";
 
 const navItems = [
     {label: 'Strona główna', icon: Home},
@@ -27,6 +29,7 @@ const navItems = [
 export default function MainResidentsPage() {
     const [selectedItem, setSelectedItem] = useState(navItems[0].label);
     const [selectedApartment, setSelectedApartment] = useState<string | null>(null);
+    const [remainingTime, setRemainingTime] = useState<string>('00:00');
 
     useEffect(() => {
         const token = localStorage.getItem('jwt_accessToken');
@@ -37,10 +40,24 @@ export default function MainResidentsPage() {
 
         try {
             const decodedToken = jwtDecode<{ exp: number }>(token);
-            if (decodedToken.exp * 1000 < Date.now()) {
-                localStorage.removeItem('jwt_accessToken');
-                window.location.href = '/login';
-            }
+            const expirationTime = decodedToken.exp * 1000;
+            const updateRemainingTime = () => {
+                const currentTime = Date.now();
+                const timeLeft = expirationTime - currentTime;
+                if (timeLeft <= 0) {
+                    localStorage.removeItem('jwt_accessToken');
+                    window.location.href = '/login';
+                } else {
+                    const minutes = Math.floor(timeLeft / 60000);
+                    const seconds = Math.floor((timeLeft % 60000) / 1000);
+                    setRemainingTime(`${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
+                }
+            };
+
+            updateRemainingTime();
+            const intervalId = setInterval(updateRemainingTime, 1000);
+
+            return () => clearInterval(intervalId);
         } catch (error) {
             console.error('Error decoding token:', error);
             localStorage.removeItem('jwt_accessToken');
@@ -65,6 +82,10 @@ export default function MainResidentsPage() {
                 return <DocumentsSection/>;
             case 'Zgłoszenie problemu':
                 return <ContactAdmin apartmentSignature={selectedApartment}/>;
+            case 'Płatności':
+                return <Payments apartmentSignature={selectedApartment}/>;
+            case 'Ustawienia':
+                return <UserSettings/>;
             default:
                 return <div>Content for {selectedItem}</div>;
         }
@@ -98,6 +119,10 @@ export default function MainResidentsPage() {
                         <ApartmentCombobox onSelect={handleSelectApartment}/>
                     </div>
                     <div className="flex items-center space-x-4">
+                        <div className="flex items-center space-x-2 text-sm font-medium">
+                            <Clock className="h-4 w-4 text-primary"/>
+                            <span>{remainingTime}</span>
+                        </div>
                         <ModeToggle/>
                         <Button variant="secondary" size="icon">
                             <Bell className="h-5 w-5"/>
@@ -110,25 +135,25 @@ export default function MainResidentsPage() {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent>
                                 <DropdownMenuItem asChild>
-                                    <Link href="/welcome-home" onClick={async () => {
-                                        try {
-                                            const response = await fetch('http://localhost:8444/bwp/hhn/api/v1/logout', {
-                                                method: 'POST',
-                                                headers: {
-                                                    'Authorization': `Bearer ${localStorage.getItem('jwt_accessToken')}`
+                                    <Link href="/welcome-home" legacyBehavior>
+                                        <a className="flex items-center" onClick={async () => {
+                                            try {
+                                                const response = await fetch('http://localhost:8444/logout', {
+                                                    method: 'POST',
+                                                    headers: {
+                                                        'Authorization': `Bearer ${localStorage.getItem('jwt_accessToken')}`
+                                                    }
+                                                });
+                                                if (response.ok) {
+                                                    localStorage.removeItem('jwt_accessToken');
+                                                    window.location.href = '/welcome-home';
+                                                } else {
+                                                    window.location.href = '/welcome-home';
                                                 }
-                                            });
-                                            if (response.ok) {
-                                                localStorage.removeItem('jwt_accessToken');
-                                                window.location.href = '/welcome-home';
-                                            } else {
-                                                window.location.href = '/welcome-home';
+                                            } catch (error) {
+                                                console.error('Error logging out:', error);
                                             }
-                                        } catch (error) {
-                                            console.error('Error logging out:', error);
-                                        }
-                                    }}>
-                                        <a className="flex items-center">
+                                        }}>
                                             <LogOut className="mr-2 h-4 w-4"/>
                                             Logout
                                         </a>
