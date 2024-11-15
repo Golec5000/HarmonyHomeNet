@@ -2,6 +2,7 @@ package bwp.hhn.backend.harmonyhomenetlogic.configuration.security.jwtUtils;
 
 import bwp.hhn.backend.harmonyhomenetlogic.configuration.security.RSAKeyRecord;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.TokenType;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.schedulers.TokenBlacklistService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,6 +30,7 @@ public class JwtAccessTokenFilter extends OncePerRequestFilter {
 
     private final RSAKeyRecord rsaKeyRecord;
     private final JwtTokenUtils jwtTokenUtils;
+    private final TokenBlacklistService tokenBlacklistService;
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
@@ -43,6 +45,14 @@ public class JwtAccessTokenFilter extends OncePerRequestFilter {
             }
 
             final String token = authHeader.substring(7);
+
+            // Check if the token is blacklisted
+            if (tokenBlacklistService.isTokenBlacklisted(token)) {
+                response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                response.getWriter().write("Token is blacklisted");
+                return;
+            }
+
             JwtDecoder jwtDecoder = NimbusJwtDecoder.withPublicKey(rsaKeyRecord.publicKey()).build();
             final Jwt jwtToken = jwtDecoder.decode(token);
 

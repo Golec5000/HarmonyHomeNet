@@ -10,6 +10,7 @@ import bwp.hhn.backend.harmonyhomenetlogic.utils.response.page.PageResponse;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.AnnouncementResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -54,6 +55,7 @@ public class AnnouncementController {
         return ResponseEntity.ok(announcementService.getAnnouncementsFromStartDateTOEndDate(dateRequest, pageNo, pageSize));
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_EMPLOYEE') or hasRole('ROLE_OWNER')")
     @GetMapping("/get-announcements-by-apartment")
     public ResponseEntity<PageResponse<AnnouncementResponse>> getAnnouncementsByApartmentSignature(
             @RequestParam String apartmentSignature,

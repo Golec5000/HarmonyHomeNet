@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -46,12 +47,8 @@ public class PaymentController {
     }
 
     @GetMapping("/get-payment-components")
-    public ResponseEntity<PageResponse<PaymentComponentResponse>> getPaymentComponents(
-            @RequestParam UUID paymentId,
-            @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
-            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize
-    ) throws PaymentNotFoundException {
-        return ResponseEntity.ok(paymentService.getPaymentComponents(paymentId, pageNo, pageSize));
+    public ResponseEntity<List<PaymentComponentResponse>> getPaymentComponents(@RequestParam UUID paymentId) throws PaymentNotFoundException {
+        return ResponseEntity.ok(paymentService.getPaymentComponents(paymentId));
     }
 
     //POST
@@ -74,6 +71,11 @@ public class PaymentController {
     @PutMapping("/remove-component-from-payment/{paymentComponentId}")
     public ResponseEntity<PaymentResponse> removePaymentComponent(@RequestParam UUID paymentId, @PathVariable Long paymentComponentId) throws PaymentNotFoundException {
         return ResponseEntity.ok(paymentService.removePaymentComponent(paymentId, paymentComponentId));
+    }
+
+    @PutMapping("/activate-payment")
+    public ResponseEntity<String> activatePayment(@RequestParam UUID paymentId) throws PaymentNotFoundException {
+        return ResponseEntity.ok(paymentService.activatePayment(paymentId));
     }
 
     @PutMapping("/update-payment-component/{paymentComponentId}")

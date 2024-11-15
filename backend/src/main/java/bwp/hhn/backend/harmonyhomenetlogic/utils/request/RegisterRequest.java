@@ -1,5 +1,6 @@
 package bwp.hhn.backend.harmonyhomenetlogic.utils.request;
 
+import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Role;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
@@ -36,5 +37,7 @@ public class RegisterRequest {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @Pattern(regexp = "^\\d{9,11}$", message = "Invalid phone number format")
     private String phoneNumber;
+
+    private Role role;
 
 }

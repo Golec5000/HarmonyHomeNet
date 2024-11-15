@@ -1,26 +1,33 @@
 package bwp.hhn.backend.harmonyhomenetlogic.service.implementation;
 
 import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.UserNotFoundException;
+import bwp.hhn.backend.harmonyhomenetlogic.configuration.security.RSAKeyRecord;
+import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.Document;
 import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.User;
+import bwp.hhn.backend.harmonyhomenetlogic.entity.sideTables.UserDocumentConnection;
+import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.DocumentRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.UserRepository;
+import bwp.hhn.backend.harmonyhomenetlogic.repository.sideTables.UserDocumentConnectionRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.AuthService;
 import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.MailService;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.DocumentType;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Role;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.TokenType;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.RegisterRequest;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.LoginResponse;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.oauth2.jwt.JwtClaimsSet;
-import org.springframework.security.oauth2.jwt.JwtEncoder;
-import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
+import org.springframework.security.oauth2.jwt.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -31,9 +38,29 @@ public class AuthServiceImp implements AuthService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final JwtEncoder jwtEncoder;
     private final MailService mailService;
+    private final RSAKeyRecord rsaKeyRecord;
+    private final UserDocumentConnectionRepository userDocumentConnectionRepository;
+    private final DocumentRepository documentRepository;
 
     @Override
-    public String register(RegisterRequest userRequest) {
+    @Transactional
+    public String register(RegisterRequest userRequest, String accessToken) {
+
+        JwtDecoder jwtDecoder = NimbusJwtDecoder.withPublicKey(rsaKeyRecord.publicKey()).build();
+        final Jwt jwtToken = jwtDecoder.decode(accessToken);
+
+        String role = jwtToken.getClaim("role");
+
+        // Check if the user is trying to add an admin
+        if (Role.ROLE_ADMIN.equals(userRequest.getRole()) && !Role.ROLE_ADMIN.equals(role)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Only admins can add other admins");
+        }
+
+        // Check if the user is an employee trying to add a non-owner
+        if ("ROLE_EMPLOYEE".equals(role) && !Role.ROLE_OWNER.equals(userRequest.getRole())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Employees can only add owners");
+        }
+
         if (userRepository.existsByEmail(userRequest.getEmail())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already exists");
         }
@@ -41,13 +68,34 @@ public class AuthServiceImp implements AuthService {
         User user = User.builder()
                 .email(userRequest.getEmail())
                 .password(bCryptPasswordEncoder.encode(userRequest.getPassword()))
-                .role(Role.ROLE_OWNER)
+                .role(userRequest.getRole())
                 .firstName(userRequest.getFirstName())
                 .lastName(userRequest.getLastName())
                 .phoneNumber(userRequest.getPhoneNumber())
                 .build();
 
         User saved = userRepository.save(user);
+
+        List<Document> documents = documentRepository.findByDocumentTypeNot(DocumentType.PROPERTY_DEED);
+
+        for (Document document : documents) {
+            if (!userDocumentConnectionRepository.existsByDocumentUuidIDAndUserUuidID(document.getUuidID(), user.getUuidID())) {
+                UserDocumentConnection connection = UserDocumentConnection.builder()
+                        .document(document)
+                        .user(user)
+                        .build();
+
+                userDocumentConnectionRepository.save(connection);
+
+                if (user.getUserDocumentConnections() == null)
+                    user.setUserDocumentConnections(new ArrayList<>());
+                user.getUserDocumentConnections().add(connection);
+
+                if (document.getUserDocumentConnections() == null)
+                    document.setUserDocumentConnections(new ArrayList<>());
+                document.getUserDocumentConnections().add(connection);
+            }
+        }
 
         mailService.sendNotificationMail(
                 "Welcome to Harmony Home Net",
@@ -56,6 +104,27 @@ public class AuthServiceImp implements AuthService {
         );
 
         return "You have successfully registered " + saved.getEmail();
+    }
+
+    @Override
+    public void changePassword(String newPassword, String confirmPassword, String email) {
+
+        if (!newPassword.equals(confirmPassword)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Passwords do not match");
+        }
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        user.setPassword(bCryptPasswordEncoder.encode(newPassword));
+
+        userRepository.save(user);
+
+        mailService.sendNotificationMail(
+                "Password Change",
+                "Your password has been successfully changed.",
+                user.getEmail()
+        );
     }
 
     @Override

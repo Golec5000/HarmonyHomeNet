@@ -42,6 +42,4 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     @Transactional
     @Query("UPDATE User u SET u.resetToken = null, u.resetTokenExpiry = null WHERE u.resetTokenExpiry <= :now")
     void deleteAllExpiredResetTokens(Instant now);
-
-    Page<User> findAllByRole(Role role, Pageable pageable);
 }

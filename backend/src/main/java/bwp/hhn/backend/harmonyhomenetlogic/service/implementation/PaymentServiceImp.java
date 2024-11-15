@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -51,6 +52,7 @@ public class PaymentServiceImp implements PaymentService {
                 .apartment(apartment)
                 .description(paymentRequest.getDescription())
                 .paymentAmount(BigDecimal.ZERO)
+                .readyToPay(Boolean.FALSE)
                 .build();
 
         if (apartment.getPayments() == null) apartment.setPayments(new ArrayList<>());
@@ -67,6 +69,7 @@ public class PaymentServiceImp implements PaymentService {
                 .paymentAmount(saved.getPaymentAmount())
                 .createdAt(saved.getCreatedAt())
                 .description(saved.getDescription())
+                .readyToPay(saved.getReadyToPay())
                 .build();
     }
 
@@ -81,7 +84,9 @@ public class PaymentServiceImp implements PaymentService {
                         .paymentAmount(payment.getPaymentAmount())
                         .createdAt(payment.getCreatedAt())
                         .description(payment.getDescription())
-                        .build())
+                        .readyToPay(payment.getReadyToPay())
+                        .build()
+                )
                 .orElseThrow(() -> new PaymentNotFoundException("Payment: " + paymentId + " not found"));
     }
 
@@ -184,6 +189,7 @@ public class PaymentServiceImp implements PaymentService {
                 .paymentTime(saved.getPaymentTime())
                 .paymentAmount(saved.getPaymentAmount())
                 .createdAt(saved.getCreatedAt())
+                .readyToPay(saved.getReadyToPay())
                 .description(saved.getDescription())
                 .build();
     }
@@ -213,6 +219,7 @@ public class PaymentServiceImp implements PaymentService {
                 .paymentAmount(saved.getPaymentAmount())
                 .createdAt(saved.getCreatedAt())
                 .description(saved.getDescription())
+                .readyToPay(saved.getReadyToPay())
                 .build();
     }
 
@@ -250,22 +257,17 @@ public class PaymentServiceImp implements PaymentService {
                 .paymentTime(saved.getPaymentTime())
                 .paymentAmount(saved.getPaymentAmount())
                 .createdAt(saved.getCreatedAt())
+                .readyToPay(saved.getReadyToPay())
                 .description(saved.getDescription())
                 .build();
     }
 
     @Override
-    public PageResponse<PaymentComponentResponse> getPaymentComponents(UUID paymentId, int pageNo, int pageSize) throws PaymentNotFoundException {
+    public List<PaymentComponentResponse> getPaymentComponents(UUID paymentId) throws PaymentNotFoundException {
 
-        Pageable pageable = PageRequest.of(pageNo, pageSize);
-        Page<PaymentComponent> paymentComponents = paymentComponentRepository.findAllByPaymentUuidID(paymentId, pageable);
-
-        return new PageResponse<>(
-                paymentComponents.getNumber(),
-                paymentComponents.getSize(),
-                paymentComponents.getTotalPages(),
-                paymentComponents.getContent().stream()
-                        .map(paymentComponent -> PaymentComponentResponse.builder()
+        return paymentComponentRepository.findAllByPaymentUuidID(paymentId).stream()
+                .map(
+                        paymentComponent -> PaymentComponentResponse.builder()
                                 .componentType(paymentComponent.getComponentType())
                                 .componentAmount(paymentComponent.getComponentAmount())
                                 .unitPrice(paymentComponent.getUnitPrice())
@@ -273,12 +275,21 @@ public class PaymentServiceImp implements PaymentService {
                                 .updatedAt(paymentComponent.getUpdatedAt())
                                 .createdAt(paymentComponent.getCreatedAt())
                                 .unit(paymentComponent.getUnit())
-                                .build())
-                        .toList(),
-                paymentComponents.isLast(),
-                paymentComponents.hasNext(),
-                paymentComponents.hasPrevious()
-        );
+                                .build()
+                )
+                .toList();
+    }
+
+    @Override
+    public String activatePayment(UUID paymentId) throws PaymentNotFoundException {
+
+            Payment payment = paymentRepository.findById(paymentId)
+                    .orElseThrow(() -> new PaymentNotFoundException("Payment: " + paymentId + " not found"));
+
+            payment.setReadyToPay(true);
+            paymentRepository.save(payment);
+
+            return "Payment: " + paymentId + " activated";
     }
 
     private void recalculatePaymentAmount(Payment payment) {
@@ -307,6 +318,7 @@ public class PaymentServiceImp implements PaymentService {
                                 .paymentAmount(payment.getPaymentAmount())
                                 .createdAt(payment.getCreatedAt())
                                 .description(payment.getDescription())
+                                .readyToPay(payment.getReadyToPay())
                                 .build())
                         .toList(),
                 payments.isLast(),

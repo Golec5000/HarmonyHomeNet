@@ -72,9 +72,10 @@ public class DocumentServiceImp implements DocumentService {
 
         // Tworzenie nowego obiektu dokumentu
         Document documentEntity = Document.builder()
-                .documentName(file.getName())
+                .documentName(getOriginalFileNameWithoutExtension(file.getOriginalFilename()))
                 .documentData(file.getBytes())
                 .documentType(documentType)
+                .documentExtension(getFileExtension(file.getOriginalFilename()))
                 .build();
 
         // Zapis dokumentu w repozytorium
@@ -159,6 +160,7 @@ public class DocumentServiceImp implements DocumentService {
                 .documentName(documentEntity.getDocumentName())
                 .documentType(documentEntity.getDocumentType())
                 .createdAt(documentEntity.getCreatedAt())
+                .documentExtension(documentEntity.getDocumentExtension())
                 .build();
     }
 
@@ -181,6 +183,7 @@ public class DocumentServiceImp implements DocumentService {
                                         .documentId(document.getUuidID())
                                         .documentName(document.getDocumentName())
                                         .documentType(document.getDocumentType())
+                                        .documentExtension(document.getDocumentExtension())
                                         .createdAt(document.getCreatedAt())
                                         .build()
                         )
@@ -263,6 +266,20 @@ public class DocumentServiceImp implements DocumentService {
                 .documentDataBase64(document.getDocumentData())
                 .createdAt(document.getCreatedAt())
                 .build();
+    }
+
+    private String getFileExtension(String fileName) {
+        if (fileName == null || fileName.lastIndexOf('.') == -1) {
+            throw new IllegalArgumentException("Invalid file name");
+        }
+        return fileName.substring(fileName.lastIndexOf('.') + 1);
+    }
+
+    private String getOriginalFileNameWithoutExtension(String fileName) {
+        if (fileName == null || fileName.lastIndexOf('.') == -1) {
+            throw new IllegalArgumentException("Invalid file name");
+        }
+        return fileName.substring(0, fileName.lastIndexOf('.'));
     }
 
 }

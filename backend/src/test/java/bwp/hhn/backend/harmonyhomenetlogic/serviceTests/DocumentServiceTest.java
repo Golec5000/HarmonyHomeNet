@@ -19,6 +19,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -61,7 +62,7 @@ class DocumentServiceTest {
                 .documentName("Test Document")
                 .documentType(DocumentType.OTHER)
                 .documentData("Test data".getBytes())
-                .createdAt(LocalDateTime.now())
+                .createdAt(Instant.now())
                 .userDocumentConnections(new ArrayList<>())
                 .build();
 

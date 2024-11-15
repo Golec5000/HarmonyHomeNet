@@ -17,4 +17,5 @@ public interface NotificationTypeRepository extends JpaRepository<NotificationTy
     @Query("SELECT nt FROM NotificationType nt JOIN nt.user u WHERE u.email = :email")
     List<NotificationType> findByUserEmail(@Param("email") String email);
 
+
 }

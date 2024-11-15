@@ -13,5 +13,7 @@ public interface AuthService {
 
     void resetPassword(String token, String newPassword);
 
-    String register(RegisterRequest userRequest);
+    String register(RegisterRequest userRequest, String accessToken);
+
+    void changePassword(String newPassword, String confirmPassword, String email);
 }

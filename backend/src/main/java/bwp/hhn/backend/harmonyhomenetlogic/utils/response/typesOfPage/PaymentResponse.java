@@ -9,13 +9,13 @@ import java.util.UUID;
 
 @Builder
 public record PaymentResponse(
-
         UUID paymentId,
         PaymentStatus paymentStatus,
         Instant paymentDate,
         Instant paymentTime,
         BigDecimal paymentAmount,
         Instant createdAt,
-        String description
+        String description,
+        Boolean readyToPay
 ) {
 }

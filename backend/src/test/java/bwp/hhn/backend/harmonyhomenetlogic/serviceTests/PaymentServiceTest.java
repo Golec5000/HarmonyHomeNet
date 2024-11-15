@@ -21,6 +21,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Optional;
@@ -63,7 +64,7 @@ class PaymentServiceTest {
 
         payment = Payment.builder()
                 .uuidID(paymentId)
-                .paymentDate(LocalDateTime.now())
+                .paymentDate(Instant.now())
                 .paymentStatus(PaymentStatus.UNPAID)
                 .paymentAmount(BigDecimal.ZERO)
                 .paymentComponents(new ArrayList<>())

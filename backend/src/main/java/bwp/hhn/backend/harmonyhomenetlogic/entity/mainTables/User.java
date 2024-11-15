@@ -66,7 +66,7 @@ public class User implements UserDetails {
 
     @NotEmpty
     @Pattern(regexp = "^\\d{9,11}$", message = "Invalid phone number format")
-    @Column(name = "Phone_number", nullable = false, length = 11)
+    @Column(name = "Phone_number", nullable = false, unique = true, length = 11)
     private String phoneNumber;
 
     @CreationTimestamp

@@ -4,6 +4,7 @@ import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.
 import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.ProblemReportNotFoundException;
 import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.UserNotFoundException;
 import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.ProblemReportService;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Category;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.ReportStatus;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.ProblemReportRequest;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.page.PageResponse;
@@ -12,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -60,6 +62,11 @@ public class ProblemReportController {
             @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize
     ){
         return ResponseEntity.ok(problemReportService.getProblemReportsByStatus(status, pageNo, pageSize));
+    }
+
+    @GetMapping("/get-types-of-reports")
+    public ResponseEntity<List<Category>> getTypesOfReports(){
+        return ResponseEntity.ok(List.of(Category.values()));
     }
 
     //POST

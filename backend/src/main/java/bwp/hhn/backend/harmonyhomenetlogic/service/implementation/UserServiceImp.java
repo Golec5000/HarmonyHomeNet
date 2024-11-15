@@ -2,28 +2,30 @@ package bwp.hhn.backend.harmonyhomenetlogic.service.implementation;
 
 import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.NotificationNotFoundException;
 import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.UserNotFoundException;
-import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.Document;
+import bwp.hhn.backend.harmonyhomenetlogic.configuration.security.RSAKeyRecord;
 import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.NotificationType;
 import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.User;
-import bwp.hhn.backend.harmonyhomenetlogic.entity.sideTables.UserDocumentConnection;
-import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.DocumentRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.NotificationTypeRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.UserRepository;
-import bwp.hhn.backend.harmonyhomenetlogic.repository.sideTables.UserDocumentConnectionRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.UserService;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.DocumentType;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Notification;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Role;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.UserRequest;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.page.PageResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.NotificationTypeResponse;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.UserResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,54 +38,28 @@ public class UserServiceImp implements UserService {
 
     private final UserRepository userRepository;
     private final NotificationTypeRepository notificationTypeRepository;
-    private final UserDocumentConnectionRepository userDocumentConnectionRepository;
-    private final DocumentRepository documentRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final RSAKeyRecord rsaKeyRecord;
 
     @Override
-    public UserResponse creatUser(UserRequest user) {
-        User userEntity = User.builder()
-                .email(user.getEmail())
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .password(bCryptPasswordEncoder.encode(user.getPassword()))
-                .phoneNumber(user.getPhoneNumber())
-                .role(user.getRole() != null ? user.getRole() : Role.ROLE_OWNER)
-                .build();
+    public UserResponse updateUser(UUID userId, UserRequest user, String accessToken) throws UserNotFoundException {
 
-        User saved = userRepository.save(userEntity);
+        JwtDecoder jwtDecoder = NimbusJwtDecoder.withPublicKey(rsaKeyRecord.publicKey()).build();
+        final Jwt jwtToken = jwtDecoder.decode(accessToken);
 
-        List<Document> documents = documentRepository.findByDocumentTypeNot(DocumentType.PROPERTY_DEED);
+        String role = jwtToken.getClaim("role");
 
-        for (Document document : documents) {
-            if (!userDocumentConnectionRepository.existsByDocumentUuidIDAndUserUuidID(document.getUuidID(), userEntity.getUuidID())) {
-                UserDocumentConnection connection = UserDocumentConnection.builder()
-                        .document(document)
-                        .user(userEntity)
-                        .build();
-
-                userDocumentConnectionRepository.save(connection);
-
-                if (userEntity.getUserDocumentConnections() == null)
-                    userEntity.setUserDocumentConnections(new ArrayList<>());
-                userEntity.getUserDocumentConnections().add(connection);
-
-                if (document.getUserDocumentConnections() == null)
-                    document.setUserDocumentConnections(new ArrayList<>());
-                document.getUserDocumentConnections().add(connection);
-            }
+        // Check if the user is trying to update an admin
+        if (Role.ROLE_ADMIN.equals(user.getRole()) && !Role.ROLE_ADMIN.equals(role)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Only admins can update other admins");
         }
 
-        return UserResponse.builder()
-                .email(saved.getEmail())
-                .firstName(saved.getFirstName())
-                .lastName(saved.getLastName())
-                .createdAt(saved.getCreatedAt())
-                .build();
-    }
+        // Check if the user is an employee trying to update a non-owner
+        if (Role.ROLE_EMPLOYEE.equals(role) && !Role.ROLE_OWNER.equals(user.getRole())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Employees can only update owners");
+        }
 
-    @Override
-    public UserResponse updateUser(UUID userId, UserRequest user) throws UserNotFoundException {
+
         User userEntity = userRepository.findByUuidIDOrEmail(userId, null)
                 .orElseThrow(() -> new UserNotFoundException("User id: " + userId + " not found"));
 
@@ -91,6 +67,8 @@ public class UserServiceImp implements UserService {
         userEntity.setFirstName(user.getFirstName() != null ? user.getFirstName() : userEntity.getFirstName());
         userEntity.setLastName(user.getLastName() != null ? user.getLastName() : userEntity.getLastName());
         userEntity.setPhoneNumber(user.getPhoneNumber() != null ? user.getPhoneNumber() : userEntity.getPhoneNumber());
+        userEntity.setRole(user.getRole() != null ? user.getRole() : userEntity.getRole());
+        userEntity.setPassword(user.getPassword() != null ? bCryptPasswordEncoder.encode(user.getPassword()) : userEntity.getPassword());
 
         User saved = userRepository.save(userEntity);
 
@@ -105,25 +83,6 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
-    public UserResponse assignRoleToUser(UUID userId, Role role) throws UserNotFoundException {
-        User userEntity = userRepository.findByUuidIDOrEmail(userId, null)
-                .orElseThrow(() -> new UserNotFoundException("User id: " + userId + " not found"));
-
-        userEntity.setRole(role);
-
-        User saved = userRepository.save(userEntity);
-
-        return UserResponse.builder()
-                .email(saved.getEmail())
-                .firstName(saved.getFirstName())
-                .lastName(saved.getLastName())
-                .role(saved.getRole())
-                .createdAt(saved.getCreatedAt())
-                .updatedAt(saved.getUpdatedAt())
-                .build();
-    }
-
-    @Override
     public UserResponse getUserById(UUID userId) throws UserNotFoundException {
         User userEntity = userRepository.findByUuidIDOrEmail(userId, null)
                 .orElseThrow(() -> new UserNotFoundException("User id: " + userId + " not found"));
@@ -132,6 +91,7 @@ public class UserServiceImp implements UserService {
                 .email(userEntity.getEmail())
                 .firstName(userEntity.getFirstName())
                 .lastName(userEntity.getLastName())
+                .phoneNumber(userEntity.getPhoneNumber())
                 .build();
     }
 
@@ -151,6 +111,10 @@ public class UserServiceImp implements UserService {
                                 .email(userEntity.getEmail())
                                 .firstName(userEntity.getFirstName())
                                 .lastName(userEntity.getLastName())
+                                .role(userEntity.getRole())
+                                .phoneNumber(userEntity.getPhoneNumber())
+                                .createdAt(userEntity.getCreatedAt())
+                                .updatedAt(userEntity.getUpdatedAt())
                                 .build()
                         )
                         .collect(Collectors.toList()),
@@ -170,41 +134,31 @@ public class UserServiceImp implements UserService {
                 .email(userEntity.getEmail())
                 .firstName(userEntity.getFirstName())
                 .lastName(userEntity.getLastName())
+                .phoneNumber(userEntity.getPhoneNumber())
                 .build();
     }
 
     @Override
-    public PageResponse<UserResponse> getUsersByRole(Role role, int pageNo, int pageSize) {
+    public String deleteUser(UUID userId, String accessToken) throws UserNotFoundException {
 
-        Pageable pageable = PageRequest.of(pageNo, pageSize);
-        Page<User> users = userRepository.findAllByRole(role, pageable);
+        User userEntity = userRepository.findByUuidIDOrEmail(userId, null)
+                .orElseThrow(() -> new UserNotFoundException("User id: " + userId + " not found"));
 
-        return new PageResponse<>(
-                users.getNumber(),
-                users.getSize(),
-                users.getTotalPages(),
-                users.getContent().stream()
-                        .map(userEntity -> UserResponse.builder()
-                                .userId(userEntity.getUuidID())
-                                .email(userEntity.getEmail())
-                                .firstName(userEntity.getFirstName())
-                                .lastName(userEntity.getLastName())
-                                .build()
-                        )
-                        .collect(Collectors.toList()),
-                users.isLast(),
-                users.hasNext(),
-                users.hasPrevious()
-        );
+        JwtDecoder jwtDecoder = NimbusJwtDecoder.withPublicKey(rsaKeyRecord.publicKey()).build();
+        final Jwt jwtToken = jwtDecoder.decode(accessToken);
 
+        String role = jwtToken.getClaim("role");
 
-    }
+        // Check if the user is trying to delete an admin
+        if (Role.ROLE_ADMIN.equals(userEntity.getRole()) && !Role.ROLE_ADMIN.equals(role)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Only admins can delete other admins");
+        }
 
-    @Override
-    public String deleteUser(UUID userId) throws UserNotFoundException {
+        // Check if the user is an employee trying to delete a non-owner
+        if (Role.ROLE_EMPLOYEE.equals(role) && !Role.ROLE_OWNER.equals(userEntity.getRole())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Employees can only delete owners");
+        }
 
-        if (!userRepository.existsByUuidID(userId))
-            throw new UserNotFoundException("User id: " + userId + " not found");
         userRepository.deleteById(userId);
 
         return "User deleted successfully";
@@ -240,8 +194,9 @@ public class UserServiceImp implements UserService {
                 .user(userEntity)
                 .build();
 
-        userEntity.getNotificationTypes().add(notificationType);
         notificationTypeRepository.save(notificationType);
+        userEntity.getNotificationTypes().add(notificationType);
+        userRepository.save(userEntity);
 
         return "Notification " + notification + " added successfully";
     }
@@ -264,6 +219,17 @@ public class UserServiceImp implements UserService {
         notificationTypeRepository.deleteByTypeAndUserUuidID(notification, userId);
 
         return "Notification " + notification + " removed successfully";
+    }
+
+    @Override
+    public List<NotificationTypeResponse> getUserByNotifications(String email) throws UserNotFoundException {
+        return notificationTypeRepository.findByUserEmail(email).stream()
+                .map(
+                        notificationType -> NotificationTypeResponse.builder()
+                                .type(notificationType.getType())
+                                .build()
+                )
+                .toList();
     }
 
 }

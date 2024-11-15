@@ -10,6 +10,7 @@ import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.Possession
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.UserResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,15 +27,6 @@ public class ApartmentController {
     @GetMapping("/get-apartment-by-signature")
     public ResponseEntity<ApartmentResponse> getApartmentById(@RequestParam String apartmentSignature) throws ApartmentNotFoundException {
         return ResponseEntity.ok(apartmentsService.getApartmentBySignature(apartmentSignature));
-    }
-
-    @GetMapping("/get-apartment-by-user")
-    public ResponseEntity<PageResponse<ApartmentResponse>> getApartmentsByUserId(
-            @RequestParam UUID userId,
-            @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
-            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize
-            ) throws ApartmentNotFoundException, UserNotFoundException {
-        return ResponseEntity.ok(apartmentsService.getCurrentApartmentsByUserId(userId, pageNo, pageSize));
     }
 
     @GetMapping("/get-all-apartments")
@@ -77,6 +69,7 @@ public class ApartmentController {
         return ResponseEntity.ok(apartmentsService.getAllResidentsByApartmentId(apartmentSignature, pageNo, pageSize));
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_EMPLOYEE') or hasRole('ROLE_OWNER')")
     @GetMapping("/get-all-user-apartments")
     public ResponseEntity<List<ApartmentResponse>> getAllUserApartments(@RequestParam UUID userId) throws UserNotFoundException {
         return ResponseEntity.ok(apartmentsService.getAllUserApartments(userId));

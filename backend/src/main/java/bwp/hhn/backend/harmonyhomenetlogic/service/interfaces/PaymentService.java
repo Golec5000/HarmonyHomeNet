@@ -9,6 +9,7 @@ import bwp.hhn.backend.harmonyhomenetlogic.utils.response.page.PageResponse;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.PaymentComponentResponse;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.PaymentResponse;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface PaymentService {
@@ -31,6 +32,8 @@ public interface PaymentService {
 
     PaymentResponse updatePaymentComponent(UUID paymentId, Long paymentComponentId, PaymentComponentRequest paymentComponentRequest) throws PaymentNotFoundException, PaymentComponentNotFoundException;
 
-    PageResponse<PaymentComponentResponse> getPaymentComponents(UUID paymentId, int pageNo, int pageSize) throws PaymentNotFoundException;
+    List<PaymentComponentResponse> getPaymentComponents(UUID paymentId) throws PaymentNotFoundException;
+
+    String activatePayment(UUID paymentId) throws PaymentNotFoundException;
 
 }

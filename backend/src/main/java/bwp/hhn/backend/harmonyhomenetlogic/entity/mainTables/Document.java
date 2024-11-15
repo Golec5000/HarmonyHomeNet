@@ -28,12 +28,17 @@ public class Document {
 
     @NotEmpty
     @Size(max = 50)
-    @Column(name = "Document_name", nullable = false, length = 50)
+    @Column(name = "Document_name", nullable = false, unique = true, length = 50)
     private String documentName;
+
+    @NotEmpty
+    @Size(max = 8)
+    @Column(name = "Document_extension", nullable = false, length = 8)
+    private String documentExtension;
 
     @NonNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "Document_type", nullable = false)
+    @Column(name = "Document_type", nullable = false, unique = true)
     private DocumentType documentType;
 
     @Lob

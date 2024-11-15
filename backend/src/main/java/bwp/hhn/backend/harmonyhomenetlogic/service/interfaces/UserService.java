@@ -6,17 +6,15 @@ import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Notification;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Role;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.UserRequest;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.page.PageResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.NotificationTypeResponse;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.UserResponse;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface UserService {
 
-    UserResponse creatUser(UserRequest user);
-
-    UserResponse updateUser(UUID userId, UserRequest user) throws UserNotFoundException;
-
-    UserResponse assignRoleToUser(UUID userId, Role role) throws UserNotFoundException;
+    UserResponse updateUser(UUID userId, UserRequest user, String accessToken) throws UserNotFoundException;
 
     UserResponse getUserById(UUID userId) throws UserNotFoundException;
 
@@ -24,11 +22,11 @@ public interface UserService {
 
     UserResponse getUserByEmail(String email) throws UserNotFoundException;
 
-    PageResponse<UserResponse> getUsersByRole(Role role, int pageNo, int pageSize);
-
-    String deleteUser(UUID userId) throws UserNotFoundException;
+    String deleteUser(UUID userId, String accessToken) throws UserNotFoundException;
 
     String addNotificationToUser(UUID userId, Notification notification) throws UserNotFoundException;
 
     String removeNotificationFromUser(UUID userId, Notification notification) throws UserNotFoundException, NotificationNotFoundException;
+
+    List<NotificationTypeResponse> getUserByNotifications(String email) throws UserNotFoundException;
 }

@@ -20,7 +20,9 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -62,8 +64,8 @@ class ApartmentsServiceTest {
                 .apartmentArea(new BigDecimal("50.0"))
                 .apartmentPercentValue(new BigDecimal("0.05"))
                 .apartmentSignature("A101")
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
+                .createdAt(Instant.now())
+                .updatedAt(Instant.now())
                 .build();
 
         user = User.builder()
@@ -77,7 +79,7 @@ class ApartmentsServiceTest {
                 .id(1L)
                 .user(user)
                 .apartment(apartment)
-                .startDate(LocalDateTime.now().minusDays(30))
+                .startDate(Instant.now().minus(1, ChronoUnit.MONTHS))
                 .endDate(null)
                 .build();
     }
@@ -96,8 +98,8 @@ class ApartmentsServiceTest {
         when(apartmentsRepository.save(any(Apartment.class))).thenAnswer(invocation -> {
             Apartment savedApartment = invocation.getArgument(0);
             savedApartment.setUuidID(UUID.randomUUID());
-            savedApartment.setCreatedAt(LocalDateTime.now());
-            savedApartment.setUpdatedAt(LocalDateTime.now());
+            savedApartment.setCreatedAt(Instant.now());
+            savedApartment.setUpdatedAt(Instant.now());
             return savedApartment;
         });
 

@@ -28,7 +28,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.UUID;
@@ -83,8 +85,8 @@ class PollServiceTest {
                 .pollName("Test Poll")
                 .content("Test Content")
                 .uploadData("Test Data".getBytes())
-                .createdAt(LocalDateTime.now())
-                .endDate(LocalDateTime.now().plusDays(1))
+                .createdAt(Instant.now())
+                .endDate(Instant.now().plus(1, ChronoUnit.DAYS))
                 .summary(BigDecimal.ZERO)
                 .votes(new ArrayList<>())
                 .build();
@@ -114,7 +116,7 @@ class PollServiceTest {
         PollRequest pollRequest = new PollRequest();
         pollRequest.setPollName("New Poll");
         pollRequest.setContent("Poll Content");
-        pollRequest.setEndDate(LocalDateTime.now().plusDays(5));
+        pollRequest.setEndDate(Instant.now().plus(5, ChronoUnit.DAYS));
 
         when(userRepository.findByIdAndRole(userId)).thenReturn(Optional.of(user));
         when(file.getBytes()).thenReturn("File Data".getBytes());
@@ -135,7 +137,7 @@ class PollServiceTest {
         PollRequest pollRequest = new PollRequest();
         pollRequest.setPollName("New Poll");
         pollRequest.setContent("Poll Content");
-        pollRequest.setEndDate(LocalDateTime.now().plusDays(5));
+        pollRequest.setEndDate(Instant.now().plus(5, ChronoUnit.DAYS));
 
         when(userRepository.findByIdAndRole(userId)).thenReturn(Optional.empty());
 
@@ -151,7 +153,7 @@ class PollServiceTest {
         PollRequest pollRequest = new PollRequest();
         pollRequest.setPollName("New Poll");
         pollRequest.setContent("Poll Content");
-        pollRequest.setEndDate(LocalDateTime.now().minusDays(1));
+        pollRequest.setEndDate(Instant.now().minus(1, ChronoUnit.DAYS));
 
         when(userRepository.findByIdAndRole(userId)).thenReturn(Optional.of(user));
 
@@ -243,7 +245,7 @@ class PollServiceTest {
                 .votes(new ArrayList<>())
                 .build();
 
-        poll.setEndDate(LocalDateTime.now().minusDays(1)); // Poll has ended
+        poll.setEndDate(Instant.now().minus(1, ChronoUnit.DAYS)); // Poll has ended
 
         String apartmentSignature = "A-101";
 

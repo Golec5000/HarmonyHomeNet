@@ -13,6 +13,7 @@ public record DocumentResponse(
         String documentName,
         DocumentType documentType,
         Instant createdAt,
+        @JsonInclude(JsonInclude.Include.NON_NULL) String documentExtension,
         @JsonInclude(JsonInclude.Include.NON_NULL) byte[] documentDataBase64
 ) {
 }

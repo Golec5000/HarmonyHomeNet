@@ -14,7 +14,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -33,8 +34,8 @@ public class PaymentReminderScheduler {
     @Scheduled(cron = "0 0 12 * * MON")
     @Async
     public void sendUpcomingPaymentReminders() {
-        LocalDateTime twoWeeksBefore = LocalDateTime.now().plusWeeks(2);
-        LocalDateTime oneWeekBefore = LocalDateTime.now().plusWeeks(1);
+        Instant twoWeeksBefore = Instant.now().plus(2, ChronoUnit.WEEKS);
+        Instant oneWeekBefore = Instant.now().plus(1, ChronoUnit.WEEKS);
 
         // Pobranie płatności z terminem za 2 tygodnie lub 1 tydzień
         List<Payment> upcomingPayments = paymentRepository.findByPaymentDateBetween(twoWeeksBefore, oneWeekBefore);
@@ -58,7 +59,7 @@ public class PaymentReminderScheduler {
     @Scheduled(cron = "0 0 12 */2 * ?")
     @Async
     public void sendOverduePaymentReminders() {
-        LocalDateTime today = LocalDateTime.now();
+        Instant today = Instant.now();
 
         // Pobranie płatności, które są po terminie i nie zostały jeszcze zapłacone
         List<Payment> overduePayments = paymentRepository.findByDueDateBeforeAndIsPaidFalse(today);

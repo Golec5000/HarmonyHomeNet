@@ -22,8 +22,6 @@ public interface ApartmentsService {
 
     ApartmentResponse getApartmentBySignature(String apartmentSignature) throws ApartmentNotFoundException;
 
-    PageResponse<ApartmentResponse> getCurrentApartmentsByUserId(UUID userId, int pageNo, int pageSize) throws ApartmentNotFoundException, UserNotFoundException;
-
     PageResponse<ApartmentResponse> getAllApartments(int pageNo, int pageSize);
 
     PossessionHistoryResponse getPossessionHistory(String apartmentSignature, UUID userId) throws ApartmentNotFoundException, UserNotFoundException;

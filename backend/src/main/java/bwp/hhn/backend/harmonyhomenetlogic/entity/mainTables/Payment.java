@@ -15,7 +15,8 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
 
@@ -59,6 +60,9 @@ public class Payment {
     @Column(name = "Created_at", nullable = false)
     private Instant createdAt;
 
+    @Column(name = "Ready_to_pay")
+    private Boolean readyToPay;
+
     @ManyToOne
     @JoinColumn(name = "apartment_id", referencedColumnName = "UUID_id")
     @JsonBackReference
@@ -70,6 +74,9 @@ public class Payment {
 
     @PrePersist
     public void prePersist() {
-        this.setPaymentDate(Instant.now().plus(1, ChronoUnit.MONTHS));
+        this.setPaymentDate(LocalDateTime.now().plusMonths(1).atZone(ZoneId.systemDefault()).toInstant());
+        if (this.readyToPay == null) {
+            this.readyToPay = false;
+        }
     }
 }

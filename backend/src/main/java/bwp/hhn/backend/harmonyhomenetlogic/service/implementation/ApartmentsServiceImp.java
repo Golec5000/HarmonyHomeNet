@@ -115,16 +115,6 @@ public class ApartmentsServiceImp implements ApartmentsService {
     }
 
     @Override
-    public PageResponse<ApartmentResponse> getCurrentApartmentsByUserId(UUID userId, int pageNo, int pageSize)
-            throws ApartmentNotFoundException, UserNotFoundException {
-
-        Pageable pageable = PageRequest.of(pageNo, pageSize);
-        Page<Apartment> apartments = possessionHistoryRepository.findByUserUuidIDAndEndDateIsNull(userId, pageable);
-
-        return getApartmentResponsePageResponse(apartments);
-    }
-
-    @Override
     public PageResponse<ApartmentResponse> getAllApartments(int pageNo, int pageSize) {
 
         Pageable pageable = PageRequest.of(pageNo, pageSize);

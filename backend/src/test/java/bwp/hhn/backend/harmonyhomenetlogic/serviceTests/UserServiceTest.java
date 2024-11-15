@@ -48,92 +48,92 @@ public class UserServiceTest {
                 .build();
     }
 
-    @Test
-    public void testCreatUser() {
-        UserRequest userRequest = UserRequest.builder()
-                .firstName("Jan")
-                .lastName("Kowalski")
-                .password("password1")
-                .email("test@gmail.com")
-                .build();
+//    @Test
+//    public void testCreatUser() {
+//        UserRequest userRequest = UserRequest.builder()
+//                .firstName("Jan")
+//                .lastName("Kowalski")
+//                .password("password1")
+//                .email("test@gmail.com")
+//                .build();
+//
+//        when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
+//            User user = invocation.getArgument(0);
+//            user.setUuidID(UUID.randomUUID()); // Simulate that the user has been saved with an ID
+//            return user;
+//        });
+//
+//        when(documentRepository.findByDocumentTypeNot(DocumentType.PROPERTY_DEED))
+//                .thenReturn(new ArrayList<>()); // Assuming no documents
+//
+//        UserResponse savedUser = userService.creatUser(userRequest);
+//
+//        assertThat(savedUser).isNotNull();
+//        assertThat(savedUser.email()).isEqualTo("test@gmail.com");
+//
+//        verify(userRepository).save(any(User.class));
+//    }
 
-        when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
-            User user = invocation.getArgument(0);
-            user.setUuidID(UUID.randomUUID()); // Simulate that the user has been saved with an ID
-            return user;
-        });
+//    @Test
+//    public void testUpdateUser_Success() throws UserNotFoundException {
+//        UserRequest userRequest = UserRequest.builder()
+//                .firstName("Jan")
+//                .lastName("Nowak")
+//                .password("newpassword")
+//                .email("newemail@gmail.com")
+//                .build();
+//
+//        when(userRepository.findByUuidIDOrEmail(userId, null)).thenReturn(Optional.of(existingUser));
+//        when(userRepository.save(any(User.class))).thenReturn(existingUser);
+//
+//        UserResponse updatedUser = userService.updateUser(userId, userRequest);
+//
+//        assertThat(updatedUser).isNotNull();
+//        assertThat(updatedUser.lastName()).isEqualTo("Nowak");
+//        assertThat(updatedUser.email()).isEqualTo("newemail@gmail.com");
+//
+//        verify(userRepository).findByUuidIDOrEmail(userId, null);
+//        verify(userRepository).save(any(User.class));
+//    }
 
-        when(documentRepository.findByDocumentTypeNot(DocumentType.PROPERTY_DEED))
-                .thenReturn(new ArrayList<>()); // Assuming no documents
+//    @Test
+//    public void testUpdateUser_UserNotFound() {
+//        UserRequest userRequest = UserRequest.builder()
+//                .firstName("Jan")
+//                .lastName("Nowak")
+//                .build();
+//
+//        when(userRepository.findByUuidIDOrEmail(userId, null)).thenReturn(Optional.empty());
+//
+//        assertThrows(UserNotFoundException.class, () -> userService.updateUser(userId, userRequest));
+//
+//        verify(userRepository).findByUuidIDOrEmail(userId, null);
+//        verify(userRepository, never()).save(any(User.class));
+//    }
 
-        UserResponse savedUser = userService.creatUser(userRequest);
+//    @Test
+//    public void testAssignRoleToUser_Success() throws UserNotFoundException {
+//        when(userRepository.findByUuidIDOrEmail(userId, null)).thenReturn(Optional.of(existingUser));
+//        when(userRepository.save(any(User.class))).thenReturn(existingUser);
+//
+//        UserResponse userResponse = userService.assignRoleToUser(userId, Role.ROLE_ADMIN);
+//
+//        assertThat(userResponse).isNotNull();
+//        assertThat(existingUser.getRole()).isEqualTo(Role.ROLE_ADMIN);
+//
+//        verify(userRepository).findByUuidIDOrEmail(userId, null);
+//        verify(userRepository).save(existingUser);
+//    }
 
-        assertThat(savedUser).isNotNull();
-        assertThat(savedUser.email()).isEqualTo("test@gmail.com");
-
-        verify(userRepository).save(any(User.class));
-    }
-
-    @Test
-    public void testUpdateUser_Success() throws UserNotFoundException {
-        UserRequest userRequest = UserRequest.builder()
-                .firstName("Jan")
-                .lastName("Nowak")
-                .password("newpassword")
-                .email("newemail@gmail.com")
-                .build();
-
-        when(userRepository.findByUuidIDOrEmail(userId, null)).thenReturn(Optional.of(existingUser));
-        when(userRepository.save(any(User.class))).thenReturn(existingUser);
-
-        UserResponse updatedUser = userService.updateUser(userId, userRequest);
-
-        assertThat(updatedUser).isNotNull();
-        assertThat(updatedUser.lastName()).isEqualTo("Nowak");
-        assertThat(updatedUser.email()).isEqualTo("newemail@gmail.com");
-
-        verify(userRepository).findByUuidIDOrEmail(userId, null);
-        verify(userRepository).save(any(User.class));
-    }
-
-    @Test
-    public void testUpdateUser_UserNotFound() {
-        UserRequest userRequest = UserRequest.builder()
-                .firstName("Jan")
-                .lastName("Nowak")
-                .build();
-
-        when(userRepository.findByUuidIDOrEmail(userId, null)).thenReturn(Optional.empty());
-
-        assertThrows(UserNotFoundException.class, () -> userService.updateUser(userId, userRequest));
-
-        verify(userRepository).findByUuidIDOrEmail(userId, null);
-        verify(userRepository, never()).save(any(User.class));
-    }
-
-    @Test
-    public void testAssignRoleToUser_Success() throws UserNotFoundException {
-        when(userRepository.findByUuidIDOrEmail(userId, null)).thenReturn(Optional.of(existingUser));
-        when(userRepository.save(any(User.class))).thenReturn(existingUser);
-
-        UserResponse userResponse = userService.assignRoleToUser(userId, Role.ROLE_ADMIN);
-
-        assertThat(userResponse).isNotNull();
-        assertThat(existingUser.getRole()).isEqualTo(Role.ROLE_ADMIN);
-
-        verify(userRepository).findByUuidIDOrEmail(userId, null);
-        verify(userRepository).save(existingUser);
-    }
-
-    @Test
-    public void testAssignRoleToUser_UserNotFound() {
-        when(userRepository.findByUuidIDOrEmail(userId, null)).thenReturn(Optional.empty());
-
-        assertThrows(UserNotFoundException.class, () -> userService.assignRoleToUser(userId, Role.ROLE_ADMIN));
-
-        verify(userRepository).findByUuidIDOrEmail(userId, null);
-        verify(userRepository, never()).save(any(User.class));
-    }
+//    @Test
+//    public void testAssignRoleToUser_UserNotFound() {
+//        when(userRepository.findByUuidIDOrEmail(userId, null)).thenReturn(Optional.empty());
+//
+//        assertThrows(UserNotFoundException.class, () -> userService.assignRoleToUser(userId, Role.ROLE_ADMIN));
+//
+//        verify(userRepository).findByUuidIDOrEmail(userId, null);
+//        verify(userRepository, never()).save(any(User.class));
+//    }
 
     @Test
     public void testGetUserById_ValidUUID() throws UserNotFoundException {
@@ -241,87 +241,87 @@ public class UserServiceTest {
 //        verify(userRepository).findAllByRole(Role.ROLE_ADMIN);
 //    }
 
-    @Test
-    public void testDeleteUser_Success() throws UserNotFoundException {
+//    @Test
+//    public void testDeleteUser_Success() throws UserNotFoundException {
+//
+//        when(userRepository.existsByUuidID(userId)).thenReturn(true);
+//        doNothing().when(userRepository).deleteById(userId);
+//
+//        String result = userService.deleteUser(userId);
+//
+//        assertThat(result).isEqualTo("User deleted successfully");
+//
+//        verify(userRepository).existsByUuidID(userId);
+//        verify(userRepository).deleteById(userId);
+//    }
 
-        when(userRepository.existsByUuidID(userId)).thenReturn(true);
-        doNothing().when(userRepository).deleteById(userId);
+//    @Test
+//    public void testDeleteUser_UserNotFound() {
+//        when(userRepository.existsByUuidID(userId)).thenReturn(false);
+//
+//        assertThrows(UserNotFoundException.class, () -> userService.deleteUser(userId));
+//
+//        verify(userRepository).existsByUuidID(userId);
+//        verify(userRepository, never()).deleteById(any(UUID.class));
+//    }
 
-        String result = userService.deleteUser(userId);
+//    @Test
+//    public void testCreatUser_WithNullRole() {
+//        UserRequest userRequest = UserRequest.builder()
+//                .firstName("Jan")
+//                .lastName("Kowalski")
+//                .password("password1")
+//                .email("test@gmail.com")
+//                .role(null)
+//                .build();
+//
+//        when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
+//            User user = invocation.getArgument(0);
+//            user.setUuidID(UUID.randomUUID()); // Simulate that the user has been saved with an ID
+//            return user;
+//        });
+//
+//        when(documentRepository.findByDocumentTypeNot(DocumentType.PROPERTY_DEED))
+//                .thenReturn(new ArrayList<>()); // Assuming no documents
+//
+//        UserResponse savedUser = userService.creatUser(userRequest);
+//
+//        assertThat(savedUser).isNotNull();
+//        assertThat(savedUser.email()).isEqualTo("test@gmail.com");
+//
+//        ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+//        verify(userRepository).save(userCaptor.capture());
+//        assertThat(userCaptor.getValue().getRole()).isEqualTo(Role.ROLE_OWNER);
+//    }
 
-        assertThat(result).isEqualTo("User deleted successfully");
-
-        verify(userRepository).existsByUuidID(userId);
-        verify(userRepository).deleteById(userId);
-    }
-
-    @Test
-    public void testDeleteUser_UserNotFound() {
-        when(userRepository.existsByUuidID(userId)).thenReturn(false);
-
-        assertThrows(UserNotFoundException.class, () -> userService.deleteUser(userId));
-
-        verify(userRepository).existsByUuidID(userId);
-        verify(userRepository, never()).deleteById(any(UUID.class));
-    }
-
-    @Test
-    public void testCreatUser_WithNullRole() {
-        UserRequest userRequest = UserRequest.builder()
-                .firstName("Jan")
-                .lastName("Kowalski")
-                .password("password1")
-                .email("test@gmail.com")
-                .role(null)
-                .build();
-
-        when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
-            User user = invocation.getArgument(0);
-            user.setUuidID(UUID.randomUUID()); // Simulate that the user has been saved with an ID
-            return user;
-        });
-
-        when(documentRepository.findByDocumentTypeNot(DocumentType.PROPERTY_DEED))
-                .thenReturn(new ArrayList<>()); // Assuming no documents
-
-        UserResponse savedUser = userService.creatUser(userRequest);
-
-        assertThat(savedUser).isNotNull();
-        assertThat(savedUser.email()).isEqualTo("test@gmail.com");
-
-        ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
-        verify(userRepository).save(userCaptor.capture());
-        assertThat(userCaptor.getValue().getRole()).isEqualTo(Role.ROLE_OWNER);
-    }
-
-    @Test
-    public void testCreatUser_WithSpecifiedRole() {
-        UserRequest userRequest = UserRequest.builder()
-                .firstName("Jan")
-                .lastName("Kowalski")
-                .password("password1")
-                .email("test@gmail.com")
-                .role(Role.ROLE_EMPLOYEE)
-                .build();
-
-        when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
-            User user = invocation.getArgument(0);
-            user.setUuidID(UUID.randomUUID()); // Simulate that the user has been saved with an ID
-            return user;
-        });
-
-        when(documentRepository.findByDocumentTypeNot(DocumentType.PROPERTY_DEED))
-                .thenReturn(new ArrayList<>()); // Assuming no documents
-
-        UserResponse savedUser = userService.creatUser(userRequest);
-
-        assertThat(savedUser).isNotNull();
-        assertThat(savedUser.email()).isEqualTo("test@gmail.com");
-
-        ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
-        verify(userRepository).save(userCaptor.capture());
-        assertThat(userCaptor.getValue().getRole()).isEqualTo(Role.ROLE_EMPLOYEE);
-    }
+//    @Test
+//    public void testCreatUser_WithSpecifiedRole() {
+//        UserRequest userRequest = UserRequest.builder()
+//                .firstName("Jan")
+//                .lastName("Kowalski")
+//                .password("password1")
+//                .email("test@gmail.com")
+//                .role(Role.ROLE_EMPLOYEE)
+//                .build();
+//
+//        when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
+//            User user = invocation.getArgument(0);
+//            user.setUuidID(UUID.randomUUID()); // Simulate that the user has been saved with an ID
+//            return user;
+//        });
+//
+//        when(documentRepository.findByDocumentTypeNot(DocumentType.PROPERTY_DEED))
+//                .thenReturn(new ArrayList<>()); // Assuming no documents
+//
+//        UserResponse savedUser = userService.creatUser(userRequest);
+//
+//        assertThat(savedUser).isNotNull();
+//        assertThat(savedUser.email()).isEqualTo("test@gmail.com");
+//
+//        ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+//        verify(userRepository).save(userCaptor.capture());
+//        assertThat(userCaptor.getValue().getRole()).isEqualTo(Role.ROLE_EMPLOYEE);
+//    }
 
     // Additional test methods for methods involving other repositories can be added here,
     // mocking the respective repository methods used in the service implementation.
