@@ -24,6 +24,7 @@ public class UserController {
     private final UserService userService;
 
     //GET
+    //TODO to remove ?
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_EMPLOYEE')")
     @GetMapping("/get-user-by-id")
     public ResponseEntity<UserResponse> getUserById(@RequestParam UUID userId) throws UserNotFoundException {

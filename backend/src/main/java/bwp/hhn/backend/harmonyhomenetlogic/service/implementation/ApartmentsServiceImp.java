@@ -199,11 +199,11 @@ public class ApartmentsServiceImp implements ApartmentsService {
     }
 
     @Override
-    public String deletePossessionHistory(Long possessionHistoryId) throws PossessionHistoryNotFoundException {
-        if (!possessionHistoryRepository.existsById(possessionHistoryId))
-            throw new PossessionHistoryNotFoundException("Possession history: " + possessionHistoryId + " not found");
+    public String deletePossessionHistory(String apartmentSignature, UUID userId) throws PossessionHistoryNotFoundException {
+        if (!possessionHistoryRepository.existsByApartmentSignatureAndUserId(apartmentSignature, userId))
+            throw new PossessionHistoryNotFoundException("Possession history not found for user: " + userId + " and apartment: " + apartmentSignature);
 
-        possessionHistoryRepository.deleteById(possessionHistoryId);
+        possessionHistoryRepository.deleteByApartmentSignatureAndUserId(apartmentSignature, userId);
 
         return "Possession history deleted successfully";
     }
@@ -229,29 +229,18 @@ public class ApartmentsServiceImp implements ApartmentsService {
     }
 
     @Override
-    public PageResponse<UserResponse> getCurrentResidents(String apartmentSignature, int pageNo, int pageSize)
+    public List<UserResponse> getCurrentResidents(String apartmentSignature)
             throws ApartmentNotFoundException {
 
-        Pageable pageable = PageRequest.of(pageNo, pageSize);
-        Page<User> users = possessionHistoryRepository.findActiveResidentsByApartment(apartmentSignature, pageable);
-
-        return new PageResponse<>(
-                users.getNumber(),
-                users.getSize(),
-                users.getTotalPages(),
-                users.getContent().stream()
-                        .map(
-                                user -> UserResponse.builder()
-                                        .firstName(user.getFirstName())
-                                        .lastName(user.getLastName())
-                                        .email(user.getEmail())
-                                        .build()
-                        )
-                        .toList(),
-                users.isLast(),
-                users.hasNext(),
-                users.hasPrevious()
-        );
+        return possessionHistoryRepository.findActiveResidentsByApartment(apartmentSignature).stream()
+                .map(
+                        possessionHistory -> UserResponse.builder()
+                                .firstName(possessionHistory.getFirstName())
+                                .lastName(possessionHistory.getLastName())
+                                .email(possessionHistory.getEmail())
+                                .build()
+                )
+                .toList();
     }
 
     @Override
@@ -344,6 +333,7 @@ public class ApartmentsServiceImp implements ApartmentsService {
                                         .createdAt(apartment.getCreatedAt())
                                         .updatedAt(apartment.getUpdatedAt())
                                         .apartmentSignature(apartment.getApartmentSignature())
+                                        .apartmentPercentValue(apartment.getApartmentPercentValue())
                                         .build()
                         )
                         .toList(),

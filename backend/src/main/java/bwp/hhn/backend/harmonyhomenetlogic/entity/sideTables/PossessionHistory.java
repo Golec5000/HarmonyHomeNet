@@ -22,6 +22,8 @@ import java.time.Instant;
         @Index(name = "idx_possession_apartment_id", columnList = "apartment_id"),
         @Index(name = "idx_possession_start_date", columnList = "start_date"),
         @Index(name = "idx_possession_end_date", columnList = "end_date")
+}, uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"user_id", "apartment_id"})
 })
 public class PossessionHistory {
 

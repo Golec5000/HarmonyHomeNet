@@ -15,6 +15,7 @@ public record ApartmentResponse(
         BigDecimal apartmentArea,
         Instant createdAt,
         Instant updatedAt,
-        String apartmentSignature
+        String apartmentSignature,
+        BigDecimal apartmentPercentValue
 ) {
 }

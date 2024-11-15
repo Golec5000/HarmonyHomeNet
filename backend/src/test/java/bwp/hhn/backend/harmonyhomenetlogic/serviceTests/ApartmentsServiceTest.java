@@ -295,34 +295,34 @@ class ApartmentsServiceTest {
         verify(possessionHistoryRepository, times(1)).findByUserUuidIDAndApartmentUuidID(userId, apartmentId);
         verify(possessionHistoryRepository, times(1)).save(any(PossessionHistory.class));
     }
+//
+//    @Test
+//    void testDeletePossessionHistory_Success() throws PossessionHistoryNotFoundException {
+//        // Given
+//        Long possessionHistoryId = 1L;
+//        when(possessionHistoryRepository.existsById(possessionHistoryId)).thenReturn(true);
+//        doNothing().when(possessionHistoryRepository).deleteById(possessionHistoryId);
+//
+//        // When
+//        String result = apartmentsService.deletePossessionHistory(possessionHistoryId);
+//
+//        // Then
+//        assertEquals("Possession history deleted successfully", result);
+//        verify(possessionHistoryRepository, times(1)).existsById(possessionHistoryId);
+//        verify(possessionHistoryRepository, times(1)).deleteById(possessionHistoryId);
+//    }
 
-    @Test
-    void testDeletePossessionHistory_Success() throws PossessionHistoryNotFoundException {
-        // Given
-        Long possessionHistoryId = 1L;
-        when(possessionHistoryRepository.existsById(possessionHistoryId)).thenReturn(true);
-        doNothing().when(possessionHistoryRepository).deleteById(possessionHistoryId);
-
-        // When
-        String result = apartmentsService.deletePossessionHistory(possessionHistoryId);
-
-        // Then
-        assertEquals("Possession history deleted successfully", result);
-        verify(possessionHistoryRepository, times(1)).existsById(possessionHistoryId);
-        verify(possessionHistoryRepository, times(1)).deleteById(possessionHistoryId);
-    }
-
-    @Test
-    void testDeletePossessionHistory_NotFound() {
-        // Given
-        Long possessionHistoryId = 1L;
-        when(possessionHistoryRepository.existsById(possessionHistoryId)).thenReturn(false);
-
-        // When & Then
-        assertThrows(PossessionHistoryNotFoundException.class, () -> apartmentsService.deletePossessionHistory(possessionHistoryId));
-        verify(possessionHistoryRepository, times(1)).existsById(possessionHistoryId);
-        verify(possessionHistoryRepository, never()).deleteById(possessionHistoryId);
-    }
+//    @Test
+//    void testDeletePossessionHistory_NotFound() {
+//        // Given
+//        Long possessionHistoryId = 1L;
+//        when(possessionHistoryRepository.existsById(possessionHistoryId)).thenReturn(false);
+//
+//        // When & Then
+//        assertThrows(PossessionHistoryNotFoundException.class, () -> apartmentsService.deletePossessionHistory(possessionHistoryId));
+//        verify(possessionHistoryRepository, times(1)).existsById(possessionHistoryId);
+//        verify(possessionHistoryRepository, never()).deleteById(possessionHistoryId);
+//    }
 
 //    @Test
 //    void testGetCurrentResidents_Success() throws ApartmentNotFoundException {

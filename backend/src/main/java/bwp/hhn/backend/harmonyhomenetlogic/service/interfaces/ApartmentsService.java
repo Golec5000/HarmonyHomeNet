@@ -8,6 +8,7 @@ import bwp.hhn.backend.harmonyhomenetlogic.utils.response.page.PageResponse;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.ApartmentResponse;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.PossessionHistoryResponse;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.UserResponse;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 import java.util.UUID;
@@ -28,11 +29,11 @@ public interface ApartmentsService {
 
     PossessionHistoryResponse createPossessionHistory(String apartmentSignature, UUID userId) throws ApartmentNotFoundException, UserNotFoundException;
 
-    String deletePossessionHistory(Long possessionHistoryId) throws PossessionHistoryNotFoundException;
+    String deletePossessionHistory(String apartmentSignature, UUID userId) throws PossessionHistoryNotFoundException;
 
     PossessionHistoryResponse endPossessionHistory(String apartmentSignature, UUID userId) throws ApartmentNotFoundException, UserNotFoundException;
 
-    PageResponse<UserResponse> getCurrentResidents(String apartmentSignature, int pageNo, int pageSize) throws ApartmentNotFoundException;
+    List<UserResponse> getCurrentResidents(String apartmentSignature) throws ApartmentNotFoundException;
 
     PageResponse<PossessionHistoryResponse> getApartmentPossessionHistory(String apartmentSignature, int pageNo, int pageSize) throws ApartmentNotFoundException;
 

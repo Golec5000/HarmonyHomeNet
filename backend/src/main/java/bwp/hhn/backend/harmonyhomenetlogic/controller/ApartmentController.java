@@ -43,12 +43,9 @@ public class ApartmentController {
     }
 
     @GetMapping("/current-apartment-residents")
-    public ResponseEntity<PageResponse<UserResponse>> getCurrentResidents(
-            @RequestParam String apartmentSignature,
-            @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
-            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize
-    ) throws ApartmentNotFoundException {
-        return ResponseEntity.ok(apartmentsService.getCurrentResidents(apartmentSignature, pageNo, pageSize));
+    public ResponseEntity<List<UserResponse>> getCurrentResidents(@RequestParam String apartmentSignature)
+            throws ApartmentNotFoundException {
+        return ResponseEntity.ok(apartmentsService.getCurrentResidents(apartmentSignature));
     }
 
     @GetMapping("/whole-possession-history-for-apartment")
@@ -92,9 +89,9 @@ public class ApartmentController {
         return ResponseEntity.ok(apartmentsService.deleteApartment(apartmentSignature));
     }
 
-    @DeleteMapping("/delete-possession-history/{possessionHistoryId}")
-    public ResponseEntity<String> deletePossessionHistory(@PathVariable Long possessionHistoryId) throws ApartmentNotFoundException {
-        return ResponseEntity.ok(apartmentsService.deletePossessionHistory(possessionHistoryId));
+    @DeleteMapping("/delete-possession-history")
+    public ResponseEntity<String> deletePossessionHistory(@RequestParam String apartmentSignature, @RequestParam UUID userId) throws ApartmentNotFoundException {
+        return ResponseEntity.ok(apartmentsService.deletePossessionHistory(apartmentSignature, userId));
     }
 
     // PUT
