@@ -1,17 +1,19 @@
 import React from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { FileText, CreditCard, Bell, Phone, Mail, Calendar } from 'lucide-react'
+import {Home, Phone, Mail, Calendar, MessageSquare} from 'lucide-react'
 
 export function HomePage() {
     return (
         <div className="space-y-6">
-            <h1 className="text-3xl font-bold">Witamy w Harmony Home Net</h1>
-
+            <h1 className="text-3xl font-bold flex items-center">
+                <Home className="mr-2 h-8 w-8 text-primary"/>
+                Witamy w Harmony Home
+            </h1>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
                 <Card>
                     <CardHeader className="flex flex-row items-center space-x-2">
-                        <Phone className="h-6 w-6 text-primary" />
+                        <Phone className="h-6 w-6 text-primary"/>
                         <CardTitle>Informacje kontaktowe</CardTitle>
                     </CardHeader>
                     <CardContent>
@@ -25,7 +27,7 @@ export function HomePage() {
 
                 <Card>
                     <CardHeader className="flex flex-row items-center space-x-2">
-                        <Mail className="h-6 w-6 text-primary" />
+                        <Mail className="h-6 w-6 text-primary"/>
                         <CardTitle>Kontakt z administracją</CardTitle>
                     </CardHeader>
                     <CardContent>
@@ -39,7 +41,7 @@ export function HomePage() {
 
                 <Card>
                     <CardHeader className="flex flex-row items-center space-x-2">
-                        <Calendar className="h-6 w-6 text-primary" />
+                        <Calendar className="h-6 w-6 text-primary"/>
                         <CardTitle>Godziny otwarcia biura</CardTitle>
                     </CardHeader>
                     <CardContent>

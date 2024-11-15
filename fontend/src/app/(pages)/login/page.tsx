@@ -1,15 +1,16 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import * as yup from 'yup';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Home, LogIn } from 'lucide-react';
+import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from "@/components/ui/card";
+import {Button} from "@/components/ui/button";
+import {Input} from "@/components/ui/input";
+import {Label} from "@/components/ui/label";
+import {Home, LogIn} from 'lucide-react';
 import Link from 'next/link';
-import { ModeToggle } from "@/components/ModeToggle";
-import { jwtDecode } from 'jwt-decode';
+import {ModeToggle} from "@/components/ModeToggle";
+import {jwtDecode} from 'jwt-decode';
+import {toast} from "sonner";
 
 const loginSchema = yup.object().shape({
     email: yup.string().email('Invalid email format').required('Email is required'),
@@ -18,7 +19,7 @@ const loginSchema = yup.object().shape({
 
 const validateLoginData = async (data: { email: string; password: string }) => {
     try {
-        await loginSchema.validate(data, { abortEarly: false });
+        await loginSchema.validate(data, {abortEarly: false});
         console.log('Validation successful');
     } catch (err) {
         if (err instanceof yup.ValidationError) {
@@ -27,13 +28,17 @@ const validateLoginData = async (data: { email: string; password: string }) => {
     }
 };
 
+interface CustomJwtPayload {
+    role: string;
+}
+
 function LoginForm() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
     const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const data = { email, password };
+        const data = {email, password};
         await validateLoginData(data);
 
         try {
@@ -51,7 +56,7 @@ function LoginForm() {
                 localStorage.setItem('jwt_accessToken', myAccessToken);
 
                 // Decode the token to get the user's role
-                const decodedToken = jwtDecode(myAccessToken);
+                const decodedToken = jwtDecode<CustomJwtPayload>(myAccessToken);
                 const userRole = decodedToken.role;
 
                 // Redirect based on the user's role
@@ -63,9 +68,9 @@ function LoginForm() {
                     window.location.href = '/welcome-home';
                 }
 
-                console.log('Login successful:');
+                console.log('Login successful');
             } else {
-                console.error('Login failed:', response.statusText);
+                toast.error('Login failed. Please check your credentials.');
             }
         } catch (error) {
             console.error('Error:', error);
@@ -97,7 +102,7 @@ function LoginForm() {
             </div>
             <Button type="submit" className="w-full">
                 Sign In
-                <LogIn className="ml-2 h-4 w-4" />
+                <LogIn className="ml-2 h-4 w-4"/>
             </Button>
         </form>
     );
@@ -108,12 +113,12 @@ export default function LoginPageComponent() {
         <div className="min-h-screen flex flex-col items-center justify-center bg-background text-foreground p-4">
             <div className="w-full max-w-md">
                 <div className="absolute top-4 right-4">
-                    <ModeToggle />
+                    <ModeToggle/>
                 </div>
                 <Card className="w-full">
                     <CardHeader className="text-center">
                         <div className="flex justify-center mb-4">
-                            <Home className="h-12 w-12 text-primary" />
+                            <Home className="h-12 w-12 text-primary"/>
                         </div>
                         <CardTitle className="text-3xl font-bold">Welcome to eBOK</CardTitle>
                         <CardDescription>
@@ -121,9 +126,10 @@ export default function LoginPageComponent() {
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <LoginForm />
+                        <LoginForm/>
                     </CardContent>
-                    <CardFooter className="flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0">
+                    <CardFooter
+                        className="flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0">
                         <Link href="/forgot-password" className="text-sm text-primary hover:underline">
                             Forgot password?
                         </Link>

@@ -1,18 +1,28 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { MessageSquare, Phone, Mail, Clock, ChevronLeft, ChevronRight, ChevronDown, ChevronUp } from 'lucide-react'
-import { toast } from "sonner"
-import { jwtDecode } from "jwt-decode"
-import { format, parseISO } from 'date-fns'
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
+import React, {useEffect, useState} from 'react'
+import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card"
+import {Button} from "@/components/ui/button"
+import {Input} from "@/components/ui/input"
+import {Label} from "@/components/ui/label"
+import {Textarea} from "@/components/ui/textarea"
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select"
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table"
+import {
+    MessageSquare,
+    Phone,
+    Mail,
+    Clock,
+    ChevronLeft,
+    ChevronRight,
+    ChevronDown,
+    ChevronUp,
+    Search
+} from 'lucide-react'
+import {toast} from "sonner"
+import {jwtDecode} from "jwt-decode"
+import {format, parseISO} from 'date-fns'
+import {Collapsible, CollapsibleContent, CollapsibleTrigger} from "@/components/ui/collapsible"
 
 type Category = {
     id: string
@@ -32,7 +42,7 @@ interface ContactAdminProps {
     apartmentSignature: string | null;
 }
 
-export function ContactAdmin({ apartmentSignature }: ContactAdminProps) {
+export function ContactAdmin({apartmentSignature}: ContactAdminProps) {
     const [subject, setSubject] = useState('')
     const [message, setMessage] = useState('')
     const [category, setCategory] = useState('')
@@ -42,6 +52,10 @@ export function ContactAdmin({ apartmentSignature }: ContactAdminProps) {
     const [currentPage, setCurrentPage] = useState(0)
     const [totalPages, setTotalPages] = useState(0)
     const [expandedReportId, setExpandedReportId] = useState<string | null>(null)
+    const [searchTerm, setSearchTerm] = useState('')
+    const [sortColumn, setSortColumn] = useState<keyof Report>('id')
+    const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
+    const [filterStatus, setFilterStatus] = useState('All')
 
     useEffect(() => {
         const fetchCategories = async () => {
@@ -180,10 +194,31 @@ export function ContactAdmin({ apartmentSignature }: ContactAdminProps) {
         setExpandedReportId(expandedReportId === reportId ? null : reportId)
     }
 
+    const handleSort = (column: keyof Report) => {
+        if (column === sortColumn) {
+            setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
+        } else {
+            setSortColumn(column)
+            setSortDirection('asc')
+        }
+    }
+
+    const filteredAndSortedReports = reports
+        .filter(report =>
+            (report.id.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
+                report.category.toLowerCase().includes(searchTerm.toLowerCase())) &&
+            (filterStatus === 'All' || report.reportStatus === filterStatus)
+        )
+        .sort((a, b) => {
+            if (a[sortColumn] < b[sortColumn]) return sortDirection === 'asc' ? -1 : 1
+            if (a[sortColumn] > b[sortColumn]) return sortDirection === 'asc' ? 1 : -1
+            return 0
+        })
+
     return (
         <div className="space-y-6">
             <h1 className="text-3xl font-bold flex items-center">
-                <MessageSquare className="mr-2 h-8 w-8 text-primary" />
+                <MessageSquare className="mr-2 h-8 w-8 text-primary"/>
                 Kontakt z Administracją
             </h1>
 
@@ -199,7 +234,7 @@ export function ContactAdmin({ apartmentSignature }: ContactAdminProps) {
                                     <Label htmlFor="category">Kategoria</Label>
                                     <Select value={category} onValueChange={setCategory}>
                                         <SelectTrigger id="category">
-                                            <SelectValue placeholder="Wybierz kategorię" />
+                                            <SelectValue placeholder="Wybierz kategorię"/>
                                         </SelectTrigger>
                                         <SelectContent>
                                             {categories.map(cat => (
@@ -234,15 +269,15 @@ export function ContactAdmin({ apartmentSignature }: ContactAdminProps) {
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="flex items-center space-x-2">
-                                <Phone className="h-5 w-5 text-primary" />
+                                <Phone className="h-5 w-5 text-primary"/>
                                 <span>Alarmowy: (555) 123-4567</span>
                             </div>
                             <div className="flex items-center space-x-2">
-                                <Mail className="h-5 w-5 text-primary" />
+                                <Mail className="h-5 w-5 text-primary"/>
                                 <span>Email: admin@ebok.com</span>
                             </div>
                             <div className="flex items-center space-x-2">
-                                <Clock className="h-5 w-5 text-primary" />
+                                <Clock className="h-5 w-5 text-primary"/>
                                 <span>Godziny pracy: Pon-Pt, 9:00-17:00</span>
                             </div>
                             <Card>
@@ -251,7 +286,8 @@ export function ContactAdmin({ apartmentSignature }: ContactAdminProps) {
                                 </CardHeader>
                                 <CardContent>
                                     <p className="text-sm text-muted-foreground">
-                                        W nagłych wypadkach poza godzinami pracy prosimy o kontakt pod numerem alarmowym.
+                                        W nagłych wypadkach poza godzinami pracy prosimy o kontakt pod numerem
+                                        alarmowym.
                                         W sprawach mniej pilnych odpowiemy na wiadomość w ciągu 1-2 dni roboczych.
                                     </p>
                                 </CardContent>
@@ -265,17 +301,49 @@ export function ContactAdmin({ apartmentSignature }: ContactAdminProps) {
                         <CardTitle>Twoje Zgłoszenia</CardTitle>
                     </CardHeader>
                     <CardContent>
+                        <div className="flex justify-between items-center mb-4">
+                            <div className="flex items-center space-x-2">
+                                <Search className="h-5 w-5 text-muted-foreground"/>
+                                <Input
+                                    placeholder="Szukaj zgłoszeń..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="w-64"
+                                />
+                            </div>
+                            <Select value={filterStatus} onValueChange={setFilterStatus}>
+                                <SelectTrigger className="w-[180px]">
+                                    <SelectValue placeholder="Filtruj po statusie"/>
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="All">Wszystkie</SelectItem>
+                                    <SelectItem value="OPEN">Otwarte</SelectItem>
+                                    <SelectItem value="DONE">Zamknięte</SelectItem>
+                                    <SelectItem value="IN_PROGRESS">W trakcie</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>ID Zgłoszenia</TableHead>
-                                    <TableHead>Kategoria</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead>Data Zakończenia</TableHead>
+                                    <TableHead onClick={() => handleSort('id')} className="cursor-pointer">
+                                        ID Zgłoszenia {sortColumn === 'id' && (sortDirection === 'asc' ? '▲' : '▼')}
+                                    </TableHead>
+                                    <TableHead onClick={() => handleSort('category')} className="cursor-pointer">
+                                        Kategoria {sortColumn === 'category' && (sortDirection === 'asc' ? '▲' : '▼')}
+                                    </TableHead>
+                                    <TableHead onClick={() => handleSort('reportStatus')} className="cursor-pointer">
+                                        Status {sortColumn === 'reportStatus' && (sortDirection === 'asc' ? '▲' : '▼')}
+                                    </TableHead>
+                                    <TableHead onClick={() => handleSort('endDate')} className="cursor-pointer">
+                                        Data
+                                        Zakończenia {sortColumn === 'endDate' && (sortDirection === 'asc' ? '▲' : '▼')}
+                                    </TableHead>
+                                    <TableHead>Akcje</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {reports.map((report) => (
+                                {filteredAndSortedReports.map((report) => (
                                     <React.Fragment key={report.id}>
                                         <TableRow>
                                             <TableCell>{report.id}</TableCell>
@@ -291,9 +359,9 @@ export function ContactAdmin({ apartmentSignature }: ContactAdminProps) {
                                                     onClick={() => toggleReportExpansion(report.id)}
                                                 >
                                                     {expandedReportId === report.id ? (
-                                                        <ChevronUp className="h-4 w-4" />
+                                                        <ChevronUp className="h-4 w-4"/>
                                                     ) : (
-                                                        <ChevronDown className="h-4 w-4" />
+                                                        <ChevronDown className="h-4 w-4"/>
                                                     )}
                                                 </Button>
                                             </TableCell>
@@ -323,12 +391,12 @@ export function ContactAdmin({ apartmentSignature }: ContactAdminProps) {
                                 onClick={handlePrevious}
                                 disabled={currentPage === 0}
                             >
-                                <ChevronLeft className="h-4 w-4" />
+                                <ChevronLeft className="h-4 w-4"/>
                                 Poprzednia
                             </Button>
                             <span className="text-sm">
-                            Strona {currentPage + 1} z {totalPages}
-                        </span>
+                                Strona {currentPage + 1} z {totalPages}
+                            </span>
                             <Button
                                 variant="outline"
                                 size="sm"
@@ -336,12 +404,12 @@ export function ContactAdmin({ apartmentSignature }: ContactAdminProps) {
                                 disabled={currentPage === totalPages - 1}
                             >
                                 Następna
-                                <ChevronRight className="h-4 w-4" />
+                                <ChevronRight className="h-4 w-4"/>
                             </Button>
                         </div>
                     </CardContent>
                 </Card>
             </div>
         </div>
-    );
+    )
 }

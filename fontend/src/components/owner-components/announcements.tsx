@@ -1,6 +1,6 @@
 'use client'
 
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card';
 import {Button} from '@/components/ui/button';
 import {Bell, ChevronLeft, ChevronRight} from 'lucide-react';
@@ -33,7 +33,7 @@ export function Announcements({apartmentSignature}: AnnouncementsProps) {
     const [currentPage, setCurrentPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
 
-    const fetchAnnouncements = async (page: number) => {
+    const fetchAnnouncements = useCallback(async (page: number) => {
         if (!apartmentSignature) {
             console.log('No apartment signature provided');
             return;
@@ -59,12 +59,12 @@ export function Announcements({apartmentSignature}: AnnouncementsProps) {
         } catch (error) {
             console.error('Error fetching announcements:', error);
         }
-    };
+    }, [apartmentSignature]);
 
     useEffect(() => {
         console.log('Fetching announcements on component mount or update');
         fetchAnnouncements(currentPage);
-    }, [currentPage, apartmentSignature]);
+    }, [currentPage, apartmentSignature, fetchAnnouncements]);
 
     const handlePrevious = () => {
         if (currentPage > 0) {
@@ -84,7 +84,7 @@ export function Announcements({apartmentSignature}: AnnouncementsProps) {
         <div className="space-y-6">
             <h1 className="text-3xl font-bold flex items-center">
                 <Bell className="mr-2 h-8 w-8 text-primary"/>
-                Documents
+                Ogłoszenia
             </h1>
             <div className="flex justify-between items-center">
                 <div className="flex items-center space-x-2">

@@ -5,9 +5,8 @@ import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/compo
 import {Input} from "@/components/ui/input"
 import {Label} from "@/components/ui/label"
 import {Button} from "@/components/ui/button"
-import {Switch} from "@/components/ui/switch"
 import {toast} from "sonner"
-import {Settings, Lock, Phone, Mail, MessageSquare} from 'lucide-react'
+import {Settings, Lock, Phone} from 'lucide-react'
 import {z} from 'zod'
 import { jwtDecode } from 'jwt-decode'
 
@@ -19,12 +18,10 @@ interface CustomJwtPayload {
     sub: string;
 }
 
-export function UserSettings() {
+export function UserSettingsV2() {
     const [newPassword, setNewPassword] = useState('')
     const [confirmPassword, setConfirmPassword] = useState('')
     const [phoneNumber, setPhoneNumber] = useState('')
-    const [emailNotifications, setEmailNotifications] = useState(false)
-    const [smsNotifications, setSmsNotifications] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
 
     useEffect(() => {
@@ -51,23 +48,6 @@ export function UserSettings() {
                 }
             } catch (error) {
                 toast.error("Error fetching user data")
-            }
-
-            try {
-                const response = await fetch(`http://localhost:8444/bwp/hhn/api/v1/user/get-user-by-notifications?email=${email}`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                })
-                if (response.ok) {
-                    const notifications = await response.json()
-                    setEmailNotifications(notifications.some((n: { type: string }) => n.type === 'EMAIL'))
-                    setSmsNotifications(notifications.some((n: { type: string }) => n.type === 'SMS'))
-                } else {
-                    toast.error("Failed to fetch notification preferences")
-                }
-            } catch (error) {
-                toast.error("Error fetching notification preferences")
             }
         }
 
@@ -164,42 +144,6 @@ export function UserSettings() {
         }
     }
 
-    const handleNotificationChange = async (type: 'EMAIL' | 'SMS', add: boolean) => {
-        setIsLoading(true)
-        const token = localStorage.getItem('jwt_accessToken')
-        if (!token) {
-            toast.error("User not authenticated")
-            window.location.href = '/login'
-            return
-        }
-        const decodedToken = jwtDecode<CustomJwtPayload>(token)
-        const url = add
-            ? `http://localhost:8444/bwp/hhn/api/v1/user/add-notification-to-user?userId=${decodedToken.userId}&notification=${type}`
-            : `http://localhost:8444/bwp/hhn/api/v1/user/remove-notification-from-user?userId=${decodedToken.userId}&notification=${type}`
-        try {
-            const response = await fetch(url, {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            })
-            if (response.ok) {
-                toast.success(`Notification ${add ? 'added' : 'removed'} successfully`)
-                if (type === 'EMAIL') {
-                    setEmailNotifications(add)
-                } else {
-                    setSmsNotifications(add)
-                }
-            } else {
-                toast.error(`Failed to ${add ? 'add' : 'remove'} notification`)
-            }
-        } catch (error) {
-            toast.error(`Error ${add ? 'adding' : 'removing'} notification`)
-        } finally {
-            setIsLoading(false)
-        }
-    }
-
     return (
         <div className="space-y-6">
             <h1 className="text-3xl font-bold flex items-center">
@@ -269,40 +213,6 @@ export function UserSettings() {
                             {isLoading ? 'Updating...' : 'Update Phone Number'}
                         </Button>
                     </form>
-                </CardContent>
-            </Card>
-
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center">
-                        <MessageSquare className="mr-2 h-5 w-5"/>
-                        Notification Preferences
-                    </CardTitle>
-                    <CardDescription>Choose how you want to receive notifications</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2">
-                            <Mail className="h-5 w-5"/>
-                            <Label htmlFor="email-notifications">Email Notifications</Label>
-                        </div>
-                        <Switch
-                            id="email-notifications"
-                            checked={emailNotifications}
-                            onCheckedChange={(checked) => handleNotificationChange('EMAIL', checked)}
-                        />
-                    </div>
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2">
-                            <MessageSquare className="h-5 w-5"/>
-                            <Label htmlFor="sms-notifications">SMS Notifications</Label>
-                        </div>
-                        <Switch
-                            id="sms-notifications"
-                            checked={smsNotifications}
-                            onCheckedChange={(checked) => handleNotificationChange('SMS', checked)}
-                        />
-                    </div>
                 </CardContent>
             </Card>
         </div>

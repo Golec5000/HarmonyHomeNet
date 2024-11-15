@@ -124,9 +124,6 @@ export default function MainResidentsPage() {
                             <span>{remainingTime}</span>
                         </div>
                         <ModeToggle/>
-                        <Button variant="secondary" size="icon">
-                            <Bell className="h-5 w-5"/>
-                        </Button>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button variant="secondary" size="icon">
