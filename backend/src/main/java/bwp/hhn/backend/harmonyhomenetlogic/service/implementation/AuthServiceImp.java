@@ -49,16 +49,10 @@ public class AuthServiceImp implements AuthService {
         JwtDecoder jwtDecoder = NimbusJwtDecoder.withPublicKey(rsaKeyRecord.publicKey()).build();
         final Jwt jwtToken = jwtDecoder.decode(accessToken);
 
-        String role = jwtToken.getClaim("role");
+        Role role = Role.valueOf(jwtToken.getClaim("role"));
 
-        // Check if the user is trying to add an admin
-        if (Role.ROLE_ADMIN.equals(userRequest.getRole()) && !Role.ROLE_ADMIN.equals(role)) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Only admins can add other admins");
-        }
-
-        // Check if the user is an employee trying to add a non-owner
-        if ("ROLE_EMPLOYEE".equals(role) && !Role.ROLE_OWNER.equals(userRequest.getRole())) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Employees can only add owners");
+        if (role.getLevel() < userRequest.getRole().getLevel()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Insufficient permissions to update or assign the role");
         }
 
         if (userRepository.existsByEmail(userRequest.getEmail())) {
@@ -155,9 +149,13 @@ public class AuthServiceImp implements AuthService {
     }
 
     @Override
-    public void resetPassword(String token, String newPassword) {
+    public void resetPassword(String token, String newPassword, String confirmPassword) {
         User user = userRepository.findByResetToken(token)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid token"));
+
+        if (!newPassword.equals(confirmPassword)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Passwords do not match");
+        }
 
         if (user.getResetTokenExpiry().isBefore(Instant.now())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Token has expired");

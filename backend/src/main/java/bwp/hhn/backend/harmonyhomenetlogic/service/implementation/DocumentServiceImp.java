@@ -46,24 +46,7 @@ public class DocumentServiceImp implements DocumentService {
         Pageable pageable = PageRequest.of(pageNo, pageSize);
         Page<Document> documents = documentRepository.findAll(pageable);
 
-        return new PageResponse<>(
-                documents.getNumber(),
-                documents.getSize(),
-                documents.getTotalPages(),
-                documents.getContent().stream()
-                        .map(
-                                document -> DocumentResponse.builder()
-                                        .documentId(document.getUuidID())
-                                        .documentName(document.getDocumentName())
-                                        .documentType(document.getDocumentType())
-                                        .createdAt(document.getCreatedAt())
-                                        .build()
-                        )
-                        .toList(),
-                documents.isLast(),
-                documents.hasNext(),
-                documents.hasPrevious()
-        );
+        return getDocumentResponsePageResponse(documents);
     }
 
     @Override
@@ -173,25 +156,7 @@ public class DocumentServiceImp implements DocumentService {
         Page<Document> documents = documentRepository.findDocumentsByUserId(userId, pageable);
 
 
-        return new PageResponse<>(
-                documents.getNumber(),
-                documents.getSize(),
-                documents.getTotalPages(),
-                documents.getContent().stream()
-                        .map(
-                                document -> DocumentResponse.builder()
-                                        .documentId(document.getUuidID())
-                                        .documentName(document.getDocumentName())
-                                        .documentType(document.getDocumentType())
-                                        .documentExtension(document.getDocumentExtension())
-                                        .createdAt(document.getCreatedAt())
-                                        .build()
-                        )
-                        .toList(),
-                documents.isLast(),
-                documents.hasNext(),
-                documents.hasPrevious()
-        );
+        return getDocumentResponsePageResponse(documents);
 
     }
 
@@ -280,6 +245,28 @@ public class DocumentServiceImp implements DocumentService {
             throw new IllegalArgumentException("Invalid file name");
         }
         return fileName.substring(0, fileName.lastIndexOf('.'));
+    }
+
+    private PageResponse<DocumentResponse> getDocumentResponsePageResponse(Page<Document> documents) {
+        return new PageResponse<>(
+                documents.getNumber(),
+                documents.getSize(),
+                documents.getTotalPages(),
+                documents.getContent().stream()
+                        .map(
+                                document -> DocumentResponse.builder()
+                                        .documentId(document.getUuidID())
+                                        .documentName(document.getDocumentName())
+                                        .documentType(document.getDocumentType())
+                                        .documentExtension(document.getDocumentExtension())
+                                        .createdAt(document.getCreatedAt())
+                                        .build()
+                        )
+                        .toList(),
+                documents.isLast(),
+                documents.hasNext(),
+                documents.hasPrevious()
+        );
     }
 
 }

@@ -3,7 +3,6 @@ package bwp.hhn.backend.harmonyhomenetlogic.controller;
 import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.UserNotFoundException;
 import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.UserService;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Notification;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Role;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.UserRequest;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.page.PageResponse;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.NotificationTypeResponse;
@@ -25,11 +24,11 @@ public class UserController {
 
     //GET
     //TODO to remove ?
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_EMPLOYEE')")
-    @GetMapping("/get-user-by-id")
-    public ResponseEntity<UserResponse> getUserById(@RequestParam UUID userId) throws UserNotFoundException {
-        return ResponseEntity.ok(userService.getUserById(userId));
-    }
+//    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_EMPLOYEE')")
+//    @GetMapping("/get-user-by-id")
+//    public ResponseEntity<UserResponse> getUserById(@RequestParam UUID userId) throws UserNotFoundException {
+//        return ResponseEntity.ok(userService.getUserById(userId));
+//    }
 
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_EMPLOYEE')")
     @GetMapping("/get-all-users")

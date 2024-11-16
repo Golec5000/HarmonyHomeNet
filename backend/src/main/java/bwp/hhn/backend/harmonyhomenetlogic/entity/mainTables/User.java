@@ -70,7 +70,7 @@ public class User implements UserDetails {
     private String phoneNumber;
 
     @CreationTimestamp
-    @Column(name = "Create_at", nullable = false)
+    @Column(name = "Create_at")
     private Instant createdAt;
 
     @UpdateTimestamp

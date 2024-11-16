@@ -47,16 +47,10 @@ public class UserServiceImp implements UserService {
         JwtDecoder jwtDecoder = NimbusJwtDecoder.withPublicKey(rsaKeyRecord.publicKey()).build();
         final Jwt jwtToken = jwtDecoder.decode(accessToken);
 
-        String role = jwtToken.getClaim("role");
+        Role role = Role.valueOf(jwtToken.getClaim("role"));
 
-        // Check if the user is trying to update an admin
-        if (Role.ROLE_ADMIN.equals(user.getRole()) && !Role.ROLE_ADMIN.equals(role)) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Only admins can update other admins");
-        }
-
-        // Check if the user is an employee trying to update a non-owner
-        if (Role.ROLE_EMPLOYEE.equals(role) && !Role.ROLE_OWNER.equals(user.getRole())) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Employees can only update owners");
+        if (role.getLevel() < user.getRole().getLevel()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Insufficient permissions to update or assign the role");
         }
 
 
@@ -147,16 +141,10 @@ public class UserServiceImp implements UserService {
         JwtDecoder jwtDecoder = NimbusJwtDecoder.withPublicKey(rsaKeyRecord.publicKey()).build();
         final Jwt jwtToken = jwtDecoder.decode(accessToken);
 
-        String role = jwtToken.getClaim("role");
+        Role role = Role.valueOf(jwtToken.getClaim("role"));
 
-        // Check if the user is trying to delete an admin
-        if (Role.ROLE_ADMIN.equals(userEntity.getRole()) && !Role.ROLE_ADMIN.equals(role)) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Only admins can delete other admins");
-        }
-
-        // Check if the user is an employee trying to delete a non-owner
-        if (Role.ROLE_EMPLOYEE.equals(role) && !Role.ROLE_OWNER.equals(userEntity.getRole())) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Employees can only delete owners");
+        if (role.getLevel() < userEntity.getRole().getLevel()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Insufficient permissions to update or assign the role");
         }
 
         userRepository.deleteById(userId);

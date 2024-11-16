@@ -37,6 +37,7 @@ public class AnnouncementController {
         return ResponseEntity.ok(announcementService.getAllAnnouncements(pageNo, pageSize));
     }
 
+    //todo to remove ?
     @GetMapping("/get-announcements-by-user")
     public ResponseEntity<PageResponse<AnnouncementResponse>> getAnnouncementsByUserId(
             @RequestParam UUID userId,
@@ -46,6 +47,7 @@ public class AnnouncementController {
         return ResponseEntity.ok(announcementService.getAnnouncementsByUserId(userId, pageNo, pageSize));
     }
 
+    //todo to remove ?
     @GetMapping("/get-announcement-by-date-range")
     public ResponseEntity<PageResponse<AnnouncementResponse>> getAnnouncementsFromStartDateToEndDate(
             @RequestBody DateRequest dateRequest,

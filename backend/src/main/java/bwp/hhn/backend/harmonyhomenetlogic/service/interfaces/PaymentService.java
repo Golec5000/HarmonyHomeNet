@@ -34,6 +34,8 @@ public interface PaymentService {
 
     List<PaymentComponentResponse> getPaymentComponents(UUID paymentId) throws PaymentNotFoundException;
 
-    String activatePayment(UUID paymentId) throws PaymentNotFoundException;
+    String activatePayment(UUID paymentId, Boolean setActive) throws PaymentNotFoundException;
+
+    PaymentResponse updatePayment(UUID paymentId, PaymentRequest paymentRequest) throws PaymentNotFoundException, ApartmentNotFoundException;
 
 }

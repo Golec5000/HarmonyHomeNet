@@ -74,13 +74,18 @@ public class PaymentController {
     }
 
     @PutMapping("/activate-payment")
-    public ResponseEntity<String> activatePayment(@RequestParam UUID paymentId) throws PaymentNotFoundException {
-        return ResponseEntity.ok(paymentService.activatePayment(paymentId));
+    public ResponseEntity<String> activatePayment(@RequestParam UUID paymentId, @RequestParam String setActive) throws PaymentNotFoundException {
+        return ResponseEntity.ok(paymentService.activatePayment(paymentId, Boolean.valueOf(setActive)));
     }
 
     @PutMapping("/update-payment-component/{paymentComponentId}")
     public ResponseEntity<PaymentResponse> updatePaymentComponent(@RequestParam UUID paymentId, @PathVariable Long paymentComponentId, @RequestBody PaymentComponentRequest paymentComponentRequest) throws PaymentNotFoundException, PaymentComponentNotFoundException {
         return ResponseEntity.ok(paymentService.updatePaymentComponent(paymentId, paymentComponentId, paymentComponentRequest));
+    }
+
+    @PutMapping("/update-payment")
+    public ResponseEntity<PaymentResponse> updatePayment(@RequestParam UUID paymentId, @RequestBody PaymentRequest paymentRequest) throws ApartmentNotFoundException {
+        return ResponseEntity.ok(paymentService.updatePayment(paymentId, paymentRequest));
     }
 
     //DELETE

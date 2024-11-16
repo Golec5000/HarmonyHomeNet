@@ -16,6 +16,7 @@ public record PaymentResponse(
         BigDecimal paymentAmount,
         Instant createdAt,
         String description,
-        Boolean readyToPay
+        Boolean readyToPay,
+        String apartmentSignature
 ) {
 }
