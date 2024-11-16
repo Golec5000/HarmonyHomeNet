@@ -129,12 +129,9 @@ export default function LoginPageComponent() {
                         <LoginForm/>
                     </CardContent>
                     <CardFooter
-                        className="flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0">
+                        className="flex flex-col sm:flex-row justify-center items-center space-y-2 sm:space-y-0">
                         <Link href="/forgot-password" className="text-sm text-primary hover:underline">
                             Forgot password?
-                        </Link>
-                        <Link href="/register" className="text-sm text-primary hover:underline">
-                            New user? Register here
                         </Link>
                     </CardFooter>
                 </Card>

@@ -132,6 +132,26 @@ export function Payments({apartmentSignature}: PaymentsProps) {
         }
     };
 
+    const handlePayPayment = async (paymentId: string) => {
+        try {
+            const response = await fetch(`http://localhost:8444/bwp/hhn/api/v1/payment/pay?paymentId=${paymentId}`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('jwt_accessToken')}`
+                }
+            });
+            if (response.ok) {
+                toast.success('Payment successful');
+                fetchPayments(0); // Refresh the payments list
+            } else {
+                toast.error('Failed to process payment');
+            }
+        } catch (error) {
+            console.error('Error processing payment:', error);
+            toast.error('An error occurred while processing the payment');
+        }
+    };
+
     const handlePrevious = () => {
         if (payments && payments.hasPrevious) {
             fetchPayments(payments.currentPage - 1);
@@ -215,8 +235,16 @@ export function Payments({apartmentSignature}: PaymentsProps) {
                                             </TableCell>
                                             <TableCell>
                                                 <div className="flex space-x-2">
-                                                    <Button variant="outline" size="sm" disabled={!payment.readyToPay}>Pay
-                                                        Now</Button>
+                                                    {payment.paymentStatus !== 'PAID' && (
+                                                        <Button
+                                                            variant="outline"
+                                                            size="sm"
+                                                            disabled={!payment.readyToPay}
+                                                            onClick={() => handlePayPayment(payment.paymentId)}
+                                                        >
+                                                            Pay Now
+                                                        </Button>
+                                                    )}
                                                     <Collapsible>
                                                         <CollapsibleTrigger asChild>
                                                             <Button

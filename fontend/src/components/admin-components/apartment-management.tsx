@@ -41,7 +41,8 @@ import {
     UserPlus,
     UserMinus,
     ChevronDown,
-    ChevronUp
+    ChevronUp,
+    Users
 } from 'lucide-react'
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card"
 import {
@@ -100,6 +101,8 @@ export function ApartmentManagement() {
     const [isRemoveUserDialogOpen, setIsRemoveUserDialogOpen] = useState(false)
     const [selectedApartmentId, setSelectedApartmentId] = useState<string | null>(null)
     const [userId, setUserId] = useState('')
+    const [expandedApartment, setExpandedApartment] = useState<string | null>(null)
+    const [residents, setResidents] = useState<UserResponse[]>([])
     const [newApartment, setNewApartment] = useState<Omit<Apartment, 'apartmentId' | 'createdAt' | 'updatedAt'>>({
         address: '',
         city: '',
@@ -112,7 +115,7 @@ export function ApartmentManagement() {
     const fetchApartments = async () => {
         const token = localStorage.getItem('jwt_accessToken')
         try {
-            const response = await fetch(`http://localhost:8444/bwp/hhn/api/v1/apartment/get-all-apartments?pageNo=${currentPage}&pageSize=10`, {
+            const response = await fetch(`http://localhost:8444/bwp/hhn/api/v1/apartment/get-all-apartments?pageNo=${currentPage}&pageSize=5`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -187,6 +190,7 @@ export function ApartmentManagement() {
                 if (response.ok) {
                     toast.success('Mieszkanie zostało zaktualizowane pomyślnie')
                     setEditingApartment(null)
+                    fetchApartments()
                 } else if (response.status === 401) {
                     toast.error('Nieautoryzowany: Nie posiadasz uprawnień do tej opcji')
                 } else {
@@ -217,6 +221,7 @@ export function ApartmentManagement() {
 
             if (response.ok) {
                 toast.success('Mieszkanie zostało usunięte pomyślnie')
+                fetchApartments()
             } else if (response.status === 401) {
                 toast.error('Nieautoryzowany: Nie posiadasz uprawnień do tej opcji')
             } else {
@@ -264,6 +269,7 @@ export function ApartmentManagement() {
                     apartmentSignature: '',
                     apartmentPercentValue: 0
                 })
+                fetchApartments()
             } else if (response.status === 401) {
                 toast.error('Nieautoryzowany: Nie posiadasz uprawnień do tej opcji')
             } else {
@@ -282,8 +288,6 @@ export function ApartmentManagement() {
     }
 
     const handleAssignUser = async () => {
-        console.log(selectedApartmentId)
-        console.log(userId)
         if (selectedApartmentId && userId) {
             try {
 
@@ -352,7 +356,7 @@ export function ApartmentManagement() {
         }
     }
 
-    const fetchResidents = async (apartmentId: string, apartmentSignature: string) => {
+    const fetchResidents = async (apartmentSignature: string) => {
         const token = localStorage.getItem('jwt_accessToken')
         try {
             const response = await fetch(`http://localhost:8444/bwp/hhn/api/v1/apartment/current-apartment-residents?apartmentSignature=${apartmentSignature}`, {
@@ -362,13 +366,23 @@ export function ApartmentManagement() {
             })
             if (response.ok) {
                 const data: UserResponse[] = await response.json()
-                console.log(data)
-
+                setResidents(data)
             } else {
                 console.error('Failed to fetch residents')
+                toast.error('Failed to fetch residents')
             }
         } catch (error) {
             console.error('An error occurred:', error)
+            toast.error('An error occurred while fetching residents')
+        }
+    }
+
+    const toggleExpand = (apartmentSignature: string) => {
+        if (expandedApartment === apartmentSignature) {
+            setExpandedApartment(null)
+        } else {
+            setExpandedApartment(apartmentSignature)
+            fetchResidents(apartmentSignature)
         }
     }
 
@@ -583,6 +597,68 @@ export function ApartmentManagement() {
                                                 </DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
+                                    </TableCell>
+                                </TableRow>
+                                <TableRow>
+                                    <TableCell colSpan={9}>
+                                        <Collapsible>
+                                            <CollapsibleTrigger asChild>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={() => toggleExpand(apartment.apartmentSignature)}
+                                                >
+                                                    {expandedApartment === apartment.apartmentSignature ? (
+                                                        <>
+                                                            <ChevronUp className="h-4 w-4 mr-2"/>
+                                                            Ukryj mieszkańców
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <ChevronDown className="h-4 w-4 mr-2"/>
+                                                            Pokaż mieszkańców
+                                                        </>
+                                                    )}
+                                                </Button>
+                                            </CollapsibleTrigger>
+                                            <CollapsibleContent>
+                                                {expandedApartment === apartment.apartmentSignature && (
+                                                    <Card className="mt-2">
+                                                        <CardHeader>
+                                                            <CardTitle className="text-lg">Mieszkańcy</CardTitle>
+                                                        </CardHeader>
+                                                        <CardContent>
+                                                            {residents.length > 0 ? (
+                                                                <Table>
+                                                                    <TableHeader>
+                                                                        <TableRow>
+                                                                            <TableHead>Imię</TableHead>
+                                                                            <TableHead>Nazwisko</TableHead>
+                                                                            <TableHead>Email</TableHead>
+                                                                        </TableRow>
+                                                                    </TableHeader>
+                                                                    <TableBody>
+                                                                        {residents.map((resident, index) => (
+                                                                            <TableRow key={index}>
+                                                                                <TableCell>{resident.firstName}</TableCell>
+                                                                                <TableCell>{resident.lastName}</TableCell>
+                                                                                <TableCell>{resident.email}</TableCell>
+                                                                            </TableRow>
+                                                                        ))}
+                                                                    </TableBody>
+                                                                </Table>
+                                                            ) : (
+                                                                <div className="text-center py-4">
+                                                                    <Users
+                                                                        className="h-8 w-8 text-muted-foreground mx-auto mb-2"/>
+                                                                    <p>Brak przypisanych mieszkańców</p>
+                                                                </div>
+                                                            )}
+                                                        </CardContent>
+                                                    </Card>
+                                                )}
+                                            </CollapsibleContent>
+                                        </Collapsible>
                                     </TableCell>
                                 </TableRow>
                             </React.Fragment>

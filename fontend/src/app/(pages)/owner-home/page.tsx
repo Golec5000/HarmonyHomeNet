@@ -3,18 +3,31 @@
 import React, {useState, useEffect} from 'react';
 import {toast} from "sonner";
 import {Button} from "@/components/ui/button";
-import {Home, FileText, CreditCard, Bell, User, Vote, Settings, LogOut, BookUser, Clock} from 'lucide-react';
+import {
+    Home,
+    FileText,
+    CreditCard,
+    Bell,
+    User,
+    Vote,
+    Settings,
+    LogOut,
+    BookUser,
+    Clock,
+    Gauge,
+    Phone, Mail, Calendar
+} from 'lucide-react';
 import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from "@/components/ui/dropdown-menu";
 import {ModeToggle} from "@/components/ModeToggle";
 import ApartmentCombobox from "@/components/owner-components/ApartmentCombobox";
 import Link from 'next/link';
-import {HomePage} from '@/components/owner-components/owner-main-page';
 import {Announcements} from "@/components/owner-components/announcements";
 import {DocumentsSection} from "@/components/owner-components/owner-documents";
 import {jwtDecode} from "jwt-decode";
 import {ContactAdmin} from "@/components/owner-components/contact-admin";
 import {Payments} from "@/components/owner-components/payments";
 import {UserSettings} from "@/hooks/user-settings";
+import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card";
 
 const navItems = [
     {label: 'Strona główna', icon: Home},
@@ -23,8 +36,19 @@ const navItems = [
     {label: 'Dokumenty', icon: FileText},
     {label: 'Głosowania', icon: Vote},
     {label: 'Zgłoszenie problemu', icon: BookUser},
+    {label: 'Stany liczników', icon: Gauge},
     {label: 'Ustawienia', icon: Settings},
 ];
+
+const functionCards = [
+    {icon: Bell, title: "Ogłoszenia", description: "Przeglądaj aktualne ogłoszenia i komunikaty."},
+    {icon: CreditCard, title: "Płatności", description: "Zarządzaj swoimi płatnościami i fakturami."},
+    {icon: FileText, title: "Dokumenty", description: "Dostęp do ważnych dokumentów i umów."},
+    {icon: Vote, title: "Głosowania", description: "Uczestnictwo w głosowaniach wspólnoty."},
+    {icon: BookUser, title: "Zgłoszenie problemu", description: "Zgłoś problem lub usterkę w mieszkaniu."},
+    {icon: Gauge, title: "Stany liczników", description: "Wprowadź i przeglądaj stany liczników."},
+    {icon: Settings, title: "Ustawienia", description: "Zarządzaj swoim kontem i ustawieniami."}
+]
 
 export default function MainResidentsPage() {
     const [selectedItem, setSelectedItem] = useState(navItems[0].label);
@@ -75,7 +99,7 @@ export default function MainResidentsPage() {
     const renderContent = () => {
         switch (selectedItem) {
             case 'Strona główna':
-                return <HomePage/>;
+                return <HomePage setSelectedItem={setSelectedItem}/>;
             case 'Ogłoszenia':
                 return <Announcements apartmentSignature={selectedApartment}/>;
             case 'Dokumenty':
@@ -166,4 +190,112 @@ export default function MainResidentsPage() {
             </div>
         </div>
     );
+}
+
+function HomePage({setSelectedItem}: { setSelectedItem: (item: string) => void }) {
+    return (
+        <div className="container mx-auto px-4 py-8">
+            <h1 className="text-3xl font-bold mb-8 text-center flex items-center justify-center">
+                <Home className="mr-2 h-8 w-8 text-primary"/>
+                Panel Mieszkańca
+            </h1>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+                {functionCards.map((card, index) => (
+                    <FunctionCard
+                        key={index}
+                        icon={<card.icon className="h-8 w-8"/>}
+                        title={card.title}
+                        description={card.description}
+                        onClick={() => setSelectedItem(card.title)}
+                    />
+                ))}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <ContactCard
+                    icon={<Phone className="h-6 w-6"/>}
+                    title="Informacje kontaktowe"
+                    items={[
+                        "Alarmowy: 112",
+                        "Zarządca Nieruchomości: (555) 123-4567",
+                        "Konserwacja: (555) 987-6543"
+                    ]}
+                />
+                <ContactCard
+                    icon={<Mail className="h-6 w-6"/>}
+                    title="Kontakt z administracją"
+                    items={[
+                        "Zapytania ogólne: info@harmonyhomenet.com",
+                        "Zgłoszenia konserwacyjne: maintenance@harmonyhomenet.com",
+                        "Pytania dotyczące faktur: billing@harmonyhomenet.com"
+                    ]}
+                />
+                <ContactCard
+                    icon={<Calendar className="h-6 w-6"/>}
+                    title="Godziny otwarcia biura"
+                    items={[
+                        "Poniedziałek - Piątek: 09:00 - 17:00",
+                        "Sobota: 10:00 - 14:00",
+                        "Niedziela: Zamknięte"
+                    ]}
+                />
+            </div>
+
+            <Card className="mt-6">
+                <CardHeader>
+                    <CardTitle>O Harmony Home Net</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <p>
+                        Harmony Home Net to kompleksowy system zarządzania nieruchomościami
+                        mieszkalnymi. Staramy się tworzyć harmonijne środowisko życia dla
+                        wszystkich naszych mieszkańców, zapewniając łatwy dostęp do ważnych
+                        informacji, usprawnione kanały komunikacji oraz efektywne zarządzanie
+                        potrzebami mieszkańców.
+                    </p>
+                </CardContent>
+            </Card>
+        </div>
+    );
+}
+
+function FunctionCard({icon, title, description, onClick}: {
+    icon: React.ReactNode,
+    title: string,
+    description: string,
+    onClick: () => void
+}) {
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center">
+                    {icon}
+                    <span className="ml-2">{title}</span>
+                </CardTitle>
+                <CardDescription>{description}</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <Button className="w-full" onClick={onClick}>Przejdź do funkcji</Button>
+            </CardContent>
+        </Card>
+    );
+}
+
+function ContactCard({icon, title, items}) {
+    return (
+        <Card>
+            <CardHeader className="flex flex-row items-center space-x-2">
+                {icon}
+                <CardTitle>{title}</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <ul className="space-y-2">
+                    {items.map((item, index) => (
+                        <li key={index}>{item}</li>
+                    ))}
+                </ul>
+            </CardContent>
+        </Card>
+    )
 }

@@ -174,6 +174,15 @@ export function UsersManagement() {
         setEditingUser(user)
     }
 
+    const saveUserSchema = z.object({
+        firstName: z.string().min(3, "String must contain at least 3 character(s)"),
+        lastName: z.string().min(3, "String must contain at least 3 character(s)"),
+        email: z.string().email("Invalid email"),
+        password: z.string().min(8, "String must contain at least 8 character(s)").optional(),
+        phoneNumber: z.string().regex(/^\d{9,11}$/, "Invalid phone number format"),
+        role: z.enum(['ROLE_ADMIN', 'ROLE_EMPLOYEE', 'ROLE_OWNER']),
+    });
+
     const handleSaveEdit = async () => {
         if (editingUser) {
             try {
@@ -186,14 +195,16 @@ export function UsersManagement() {
                 const url = `http://localhost:8444/bwp/hhn/api/v1/user/update-user-by-id?${params.toString()}`
 
                 // Prepare the userRequest object
-                const validatedData = registerSchema.parse({
-                    firstName: newUser.firstName,
-                    lastName: newUser.lastName,
-                    email: newUser.email,
-                    password: newUser.password,
-                    phoneNumber: newUser.phoneNumber,
-                    role: newUser.role,
+                const validatedData = saveUserSchema.parse({
+                    firstName: editingUser.firstName,
+                    lastName: editingUser.lastName,
+                    email: editingUser.email,
+                    password: editingUser.password,
+                    phoneNumber: editingUser.phoneNumber,
+                    role: editingUser.role,
                 })
+
+                console.log('validatedData:', validatedData)
 
                 // Send PUT request to update user
                 const response = await fetch(url, {
@@ -267,7 +278,7 @@ export function UsersManagement() {
         lastName: z.string().min(3).max(50),
         email: z.string().email(),
         password: z.string().min(8).max(255),
-        phoneNumber: z.string().regex(/^\d{9,11}$/, 'Invalid phone number format').optional(),
+        phoneNumber: z.string().regex(/^\d{9,11}$/, 'Invalid phone number format'),
         role: z.enum(['ROLE_ADMIN', 'ROLE_EMPLOYEE', 'ROLE_OWNER']),
     })
 
