@@ -1,19 +1,12 @@
 'use client'
 
-import React, {useState, useEffect} from 'react'
+import React, {useEffect, useState} from 'react'
 import {z} from 'zod'
 import {useForm} from 'react-hook-form'
 import {zodResolver} from '@hookform/resolvers/zod'
 import {format} from 'date-fns'
 import {toast} from 'sonner'
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table"
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow,} from "@/components/ui/table"
 import {
     Dialog,
     DialogContent,
@@ -36,13 +29,8 @@ import {Input} from "@/components/ui/input"
 import {Label} from "@/components/ui/label"
 import {Textarea} from "@/components/ui/textarea"
 import {Switch} from "@/components/ui/switch"
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card"
-import {Plus, MoreHorizontal, Trash2, Edit, ChevronLeft, ChevronRight, Settings, CreditCard, Home} from 'lucide-react'
+import {Card, CardContent, CardHeader, CardTitle,} from "@/components/ui/card"
+import {ChevronLeft, ChevronRight, CreditCard, Edit, MoreHorizontal, Plus, Settings, Trash2} from 'lucide-react'
 
 // Interfaces
 interface Payment {

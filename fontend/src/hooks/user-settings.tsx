@@ -1,15 +1,15 @@
 'use client'
 
-import React, {useState, useEffect} from 'react'
+import React, {useEffect, useState} from 'react'
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card"
 import {Input} from "@/components/ui/input"
 import {Label} from "@/components/ui/label"
 import {Button} from "@/components/ui/button"
 import {Switch} from "@/components/ui/switch"
 import {toast} from "sonner"
-import {Settings, Lock, Phone, Mail, MessageSquare} from 'lucide-react'
+import {Lock, Mail, MessageSquare, Phone, Settings} from 'lucide-react'
 import {z} from 'zod'
-import { jwtDecode } from 'jwt-decode'
+import {jwtDecode} from 'jwt-decode'
 
 const passwordSchema = z.string().min(8, "Password must be at least 8 characters long")
 const phoneSchema = z.string().regex(/^\d{9,11}$/, "Invalid phone number format")

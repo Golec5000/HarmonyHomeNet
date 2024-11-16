@@ -1,14 +1,7 @@
 'use client'
 
-import React, {useState, useEffect} from 'react'
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table"
+import React, {useEffect, useState} from 'react'
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow,} from "@/components/ui/table"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -19,14 +12,8 @@ import {
 } from "@/components/ui/dropdown-menu"
 import {Button} from "@/components/ui/button"
 import {Input} from "@/components/ui/input"
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
-import {ChevronLeft, ChevronRight, MoreHorizontal, Plus, Trash2, Briefcase} from 'lucide-react'
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue,} from "@/components/ui/select"
+import {Briefcase, ChevronLeft, ChevronRight, MoreHorizontal, Plus, Trash2} from 'lucide-react'
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card"
 import {
     Dialog,

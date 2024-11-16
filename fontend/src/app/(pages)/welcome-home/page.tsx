@@ -1,11 +1,11 @@
 'use client'
 
 import React from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Home, FileText, CreditCard, Bell, MessageSquare, Vote, KeyRound } from 'lucide-react'
+import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card"
+import {Button} from "@/components/ui/button"
+import {Bell, CreditCard, FileText, Home, KeyRound, MessageSquare, Vote} from 'lucide-react'
 import Link from 'next/link'
-import { ModeToggle } from "@/components/ModeToggle"
+import {ModeToggle} from "@/components/ModeToggle"
 
 const features = [
     {

@@ -1,6 +1,6 @@
 'use client'
 
-import React, {useState, useEffect, useCallback} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card';
 import {Button} from '@/components/ui/button';
 import {Bell, ChevronLeft, ChevronRight} from 'lucide-react';

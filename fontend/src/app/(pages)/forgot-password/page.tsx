@@ -1,13 +1,13 @@
 'use client'
 
-import React, { useState } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { toast } from "sonner"
+import React, {useState} from 'react'
+import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card"
+import {Input} from "@/components/ui/input"
+import {Button} from "@/components/ui/button"
+import {Label} from "@/components/ui/label"
+import {toast} from "sonner"
 import {ModeToggle} from "@/components/ModeToggle";
-import { Mail, Lock, Key, Send } from 'lucide-react'
+import {Key, Lock, Mail, Send} from 'lucide-react'
 import {string, z} from 'zod'
 
 export default function PasswordReset() {

@@ -1,18 +1,18 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Label } from "@/components/ui/label"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { FileUploader } from "react-drag-drop-files"
-import { Download, Trash2, Upload } from 'lucide-react'
-import { format } from 'date-fns'
-import { toast } from 'sonner'
-import { saveAs } from 'file-saver'
+import React, {useEffect, useState} from 'react'
+import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card"
+import {Button} from "@/components/ui/button"
+import {Input} from "@/components/ui/input"
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select"
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table"
+import {Label} from "@/components/ui/label"
+import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger} from "@/components/ui/dialog"
+import {FileUploader} from "react-drag-drop-files"
+import {Download, Trash2, Upload} from 'lucide-react'
+import {format} from 'date-fns'
+import {toast} from 'sonner'
+import {saveAs} from 'file-saver'
 
 interface Document {
     documentId: string

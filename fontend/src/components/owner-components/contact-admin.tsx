@@ -9,20 +9,20 @@ import {Textarea} from "@/components/ui/textarea"
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select"
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table"
 import {
-    MessageSquare,
-    Phone,
-    Mail,
-    Clock,
+    ChevronDown,
     ChevronLeft,
     ChevronRight,
-    ChevronDown,
     ChevronUp,
+    Clock,
+    Mail,
+    MessageSquare,
+    Phone,
     Search
 } from 'lucide-react'
 import {toast} from "sonner"
 import {jwtDecode} from "jwt-decode"
 import {format, parseISO} from 'date-fns'
-import {Collapsible, CollapsibleContent, CollapsibleTrigger} from "@/components/ui/collapsible"
+import {Collapsible, CollapsibleContent} from "@/components/ui/collapsible"
 
 type Category = {
     id: string
