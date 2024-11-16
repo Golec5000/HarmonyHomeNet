@@ -1,11 +1,11 @@
-<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36" version="24.8.4">
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36" version="24.8.6">
   <diagram name="architektura" id="5f0bae14-7c28-e335-631c-24af17079c00">
-    <mxGraphModel dx="2954" dy="1132" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" background="none" math="0" shadow="0">
+    <mxGraphModel dx="1434" dy="772" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" background="none" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
         <mxCell id="gY4HQTh1pNE1RITPi49o-62" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;fontSize=20;strokeWidth=2;arcSize=5;" parent="1" vertex="1">
-          <mxGeometry x="20" y="50" width="990" height="560" as="geometry" />
+          <mxGeometry x="20" y="60" width="990" height="560" as="geometry" />
         </mxCell>
         <mxCell id="CjUv-Lag4axJxPPeYO3W-6" value="" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=default;gradientColor=none;fillColor=none;fontSize=20;strokeWidth=2;arcSize=5;" parent="1" vertex="1">
           <mxGeometry x="362" y="110" width="298" height="480" as="geometry" />
@@ -67,18 +67,6 @@
         <mxCell id="gY4HQTh1pNE1RITPi49o-29" value="Serwer OAuth 2&amp;nbsp;" style="text;strokeColor=none;fillColor=none;html=1;fontSize=20;fontStyle=1;verticalAlign=middle;align=center;strokeWidth=2;" parent="1" vertex="1">
           <mxGeometry x="106" y="469" width="100" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="gY4HQTh1pNE1RITPi49o-33" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;dashed=1;fontSize=20;strokeWidth=2;" parent="1" vertex="1">
-          <mxGeometry x="780.38" y="336" width="212.25" height="44" as="geometry" />
-        </mxCell>
-        <mxCell id="gY4HQTh1pNE1RITPi49o-34" value="Klient&lt;span style=&quot;background-color: initial;&quot;&gt;&amp;nbsp;OAuth 2&amp;nbsp;&lt;/span&gt;" style="text;strokeColor=none;fillColor=none;html=1;fontSize=20;fontStyle=1;verticalAlign=middle;align=center;strokeWidth=2;" parent="1" vertex="1">
-          <mxGeometry x="801.5" y="340" width="142.5" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="gY4HQTh1pNE1RITPi49o-35" value="" style="endArrow=classic;startArrow=classic;html=1;rounded=0;fontSize=20;strokeWidth=2;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.579;exitY=0.961;exitDx=0;exitDy=0;exitPerimeter=0;" parent="1" source="gY4HQTh1pNE1RITPi49o-11" target="gY4HQTh1pNE1RITPi49o-33" edge="1">
-          <mxGeometry width="50" height="50" relative="1" as="geometry">
-            <mxPoint x="1070" y="358" as="sourcePoint" />
-            <mxPoint x="883.875" y="346" as="targetPoint" />
-          </mxGeometry>
-        </mxCell>
         <mxCell id="gY4HQTh1pNE1RITPi49o-39" value="" style="outlineConnect=0;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;shape=mxgraph.aws3.bank;fillColor=#2875e2;gradientColor=none;fontSize=20;strokeWidth=2;" parent="1" vertex="1">
           <mxGeometry x="200" y="126" width="70" height="70" as="geometry" />
         </mxCell>
@@ -133,12 +121,6 @@
             <mxPoint x="161" y="382.5" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="gY4HQTh1pNE1RITPi49o-68" value="" style="endArrow=classic;startArrow=classic;html=1;rounded=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.25;exitDx=0;exitDy=0;fontSize=20;strokeWidth=2;" parent="1" source="gY4HQTh1pNE1RITPi49o-5" target="gY4HQTh1pNE1RITPi49o-33" edge="1">
-          <mxGeometry width="50" height="50" relative="1" as="geometry">
-            <mxPoint x="761" y="420" as="sourcePoint" />
-            <mxPoint x="811" y="370" as="targetPoint" />
-          </mxGeometry>
-        </mxCell>
         <mxCell id="gY4HQTh1pNE1RITPi49o-70" value="" style="endArrow=classic;startArrow=classic;html=1;rounded=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;exitX=1;exitY=0.25;exitDx=0;exitDy=0;fontSize=20;strokeWidth=2;" parent="1" source="gY4HQTh1pNE1RITPi49o-69" target="gY4HQTh1pNE1RITPi49o-5" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="70" y="328" as="sourcePoint" />
@@ -162,9 +144,6 @@
         </mxCell>
         <mxCell id="CjUv-Lag4axJxPPeYO3W-12" value="" style="sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#282828;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.services.verification_service;strokeWidth=2;fontSize=20;" parent="CjUv-Lag4axJxPPeYO3W-14" vertex="1">
           <mxGeometry x="31" y="27" width="39" height="39.5" as="geometry" />
-        </mxCell>
-        <mxCell id="CjUv-Lag4axJxPPeYO3W-20" value="" style="sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#282828;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.security.lock_with_key_security;strokeWidth=2;fontSize=20;" parent="1" vertex="1">
-          <mxGeometry x="954" y="350" width="30" height="33.5" as="geometry" />
         </mxCell>
         <mxCell id="CjUv-Lag4axJxPPeYO3W-24" value="" style="image;sketch=0;aspect=fixed;html=1;points=[];align=center;fontSize=20;image=img/lib/mscae/Docker.svg;strokeWidth=2;" parent="1" vertex="1">
           <mxGeometry x="581" y="522.0000000000001" width="73.17" height="60" as="geometry" />
