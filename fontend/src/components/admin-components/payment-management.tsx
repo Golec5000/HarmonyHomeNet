@@ -32,7 +32,6 @@ import {Switch} from "@/components/ui/switch"
 import {Card, CardContent, CardHeader, CardTitle,} from "@/components/ui/card"
 import {ChevronLeft, ChevronRight, CreditCard, Edit, MoreHorizontal, Plus, Settings, Trash2} from 'lucide-react'
 
-// Interfaces
 interface Payment {
     paymentId: string
     paymentStatus: 'PENDING' | 'PAID' | 'OVERDUE'
@@ -66,7 +65,6 @@ interface PageResponse<T> {
     hasPrevious: boolean
 }
 
-// Zod Schemas
 const paymentSchema = z.object({
     apartmentSignature: z.string().min(1),
     description: z.string().min(1),
@@ -240,7 +238,7 @@ export function PaymentManagement() {
         try {
             const params = new URLSearchParams({
                 paymentId: paymentId,
-                setActive: readyToPay
+                setActive: readyToPay.toString()
             })
             const response = await fetch(`http://localhost:8444/bwp/hhn/api/v1/payment/activate-payment?${params.toString()}`, {
                 method: 'PUT',
@@ -465,7 +463,7 @@ export function PaymentManagement() {
                         ))}
                     </TableBody>
                 </Table>
-                <div className="flex items-center justify-end space-x-2 py-4">
+                <div className="flex justify-between items-center mt-4">
                     <Button
                         variant="outline"
                         size="sm"

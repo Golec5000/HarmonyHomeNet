@@ -8,8 +8,9 @@ import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/c
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table"
 import {Label} from "@/components/ui/label"
 import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger} from "@/components/ui/dialog"
+import {Switch} from "@/components/ui/switch"
 import {FileUploader} from "react-drag-drop-files"
-import {Download, Trash2, Upload} from 'lucide-react'
+import {ChevronLeft, ChevronRight, Download, FileText, Trash2, Upload} from 'lucide-react'
 import {format} from 'date-fns'
 import {toast} from 'sonner'
 import {saveAs} from 'file-saver'
@@ -34,6 +35,10 @@ export function DocumentManagementComponent() {
     const [currentPage, setCurrentPage] = useState(0)
     const [totalPages, setTotalPages] = useState(0)
     const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false)
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+    const [deleteCompletely, setDeleteCompletely] = useState(true)
+    const [userIdToDelete, setUserIdToDelete] = useState('')
+    const [documentToDelete, setDocumentToDelete] = useState<string | null>(null)
 
     useEffect(() => {
         fetchDocuments()
@@ -133,7 +138,9 @@ export function DocumentManagementComponent() {
         }
     }
 
-    const handleDelete = async (documentId: string) => {
+    const handleDelete = async () => {
+        if (!documentToDelete) return
+
         try {
             const response = await fetch('http://localhost:8444/bwp/hhn/api/v1/document/delete-document', {
                 method: 'DELETE',
@@ -142,15 +149,19 @@ export function DocumentManagementComponent() {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    documentId: documentId,
-                    userId: 'current-user-id', // Replace with actual user ID
-                    deleteCompletely: true
+                    documentId: documentToDelete,
+                    userId: deleteCompletely ? null : userIdToDelete,
+                    deleteCompletely: deleteCompletely.toString()
                 })
             })
 
             if (response.ok) {
                 toast.success('Document deleted successfully')
                 fetchDocuments()
+                setIsDeleteDialogOpen(false)
+                setDocumentToDelete(null)
+                setDeleteCompletely(true)
+                setUserIdToDelete('')
             } else {
                 toast.error('Failed to delete document')
             }
@@ -163,7 +174,10 @@ export function DocumentManagementComponent() {
     return (
         <Card className="w-full">
             <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>Document Management</CardTitle>
+                <CardTitle className="text-2xl font-bold flex items-center space-x-2">
+                    <FileText className="h-6 w-6 text-primary"/>
+                    <span>Document Management</span>
+                </CardTitle>
                 <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
                     <DialogTrigger asChild>
                         <Button>
@@ -231,34 +245,76 @@ export function DocumentManagementComponent() {
                                 <TableCell>{doc.documentExtension}</TableCell>
                                 <TableCell>{format(new Date(doc.createdAt), 'dd/MM/yyyy HH:mm')}</TableCell>
                                 <TableCell>
-                                    <Button variant="outline" size="icon" onClick={() => handleDownload(doc.documentId, doc.documentName, doc.documentExtension)} className="mr-2">
-                                        <Download className="h-4 w-4" />
+                                    <Button variant="outline" size="icon"
+                                            onClick={() => handleDownload(doc.documentId, doc.documentName, doc.documentExtension)}
+                                            className="mr-2">
+                                        <Download className="h-4 w-4"/>
                                     </Button>
-                                    <Button variant="outline" size="icon" onClick={() => handleDelete(doc.documentId)}>
-                                        <Trash2 className="h-4 w-4" />
+                                    <Button variant="outline" size="icon" onClick={() => {
+                                        setDocumentToDelete(doc.documentId)
+                                        setIsDeleteDialogOpen(true)
+                                    }}>
+                                        <Trash2 className="h-4 w-4"/>
                                     </Button>
                                 </TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
                 </Table>
-
                 <div className="flex justify-between items-center mt-4">
                     <Button
+                        variant="outline"
+                        size="sm"
                         onClick={() => setCurrentPage(prev => Math.max(prev - 1, 0))}
                         disabled={currentPage === 0}
                     >
-                        Previous
+                        <ChevronLeft className="h-4 w-4 mr-2"/>
+                        Poprzednia
                     </Button>
-                    <span>Page {currentPage + 1} of {totalPages}</span>
+                    <div className="text-sm font-medium">
+                        Strona {currentPage + 1} z {totalPages}
+                    </div>
                     <Button
+                        variant="outline"
+                        size="sm"
                         onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages - 1))}
                         disabled={currentPage === totalPages - 1}
                     >
-                        Next
+                        Następna
+                        <ChevronRight className="h-4 w-4 ml-2"/>
                     </Button>
                 </div>
             </CardContent>
+
+            <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Delete Document</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                        <div className="flex items-center space-x-2">
+                            <Switch
+                                id="delete-completely"
+                                checked={deleteCompletely}
+                                onCheckedChange={setDeleteCompletely}
+                            />
+                            <Label htmlFor="delete-completely">Delete Completely</Label>
+                        </div>
+                        {!deleteCompletely && (
+                            <div>
+                                <Label htmlFor="user-id">User ID</Label>
+                                <Input
+                                    id="user-id"
+                                    value={userIdToDelete}
+                                    onChange={(e) => setUserIdToDelete(e.target.value)}
+                                    placeholder="Enter user ID"
+                                />
+                            </div>
+                        )}
+                        <Button onClick={handleDelete}>Confirm Delete</Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
         </Card>
     )
 }

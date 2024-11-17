@@ -52,6 +52,20 @@ const functionCards = [
     {icon: Settings, title: "Ustawienia", description: "Zarządzaj swoim kontem i ustawieniami."}
 ]
 
+
+interface FunctionCardProps {
+    icon: React.ReactNode;
+    title: string;
+    description: string;
+    onClick: () => void;
+}
+
+interface ContactCardProps {
+    icon: React.ReactNode;
+    title: string;
+    items: string[];
+}
+
 export default function MainResidentsPage() {
     const [selectedItem, setSelectedItem] = useState(navItems[0].label);
     const [selectedApartment, setSelectedApartment] = useState<string | null>(null);
@@ -262,12 +276,7 @@ function HomePage({setSelectedItem}: { setSelectedItem: (item: string) => void }
     );
 }
 
-function FunctionCard({icon, title, description, onClick}: {
-    icon: React.ReactNode,
-    title: string,
-    description: string,
-    onClick: () => void
-}) {
+function FunctionCard({ icon, title, description, onClick }: FunctionCardProps) {
     return (
         <Card>
             <CardHeader>
@@ -284,7 +293,7 @@ function FunctionCard({icon, title, description, onClick}: {
     );
 }
 
-function ContactCard({icon, title, items}) {
+function ContactCard({ icon, title, items }: ContactCardProps) {
     return (
         <Card>
             <CardHeader className="flex flex-row items-center space-x-2">
@@ -299,5 +308,5 @@ function ContactCard({icon, title, items}) {
                 </ul>
             </CardContent>
         </Card>
-    )
+    );
 }

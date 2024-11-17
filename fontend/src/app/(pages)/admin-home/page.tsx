@@ -5,7 +5,6 @@ import {toast} from "sonner";
 import {Button} from "@/components/ui/button";
 import {
     Bell,
-    BookUser,
     Briefcase,
     Building,
     Clock,
@@ -16,6 +15,7 @@ import {
     Mail,
     PhoneCall,
     Settings,
+    TriangleAlert,
     User,
     Users,
     Vote
@@ -31,6 +31,8 @@ import {AnnouncementManagement} from "@/components/admin-components/announcement
 import {PaymentManagement} from "@/components/admin-components/payment-management";
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card";
 import {DocumentManagementComponent} from "@/components/admin-components/document-management";
+import {ProblemReportManagementComponent} from "@/components/admin-components/problem-report-management";
+import {PollManagementComponent} from "@/components/admin-components/poll-management";
 
 const navItems = [
     {label: 'Dashboard', icon: Home},
@@ -39,15 +41,21 @@ const navItems = [
     {label: 'Ogłoszenia', icon: Bell},
     {label: 'Płatności', icon: CreditCard},
     {label: 'Dokumenty', icon: FileText},
-    {label: 'Zgłoszenia', icon: BookUser},
+    {label: 'Zgłoszenia', icon: TriangleAlert},
     {label: 'Głosowania', icon: Vote},
     {label: 'Ustawienia', icon: Settings},
 ];
 
+interface FunctionCardProps {
+    icon: React.ReactNode;
+    title: string;
+    description: string;
+    onClick: () => void;
+}
+
 export default function EmployeeMainPageComponent() {
     const [selectedItem, setSelectedItem] = useState(navItems[0].label);
     const [remainingTime, setRemainingTime] = useState<string>('00:00');
-    const [employeeName, setEmployeeName] = useState<string>('');
 
     useEffect(() => {
         const token = localStorage.getItem('jwt_accessToken');
@@ -59,7 +67,6 @@ export default function EmployeeMainPageComponent() {
         try {
             const decodedToken = jwtDecode<{ exp: number; name: string }>(token);
             const expirationTime = decodedToken.exp * 1000;
-            setEmployeeName(decodedToken.name);
 
             const updateRemainingTime = () => {
                 const currentTime = Date.now();
@@ -100,9 +107,9 @@ export default function EmployeeMainPageComponent() {
             case 'Dokumenty':
                 return <DocumentManagementComponent/>;
             case 'Zgłoszenia':
-                return <div>Lista zgłoszeń od mieszkańców</div>;
+                return <ProblemReportManagementComponent/>;
             case 'Głosowania':
-                return <div>Głosowania</div>;
+                return <PollManagementComponent/>;
             case 'Ustawienia':
                 return <UserSettingsV2/>;
             default:
@@ -186,7 +193,7 @@ export default function EmployeeMainPageComponent() {
     );
 }
 
-function EmployeePanelMain({setSelectedItem}) {
+function EmployeePanelMain({setSelectedItem}: { setSelectedItem: (item: string) => void }) {
     return (
         <div className="container mx-auto px-4 py-8">
             <h1 className="text-3xl font-bold mb-8 text-center flex items-center justify-center">
@@ -232,7 +239,7 @@ function EmployeePanelMain({setSelectedItem}) {
                     onClick={() => setSelectedItem('Ogłoszenia')}
                 />
                 <FunctionCard
-                    icon={<BookUser className="h-8 w-8"/>}
+                    icon={<TriangleAlert className="h-8 w-8"/>}
                     title="Zarządzanie zgłoszeniami"
                     description="Przeglądanie i zarządzanie zgłoszeniami od mieszkańców."
                     onClick={() => setSelectedItem('Zgłoszenia')}
@@ -267,12 +274,12 @@ function EmployeePanelMain({setSelectedItem}) {
     );
 }
 
-function FunctionCard({icon, title, description, onClick}) {
+function FunctionCard({icon, title, description, onClick}: FunctionCardProps) {
     return (
         <Card>
             <CardHeader>
                 <CardTitle className="flex items-center">
-                {icon}
+                    {icon}
                     <span className="ml-2">{title}</span>
                 </CardTitle>
                 <CardDescription>{description}</CardDescription>

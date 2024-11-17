@@ -80,8 +80,6 @@ export function AnnouncementManagement() {
     const [currentPage, setCurrentPage] = useState(0)
     const [totalPages, setTotalPages] = useState(0)
     const [searchTerm, setSearchTerm] = useState('')
-    const [sortColumn, setSortColumn] = useState<keyof Announcement>('createdAt')
-    const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
     const [isAddAnnouncementDialogOpen, setIsAddAnnouncementDialogOpen] = useState(false)
     const [isEditAnnouncementDialogOpen, setIsEditAnnouncementDialogOpen] = useState(false)
     const [editingAnnouncement, setEditingAnnouncement] = useState<Announcement | null>(null)
@@ -98,7 +96,7 @@ export function AnnouncementManagement() {
 
     useEffect(() => {
         fetchAnnouncements()
-    }, [currentPage, sortColumn, sortDirection])
+    }, [currentPage])
 
     useEffect(() => {
         fetchApartments()
@@ -173,20 +171,6 @@ export function AnnouncementManagement() {
             toast.error('An error occurred while fetching apartments')
         }
     }
-
-    const handleSort = (column: keyof Announcement) => {
-        if (column === sortColumn) {
-            setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-        } else {
-            setSortColumn(column);
-            setSortDirection('asc');
-        }
-    };
-
-    const filteredAnnouncements = announcements.filter(announcement =>
-        announcement.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        announcement.content.toLowerCase().includes(searchTerm.toLowerCase())
-    )
 
     const handleCreateAnnouncement = async (data: z.infer<typeof announcementSchema>) => {
         try {
@@ -345,13 +329,7 @@ export function AnnouncementManagement() {
                 </CardTitle>
             </CardHeader>
             <CardContent>
-                <div className="flex justify-between items-center mb-4">
-                    <Input
-                        placeholder="Szukaj ogłoszeń..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-64"
-                    />
+                <div className="flex justify-end items-center mb-4">
                     <Dialog open={isAddAnnouncementDialogOpen} onOpenChange={setIsAddAnnouncementDialogOpen}>
                         <DialogTrigger asChild>
                             <Button>
@@ -403,23 +381,15 @@ export function AnnouncementManagement() {
                     <TableHeader>
                         <TableRow>
                             <TableHead>ID</TableHead>
-                            <TableHead onClick={() => handleSort('title')} className="cursor-pointer">
-                                Tytuł {sortColumn === 'title' && (sortDirection === 'asc' ? '▲' : '▼')}
-                            </TableHead>
-                            <TableHead onClick={() => handleSort('content')} className="cursor-pointer">
-                                Treść {sortColumn === 'content' && (sortDirection === 'asc' ? '▲' : '▼')}
-                            </TableHead>
-                            <TableHead onClick={() => handleSort('createdAt')} className="cursor-pointer">
-                                Data utworzenia {sortColumn === 'createdAt' && (sortDirection === 'asc' ? '▲' : '▼')}
-                            </TableHead>
-                            <TableHead onClick={() => handleSort('updatedAt')} className="cursor-pointer">
-                                Data aktualizacji {sortColumn === 'updatedAt' && (sortDirection === 'asc' ? '▲' : '▼')}
-                            </TableHead>
+                            <TableHead>Tytuł</TableHead>
+                            <TableHead>Treść</TableHead>
+                            <TableHead>Data utworzenia</TableHead>
+                            <TableHead>Data aktualizacji</TableHead>
                             <TableHead>Akcje</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {filteredAnnouncements.map((announcement) => (
+                        {announcements.map((announcement) => (
                             <React.Fragment key={announcement.id}>
                                 <TableRow>
                                     <TableCell>{announcement.id}</TableCell>
@@ -487,7 +457,7 @@ export function AnnouncementManagement() {
                         ))}
                     </TableBody>
                 </Table>
-                <div className="flex items-center justify-end space-x-2 py-4">
+                <div className="flex justify-between items-center mt-4">
                     <Button
                         variant="outline"
                         size="sm"

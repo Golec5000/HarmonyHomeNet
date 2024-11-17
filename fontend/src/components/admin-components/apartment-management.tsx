@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/dropdown-menu"
 import {Button} from "@/components/ui/button"
 import {Input} from "@/components/ui/input"
-import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue,} from "@/components/ui/select"
 import {
     ChevronDown,
     ChevronLeft,
@@ -74,10 +73,6 @@ export function ApartmentManagement() {
     const [apartments, setApartments] = useState<Apartment[]>([])
     const [currentPage, setCurrentPage] = useState(0)
     const [totalPages, setTotalPages] = useState(0)
-    const [searchTerm, setSearchTerm] = useState('')
-    const [selectedCity, setSelectedCity] = useState('All')
-    const [sortColumn, setSortColumn] = useState<keyof Apartment>('address')
-    const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
     const [editingApartment, setEditingApartment] = useState<Apartment | null>(null)
     const [isAddApartmentDialogOpen, setIsAddApartmentDialogOpen] = useState(false)
     const [isAssignUserDialogOpen, setIsAssignUserDialogOpen] = useState(false)
@@ -118,29 +113,6 @@ export function ApartmentManagement() {
     useEffect(() => {
         fetchApartments()
     }, [currentPage])
-
-    const handleSort = (column: keyof Apartment) => {
-        if (column === sortColumn) {
-            setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
-        } else {
-            setSortColumn(column)
-            setSortDirection('asc')
-        }
-    }
-
-    const filteredApartments = apartments
-        .filter(apartment =>
-            (apartment.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                apartment.city.toLowerCase().includes(searchTerm.toLowerCase())) &&
-            (selectedCity === 'All' || apartment.city === selectedCity)
-        )
-        .sort((a, b) => {
-            const aValue = a[sortColumn]
-            const bValue = b[sortColumn]
-            if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1
-            if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1
-            return 0
-        })
 
     const handleEdit = (apartment: Apartment) => {
         setEditingApartment(apartment)
@@ -292,6 +264,7 @@ export function ApartmentManagement() {
                     toast.success('Użytkownik został przypisany do mieszkania pomyślnie')
                     setIsAssignUserDialogOpen(false)
                     setUserId('')
+                    fetchResidents(selectedApartmentId)
                 } else if (response.status === 401) {
                     toast.error('Nieautoryzowany: Nie posiadasz uprawnień do tej opcji')
                 } else {
@@ -326,6 +299,7 @@ export function ApartmentManagement() {
                     toast.success('Użytkownik został usunięty z mieszkania pomyślnie')
                     setIsRemoveUserDialogOpen(false)
                     setUserId('')
+                    fetchResidents(selectedApartmentId)
                 } else if (response.status === 401) {
                     toast.error('Nieautoryzowany: Nie posiadasz uprawnień do tej opcji')
                 } else {
@@ -378,28 +352,7 @@ export function ApartmentManagement() {
                 </CardTitle>
             </CardHeader>
             <CardContent>
-                <div className="flex justify-between items-center mb-4">
-                    <div className="flex items-center space-x-2">
-                        <Input
-                            placeholder="Szukaj mieszkań..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-64"
-                        />
-                        <Select value={selectedCity} onValueChange={setSelectedCity}>
-                            <SelectTrigger className="w-[180px]">
-                                <SelectValue placeholder="Wybierz miasto"/>
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="All">Wszystkie</SelectItem>
-                                {Array.from(new Set(apartments.map(a => a.city))).map((city) => (
-                                    <SelectItem key={city} value={city}>
-                                        {city}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
+                <div className="flex justify-end items-center mb-4">
                     <Dialog open={isAddApartmentDialogOpen} onOpenChange={setIsAddApartmentDialogOpen}>
                         <DialogTrigger asChild>
                             <Button>
@@ -503,36 +456,19 @@ export function ApartmentManagement() {
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead onClick={() => handleSort('address')} className="cursor-pointer">
-                                Adres {sortColumn === 'address' && (sortDirection === 'asc' ? '▲' : '▼')}
-                            </TableHead>
-                            <TableHead onClick={() => handleSort('city')} className="cursor-pointer">
-                                Miasto {sortColumn === 'city' && (sortDirection === 'asc' ? '▲' : '▼')}
-                            </TableHead>
-                            <TableHead onClick={() => handleSort('zipCode')} className="cursor-pointer">
-                                Kod Pocztowy {sortColumn === 'zipCode' && (sortDirection === 'asc' ? '▲' : '▼')}
-                            </TableHead>
-                            <TableHead onClick={() => handleSort('apartmentArea')} className="cursor-pointer">
-                                Powierzchnia {sortColumn === 'apartmentArea' && (sortDirection === 'asc' ? '▲' : '▼')}
-                            </TableHead>
-                            <TableHead onClick={() => handleSort('apartmentSignature')} className="cursor-pointer">
-                                Sygnatura {sortColumn === 'apartmentSignature' && (sortDirection === 'asc' ? '▲' : '▼')}
-                            </TableHead>
-                            <TableHead onClick={() => handleSort('apartmentPercentValue')} className="cursor-pointer">
-                                Wartość
-                                % {sortColumn === 'apartmentPercentValue' && (sortDirection === 'asc' ? '▲' : '▼')}
-                            </TableHead>
-                            <TableHead onClick={() => handleSort('createdAt')} className="cursor-pointer">
-                                Utworzono {sortColumn === 'createdAt' && (sortDirection === 'asc' ? '▲' : '▼')}
-                            </TableHead>
-                            <TableHead onClick={() => handleSort('updatedAt')} className="cursor-pointer">
-                                Zaktualizowano {sortColumn === 'updatedAt' && (sortDirection === 'asc' ? '▲' : '▼')}
-                            </TableHead>
+                            <TableHead>Adres</TableHead>
+                            <TableHead>Miasto</TableHead>
+                            <TableHead>Kod Pocztowy</TableHead>
+                            <TableHead>Powierzchnia</TableHead>
+                            <TableHead>Sygnatura</TableHead>
+                            <TableHead>Wartość %</TableHead>
+                            <TableHead>Utworzono</TableHead>
+                            <TableHead>Zaktualizowano</TableHead>
                             <TableHead>Akcje</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {filteredApartments.map((apartment) => (
+                        {apartments.map((apartment) => (
                             <React.Fragment key={apartment.apartmentId}>
                                 <TableRow>
                                     <TableCell>{apartment.address}</TableCell>
@@ -648,7 +584,7 @@ export function ApartmentManagement() {
                         ))}
                     </TableBody>
                 </Table>
-                <div className="flex items-center justify-end space-x-2 py-4">
+                <div className="flex justify-between items-center mt-4">
                     <Button
                         variant="outline"
                         size="sm"
