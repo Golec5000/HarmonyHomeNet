@@ -20,7 +20,7 @@ public interface DocumentService {
 
     DocumentResponse getDocumentById(UUID documentId) throws DocumentNotFoundException;
 
-    String deleteDocument(UUID documentId, UUID userId, boolean deleteCompletely) throws DocumentNotFoundException, UserNotFoundException, IllegalArgumentException;
+    String deleteDocument(UUID documentId, UUID userId, Boolean deleteCompletely) throws DocumentNotFoundException, UserNotFoundException, IllegalArgumentException;
 
     DocumentResponse downloadDocument(UUID documentId) throws DocumentNotFoundException;
 }

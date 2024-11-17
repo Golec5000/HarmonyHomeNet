@@ -5,7 +5,6 @@ import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.
 import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.UserNotFoundException;
 import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.ProblemReportService;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Category;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.ReportStatus;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.ProblemReportRequest;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.page.PageResponse;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.ProblemReportResponse;
@@ -14,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/bwp/hhn/api/v1/problem-report")
@@ -23,20 +21,6 @@ public class ProblemReportController {
 
     private final ProblemReportService problemReportService;
 
-    //GET
-    @GetMapping("/get-report-by-id/{problemReportId}")
-    public ResponseEntity<ProblemReportResponse> getProblemReportById(@PathVariable Long problemReportId) throws ProblemReportNotFoundException {
-        return ResponseEntity.ok(problemReportService.getProblemReportById(problemReportId));
-    }
-
-    @GetMapping("/get-report-by-user/{userId}")
-    public ResponseEntity<PageResponse<ProblemReportResponse>> getProblemReportsByUserId(
-            @PathVariable UUID userId,
-            @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
-            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize)
-            throws UserNotFoundException {
-        return ResponseEntity.ok(problemReportService.getProblemReportsByUserId(userId, pageNo, pageSize));
-    }
 
     @GetMapping("/get-report-by-apartment/{apartmentSignature}")
     public ResponseEntity<PageResponse<ProblemReportResponse>> getProblemReportsByApartmentId(
@@ -53,15 +37,6 @@ public class ProblemReportController {
             @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize
     ) {
         return ResponseEntity.ok(problemReportService.getAllProblemReports(pageNo, pageSize));
-    }
-
-    @GetMapping("/get-reposts-by-status")
-    public ResponseEntity<PageResponse<ProblemReportResponse>> getProblemReportsByStatus(
-            @RequestParam ReportStatus status,
-            @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
-            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize
-    ){
-        return ResponseEntity.ok(problemReportService.getProblemReportsByStatus(status, pageNo, pageSize));
     }
 
     @GetMapping("/get-types-of-reports")

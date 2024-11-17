@@ -68,7 +68,7 @@ public class DocumentController {
     //DELETE
     @DeleteMapping("/delete-document")
     public ResponseEntity<String> deleteDocument(@RequestBody DocumentDeleteRequest documentDeleteRequest) throws DocumentNotFoundException, UserNotFoundException {
-        return ResponseEntity.ok(documentService.deleteDocument(documentDeleteRequest.getDocumentId(), documentDeleteRequest.getUserId(), documentDeleteRequest.isDeleteCompletely()));
+        return ResponseEntity.ok(documentService.deleteDocument(documentDeleteRequest.getDocumentId(), documentDeleteRequest.getUserId(), Boolean.valueOf(documentDeleteRequest.getDeleteCompletely())));
     }
 
 }

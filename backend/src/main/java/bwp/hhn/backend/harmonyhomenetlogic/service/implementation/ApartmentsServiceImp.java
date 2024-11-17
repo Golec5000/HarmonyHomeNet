@@ -12,6 +12,7 @@ import bwp.hhn.backend.harmonyhomenetlogic.repository.sideTables.PossessionHisto
 import bwp.hhn.backend.harmonyhomenetlogic.service.adapters.SmsService;
 import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.ApartmentsService;
 import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.MailService;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Role;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.ApartmentRequest;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.page.PageResponse;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.ApartmentResponse;
@@ -22,7 +23,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
 import java.util.List;
@@ -148,6 +151,11 @@ public class ApartmentsServiceImp implements ApartmentsService {
         // Pobranie użytkownika
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User: " + userId + " not found"));
+
+        // Sprawdzenie, czy użytkownik jest właścicielem/mieszkańcem
+        if (!user.getRole().equals(Role.ROLE_OWNER)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User is not an owner");
+        }
 
         // Pobranie mieszkania na podstawie sygnatury
         Apartment apartment = apartmentsRepository.findByApartmentSignature(apartmentSignature)

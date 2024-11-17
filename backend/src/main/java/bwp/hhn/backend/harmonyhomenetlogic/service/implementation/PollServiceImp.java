@@ -63,6 +63,8 @@ public class PollServiceImp implements PollService {
                                         .createdAt(poll.getCreatedAt())
                                         .endDate(poll.getEndDate())
                                         .summary(poll.getSummary())
+                                        .fileExtension(poll.getFileExtension())
+                                        .fileName(poll.getFileName())
                                         .build()
                         )
                         .toList(),
@@ -85,6 +87,8 @@ public class PollServiceImp implements PollService {
                 .pollName(pollRequest.getPollName())
                 .content(pollRequest.getContent())
                 .uploadData(file.getBytes())
+                .fileName(getOriginalFileNameWithoutExtension(file.getOriginalFilename()))
+                .fileExtension(getFileExtension(file.getOriginalFilename()))
                 .endDate(pollRequest.getEndDate())
                 .summary(BigDecimal.ZERO)
                 .user(user)
@@ -198,6 +202,7 @@ public class PollServiceImp implements PollService {
                                         .id(vote.getId())
                                         .voteChoice(vote.getVoteChoice())
                                         .createdAt(vote.getCreatedAt())
+                                        .apartmentSignature(vote.getApartmentSignature())
                                         .build()
                         )
                         .toList(),
@@ -273,6 +278,20 @@ public class PollServiceImp implements PollService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         poll.setSummary(newSummary);
         pollRepository.save(poll);
+    }
+
+    private String getFileExtension(String fileName) {
+        if (fileName == null || fileName.lastIndexOf('.') == -1) {
+            throw new IllegalArgumentException("Invalid file name");
+        }
+        return fileName.substring(fileName.lastIndexOf('.') + 1);
+    }
+
+    private String getOriginalFileNameWithoutExtension(String fileName) {
+        if (fileName == null || fileName.lastIndexOf('.') == -1) {
+            throw new IllegalArgumentException("Invalid file name");
+        }
+        return fileName.substring(0, fileName.lastIndexOf('.'));
     }
 
 }

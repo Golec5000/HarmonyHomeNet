@@ -53,9 +53,18 @@ public class UserServiceImp implements UserService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Insufficient permissions to update or assign the role");
         }
 
-
         User userEntity = userRepository.findByUuidIDOrEmail(userId, null)
                 .orElseThrow(() -> new UserNotFoundException("User id: " + userId + " not found"));
+
+        // Ensure that the role of an OWNER cannot be changed
+        if (userEntity.getRole() == Role.ROLE_OWNER && user.getRole() != Role.ROLE_OWNER) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Cannot change the role of an OWNER");
+        }
+
+        // Ensure that roles ADMIN and EMPLOYEE cannot be changed to OWNER
+        if ((userEntity.getRole() == Role.ROLE_ADMIN || userEntity.getRole() == Role.ROLE_EMPLOYEE) && user.getRole() == Role.ROLE_OWNER) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Cannot change the role to OWNER");
+        }
 
         userEntity.setEmail(user.getEmail() != null ? user.getEmail() : userEntity.getEmail());
         userEntity.setFirstName(user.getFirstName() != null ? user.getFirstName() : userEntity.getFirstName());

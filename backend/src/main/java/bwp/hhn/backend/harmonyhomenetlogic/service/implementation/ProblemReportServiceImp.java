@@ -10,6 +10,7 @@ import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.ApartmentsRepos
 import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.ProblemReportRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.UserRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.sideTables.PossessionHistoryRepository;
+import bwp.hhn.backend.harmonyhomenetlogic.service.adapters.SmsService;
 import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.MailService;
 import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.ProblemReportService;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.ReportStatus;
@@ -36,6 +37,7 @@ public class ProblemReportServiceImp implements ProblemReportService {
     private final ApartmentsRepository apartmentsRepository;
     private final PossessionHistoryRepository possessionHistoryRepository;
     private final MailService mailService;
+    private final SmsService smsService;
 
 
     @Override
@@ -97,7 +99,32 @@ public class ProblemReportServiceImp implements ProblemReportService {
         if (ReportStatus.DONE.equals(problemReportRequest.getReportStatus()))
             problemReportToUpdate.setEndDate(Instant.now());
 
-        mailService.sendNotificationMail("Problem report updated", "Your problem report has been updated", problemReportToUpdate.getUser().getEmail());
+        User user = problemReportToUpdate.getUser();
+
+        if (user.getNotificationTypes() != null){
+            user.getNotificationTypes().forEach(notificationType -> {
+                switch (notificationType.getType()) {
+                    case EMAIL:
+                        switch (problemReportRequest.getReportStatus()) {
+                            case DONE -> mailService.sendNotificationMail("Problem report done", "Your problem report has been done", user.getEmail());
+                            case IN_PROGRESS -> mailService.sendNotificationMail("Problem report in progress", "Your problem report is in progress", user.getEmail());
+                            case OPEN -> mailService.sendNotificationMail("Problem report open", "Your problem report is open", user.getEmail());
+                        }
+                        break;
+                    case SMS:
+                        switch (problemReportRequest.getReportStatus()) {
+                            case DONE -> smsService.sendSms("Your problem report has been done", user.getPhoneNumber());
+                            case IN_PROGRESS -> smsService.sendSms("Your problem report is in progress", user.getPhoneNumber());
+                            case OPEN -> smsService.sendSms("Your problem report is open", user.getPhoneNumber());
+                        }
+                        break;
+
+                    default:
+                        throw new IllegalStateException("Unexpected value: " + notificationType.getType());
+                }
+            });
+        }
+
 
         ProblemReport updated = problemReportRepository.save(problemReportToUpdate);
 
@@ -125,37 +152,6 @@ public class ProblemReportServiceImp implements ProblemReportService {
         return "Problem report deleted successfully";
     }
 
-    @Override
-    public ProblemReportResponse getProblemReportById(Long problemReportId) throws ProblemReportNotFoundException {
-
-        return problemReportRepository.findById(problemReportId)
-                .map(problemReport -> ProblemReportResponse.builder()
-                        .id(problemReport.getId())
-                        .note(problemReport.getNote())
-                        .reportStatus(problemReport.getReportStatus())
-                        .category(problemReport.getCategory())
-                        .userName(problemReport.getUser().getFirstName() + " " + problemReport.getUser().getLastName())
-                        .apartmentAddress(problemReport.getApartment().getAddress())
-                        .endDate(problemReport.getEndDate())
-                        .build())
-                .orElseThrow(() -> new ProblemReportNotFoundException("Problem report not found with id: " + problemReportId));
-
-    }
-
-    @Override
-    public PageResponse<ProblemReportResponse> getProblemReportsByUserId(UUID userId, int pageNo, int pageSize) throws UserNotFoundException {
-
-        if (!userRepository.existsById(userId)) {
-            throw new UserNotFoundException("User not found with id: " + userId);
-        }
-
-        Pageable pageable = PageRequest.of(pageNo, pageSize);
-        Page<ProblemReport> problemReports = problemReportRepository.findAllByUserUuidID(userId, pageable);
-
-        return getProblemReportResponsePageResponse(problemReports);
-
-
-    }
 
     @Override
     public PageResponse<ProblemReportResponse> getProblemReportsByApartmentSignature(String apartmentSignature, int pageNo, int pageSize)
@@ -181,15 +177,6 @@ public class ProblemReportServiceImp implements ProblemReportService {
 
     }
 
-    @Override
-    public PageResponse<ProblemReportResponse> getProblemReportsByStatus(ReportStatus status, int pageNo, int pageSize) {
-
-        Pageable pageable = PageRequest.of(pageNo, pageSize);
-        Page<ProblemReport> problemReports = problemReportRepository.findAllByReportStatus(status, pageable);
-
-        return getProblemReportResponsePageResponse(problemReports);
-
-    }
 
     private PageResponse<ProblemReportResponse> getProblemReportResponsePageResponse(Page<ProblemReport> problemReports) {
         return new PageResponse<>(

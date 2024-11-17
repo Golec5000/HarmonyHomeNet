@@ -21,6 +21,6 @@ public class DocumentDeleteRequest {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private UUID userId;
 
-    private boolean deleteCompletely;
+    private String deleteCompletely;
 
 }

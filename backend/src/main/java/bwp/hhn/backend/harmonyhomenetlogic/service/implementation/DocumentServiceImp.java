@@ -175,27 +175,16 @@ public class DocumentServiceImp implements DocumentService {
 
     @Override
     @Transactional
-    public String deleteDocument(UUID documentId, UUID userId, boolean deleteCompletely) throws DocumentNotFoundException, UserNotFoundException, IllegalArgumentException {
+    public String deleteDocument(UUID documentId, UUID userId, Boolean deleteCompletely) throws DocumentNotFoundException, UserNotFoundException, IllegalArgumentException {
 
         Document document = documentRepository.findById(documentId)
                 .orElseThrow(() -> new DocumentNotFoundException("Document id: " + documentId + " not found"));
 
         if (deleteCompletely) {
-            // Usuwanie dokumentu i wszystkich powiązań
-            List<UserDocumentConnection> connections = userDocumentConnectionRepository.findByDocumentUuidID(documentId);
-            for (UserDocumentConnection connection : connections) {
-                if (connection.getUser() != null && connection.getUser().getUserDocumentConnections() != null) {
-                    connection.getUser().getUserDocumentConnections().remove(connection);
-                }
-                if (connection.getDocument() != null && connection.getDocument().getUserDocumentConnections() != null) {
-                    connection.getDocument().getUserDocumentConnections().remove(connection);
-                }
-            }
 
-            userDocumentConnectionRepository.deleteAll(connections);
             documentRepository.delete(document);
-
             return "Document id: " + documentId + " deleted successfully for all users";
+
         } else {
 
             // Usuwanie tylko połączenia użytkownika z dokumentem
@@ -215,6 +204,17 @@ public class DocumentServiceImp implements DocumentService {
             document.getUserDocumentConnections().remove(connection);
 
             userDocumentConnectionRepository.delete(connection);
+
+            mailService.sendNotificationMail(
+                    "Dokument odłączony",
+                    "Dokument został odłaczony od twojego konta: " + document.getDocumentName(),
+                    user.getEmail()
+            );
+
+            smsService.sendSms(
+                    "Dokument został odłaczony od twojego konta: " + document.getDocumentName(),
+                    user.getPhoneNumber()
+            );
 
             return "Document id: " + documentId + " disconnected successfully for user id: " + userId;
         }

@@ -4,12 +4,10 @@ import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.
 import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.ApartmentNotFoundException;
 import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.UserNotFoundException;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.AnnouncementRequest;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.request.DateRequest;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.page.PageResponse;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.AnnouncementResponse;
 
 import java.util.List;
-import java.util.UUID;
 
 public interface AnnouncementService {
 
@@ -22,10 +20,6 @@ public interface AnnouncementService {
     AnnouncementResponse getAnnouncement(Long announcementId) throws AnnouncementNotFoundException;
 
     PageResponse<AnnouncementResponse> getAllAnnouncements(int pageNo, int pageSize);
-
-    PageResponse<AnnouncementResponse> getAnnouncementsByUserId(UUID userId, int pageNo, int pageSize) throws UserNotFoundException;
-
-    PageResponse<AnnouncementResponse> getAnnouncementsFromStartDateTOEndDate(DateRequest dateRequest, int pageNo, int pageSize);
 
     String linkAnnouncementsToApartments(Long announcementId, List<String> apartmentSignature) throws AnnouncementNotFoundException, ApartmentNotFoundException;
 

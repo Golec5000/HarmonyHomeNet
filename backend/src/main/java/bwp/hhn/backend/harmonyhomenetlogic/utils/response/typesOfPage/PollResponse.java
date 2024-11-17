@@ -14,6 +14,8 @@ public record PollResponse(
         byte[] uploadData,
         Instant createdAt,
         Instant endDate,
-        BigDecimal summary
+        BigDecimal summary,
+        String fileName,
+        String fileExtension
 ) {
 }

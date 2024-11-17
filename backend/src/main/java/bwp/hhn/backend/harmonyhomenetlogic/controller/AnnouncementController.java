@@ -5,7 +5,6 @@ import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.
 import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.UserNotFoundException;
 import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.AnnouncementService;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.AnnouncementRequest;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.request.DateRequest;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.page.PageResponse;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.AnnouncementResponse;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +13,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/bwp/hhn/api/v1/announcement")
@@ -35,26 +33,6 @@ public class AnnouncementController {
             @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize
     ) {
         return ResponseEntity.ok(announcementService.getAllAnnouncements(pageNo, pageSize));
-    }
-
-    //todo to remove ?
-    @GetMapping("/get-announcements-by-user")
-    public ResponseEntity<PageResponse<AnnouncementResponse>> getAnnouncementsByUserId(
-            @RequestParam UUID userId,
-            @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
-            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize
-    ) throws UserNotFoundException {
-        return ResponseEntity.ok(announcementService.getAnnouncementsByUserId(userId, pageNo, pageSize));
-    }
-
-    //todo to remove ?
-    @GetMapping("/get-announcement-by-date-range")
-    public ResponseEntity<PageResponse<AnnouncementResponse>> getAnnouncementsFromStartDateToEndDate(
-            @RequestBody DateRequest dateRequest,
-            @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
-            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize
-    ) {
-        return ResponseEntity.ok(announcementService.getAnnouncementsFromStartDateTOEndDate(dateRequest, pageNo, pageSize));
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_EMPLOYEE') or hasRole('ROLE_OWNER')")

@@ -46,6 +46,16 @@ public class Poll {
     @Column(name = "Upload_data", nullable = false)
     private byte[] uploadData;
 
+    @NotEmpty
+    @Size(max = 8)
+    @Column(name = "File_extension", nullable = false, length = 8)
+    private String fileExtension;
+
+    @NotEmpty
+    @Size(max = 100)
+    @Column(name = "File_name", nullable = false, length = 100)
+    private String fileName;
+
     @CreationTimestamp
     @Column(name = "Created_at", nullable = false)
     private Instant createdAt;

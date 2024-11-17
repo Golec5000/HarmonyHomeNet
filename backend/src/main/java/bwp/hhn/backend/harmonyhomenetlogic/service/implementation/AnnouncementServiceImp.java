@@ -15,7 +15,6 @@ import bwp.hhn.backend.harmonyhomenetlogic.service.adapters.SmsService;
 import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.AnnouncementService;
 import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.MailService;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.AnnouncementRequest;
-import bwp.hhn.backend.harmonyhomenetlogic.utils.request.DateRequest;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.page.PageResponse;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.AnnouncementResponse;
 import jakarta.transaction.Transactional;
@@ -117,29 +116,6 @@ public class AnnouncementServiceImp implements AnnouncementService {
 
         Pageable pageable = PageRequest.of(pageNo, pageSize);
         Page<Announcement> announcements = announcementRepository.findAll(pageable);
-
-        return getAnnouncementResponsePageResponse(announcements);
-    }
-
-    @Override
-    public PageResponse<AnnouncementResponse> getAnnouncementsByUserId(UUID userId, int pageNo, int pageSize) throws UserNotFoundException {
-        Pageable pageable = PageRequest.of(pageNo, pageSize);
-        Page<Announcement> announcements =announcementRepository.findByUserUuidID(userId, pageable);
-
-
-        return getAnnouncementResponsePageResponse(announcements);
-
-    }
-
-    @Override
-    public PageResponse<AnnouncementResponse> getAnnouncementsFromStartDateTOEndDate(DateRequest dateRequest, int pageNo, int pageSize) {
-
-        Pageable pageable = PageRequest.of(pageNo, pageSize);
-        Page<Announcement> announcements =announcementRepository.findDistinctByCreatedAtOrUpdatedAtBetween(
-                dateRequest.getStartDate(),
-                dateRequest.getEndDate(),
-                pageable
-        );
 
         return getAnnouncementResponsePageResponse(announcements);
     }

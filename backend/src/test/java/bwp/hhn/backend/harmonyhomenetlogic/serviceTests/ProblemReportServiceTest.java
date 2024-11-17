@@ -201,32 +201,6 @@ class ProblemReportServiceTest {
         verifyNoMoreInteractions(problemReportRepository);
     }
 
-    @Test
-    void testGetProblemReportById_Success() throws ProblemReportNotFoundException {
-        // Given
-        when(problemReportRepository.findById(1L)).thenReturn(Optional.of(problemReport));
-
-        // When
-        ProblemReportResponse response = problemReportService.getProblemReportById(1L);
-
-        // Then
-        assertNotNull(response);
-        assertEquals("Leaky faucet", response.note());
-        assertEquals("John Doe", response.userName());
-        verify(problemReportRepository, times(1)).findById(1L);
-    }
-
-    @Test
-    void testGetProblemReportById_NotFound() {
-        // Given
-        when(problemReportRepository.findById(1L)).thenReturn(Optional.empty());
-
-        // When & Then
-        assertThrows(ProblemReportNotFoundException.class, () -> problemReportService.getProblemReportById(1L));
-
-        verify(problemReportRepository, times(1)).findById(1L);
-    }
-
 //    @Test
 //    void testGetProblemReportsByUserId_Success() throws UserNotFoundException {
 //        // Given

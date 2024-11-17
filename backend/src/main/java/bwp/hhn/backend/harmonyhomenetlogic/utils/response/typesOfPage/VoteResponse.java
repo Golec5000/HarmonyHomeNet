@@ -9,6 +9,7 @@ import java.time.Instant;
 public record VoteResponse(
         Long id,
         VoteChoice voteChoice,
-        Instant createdAt
+        Instant createdAt,
+        String apartmentSignature
 ) {
 }

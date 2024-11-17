@@ -38,7 +38,7 @@ public class Document {
 
     @NonNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "Document_type", nullable = false, unique = true)
+    @Column(name = "Document_type", nullable = false)
     private DocumentType documentType;
 
     @Lob

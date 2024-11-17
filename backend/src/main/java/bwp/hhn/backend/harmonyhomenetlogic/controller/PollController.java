@@ -7,6 +7,7 @@ import bwp.hhn.backend.harmonyhomenetlogic.utils.request.VoteRequest;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.page.PageResponse;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.PollResponse;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.VoteResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.UUID;
 
 @RestController
@@ -70,11 +72,21 @@ public class PollController {
     }
 
     //POST
-    @PostMapping(value = "/create-poll/{employeeId}", consumes = "multipart/form-data")
-    public ResponseEntity<PollResponse> createPoll(@RequestPart("data") PollRequest pollRequest, @PathVariable UUID employeeId, @RequestPart("file") MultipartFile file)
-            throws UserNotFoundException, IllegalArgumentException, IOException {
+    @PostMapping(value = "/create-poll/{employeeId}")
+    public ResponseEntity<PollResponse> createPoll(
+            @RequestParam("pollName") String pollName, @RequestParam("content") String content,
+            @RequestParam("endDate") Instant endDate, @PathVariable UUID employeeId,
+            @RequestPart("file") MultipartFile file) throws Exception {
+
+        PollRequest pollRequest = PollRequest.builder()
+                .pollName(pollName)
+                .content(content)
+                .endDate(endDate)
+                .build();
+
         return ResponseEntity.ok(pollService.createPoll(pollRequest, employeeId, file));
     }
+
 
     //PUT
     @PutMapping("/delete-vote/{voteId}")
