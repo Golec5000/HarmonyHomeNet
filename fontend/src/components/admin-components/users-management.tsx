@@ -69,7 +69,7 @@ interface CustomJwtPayload {
     sub: string;
 }
 
-const roles = ['ROLE_ADMIN', 'ROLE_EMPLOYEE', 'ROLE_OWNER']
+const roles = ['ROLE_SUPER_ADMIN', 'ROLE_ADMIN', 'ROLE_EMPLOYEE', 'ROLE_OWNER']
 
 export function UsersManagement() {
     const [users, setUsers] = useState<User[]>([])
@@ -87,7 +87,7 @@ export function UsersManagement() {
     })
 
     const fetchUsers = async () => {
-        const token = localStorage.getItem('jwt_accessToken')
+        const token = sessionStorage.getItem('jwt_accessToken')
         let currentUserEmail = ''
         if (token) {
             const decodedToken = jwtDecode<CustomJwtPayload>(token)
@@ -145,7 +145,7 @@ export function UsersManagement() {
     const handleSaveEdit = async () => {
         if (editingUser) {
             try {
-                const token = localStorage.getItem('jwt_accessToken')
+                const token = sessionStorage.getItem('jwt_accessToken')
                 const params = new URLSearchParams({
                     userId: editingUser.id,
                     accessToken: token || ''
@@ -200,7 +200,7 @@ export function UsersManagement() {
 
     const handleDelete = async (userId: string) => {
         try {
-            const token = localStorage.getItem('jwt_accessToken')
+            const token = sessionStorage.getItem('jwt_accessToken')
             const params = new URLSearchParams({
                 userId: userId,
                 accessToken: token || ''
@@ -249,7 +249,7 @@ export function UsersManagement() {
                 role: newUser.role,
             })
 
-            const token = localStorage.getItem('jwt_accessToken')
+            const token = sessionStorage.getItem('jwt_accessToken')
 
             const response = await fetch(`http://localhost:8444/bwp/hhn/api/v1/auth/register?accessToken=${token}`, {
                 method: 'POST',
@@ -535,6 +535,8 @@ export function UsersManagement() {
                                     <SelectContent>
                                         {editingUser.originalRole === 'ROLE_OWNER' ? (
                                             <SelectItem value="ROLE_OWNER">ROLE_OWNER</SelectItem>
+                                        ) : editingUser.originalRole === 'ROLE_SUPER_ADMIN' ? (
+                                            <SelectItem value="ROLE_SUPER_ADMIN">ROLE_SUPER_ADMIN</SelectItem>
                                         ) : (
                                             ['ROLE_ADMIN', 'ROLE_EMPLOYEE'].map((role) => (
                                                 <SelectItem key={role} value={role}>

@@ -13,6 +13,7 @@ import {
     Home,
     LogOut,
     Mail,
+    MessageCircleCode,
     PhoneCall,
     Settings,
     TriangleAlert,
@@ -42,7 +43,8 @@ const navItems = [
     {label: 'Płatności', icon: CreditCard},
     {label: 'Dokumenty', icon: FileText},
     {label: 'Zgłoszenia', icon: TriangleAlert},
-    {label: 'Głosowania', icon: Vote},
+    {label: 'Głosowania', icon: MessageCircleCode},
+    {label: 'Forum', icon: Vote},
     {label: 'Ustawienia', icon: Settings},
 ];
 
@@ -58,7 +60,7 @@ export default function EmployeeMainPageComponent() {
     const [remainingTime, setRemainingTime] = useState<string>('00:00');
 
     useEffect(() => {
-        const token = localStorage.getItem('jwt_accessToken');
+        const token = sessionStorage.getItem('jwt_accessToken');
         if (!token) {
             window.location.href = '/login';
             return;
@@ -72,7 +74,7 @@ export default function EmployeeMainPageComponent() {
                 const currentTime = Date.now();
                 const timeLeft = expirationTime - currentTime;
                 if (timeLeft <= 0) {
-                    localStorage.removeItem('jwt_accessToken');
+                    sessionStorage.removeItem('jwt_accessToken');
                     window.location.href = '/login';
                 } else {
                     const minutes = Math.floor(timeLeft / 60000);
@@ -87,7 +89,7 @@ export default function EmployeeMainPageComponent() {
             return () => clearInterval(intervalId);
         } catch (error) {
             console.error('Error decoding token:', error);
-            localStorage.removeItem('jwt_accessToken');
+            sessionStorage.removeItem('jwt_accessToken');
             window.location.href = '/login';
         }
     }, []);
@@ -110,6 +112,8 @@ export default function EmployeeMainPageComponent() {
                 return <ProblemReportManagementComponent/>;
             case 'Głosowania':
                 return <PollManagementComponent/>;
+            case 'Forum':
+                return <div style={{color: 'red'}}>This feature will be implemented in the future</div>;
             case 'Ustawienia':
                 return <UserSettingsV2/>;
             default:
@@ -162,11 +166,11 @@ export default function EmployeeMainPageComponent() {
                                                 const response = await fetch('http://localhost:8444/logout', {
                                                     method: 'POST',
                                                     headers: {
-                                                        'Authorization': `Bearer ${localStorage.getItem('jwt_accessToken')}`
+                                                        'Authorization': `Bearer ${sessionStorage.getItem('jwt_accessToken')}`
                                                     }
                                                 });
                                                 if (response.ok) {
-                                                    localStorage.removeItem('jwt_accessToken');
+                                                    sessionStorage.removeItem('jwt_accessToken');
                                                     window.location.href = '/welcome-home';
                                                 } else {
                                                     window.location.href = '/welcome-home';
@@ -249,6 +253,12 @@ function EmployeePanelMain({setSelectedItem}: { setSelectedItem: (item: string) 
                     title="Ustawienia"
                     description="Zarządzanie ustawieniami konta i aplikacji."
                     onClick={() => setSelectedItem('Ustawienia')}
+                />
+                <FunctionCard
+                    icon={<MessageCircleCode className="h-8 w-8"/>}
+                    title="Forum"
+                    description="Dyskusje i wymiana informacji między mieszkańcami."
+                    onClick={() => setSelectedItem('Forum')}
                 />
             </div>
 

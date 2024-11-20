@@ -29,7 +29,7 @@ export function UserSettings() {
 
     useEffect(() => {
         const fetchUserData = async () => {
-            const token = localStorage.getItem('jwt_accessToken')
+            const token = sessionStorage.getItem('jwt_accessToken')
             if (!token) {
                 toast.error("User not authenticated")
                 window.location.href = '/login'
@@ -84,7 +84,7 @@ export function UserSettings() {
                 return
             }
             setIsLoading(true)
-            const token = localStorage.getItem('jwt_accessToken')
+            const token = sessionStorage.getItem('jwt_accessToken')
             if (!token) {
                 toast.error("User not authenticated")
                 window.location.href = '/login'
@@ -129,7 +129,7 @@ export function UserSettings() {
         try {
             phoneSchema.parse(phoneNumber)
             setIsLoading(true)
-            const token = localStorage.getItem('jwt_accessToken')
+            const token = sessionStorage.getItem('jwt_accessToken')
             if (!token) {
                 toast.error("User not authenticated")
                 window.location.href = '/login'
@@ -166,7 +166,7 @@ export function UserSettings() {
 
     const handleNotificationChange = async (type: 'EMAIL' | 'SMS', add: boolean) => {
         setIsLoading(true)
-        const token = localStorage.getItem('jwt_accessToken')
+        const token = sessionStorage.getItem('jwt_accessToken')
         if (!token) {
             toast.error("User not authenticated")
             window.location.href = '/login'

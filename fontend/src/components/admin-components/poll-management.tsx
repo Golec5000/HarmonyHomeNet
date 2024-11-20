@@ -1,13 +1,13 @@
-'use client'
+'use client';
 
-import React, {useEffect, useState} from 'react'
-import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card"
-import {Button} from "@/components/ui/button"
-import {Input} from "@/components/ui/input"
-import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table"
-import {Label} from "@/components/ui/label"
-import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger} from "@/components/ui/dialog"
-import {FileUploader} from "react-drag-drop-files"
+import React, {useCallback, useEffect, useState} from 'react';
+import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
+import {Button} from "@/components/ui/button";
+import {Input} from "@/components/ui/input";
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
+import {Label} from "@/components/ui/label";
+import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger} from "@/components/ui/dialog";
+import {FileUploader} from "react-drag-drop-files";
 import {
     Briefcase,
     Calendar,
@@ -18,88 +18,93 @@ import {
     Download,
     FileText,
     Percent,
+    StopCircle,
     ThumbsDown,
     ThumbsUp,
     Trash2,
     Upload
-} from 'lucide-react'
-import {format} from 'date-fns'
-import {toast} from 'sonner'
-import {saveAs} from 'file-saver'
+} from 'lucide-react';
+import {format} from 'date-fns';
+import {toast} from 'sonner';
+import {saveAs} from 'file-saver';
 import {Collapsible, CollapsibleContent} from "@/components/ui/collapsible";
-import {jwtDecode} from 'jwt-decode'
-
+import {jwtDecode} from 'jwt-decode';
 
 interface Poll {
-    id: string
-    pollName: string
-    content: string
-    createdAt: string
-    endDate: string
-    summary: number
-    fileName: string
-    fileExtension: string
-    isActive: boolean
+    id: string;
+    pollName: string;
+    content: string;
+    createdAt: string;
+    endDate: string;
+    summary: number;
+    fileName: string;
+    fileExtension: string;
+    minSummary: number;
+    currentVotesCount: number;
+    minCurrentVotesCount: number;
+    isActive: boolean;
 }
 
 interface Vote {
-    id: number
-    voteChoice: 'FOR' | 'AGAINST'
-    createdAt: string
-    apartmentSignature: string
+    id: number;
+    voteChoice: 'FOR' | 'AGAINST' | 'PASS';
+    createdAt: string;
+    apartmentSignature: string;
 }
 
 interface jwtCustomClaims {
-    userId: string
+    userId: string;
 }
 
 const fileTypes = ["PDF", "DOC", "DOCX", "TXT"];
 
 export function PollManagementComponent() {
-    const [polls, setPolls] = useState<Poll[]>([])
+    const [polls, setPolls] = useState<Poll[]>([]);
     const [newPoll, setNewPoll] = useState({
         pollName: '',
         content: '',
-        endDate: ''
-    })
-    const [file, setFile] = useState<File | null>(null)
-    const [currentPage, setCurrentPage] = useState(0)
-    const [totalPages, setTotalPages] = useState(0)
-    const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
-    const [expandedPoll, setExpandedPoll] = useState<string | null>(null)
-    const [votes, setVotes] = useState<Vote[]>([])
+        endDate: '',
+        minSummary: '',
+        minCurrentVotesCount: ''
+    });
+    const [file, setFile] = useState<File | null>(null);
+    const [currentPage, setCurrentPage] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
+    const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+    const [expandedPoll, setExpandedPoll] = useState<string | null>(null);
+    const [votes, setVotes] = useState<Vote[]>([]);
 
-    useEffect(() => {
-        fetchPolls()
-    }, [currentPage])
-
-    const fetchPolls = async () => {
+    const fetchPolls = useCallback(async (currentPage: number) => {
         try {
             const response = await fetch(`http://localhost:8444/bwp/hhn/api/v1/poll/get-all-polls?pageNo=${currentPage}&pageSize=10`, {
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('jwt_accessToken')}`
+                    'Authorization': `Bearer ${sessionStorage.getItem('jwt_accessToken')}`
                 }
-            })
+            });
             if (response.ok) {
-                const data = await response.json()
-                setPolls(data.content)
-                setTotalPages(data.totalPages)
+                const data = await response.json();
+                setPolls(data.content);
+                setTotalPages(data.totalPages);
             } else {
-                toast.error('Failed to fetch polls')
+                toast.error('Failed to fetch polls');
             }
         } catch (error) {
-            console.error('Error fetching polls:', error)
-            toast.error('An error occurred while fetching polls')
+            console.error('Error fetching polls:', error);
+            toast.error('An error occurred while fetching polls');
         }
-    }
+    }, []);
+
+    useEffect(() => {
+        fetchPolls(currentPage);
+    }, [currentPage, fetchPolls]);
 
     const handleFileChange = (file: File) => {
-        setFile(file)
-    }
+        setFile(file);
+    };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setNewPoll({...newPoll, [e.target.name]: e.target.value})
-    }
+        setNewPoll({...newPoll, [e.target.name]: e.target.value});
+    };
 
     const handleCreatePoll = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -109,7 +114,7 @@ export function PollManagementComponent() {
             return;
         }
 
-        const token = localStorage.getItem("jwt_accessToken");
+        const token = sessionStorage.getItem("jwt_accessToken");
         if (!token) {
             toast.error("User not authenticated");
             return;
@@ -120,12 +125,13 @@ export function PollManagementComponent() {
 
         const formattedEndDate = new Date(newPoll.endDate).toISOString();
 
-        // Tworzenie FormData
         const formData = new FormData();
-        formData.append("file", file); // Dodaj plik
-        formData.append("pollName", newPoll.pollName); // Dodaj parametry
+        formData.append("file", file);
+        formData.append("pollName", newPoll.pollName);
         formData.append("content", newPoll.content);
         formData.append("endDate", formattedEndDate);
+        formData.append("minSummary", newPoll.minSummary);
+        formData.append("minCurrentVotesCount", newPoll.minCurrentVotesCount);
 
         try {
             const response = await fetch(
@@ -133,16 +139,16 @@ export function PollManagementComponent() {
                 {
                     method: "POST",
                     headers: {
-                        Authorization: `Bearer ${token}`, // Token uwierzytelniający
+                        Authorization: `Bearer ${token}`,
                     },
-                    body: formData, // Wysłanie danych jako multipart/form-data
+                    body: formData,
                 }
             );
 
             if (response.ok) {
                 toast.success("Poll created successfully");
-                fetchPolls(); // Odśwież listę ankiet
-                setNewPoll({ pollName: "", content: "", endDate: "" });
+                fetchPolls(currentPage);
+                setNewPoll({pollName: "", content: "", endDate: "", minSummary: "", minCurrentVotesCount: ""});
                 setFile(null);
                 setIsCreateDialogOpen(false);
             } else {
@@ -155,88 +161,87 @@ export function PollManagementComponent() {
         }
     };
 
-
-    const handleDownload = async (pollId: string, pollName: string) => {
+    const handleDownload = async (pollId: string, pollName: string, pollFileExtension: string) => {
         try {
             const response = await fetch(`http://localhost:8444/bwp/hhn/api/v1/poll/download-poll/${pollId}`, {
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('jwt_accessToken')}`
+                    'Authorization': `Bearer ${sessionStorage.getItem('jwt_accessToken')}`
                 }
-            })
+            });
 
             if (response.ok) {
-                const blob = await response.blob()
-                saveAs(blob, pollName)
-                toast.success('Poll file downloaded successfully')
+                const blob = await response.blob();
+                saveAs(blob, `${pollName}.${pollFileExtension}`);
+                toast.success('Poll file downloaded successfully');
             } else {
-                toast.error('Failed to download poll file')
+                toast.error('Failed to download poll file');
             }
         } catch (error) {
-            console.error('Error downloading poll file:', error)
-            toast.error('An error occurred while downloading the poll file')
+            console.error('Error downloading poll file:', error);
+            toast.error('An error occurred while downloading the poll file');
         }
-    }
+    };
 
     const handleDelete = async (pollId: string) => {
         try {
             const response = await fetch(`http://localhost:8444/bwp/hhn/api/v1/poll/delete-poll?pollId=${pollId}`, {
                 method: 'DELETE',
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('jwt_accessToken')}`
+                    'Authorization': `Bearer ${sessionStorage.getItem('jwt_accessToken')}`
                 }
-            })
+            });
 
             if (response.ok) {
-                toast.success('Poll deleted successfully')
-                fetchPolls()
+                toast.success('Poll deleted successfully');
+                fetchPolls(currentPage);
             } else {
-                toast.error('Failed to delete poll')
+                toast.error('Failed to delete poll');
             }
         } catch (error) {
-            console.error('Error deleting poll:', error)
-            toast.error('An error occurred while deleting the poll')
+            console.error('Error deleting poll:', error);
+            toast.error('An error occurred while deleting the poll');
         }
-    }
+    };
 
     const fetchVotes = async (pollId: string) => {
         try {
             const response = await fetch(`http://localhost:8444/bwp/hhn/api/v1/poll/get-votes-from-poll?pollId=${pollId}&pageNo=0&pageSize=100`, {
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('jwt_accessToken')}`
+                    'Authorization': `Bearer ${sessionStorage.getItem('jwt_accessToken')}`
                 }
-            })
+            });
             if (response.ok) {
-                const data = await response.json()
-                setVotes(data.content)
+                const data = await response.json();
+                setVotes(data.content);
             } else {
-                toast.error('Failed to fetch votes')
+                toast.error('Failed to fetch votes');
             }
         } catch (error) {
-            console.error('Error fetching votes:', error)
-            toast.error('An error occurred while fetching votes')
+            console.error('Error fetching votes:', error);
+            toast.error('An error occurred while fetching votes');
         }
-    }
+    };
 
     const handleDeleteVote = async (voteId: number) => {
         try {
             const response = await fetch(`http://localhost:8444/bwp/hhn/api/v1/poll/delete-vote/${voteId}`, {
                 method: 'PUT',
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('jwt_accessToken')}`
+                    'Authorization': `Bearer ${sessionStorage.getItem('jwt_accessToken')}`
                 }
-            })
+            });
 
             if (response.ok) {
-                toast.success('Vote deleted successfully')
-                fetchVotes(expandedPoll!)
+                toast.success('Vote deleted successfully');
+                fetchVotes(expandedPoll!);
             } else {
-                toast.error('Failed to delete vote')
+                toast.error('Failed to delete vote');
             }
         } catch (error) {
-            console.error('Error deleting vote:', error)
-            toast.error('An error occurred while deleting the vote')
+            console.error('Error deleting vote:', error);
+            toast.error('An error occurred while deleting the vote');
         }
-    }
+    };
 
     return (
         <Card className="w-full">
@@ -289,6 +294,28 @@ export function PollManagementComponent() {
                                 />
                             </div>
                             <div>
+                                <Label htmlFor="minSummary">Minimum Summary</Label>
+                                <Input
+                                    id="minSummary"
+                                    name="minSummary"
+                                    type="number"
+                                    value={newPoll.minSummary}
+                                    onChange={handleInputChange}
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <Label htmlFor="minCurrentVotesCount">Minimum Votes Count</Label>
+                                <Input
+                                    id="minCurrentVotesCount"
+                                    name="minCurrentVotesCount"
+                                    type="number"
+                                    value={newPoll.minCurrentVotesCount}
+                                    onChange={handleInputChange}
+                                    required
+                                />
+                            </div>
+                            <div>
                                 <Label>Upload File</Label>
                                 <FileUploader handleChange={handleFileChange} name="file" types={fileTypes}/>
                                 {file && <p className="mt-2 text-sm">Selected file: {file.name}</p>}
@@ -305,7 +332,10 @@ export function PollManagementComponent() {
                             <TableHead><FileText className="h-4 w-4 mr-2 inline-block"/>Name</TableHead>
                             <TableHead><Calendar className="h-4 w-4 mr-2 inline-block"/>Created At</TableHead>
                             <TableHead><Calendar className="h-4 w-4 mr-2 inline-block"/>End Date</TableHead>
+                            <TableHead><Percent className="h-4 w-4 mr-2 inline-block"/>Min Summary</TableHead>
                             <TableHead><Percent className="h-4 w-4 mr-2 inline-block"/>Summary</TableHead>
+                            <TableHead>Min Votes</TableHead>
+                            <TableHead>Current Votes</TableHead>
                             <TableHead>Actions</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -317,9 +347,13 @@ export function PollManagementComponent() {
                                     <TableCell>{format(new Date(poll.createdAt), 'dd/MM/yyyy HH:mm')}</TableCell>
                                     <TableCell>{format(new Date(poll.endDate), 'dd/MM/yyyy HH:mm')}</TableCell>
                                     <TableCell>{poll.summary}</TableCell>
+                                    <TableCell>{poll.minSummary}</TableCell>
+                                    <TableCell>{poll.currentVotesCount}</TableCell>
+                                    <TableCell>{poll.minCurrentVotesCount}</TableCell>
                                     <TableCell>
                                         <Button variant="outline" size="icon"
-                                                onClick={() => handleDownload(poll.id, poll.fileName)} className="mr-2">
+                                                onClick={() => handleDownload(poll.id, poll.fileName, poll.fileExtension)}
+                                                className="mr-2">
                                             <Download className="h-4 w-4"/>
                                         </Button>
                                         <Button variant="outline" size="icon" onClick={() => handleDelete(poll.id)}
@@ -331,10 +365,10 @@ export function PollManagementComponent() {
                                             size="icon"
                                             onClick={() => {
                                                 if (expandedPoll === poll.id) {
-                                                    setExpandedPoll(null)
+                                                    setExpandedPoll(null);
                                                 } else {
-                                                    setExpandedPoll(poll.id)
-                                                    fetchVotes(poll.id)
+                                                    setExpandedPoll(poll.id);
+                                                    fetchVotes(poll.id);
                                                 }
                                             }}
                                         >
@@ -344,7 +378,7 @@ export function PollManagementComponent() {
                                     </TableCell>
                                 </TableRow>
                                 <TableRow>
-                                    <TableCell colSpan={6}>
+                                    <TableCell colSpan={8}>
                                         <Collapsible open={expandedPoll === poll.id}>
                                             <CollapsibleContent>
                                                 <Table>
@@ -366,9 +400,12 @@ export function PollManagementComponent() {
                                                                     {vote.voteChoice === 'FOR' ? (
                                                                         <><ThumbsUp
                                                                             className="h-4 w-4 mr-2 inline-block text-green-500"/>{vote.voteChoice}</>
-                                                                    ) : (
+                                                                    ) : vote.voteChoice === 'AGAINST' ? (
                                                                         <><ThumbsDown
                                                                             className="h-4 w-4 mr-2 inline-block text-red-500"/>{vote.voteChoice}</>
+                                                                    ) : (
+                                                                        <><StopCircle
+                                                                            className="h-4 w-4 mr-2 inline-block text-yellow-500"/>{vote.voteChoice}</>
                                                                     )}
                                                                 </TableCell>
                                                                 <TableCell>{format(new Date(vote.createdAt), 'dd/MM/yyyy HH:mm')}</TableCell>
@@ -416,5 +453,5 @@ export function PollManagementComponent() {
                 </div>
             </CardContent>
         </Card>
-    )
+    );
 }

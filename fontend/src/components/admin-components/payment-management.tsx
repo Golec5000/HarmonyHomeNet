@@ -125,7 +125,7 @@ export function PaymentManagement() {
         try {
             const response = await fetch(`http://localhost:8444/bwp/hhn/api/v1/payment/get-all-payments?pageNo=${currentPage}&pageSize=10`, {
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('jwt_accessToken')}`
+                    'Authorization': `Bearer ${sessionStorage.getItem('jwt_accessToken')}`
                 }
             })
             if (response.ok) {
@@ -145,7 +145,7 @@ export function PaymentManagement() {
         try {
             const response = await fetch(`http://localhost:8444/bwp/hhn/api/v1/payment/get-payment-components?paymentId=${paymentId}`, {
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('jwt_accessToken')}`
+                    'Authorization': `Bearer ${sessionStorage.getItem('jwt_accessToken')}`
                 }
             })
             if (response.ok) {
@@ -166,7 +166,7 @@ export function PaymentManagement() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('jwt_accessToken')}`
+                    'Authorization': `Bearer ${sessionStorage.getItem('jwt_accessToken')}`
                 },
                 body: JSON.stringify(data)
             })
@@ -194,7 +194,7 @@ export function PaymentManagement() {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('jwt_accessToken')}`
+                        'Authorization': `Bearer ${sessionStorage.getItem('jwt_accessToken')}`
                     },
                     body: JSON.stringify(data)
                 })
@@ -219,7 +219,7 @@ export function PaymentManagement() {
             const response = await fetch(`http://localhost:8444/bwp/hhn/api/v1/payment/delete-payment?paymentId=${paymentId}`, {
                 method: 'DELETE',
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('jwt_accessToken')}`
+                    'Authorization': `Bearer ${sessionStorage.getItem('jwt_accessToken')}`
                 }
             })
             if (response.ok) {
@@ -244,7 +244,7 @@ export function PaymentManagement() {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('jwt_accessToken')}`
+                    'Authorization': `Bearer ${sessionStorage.getItem('jwt_accessToken')}`
                 }
             });
             if (response.ok) {
@@ -266,7 +266,7 @@ export function PaymentManagement() {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('jwt_accessToken')}`
+                        'Authorization': `Bearer ${sessionStorage.getItem('jwt_accessToken')}`
                     },
                     body: JSON.stringify(data)
                 })
@@ -294,7 +294,7 @@ export function PaymentManagement() {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('jwt_accessToken')}`
+                        'Authorization': `Bearer ${sessionStorage.getItem('jwt_accessToken')}`
                     },
                     body: JSON.stringify(data)
                 })
@@ -320,7 +320,7 @@ export function PaymentManagement() {
                 const response = await fetch(`http://localhost:8444/bwp/hhn/api/v1/payment/remove-component-from-payment/${componentId}?paymentId=${editingPayment.paymentId}`, {
                     method: 'PUT',
                     headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('jwt_accessToken')}`
+                        'Authorization': `Bearer ${sessionStorage.getItem('jwt_accessToken')}`
                     }
                 })
                 if (response.ok) {

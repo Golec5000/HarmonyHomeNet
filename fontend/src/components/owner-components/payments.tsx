@@ -1,6 +1,6 @@
 'use client'
 
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {Button} from "@/components/ui/button";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import {format, parseISO} from 'date-fns';
 import {Collapsible, CollapsibleContent, CollapsibleTrigger} from "@/components/ui/collapsible";
+import {toast} from 'sonner';
 
 interface PaymentComponentResponse {
     id: number;
@@ -59,18 +60,12 @@ export function Payments({apartmentSignature}: PaymentsProps) {
     const [expandedPayment, setExpandedPayment] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    useEffect(() => {
-        if (apartmentSignature) {
-            fetchPayments(0);
-        }
-    }, [apartmentSignature]);
-
-    const fetchPayments = async (page: number) => {
+    const fetchPayments = useCallback(async (page: number) => {
         setIsLoading(true);
         try {
             const response = await fetch(`http://localhost:8444/bwp/hhn/api/v1/payment/get-payment-by-apartment?apartmentSignature=${apartmentSignature}&pageNo=${page}&pageSize=5`, {
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('jwt_accessToken')}`
+                    'Authorization': `Bearer ${sessionStorage.getItem('jwt_accessToken')}`
                 },
             });
             if (response.ok) {
@@ -86,13 +81,19 @@ export function Payments({apartmentSignature}: PaymentsProps) {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [apartmentSignature]);
+
+    useEffect(() => {
+        if (apartmentSignature) {
+            fetchPayments(0);
+        }
+    }, [apartmentSignature, fetchPayments]);
 
     const fetchPaymentComponents = async (paymentId: string) => {
         try {
             const response = await fetch(`http://localhost:8444/bwp/hhn/api/v1/payment/get-payment-components?paymentId=${paymentId}`, {
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('jwt_accessToken')}`
+                    'Authorization': `Bearer ${sessionStorage.getItem('jwt_accessToken')}`
                 },
             });
             if (response.ok) {
@@ -137,7 +138,7 @@ export function Payments({apartmentSignature}: PaymentsProps) {
             const response = await fetch(`http://localhost:8444/bwp/hhn/api/v1/payment/pay?paymentId=${paymentId}`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('jwt_accessToken')}`
+                    'Authorization': `Bearer ${sessionStorage.getItem('jwt_accessToken')}`
                 }
             });
             if (response.ok) {

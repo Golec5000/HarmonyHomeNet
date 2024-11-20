@@ -42,7 +42,7 @@ export function Announcements({apartmentSignature}: AnnouncementsProps) {
         try {
             const response = await fetch(`http://localhost:8444/bwp/hhn/api/v1/announcement/get-announcements-by-apartment?apartmentSignature=${apartmentSignature}&pageNo=${page}&pageSize=5`, {
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('jwt_accessToken')}`
+                    'Authorization': `Bearer ${sessionStorage.getItem('jwt_accessToken')}`
                 },
             });
 

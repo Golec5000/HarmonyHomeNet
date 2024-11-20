@@ -91,7 +91,7 @@ export function ApartmentManagement() {
     })
 
     const fetchApartments = async () => {
-        const token = localStorage.getItem('jwt_accessToken')
+        const token = sessionStorage.getItem('jwt_accessToken')
         try {
             const response = await fetch(`http://localhost:8444/bwp/hhn/api/v1/apartment/get-all-apartments?pageNo=${currentPage}&pageSize=5`, {
                 headers: {
@@ -121,7 +121,7 @@ export function ApartmentManagement() {
     const handleSaveEdit = async () => {
         if (editingApartment) {
             try {
-                const token = localStorage.getItem('jwt_accessToken')
+                const token = sessionStorage.getItem('jwt_accessToken')
                 const url = `http://localhost:8444/bwp/hhn/api/v1/apartment/update-apartment?apartmentSignature=${editingApartment.apartmentSignature}`
 
                 const apartmentRequest = {
@@ -161,7 +161,7 @@ export function ApartmentManagement() {
 
     const handleDelete = async (apartmentSig: string) => {
         try {
-            const token = localStorage.getItem('jwt_accessToken')
+            const token = sessionStorage.getItem('jwt_accessToken')
             const params = new URLSearchParams({
                 apartmentSignature: apartmentSig,
             })
@@ -202,7 +202,7 @@ export function ApartmentManagement() {
         try {
             const validatedData = apartmentSchema.parse(newApartment)
 
-            const token = localStorage.getItem('jwt_accessToken')
+            const token = sessionStorage.getItem('jwt_accessToken')
 
             const response = await fetch(`http://localhost:8444/bwp/hhn/api/v1/apartment/create-apartment`, {
                 method: 'POST',
@@ -246,7 +246,7 @@ export function ApartmentManagement() {
         if (selectedApartmentId && userId) {
             try {
 
-                const token = localStorage.getItem('jwt_accessToken')
+                const token = sessionStorage.getItem('jwt_accessToken')
                 const params = new URLSearchParams({
                     apartmentSignature: selectedApartmentId,
                     userId: userId
@@ -281,7 +281,7 @@ export function ApartmentManagement() {
     const handleRemoveUser = async () => {
         if (selectedApartmentId && userId) {
             try {
-                const token = localStorage.getItem('jwt_accessToken')
+                const token = sessionStorage.getItem('jwt_accessToken')
                 const params = new URLSearchParams({
                     apartmentSignature: selectedApartmentId,
                     userId: userId
@@ -314,7 +314,7 @@ export function ApartmentManagement() {
     }
 
     const fetchResidents = async (apartmentSignature: string) => {
-        const token = localStorage.getItem('jwt_accessToken')
+        const token = sessionStorage.getItem('jwt_accessToken')
         try {
             const response = await fetch(`http://localhost:8444/bwp/hhn/api/v1/apartment/current-apartment-residents?apartmentSignature=${apartmentSignature}`, {
                 headers: {

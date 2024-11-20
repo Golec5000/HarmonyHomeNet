@@ -99,7 +99,7 @@ export default function PasswordReset() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <Card>
                     <CardHeader>
-                        <CardTitle className="flex items-center">
+                        <CardTitle>
                             <Send className="mr-2 h-6 w-6" />
                             Send Reset Link
                         </CardTitle>

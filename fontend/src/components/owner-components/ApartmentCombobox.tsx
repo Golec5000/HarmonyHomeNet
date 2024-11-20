@@ -20,7 +20,7 @@ export default function ApartmentCombobox({onSelect}: ApartmentComboboxProps) {
         try {
             const response = await fetch(`http://localhost:8444/bwp/hhn/api/v1/apartment/get-all-user-apartments?userId=${userId}`, {
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('jwt_accessToken')}`,
+                    'Authorization': `Bearer ${sessionStorage.getItem('jwt_accessToken')}`,
                 },
             });
 
@@ -45,7 +45,7 @@ export default function ApartmentCombobox({onSelect}: ApartmentComboboxProps) {
 
     useEffect(() => {
         const fetchApartments = async () => {
-            const token = localStorage.getItem('jwt_accessToken');
+            const token = sessionStorage.getItem('jwt_accessToken');
             if (token) {
                 try {
                     const apartments = await fetchApartmentsByUserId(getUserIdFromToken(token));

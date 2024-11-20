@@ -48,7 +48,7 @@ export function DocumentManagementComponent() {
         try {
             const response = await fetch(`http://localhost:8444/bwp/hhn/api/v1/document/get-all-documents?pageNo=${currentPage}&pageSize=10`, {
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('jwt_accessToken')}`
+                    'Authorization': `Bearer ${sessionStorage.getItem('jwt_accessToken')}`
                 }
             })
             if (response.ok) {
@@ -97,7 +97,7 @@ export function DocumentManagementComponent() {
             const response = await fetch('http://localhost:8444/bwp/hhn/api/v1/document/upload-document', {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('jwt_accessToken')}`
+                    'Authorization': `Bearer ${sessionStorage.getItem('jwt_accessToken')}`
                 },
                 body: formData
             })
@@ -121,7 +121,7 @@ export function DocumentManagementComponent() {
         try {
             const response = await fetch(`http://localhost:8444/bwp/hhn/api/v1/document/download-document?documentId=${documentId}`, {
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('jwt_accessToken')}`
+                    'Authorization': `Bearer ${sessionStorage.getItem('jwt_accessToken')}`
                 }
             })
 
@@ -145,7 +145,7 @@ export function DocumentManagementComponent() {
             const response = await fetch('http://localhost:8444/bwp/hhn/api/v1/document/delete-document', {
                 method: 'DELETE',
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('jwt_accessToken')}`,
+                    'Authorization': `Bearer ${sessionStorage.getItem('jwt_accessToken')}`,
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({

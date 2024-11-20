@@ -14,6 +14,7 @@ import {
     Home,
     LogOut,
     Mail,
+    MessageCircleCode,
     Phone,
     Settings,
     User,
@@ -39,6 +40,7 @@ const navItems = [
     {label: 'Głosowania', icon: Vote},
     {label: 'Zgłoszenie problemu', icon: BookUser},
     {label: 'Stany liczników', icon: Gauge},
+    {label: 'Forum', icon: MessageCircleCode},
     {label: 'Ustawienia', icon: Settings},
 ];
 
@@ -49,7 +51,8 @@ const functionCards = [
     {icon: Vote, title: "Głosowania", description: "Uczestnictwo w głosowaniach wspólnoty."},
     {icon: BookUser, title: "Zgłoszenie problemu", description: "Zgłoś problem lub usterkę w mieszkaniu."},
     {icon: Gauge, title: "Stany liczników", description: "Wprowadź i przeglądaj stany liczników."},
-    {icon: Settings, title: "Ustawienia", description: "Zarządzaj swoim kontem i ustawieniami."}
+    {icon: Settings, title: "Ustawienia", description: "Zarządzaj swoim kontem i ustawieniami."},
+    {icon: MessageCircleCode, title: "Forum", description: "Dyskusje i wymiana informacji między mieszkańcami."}
 ]
 
 
@@ -72,7 +75,7 @@ export default function MainResidentsPage() {
     const [remainingTime, setRemainingTime] = useState<string>('00:00');
 
     useEffect(() => {
-        const token = localStorage.getItem('jwt_accessToken');
+        const token = sessionStorage.getItem('jwt_accessToken');
         if (!token) {
             window.location.href = '/login';
             return;
@@ -85,7 +88,7 @@ export default function MainResidentsPage() {
                 const currentTime = Date.now();
                 const timeLeft = expirationTime - currentTime;
                 if (timeLeft <= 0) {
-                    localStorage.removeItem('jwt_accessToken');
+                    sessionStorage.removeItem('jwt_accessToken');
                     window.location.href = '/login';
                 } else {
                     const minutes = Math.floor(timeLeft / 60000);
@@ -100,7 +103,7 @@ export default function MainResidentsPage() {
             return () => clearInterval(intervalId);
         } catch (error) {
             console.error('Error decoding token:', error);
-            localStorage.removeItem('jwt_accessToken');
+            sessionStorage.removeItem('jwt_accessToken');
             window.location.href = '/login';
         }
     }, []);
@@ -124,6 +127,10 @@ export default function MainResidentsPage() {
                 return <ContactAdmin apartmentSignature={selectedApartment}/>;
             case 'Płatności':
                 return <Payments apartmentSignature={selectedApartment}/>;
+            case 'Forum':
+                return <div style={{color: 'red'}}>This feature will be implemented in the future</div>;
+            case 'Głosowania':
+                return <div style={{color: 'red'}}>This feature will be implemented in the future</div>;
             case 'Ustawienia':
                 return <UserSettings/>;
             default:
@@ -178,11 +185,11 @@ export default function MainResidentsPage() {
                                                 const response = await fetch('http://localhost:8444/logout', {
                                                     method: 'POST',
                                                     headers: {
-                                                        'Authorization': `Bearer ${localStorage.getItem('jwt_accessToken')}`
+                                                        'Authorization': `Bearer ${sessionStorage.getItem('jwt_accessToken')}`
                                                     }
                                                 });
                                                 if (response.ok) {
-                                                    localStorage.removeItem('jwt_accessToken');
+                                                    sessionStorage.removeItem('jwt_accessToken');
                                                     window.location.href = '/welcome-home';
                                                 } else {
                                                     window.location.href = '/welcome-home';
@@ -276,7 +283,7 @@ function HomePage({setSelectedItem}: { setSelectedItem: (item: string) => void }
     );
 }
 
-function FunctionCard({ icon, title, description, onClick }: FunctionCardProps) {
+function FunctionCard({icon, title, description, onClick}: FunctionCardProps) {
     return (
         <Card>
             <CardHeader>
@@ -293,7 +300,7 @@ function FunctionCard({ icon, title, description, onClick }: FunctionCardProps) 
     );
 }
 
-function ContactCard({ icon, title, items }: ContactCardProps) {
+function ContactCard({icon, title, items}: ContactCardProps) {
     return (
         <Card>
             <CardHeader className="flex flex-row items-center space-x-2">

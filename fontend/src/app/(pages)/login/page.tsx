@@ -53,14 +53,14 @@ function LoginForm() {
             if (response.ok) {
                 const data = await response.json();
                 const myAccessToken = data.accessToken;
-                localStorage.setItem('jwt_accessToken', myAccessToken);
+                sessionStorage.setItem('jwt_accessToken', myAccessToken);
 
                 // Decode the token to get the user's role
                 const decodedToken = jwtDecode<CustomJwtPayload>(myAccessToken);
                 const userRole = decodedToken.role;
 
                 // Redirect based on the user's role
-                if (userRole === 'ROLE_ADMIN' || userRole === 'ROLE_EMPLOYEE') {
+                if (userRole === 'ROLE_ADMIN' || userRole === 'ROLE_EMPLOYEE' || userRole === 'ROLE_SUPER_ADMIN') {
                     window.location.href = '/admin-home';
                 } else if (userRole === 'ROLE_OWNER') {
                     window.location.href = '/owner-home';

@@ -106,7 +106,7 @@ export function AnnouncementManagement() {
         try {
             const response = await fetch(`http://localhost:8444/bwp/hhn/api/v1/announcement/get-all-announcements?pageNo=${currentPage}&pageSize=5`, {
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('jwt_accessToken')}`
+                    'Authorization': `Bearer ${sessionStorage.getItem('jwt_accessToken')}`
                 }
             })
             if (response.ok) {
@@ -126,7 +126,7 @@ export function AnnouncementManagement() {
         try {
             const response = await fetch(`http://localhost:8444/bwp/hhn/api/v1/announcement/get-announcement/${announcementId}`, {
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('jwt_accessToken')}`
+                    'Authorization': `Bearer ${sessionStorage.getItem('jwt_accessToken')}`
                 }
             });
             if (response.ok) {
@@ -156,7 +156,7 @@ export function AnnouncementManagement() {
         try {
             const response = await fetch(`http://localhost:8444/bwp/hhn/api/v1/apartment/get-all-apartments?pageNo=${apartmentPage}&pageSize=5`, {
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('jwt_accessToken')}`
+                    'Authorization': `Bearer ${sessionStorage.getItem('jwt_accessToken')}`
                 }
             })
             if (response.ok) {
@@ -174,7 +174,7 @@ export function AnnouncementManagement() {
 
     const handleCreateAnnouncement = async (data: z.infer<typeof announcementSchema>) => {
         try {
-            const token = localStorage.getItem('jwt_accessToken');
+            const token = sessionStorage.getItem('jwt_accessToken');
             if (!token) {
                 toast.error('User not authenticated');
                 return;
@@ -209,7 +209,7 @@ export function AnnouncementManagement() {
     const handleUpdateAnnouncement = async (data: z.infer<typeof announcementSchema>) => {
         if (editingAnnouncement) {
             try {
-                const token = localStorage.getItem('jwt_accessToken');
+                const token = sessionStorage.getItem('jwt_accessToken');
                 if (!token) {
                     toast.error('User not authenticated');
                     return;
@@ -245,7 +245,7 @@ export function AnnouncementManagement() {
             const response = await fetch(`http://localhost:8444/bwp/hhn/api/v1/announcement/delete-announcement/${id}`, {
                 method: 'DELETE',
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('jwt_accessToken')}`
+                    'Authorization': `Bearer ${sessionStorage.getItem('jwt_accessToken')}`
                 }
             })
             if (response.ok) {
@@ -272,7 +272,7 @@ export function AnnouncementManagement() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('jwt_accessToken')}`
+                    'Authorization': `Bearer ${sessionStorage.getItem('jwt_accessToken')}`
                 },
                 body: JSON.stringify(selectedApartments)
             })
@@ -299,7 +299,7 @@ export function AnnouncementManagement() {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('jwt_accessToken')}`
+                    'Authorization': `Bearer ${sessionStorage.getItem('jwt_accessToken')}`
                 },
                 body: JSON.stringify(selectedApartments)
             })

@@ -44,7 +44,7 @@ export function DocumentsSection() {
 
     const fetchDocuments = async (page: number) => {
         try {
-            const token = localStorage.getItem('jwt_accessToken')
+            const token = sessionStorage.getItem('jwt_accessToken')
             const userId = token ? (jwtDecode<{ userId: string }>(token)).userId : null
             const response = await fetch(`http://localhost:8444/bwp/hhn/api/v1/document/get-all-documents-by-user-id?userId=${userId}&pageNo=${page}&pageSize=5`, {
                 headers: {
@@ -87,7 +87,7 @@ export function DocumentsSection() {
 
     const handleDownload = async (documentId: string, documentName: string, documentExtension: string) => {
         try {
-            const token = localStorage.getItem('jwt_accessToken')
+            const token = sessionStorage.getItem('jwt_accessToken')
             const response = await fetch(`http://localhost:8444/bwp/hhn/api/v1/document/download-document?documentId=${documentId}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`

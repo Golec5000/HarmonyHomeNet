@@ -96,7 +96,7 @@ export function ProblemReportManagementComponent() {
         try {
             const response = await fetch(`http://localhost:8444/bwp/hhn/api/v1/problem-report/get-all-reports?pageNo=${currentPage}&pageSize=10`, {
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('jwt_accessToken')}`
+                    'Authorization': `Bearer ${sessionStorage.getItem('jwt_accessToken')}`
                 }
             })
             if (response.ok) {
@@ -119,7 +119,7 @@ export function ProblemReportManagementComponent() {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('jwt_accessToken')}`
+                        'Authorization': `Bearer ${sessionStorage.getItem('jwt_accessToken')}`
                     },
                     body: JSON.stringify(data)
                 })
@@ -144,7 +144,7 @@ export function ProblemReportManagementComponent() {
             const response = await fetch(`http://localhost:8444/bwp/hhn/api/v1/problem-report/delete-report/${id}`, {
                 method: 'DELETE',
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('jwt_accessToken')}`
+                    'Authorization': `Bearer ${sessionStorage.getItem('jwt_accessToken')}`
                 }
             })
             if (response.ok) {

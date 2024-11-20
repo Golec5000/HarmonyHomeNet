@@ -63,7 +63,7 @@ export function ContactAdmin({apartmentSignature}: ContactAdminProps) {
             try {
                 const response = await fetch(`http://localhost:8444/bwp/hhn/api/v1/problem-report/get-types-of-reports`, {
                     headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('jwt_accessToken')}`
+                        'Authorization': `Bearer ${sessionStorage.getItem('jwt_accessToken')}`
                     },
                 });
                 if (response.ok) {
@@ -95,7 +95,7 @@ export function ContactAdmin({apartmentSignature}: ContactAdminProps) {
             try {
                 const response = await fetch(`http://localhost:8444/bwp/hhn/api/v1/problem-report/get-report-by-apartment/${apartmentSignature}?pageNo=${page}&pageSize=5`, {
                     headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('jwt_accessToken')}`
+                        'Authorization': `Bearer ${sessionStorage.getItem('jwt_accessToken')}`
                     },
                 });
                 if (response.ok) {
@@ -120,7 +120,7 @@ export function ContactAdmin({apartmentSignature}: ContactAdminProps) {
         e.preventDefault()
         setIsLoading(true)
         try {
-            const token = localStorage.getItem('jwt_accessToken')
+            const token = sessionStorage.getItem('jwt_accessToken')
             const decodedToken = token ? jwtDecode<{ userId: string }>(token) : null
             const userId = decodedToken ? decodedToken.userId : null
 
