@@ -10,6 +10,8 @@ public class UtilityMeterServiceImp implements UtilityMeterService {
 
     private static final Logger LOG = Logger.getLogger(UtilityMeterServiceImp.class.getName());
 
+    //todo shedile co miesiąc losowa wartośc
+
     @Override
     public String getWaterMeterValue(UUID utilityMeterId) {
         LOG.info("Getting water meter value for utility meter with id: " + utilityMeterId);

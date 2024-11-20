@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 
 @Data
@@ -26,5 +27,12 @@ public class PollRequest {
 
     @NotNull
     private Instant endDate;
+
+    @NotNull
+    private int minCurrentVotesCount;
+
+    @NotNull
+    private BigDecimal minSummary;
+
 
 }

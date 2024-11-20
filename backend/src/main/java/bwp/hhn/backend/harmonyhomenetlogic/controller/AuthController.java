@@ -24,7 +24,6 @@ public class AuthController {
         return ResponseEntity.ok(authService.login(authentication));
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_EMPLOYEE')")
     @PostMapping("/register")
     public ResponseEntity<String> registerUser(@RequestBody RegisterRequest userRequest,@RequestParam String accessToken) {
         return ResponseEntity.ok(authService.register(userRequest, accessToken));

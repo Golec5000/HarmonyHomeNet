@@ -24,9 +24,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     boolean existsByUuidID (UUID uuidID);
 
-    @Query("SELECT u FROM User u WHERE u.uuidID = :id AND (u.role = 'ROLE_ADMIN' OR u.role = 'ROLE_EMPLOYEE')")
-    Optional<User> findByIdAndRole(@Param("id") UUID id);
-
     @Query("SELECT u FROM User u WHERE u.uuidID = :id AND u.role = 'ROLE_OWNER'")
     Optional<User> findByIdAndRoleUser(@Param("id") UUID id);
 

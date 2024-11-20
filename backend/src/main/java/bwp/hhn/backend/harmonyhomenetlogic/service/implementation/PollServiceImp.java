@@ -54,19 +54,9 @@ public class PollServiceImp implements PollService {
                 polls.getNumber(),
                 polls.getSize(),
                 polls.getTotalPages(),
-                polls.getContent().stream()
-                        .map(
-                                poll -> PollResponse.builder()
-                                        .id(poll.getUuidID())
-                                        .pollName(poll.getPollName())
-                                        .content(poll.getContent())
-                                        .createdAt(poll.getCreatedAt())
-                                        .endDate(poll.getEndDate())
-                                        .summary(poll.getSummary())
-                                        .fileExtension(poll.getFileExtension())
-                                        .fileName(poll.getFileName())
-                                        .build()
-                        )
+                polls.getContent()
+                        .stream()
+                        .map(this::mapPollToPollResponse)
                         .toList(),
                 polls.isLast(),
                 polls.hasNext(),
@@ -75,13 +65,26 @@ public class PollServiceImp implements PollService {
     }
 
     @Override
+    @Transactional
     public PollResponse createPoll(PollRequest pollRequest, UUID employeeId, MultipartFile file) throws UserNotFoundException, IllegalArgumentException, IOException {
 
-        User user = userRepository.findByIdAndRole(employeeId)
+        User user = userRepository.findById(employeeId)
                 .orElseThrow(() -> new UserNotFoundException("User: " + employeeId + " not found"));
 
         if (pollRequest.getEndDate().isBefore(Instant.now()))
             throw new IllegalArgumentException("End date must be after current date");
+
+        if (pollRequest.getMinCurrentVotesCount() < 0)
+            throw new IllegalArgumentException("Minimum current votes count must be greater than 0");
+
+        if(pollRequest.getMinSummary().compareTo(BigDecimal.ZERO) < 0)
+            throw new IllegalArgumentException("Minimum summary must be greater than 0");
+
+        if(pollRequest.getMinCurrentVotesCount() > apartmentsRepository.count())
+            throw new IllegalArgumentException("Minimum current votes count could not be greater than number of apartments");
+
+        if(pollRequest.getMinSummary().compareTo(BigDecimal.valueOf(100)) > 0)
+            throw new IllegalArgumentException("Minimum summary could not be greater than 100");
 
         Poll poll = Poll.builder()
                 .pollName(pollRequest.getPollName())
@@ -91,6 +94,9 @@ public class PollServiceImp implements PollService {
                 .fileExtension(getFileExtension(file.getOriginalFilename()))
                 .endDate(pollRequest.getEndDate())
                 .summary(BigDecimal.ZERO)
+                .currentVotesCount(0)
+                .minCurrentVotesCount(pollRequest.getMinCurrentVotesCount())
+                .minSummary(pollRequest.getMinSummary())
                 .user(user)
                 .build();
 
@@ -107,26 +113,13 @@ public class PollServiceImp implements PollService {
             mailService.sendNotificationMail(subject, message, owner.getEmail());
         });
 
-        return PollResponse.builder()
-                .id(saved.getUuidID())
-                .pollName(saved.getPollName())
-                .createdAt(saved.getCreatedAt())
-                .endDate(saved.getEndDate())
-                .build();
+        return mapPollToPollResponse(saved);
     }
 
     @Override
     public PollResponse getPoll(UUID pollId) throws PollNotFoundException {
         return pollRepository.findById(pollId)
-                .map(
-                        poll -> PollResponse.builder()
-                                .pollName(poll.getPollName())
-                                .content(poll.getContent())
-                                .createdAt(poll.getCreatedAt())
-                                .endDate(poll.getEndDate())
-                                .summary(poll.getSummary())
-                                .build()
-                )
+                .map(this::mapPollToPollResponse)
                 .orElseThrow(() -> new PollNotFoundException("Poll: " + pollId + " not found"));
     }
 
@@ -143,7 +136,7 @@ public class PollServiceImp implements PollService {
     @Transactional
     public VoteResponse vote(UUID pollId, UUID userId, String apartmentSignature, VoteChoice voteChoice) throws UserNotFoundException, PollNotFoundException, PossessionHistoryNotFoundException, ApartmentNotFoundException {
 
-        User user = userRepository.findByIdAndRoleUser(userId)
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User: " + userId + " not found"));
 
         Poll poll = pollRepository.findById(pollId)
@@ -183,6 +176,7 @@ public class PollServiceImp implements PollService {
                 .id(saved.getId())
                 .voteChoice(saved.getVoteChoice())
                 .createdAt(saved.getCreatedAt())
+                .apartmentSignature(saved.getApartmentSignature())
                 .build();
     }
 
@@ -292,6 +286,22 @@ public class PollServiceImp implements PollService {
             throw new IllegalArgumentException("Invalid file name");
         }
         return fileName.substring(0, fileName.lastIndexOf('.'));
+    }
+
+    private PollResponse mapPollToPollResponse(Poll poll) {
+        return PollResponse.builder()
+                .id(poll.getUuidID())
+                .pollName(poll.getPollName())
+                .content(poll.getContent())
+                .createdAt(poll.getCreatedAt())
+                .endDate(poll.getEndDate())
+                .summary(poll.getSummary())
+                .fileExtension(poll.getFileExtension())
+                .fileName(poll.getFileName())
+                .currentVotesCount(poll.getVotes().size())
+                .minSummary(poll.getMinSummary())
+                .minCurrentVotesCount(poll.getMinCurrentVotesCount())
+                .build();
     }
 
 }

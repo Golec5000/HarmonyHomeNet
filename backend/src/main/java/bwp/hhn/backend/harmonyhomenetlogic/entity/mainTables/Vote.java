@@ -20,6 +20,8 @@ import java.time.Instant;
 @Table(name = "Votes", indexes = {
         @Index(name = "idx_vote_poll_id", columnList = "poll_id"),
         @Index(name = "idx_vote_user_id", columnList = "user_id")
+}, uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"poll_id", "apartment_signature"})
 })
 public class Vote {
 
@@ -37,7 +39,7 @@ public class Vote {
     @Column(name = "Created_at", nullable = false)
     private Instant createdAt;
 
-    @Column(name = "Apartment_signature")
+    @Column(name = "Apartment_signature", nullable = false)
     private String apartmentSignature;
 
     @ManyToOne
@@ -49,5 +51,4 @@ public class Vote {
     @JoinColumn(name = "user_id", referencedColumnName = "UUID_id")
     @JsonBackReference
     private User user;
-
 }

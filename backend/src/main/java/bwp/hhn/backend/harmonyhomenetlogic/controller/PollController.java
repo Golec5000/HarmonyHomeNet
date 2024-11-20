@@ -12,10 +12,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -75,13 +77,16 @@ public class PollController {
     @PostMapping(value = "/create-poll/{employeeId}")
     public ResponseEntity<PollResponse> createPoll(
             @RequestParam("pollName") String pollName, @RequestParam("content") String content,
-            @RequestParam("endDate") Instant endDate, @PathVariable UUID employeeId,
+            @RequestParam("endDate") Instant endDate, @RequestParam("minCurrentVotesCount") int minCurrentVotesCount,
+            @RequestParam("minSummary") BigDecimal minSummary, @PathVariable UUID employeeId,
             @RequestPart("file") MultipartFile file) throws Exception {
 
         PollRequest pollRequest = PollRequest.builder()
                 .pollName(pollName)
                 .content(content)
                 .endDate(endDate)
+                .minCurrentVotesCount(minCurrentVotesCount)
+                .minSummary(minSummary)
                 .build();
 
         return ResponseEntity.ok(pollService.createPoll(pollRequest, employeeId, file));

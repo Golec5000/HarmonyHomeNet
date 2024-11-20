@@ -16,6 +16,9 @@ public record PollResponse(
         Instant endDate,
         BigDecimal summary,
         String fileName,
-        String fileExtension
+        String fileExtension,
+        BigDecimal minSummary,
+        int currentVotesCount,
+        int minCurrentVotesCount
 ) {
 }

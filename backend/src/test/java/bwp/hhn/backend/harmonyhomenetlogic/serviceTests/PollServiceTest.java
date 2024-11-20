@@ -118,7 +118,7 @@ class PollServiceTest {
         pollRequest.setContent("Poll Content");
         pollRequest.setEndDate(Instant.now().plus(5, ChronoUnit.DAYS));
 
-        when(userRepository.findByIdAndRole(userId)).thenReturn(Optional.of(user));
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(file.getBytes()).thenReturn("File Data".getBytes());
         when(pollRepository.save(any(Poll.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -127,7 +127,7 @@ class PollServiceTest {
         assertNotNull(response);
         assertEquals("New Poll", response.pollName());
 
-        verify(userRepository, times(1)).findByIdAndRole(userId);
+        verify(userRepository, times(1)).findById(userId);
         verify(file, times(1)).getBytes();
         verify(pollRepository, times(1)).save(any(Poll.class));
     }
@@ -139,11 +139,11 @@ class PollServiceTest {
         pollRequest.setContent("Poll Content");
         pollRequest.setEndDate(Instant.now().plus(5, ChronoUnit.DAYS));
 
-        when(userRepository.findByIdAndRole(userId)).thenReturn(Optional.empty());
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
         assertThrows(UserNotFoundException.class, () -> pollService.createPoll(pollRequest, userId, file));
 
-        verify(userRepository, times(1)).findByIdAndRole(userId);
+        verify(userRepository, times(1)).findById(userId);
         verifyNoInteractions(file);
         verifyNoInteractions(pollRepository);
     }
@@ -155,11 +155,11 @@ class PollServiceTest {
         pollRequest.setContent("Poll Content");
         pollRequest.setEndDate(Instant.now().minus(1, ChronoUnit.DAYS));
 
-        when(userRepository.findByIdAndRole(userId)).thenReturn(Optional.of(user));
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
         assertThrows(IllegalArgumentException.class, () -> pollService.createPoll(pollRequest, userId, file));
 
-        verify(userRepository, times(1)).findByIdAndRole(userId);
+        verify(userRepository, times(1)).findById(userId);
         verifyNoInteractions(file);
         verifyNoInteractions(pollRepository);
     }

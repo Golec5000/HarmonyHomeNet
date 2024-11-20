@@ -34,6 +34,7 @@ public class InitClass {
         User john = createUserIfNotExists("John", "Doe", "john.doe@example.com", bCryptPasswordEncoder.encode("password123"), "123456789", Role.ROLE_ADMIN);
         User jane = createUserIfNotExists("Jane", "Smith", "jane.smith@example.com", bCryptPasswordEncoder.encode("password123"), "987654321", Role.ROLE_OWNER);
         User alice = createUserIfNotExists("Alice", "Johnson", "alice.johnson@example.com", bCryptPasswordEncoder.encode("password123"), "555555555", Role.ROLE_OWNER);
+        User SA = createUserIfNotExists("Daniel", "Ryszkowski", "daniel.hhn.SA@gmail.com", bCryptPasswordEncoder.encode("password123"), "111111111", Role.ROLE_SUPER_ADMIN);
 
         Apartment apartment1 = createApartment("Balonowa 5/10", "Kraków", "30-000", "SIG001");
         Apartment apartment2 = createApartment("Zakopiańska 12/100", "Kraków", "00-000", "SIG002");

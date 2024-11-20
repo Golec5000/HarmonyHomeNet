@@ -14,7 +14,7 @@ public class TokenCleanupService {
 
     private final UserRepository userRepository;
 
-    @Scheduled(cron = "0 0 * * * *") // Every hour
+    @Scheduled(cron = "0 0/30 * * * *") // Every 30 minutes
     @Async
     public void cleanUpExpiredResetTokens() {
         userRepository.deleteAllExpiredResetTokens(Instant.now());

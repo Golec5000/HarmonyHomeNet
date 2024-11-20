@@ -12,6 +12,7 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -63,11 +64,24 @@ public class Poll {
     @Column(name = "End_date")
     private Instant endDate;
 
+    @Column(name = "Current_votes_count", nullable = false)
+    private int currentVotesCount;
+
     @NotNull
     @DecimalMin(value = "0.0")
     @Digits(integer = 3, fraction = 2)
     @Column(name = "Summary", precision = 5, scale = 2)
     private BigDecimal summary;
+
+    @NotNull
+    @Column(name = "Min_current_votes_count", nullable = false)
+    private int minCurrentVotesCount;
+
+    @NotNull
+    @DecimalMin(value = "0.0")
+    @Digits(integer = 3, fraction = 2)
+    @Column(name = "Min_summary", precision = 5, scale = 2)
+    private BigDecimal minSummary;
 
     @ManyToOne
     @JoinColumn(name = "users_id", referencedColumnName = "UUID_id")
@@ -76,5 +90,6 @@ public class Poll {
 
     @OneToMany(mappedBy = "poll", cascade = CascadeType.REMOVE, orphanRemoval = true)
     @JsonManagedReference
-    private List<Vote> votes;
+    @Builder.Default
+    private List<Vote> votes = new ArrayList<>();
 }
