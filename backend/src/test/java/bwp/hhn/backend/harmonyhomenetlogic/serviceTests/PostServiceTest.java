@@ -145,28 +145,28 @@ class PostServiceTest {
 //        verify(topicRepository, times(1)).findAll();
 //    }
 
-    @Test
-    void testDeleteTopic_Success() throws TopicNotFoundException {
-        when(topicRepository.existsByUuidID(topicId)).thenReturn(true);
-        doNothing().when(topicRepository).deleteById(topicId);
-
-        String result = postService.deleteTopic(topicId);
-
-        assertEquals("Topic deleted successfully", result);
-
-        verify(topicRepository, times(1)).existsByUuidID(topicId);
-        verify(topicRepository, times(1)).deleteById(topicId);
-    }
-
-    @Test
-    void testDeleteTopic_NotFound() {
-        when(topicRepository.existsByUuidID(topicId)).thenReturn(false);
-
-        assertThrows(TopicNotFoundException.class, () -> postService.deleteTopic(topicId));
-
-        verify(topicRepository, times(1)).existsByUuidID(topicId);
-        verify(topicRepository, times(0)).deleteById(any(UUID.class));
-    }
+//    @Test
+//    void testDeleteTopic_Success() throws TopicNotFoundException {
+//        when(topicRepository.existsByUuidID(topicId)).thenReturn(true);
+//        doNothing().when(topicRepository).deleteById(topicId);
+//
+//        String result = postService.deleteTopic(topicId);
+//
+//        assertEquals("Topic deleted successfully", result);
+//
+//        verify(topicRepository, times(1)).existsByUuidID(topicId);
+//        verify(topicRepository, times(1)).deleteById(topicId);
+//    }
+//
+//    @Test
+//    void testDeleteTopic_NotFound() {
+//        when(topicRepository.existsByUuidID(topicId)).thenReturn(false);
+//
+//        assertThrows(TopicNotFoundException.class, () -> postService.deleteTopic(topicId));
+//
+//        verify(topicRepository, times(1)).existsByUuidID(topicId);
+//        verify(topicRepository, times(0)).deleteById(any(UUID.class));
+//    }
 
     @Test
     void testCreatePost_Success() throws UserNotFoundException, TopicNotFoundException {

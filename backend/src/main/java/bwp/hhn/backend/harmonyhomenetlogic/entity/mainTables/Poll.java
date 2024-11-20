@@ -92,4 +92,8 @@ public class Poll {
     @JsonManagedReference
     @Builder.Default
     private List<Vote> votes = new ArrayList<>();
+
+    @Column(name = "notification_sent", nullable = false)
+    private boolean notificationSent = false;
+
 }

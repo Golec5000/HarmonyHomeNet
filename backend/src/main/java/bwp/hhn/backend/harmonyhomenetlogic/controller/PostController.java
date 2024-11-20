@@ -11,6 +11,7 @@ import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.PostRespon
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.TopicResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -23,15 +24,6 @@ public class PostController {
     private final PostService postService;
 
     // GET
-    @GetMapping("/get-user-topics")
-    public ResponseEntity<PageResponse<TopicResponse>> getUserTopics(
-            @RequestParam UUID userId,
-            @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
-            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize)
-            throws UserNotFoundException {
-        return ResponseEntity.ok(postService.getUserTopics(userId, pageNo, pageSize));
-    }
-
     @GetMapping("/get-all-topics")
     public ResponseEntity<PageResponse<TopicResponse>> getAllTopics(
             @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
@@ -47,23 +39,6 @@ public class PostController {
             @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize
             ) throws TopicNotFoundException {
         return ResponseEntity.ok(postService.getTopicPosts(topicId, pageNo, pageSize));
-    }
-
-    @GetMapping("/get-user-posts")
-    public ResponseEntity<PageResponse<PostResponse>> getUserPosts(
-            @RequestParam UUID userId,
-            @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
-            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize
-    ) throws UserNotFoundException {
-        return ResponseEntity.ok(postService.getUserPosts(userId, pageNo, pageSize));
-    }
-
-    @GetMapping("/get-all-posts")
-    public ResponseEntity<PageResponse<PostResponse>> getAllPosts(
-            @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
-            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize
-    ) {
-        return ResponseEntity.ok(postService.getAllPosts(pageNo, pageSize));
     }
 
     //POST
@@ -85,8 +60,8 @@ public class PostController {
 
     //DELETE
     @DeleteMapping("/delete-topic")
-    public ResponseEntity<String> deleteTopic(@RequestParam UUID topicId) throws TopicNotFoundException {
-        return ResponseEntity.ok(postService.deleteTopic(topicId));
+    public ResponseEntity<String> deleteTopic(@RequestParam UUID topicId, UUID userId) throws TopicNotFoundException {
+        return ResponseEntity.ok(postService.deleteTopic(topicId, userId));
     }
 
 

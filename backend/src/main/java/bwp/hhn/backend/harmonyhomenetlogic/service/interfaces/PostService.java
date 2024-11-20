@@ -15,20 +15,14 @@ public interface PostService {
 
     TopicResponse createTopic(TopicRequest topicRequest, UUID userId) throws UserNotFoundException;
 
-    PageResponse<TopicResponse> getUserTopics(UUID userId, int pageNo, int pageSize) throws UserNotFoundException;
-
     PageResponse<TopicResponse> getAllTopics(int pageNo, int pageSize);
 
-    String deleteTopic(UUID topicId) throws TopicNotFoundException;
+    String deleteTopic(UUID topicId, UUID userId) throws TopicNotFoundException;
 
     PostResponse createPost(PostRequest postRequest, UUID topicId, UUID userId) throws UserNotFoundException, TopicNotFoundException;
 
     PageResponse<PostResponse> getTopicPosts(UUID topicId, int pageNo, int pageSize) throws TopicNotFoundException;
 
     String deletePost(UUID postId, UUID userId) throws UserNotFoundException, PostNotFoundException;
-
-    PageResponse<PostResponse> getUserPosts(UUID userId, int pageNo, int pageSize) throws UserNotFoundException;
-
-    PageResponse<PostResponse> getAllPosts(int pageNo, int pageSize);
 
 }

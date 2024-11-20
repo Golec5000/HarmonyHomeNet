@@ -4,8 +4,12 @@ import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.
 import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.UserNotFoundException;
 import bwp.hhn.backend.harmonyhomenetlogic.configuration.security.RSAKeyRecord;
 import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.NotificationType;
+import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.Post;
+import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.Topic;
 import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.User;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.NotificationTypeRepository;
+import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.PostRepository;
+import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.TopicRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.UserRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.UserService;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Notification;
@@ -40,6 +44,8 @@ public class UserServiceImp implements UserService {
     private final NotificationTypeRepository notificationTypeRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final RSAKeyRecord rsaKeyRecord;
+    private final PostRepository postRepository;
+    private final TopicRepository topicRepository;
 
     @Override
     public UserResponse updateUser(UUID userId, UserRequest user, String accessToken) throws UserNotFoundException {
@@ -142,6 +148,7 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
+    @Transactional
     public String deleteUser(UUID userId, String accessToken) throws UserNotFoundException {
 
         User userEntity = userRepository.findByUuidIDOrEmail(userId, null)
@@ -154,6 +161,16 @@ public class UserServiceImp implements UserService {
 
         if (role.getLevel() < userEntity.getRole().getLevel()) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Insufficient permissions to update or assign the role");
+        }
+        List<Post> posts = userEntity.getPosts();
+        for (Post post : posts) {
+            post.setUser(null);
+            postRepository.save(post);
+        }
+        List<Topic> topics = userEntity.getTopics();
+        for (Topic topic : topics) {
+            topic.setUser(null);
+            topicRepository.save(topic);
         }
 
         userRepository.deleteById(userId);

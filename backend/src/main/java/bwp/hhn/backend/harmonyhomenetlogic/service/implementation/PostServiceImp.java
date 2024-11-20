@@ -57,16 +57,6 @@ public class PostServiceImp implements PostService {
     }
 
     @Override
-    public PageResponse<TopicResponse> getUserTopics(UUID userId, int pageNo, int pageSize) throws UserNotFoundException {
-        if (!userRepository.existsById(userId)) throw new UserNotFoundException("User: " + userId + " not found");
-
-        Pageable pageable = PageRequest.of(pageNo, pageSize);
-        Page<Topic> topics = topicRepository.findByUserUuidID(userId, pageable);
-
-        return getTopicResponsePageResponse(topics);
-    }
-
-    @Override
     public PageResponse<TopicResponse> getAllTopics(int pageNo, int pageSize) {
 
         Pageable pageable = PageRequest.of(pageNo, pageSize);
@@ -76,9 +66,16 @@ public class PostServiceImp implements PostService {
     }
 
     @Override
-    public String deleteTopic(UUID topicId) throws TopicNotFoundException {
+    public String deleteTopic(UUID topicId, UUID userId) throws TopicNotFoundException {
         if (!topicRepository.existsByUuidID(topicId))
             throw new TopicNotFoundException("Topic: " + topicId + " not found");
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User: " + userId + " not found"));
+
+        //czyli jesli nie jest rolą pracowniczą to wyzaca błąd autoryzacji
+        if(user.getRole().getLevel() < 2)
+            throw new IllegalArgumentException("User: " + userId + " is not authorized to delete the topic");
 
         topicRepository.deleteById(topicId);
         return "Topic deleted successfully";
@@ -143,26 +140,6 @@ public class PostServiceImp implements PostService {
         return "Post deleted successfully";
     }
 
-    @Override
-    public PageResponse<PostResponse> getUserPosts(UUID userId, int pageNo, int pageSize) throws UserNotFoundException {
-
-        if (!userRepository.existsById(userId)) throw new UserNotFoundException("User: " + userId + " not found");
-
-        Pageable pageable = PageRequest.of(pageNo, pageSize);
-        Page<Post> posts = postRepository.findByUserUuidID(userId, pageable);
-
-        return getPostResponsePageResponse(posts);
-    }
-
-
-    @Override
-    public PageResponse<PostResponse> getAllPosts(int pageNo, int pageSize) {
-        Pageable pageable = PageRequest.of(pageNo, pageSize);
-        Page<Post> posts = postRepository.findAll(pageable);
-
-        return getPostResponsePageResponse(posts);
-    }
-
     private PageResponse<TopicResponse> getTopicResponsePageResponse(Page<Topic> topics) {
         return new PageResponse<>(
                 topics.getNumber(),
@@ -174,7 +151,7 @@ public class PostServiceImp implements PostService {
                                         .id(topic.getUuidID())
                                         .title(topic.getTitle())
                                         .createdAt(topic.getCreatedAt())
-                                        .userName(topic.getUser().getFirstName() + " " + topic.getUser().getLastName())
+                                        .userName(topic.getUser() != null ? topic.getUser().getFirstName() + " " + topic.getUser().getLastName() : null)
                                         .build()
                         )
                         .toList(),
@@ -195,7 +172,7 @@ public class PostServiceImp implements PostService {
                                         .id(post.getUuidID())
                                         .content(post.getContent())
                                         .createdAt(post.getCreatedAt())
-                                        .userName(post.getUser().getFirstName() + " " + post.getUser().getLastName())
+                                        .userName(post.getUser() != null ? post.getUser().getFirstName() + " " + post.getUser().getLastName() : null)
                                         .build()
                         )
                         .toList(),

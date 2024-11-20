@@ -101,11 +101,11 @@ public class User implements UserDetails {
     @JsonManagedReference
     private List<Announcement> announcements;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user")
     @JsonManagedReference
     private List<Topic> topics;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user")
     @JsonManagedReference
     private List<Post> posts;
 

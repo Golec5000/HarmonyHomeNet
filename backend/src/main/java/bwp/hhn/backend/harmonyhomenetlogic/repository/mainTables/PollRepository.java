@@ -11,7 +11,7 @@ import java.util.UUID;
 public interface PollRepository extends JpaRepository<Poll, UUID> {
     boolean existsByUuidID(UUID uuidID);
 
-    List<Poll> findAllByEndDateAfter(Instant endDate);
+    List<Poll> findAllByEndDateBeforeAndNotificationSentFalse(Instant endDate);
 
     List<Poll> findAllByEndDateBefore(Instant now);
 }
