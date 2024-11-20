@@ -34,6 +34,7 @@ import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/compo
 import {DocumentManagementComponent} from "@/components/admin-components/document-management";
 import {ProblemReportManagementComponent} from "@/components/admin-components/problem-report-management";
 import {PollManagementComponent} from "@/components/admin-components/poll-management";
+import {ForumComponent} from "@/components/common-components/forum";
 
 const navItems = [
     {label: 'Dashboard', icon: Home},
@@ -43,8 +44,8 @@ const navItems = [
     {label: 'Płatności', icon: CreditCard},
     {label: 'Dokumenty', icon: FileText},
     {label: 'Zgłoszenia', icon: TriangleAlert},
-    {label: 'Głosowania', icon: MessageCircleCode},
-    {label: 'Forum', icon: Vote},
+    {label: 'Głosowania', icon: Vote},
+    {label: 'Forum', icon: MessageCircleCode},
     {label: 'Ustawienia', icon: Settings},
 ];
 
@@ -113,7 +114,7 @@ export default function EmployeeMainPageComponent() {
             case 'Głosowania':
                 return <PollManagementComponent/>;
             case 'Forum':
-                return <div style={{color: 'red'}}>This feature will be implemented in the future</div>;
+                return <ForumComponent/>;
             case 'Ustawienia':
                 return <UserSettingsV2/>;
             default:

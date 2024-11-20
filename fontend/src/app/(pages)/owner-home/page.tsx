@@ -31,6 +31,7 @@ import {ContactAdmin} from "@/components/owner-components/contact-admin";
 import {Payments} from "@/components/owner-components/payments";
 import {UserSettings} from "@/hooks/user-settings";
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card";
+import {ForumComponent} from "@/components/common-components/forum";
 
 const navItems = [
     {label: 'Strona główna', icon: Home},
@@ -128,7 +129,7 @@ export default function MainResidentsPage() {
             case 'Płatności':
                 return <Payments apartmentSignature={selectedApartment}/>;
             case 'Forum':
-                return <div style={{color: 'red'}}>This feature will be implemented in the future</div>;
+                return <ForumComponent/>;
             case 'Głosowania':
                 return <div style={{color: 'red'}}>This feature will be implemented in the future</div>;
             case 'Ustawienia':
