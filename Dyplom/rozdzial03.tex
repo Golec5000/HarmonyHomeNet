@@ -6,7 +6,7 @@ Wdrożenie to obejmuje zarówno warstwę frontendową, odpowiadającą za intera
 
 W trakcie implementacji szczególny nacisk zostanie położony na wybór odpowiednich narzędzi i technologii, takich jak Next.js dla frontendu oraz Spring Boot dla backendu, a także Docker dla konteneryzacji systemu. Zostaną także omówione aspekty związane z optymalizacją kodu, testowaniem aplikacji oraz monitorowaniem jej działania.
 
-Rozdział ten rozpoczyna się od przedstawienia zastosowanej \textbf{architektury warstwowej}, która jest podstawą projektowanego systemu. Szczegółowo opisane zostaną wszystkie warstwy – prezentacji, logiki biznesowej oraz dostępu do danych – z uwzględnieniem ich ról oraz sposobu implementacji. Następnie przejdziemy do analizy projektu \textbf{bazy danych}, gdzie omówione zostaną podejścia Database First i Code First, wraz z uzasadnieniem wyboru pierwszego z nich. Szczegółowo przedstawiona zostanie struktura bazy danych oraz sposób jej integracji z aplikacją.
+Rozdział ten rozpoczyna się od przedstawienia zastosowanej \textbf{architektury warstwowej}~\cite{n_tier_wiki}, która jest podstawą projektowanego systemu. Szczegółowo opisane zostaną wszystkie warstwy – prezentacji, logiki biznesowej oraz dostępu do danych – z uwzględnieniem ich ról oraz sposobu implementacji. Następnie przejdziemy do analizy projektu \textbf{bazy danych}, gdzie omówione zostaną podejścia Database First i Code First, wraz z uzasadnieniem wyboru pierwszego z nich. Szczegółowo przedstawiona zostanie struktura bazy danych oraz sposób jej integracji z aplikacją.
 
 Kolejnym krokiem jest omówienie kluczowych elementów zaimplementowanych w systemie. Rozpoczniemy od \textbf{bezpieczeństwa}, w tym mechanizmów autoryzacji i uwierzytelniania zrealizowanych przy użyciu Spring Security. Następnie zostanie opisane \textbf{zarządzanie mieszkańcami} jako centralny element systemu, a także inne istotne funkcje, takie jak zarządzanie mieszkaniami, zgłoszeniami technicznymi, płatnościami i powiadomieniami.
 
@@ -15,7 +15,7 @@ Celem tej części pracy jest nie tylko opisanie kroków wdrożenia, ale równie
 
 \section{Architektura warstwowa}
 
-Architektura warstwowa jest jednym z najbardziej rozpowszechnionych wzorców projektowych w inżynierii oprogramowania. Polega na podziale aplikacji na logiczne warstwy, z których każda pełni określoną funkcję. Taki podział ułatwia zarządzanie kodem, jego rozwój oraz utrzymanie. W typowej architekturze warstwowej wyróżnia się cztery kluczowe warstwy: warstwę prezentacji, logiki biznesowej, dostępu do danych oraz warstwę danych. Ich ogólny schemat przedstawiono na rysunku \ref{fig:n_tier_arch}. Poszczególne elementy schematu oznaczono literami (a, b, c, d), co pozwala na ich jednoznaczną identyfikację w dalszym opisie.
+Architektura warstwowa jest jednym z najbardziej rozpowszechnionych wzorców projektowych w inżynierii oprogramowania. Polega na podziale aplikacji na logiczne warstwy, z których każda pełni określoną funkcję. Taki podział ułatwia zarządzanie kodem, jego rozwój oraz utrzymanie. W typowej architekturze warstwowej wyróżnia się cztery kluczowe warstwy: warstwę prezentacji, logiki biznesowej, dostępu do danych oraz warstwę danych~\cite{n_tier_baeldung, n_tier_medium}. Ich ogólny schemat przedstawiono na rysunku \ref{fig:n_tier_arch}. Poszczególne elementy schematu oznaczono literami (a, b, c, d), co pozwala na ich jednoznaczną identyfikację w dalszym opisie.
 
 \begin{figure}[ht]
     \centering
@@ -90,6 +90,147 @@ W systemie \textbf{Harmony Home Net} zdecydowano się na podejście \emph{Databa
 \end{itemize}
 
 \subsection{Opis struktury bazy danych w systemie ,,Harmony Home Net''}
+
+Struktura bazy danych w systemie \textbf{Harmony Home Net} została zaprojektowana z uwzględnieniem wymagań funkcjonalnych i niefunkcjonalnych aplikacji. Schemat bazy danych podzielono na warstwę konceptualną (rysunek \ref{fig:ebok_db_concept}) oraz fizyczną (rysunek \ref{fig:ebok_db_physical}), co umożliwiło dokładne odwzorowanie relacji pomiędzy danymi oraz optymalizację ich przechowywania.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=.9\linewidth]{rys03/ebok_db_concept}
+    \caption{Schemat konceptualny bazy danych systemu}
+    \label{fig:ebok_db_concept}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=.9\linewidth]{rys03/ebok_db_physical}
+    \caption{Schemat fizyczny bazy danych systemu}
+    \label{fig:ebok_db_physical}
+\end{figure}
+
+\subsubsection{Opis tabel}
+
+Poniżej szczegółowo opisano wszystkie tabele w bazie danych:
+
+\begin{itemize}
+    \item \textbf{Tabela \texttt{Users}:}
+    Przechowuje dane o użytkownikach, takie jak:
+    \begin{itemize}
+        \item \texttt{FirstName} i \texttt{LastName} -- imię i nazwisko użytkownika,
+        \item \texttt{Email} -- unikalny adres e-mail,
+        \item \texttt{Password} -- zaszyfrowane hasło,
+        \item \texttt{Role} -- rola w systemie (np. właściciel, pracownik, administrator),
+        \item \texttt{CreateAt} i \texttt{UpdateAt} -- daty utworzenia i ostatniej modyfikacji rekordu.
+    \end{itemize}
+    Klucz główny \texttt{UUID} jest wykorzystywany jako klucz obcy w wielu innych tabelach, zapewniając spójność relacji.
+
+    \item \textbf{Tabela \texttt{Apartments}:}
+    Zawiera szczegółowe dane o lokalach:
+    \begin{itemize}
+        \item \texttt{ApartmentSignature} -- unikalny identyfikator lokalu,
+        \item \texttt{Address}, \texttt{City} i \texttt{ZipCode} -- adres lokalu,
+        \item \texttt{ApartmentArea} -- powierzchnia,
+        \item \texttt{ApartmentPercentValue} -- udział procentowy w nieruchomości wspólnej.
+    \end{itemize}
+    Powiązana z użytkownikami poprzez klucz obcy \texttt{UsersUUID}.
+    
+    \item \textbf{Tabela \texttt{Payments}:}
+    Rejestruje dane o płatnościach:
+    \begin{itemize}
+        \item \texttt{Description}, \texttt{PaymentStatus}, \texttt{PaymentDate}, \texttt{PaymentAmount},
+        \item \texttt{ReadyToPay} -- znacznik stanu płatności.
+    \end{itemize}
+
+    \item \textbf{Tabela \texttt{PaymentComponent}:}
+    Szczegółowo opisuje składniki płatności, co pozwala na większą elastyczność w obliczaniu należności. Przechowuje informacje takie jak:
+    \begin{itemize}
+        \item \texttt{ComponentType} -- typ składnika płatności (np. czynsz, media, fundusz remontowy),
+        \item \texttt{UnitPrice} i \texttt{ComponentAmount} -- cena jednostkowa i łączna kwota dla składnika,
+        \item \texttt{SpecialMultipliers} -- specjalne mnożniki stosowane w obliczeniach (np. liczba osób, powierzchnia lokalu),
+        \item \texttt{Unit} -- jednostka składnika (np. m\textsuperscript{2}, sztuki).
+    \end{itemize}
+    Tabela jest powiązana z tabelą \texttt{Payments} poprzez klucz obcy \texttt{PaymentsUUID}.
+
+    \item \textbf{Tabela \texttt{ProblemReports}:}
+    Zawiera zgłoszenia techniczne dotyczące lokali:
+    \begin{itemize}
+        \item \texttt{Status}, \texttt{Category}, \texttt{Note} -- szczegóły zgłoszenia,
+        \item Klucze obce \texttt{UsersUUID} i \texttt{ApartmentsUUID}.
+    \end{itemize}
+
+    \item \textbf{Tabela \texttt{Polls} i \texttt{Votes}:}
+    Obsługuje głosowania:
+    \begin{itemize}
+        \item Tabela \texttt{Polls} zawiera dane głosowań, a \texttt{Votes} przechowuje głosy użytkowników,
+        \item Wprowadzono ograniczenie unikalności głosów w relacji \texttt{pollId} oraz \texttt{apartmentSignature}.
+    \end{itemize}
+
+    \item \textbf{Tabela \texttt{Documents} i \texttt{UserDocumentConnection}:}
+    \texttt{UserDocumentConnection} pełni rolę łącznika w relacji wiele do wielu między \texttt{Users} a \texttt{Documents}. Tabela \texttt{Documents} przechowuje informacje o plikach, takie jak nazwa, typ, treść (\texttt{UploadData}) oraz data dodania.
+    
+    \item \textbf{Tabela \texttt{Announcements} i \texttt{AnnouncementApartment}:}
+    \texttt{Announcements} przechowuje ogłoszenia, a \texttt{AnnouncementApartment} pełni rolę tabeli łącznikowej w relacji wiele do wielu między \texttt{Announcements} a \texttt{Apartments}.
+
+    \item \textbf{Tabela \texttt{NotificationTypes}:}
+    Przechowuje różne typy powiadomień i ich relacje z użytkownikami. Zdefiniowano ograniczenie unikalności, które uniemożliwia przypisanie tego samego typu powiadomienia temu samemu użytkownikowi wielokrotnie.
+
+    \item \textbf{Tabela \texttt{PossessionHistory}:}
+    Rejestruje historię przypisania użytkowników do lokali:
+    \begin{itemize}
+        \item \texttt{StartDate} i \texttt{EndDate} -- okres użytkowania lokalu,
+        \item Klucze obce \texttt{ApartmentsUUID} i \texttt{UsersUUID}.
+        \item Zastosowano ograniczenie unikalności relacji między \texttt{userId} a \texttt{apartmentId}.
+    \end{itemize}
+\end{itemize}
+
+\subsubsection{Podział tabel na pakiety}
+
+W implementacji kodu wszystkie tabele zostały podzielone na dwa logiczne pakiety:
+\begin{itemize}
+    \item \textbf{Pakiet \texttt{sideTables}:} Obejmuje tabele pomocnicze, które pełnią rolę łączników w relacjach wiele do wielu. Należą do niego:
+    \begin{itemize}
+        \item \texttt{UserDocumentConnection},
+        \item \texttt{PossessionHistory},
+        \item \texttt{AnnouncementApartment}.
+    \end{itemize}
+
+    \item \textbf{Pakiet \texttt{mainTables}:} Obejmuje główne tabele przechowujące kluczowe dane systemu, takie jak:
+    \begin{itemize}
+        \item \texttt{Users},
+        \item \texttt{Apartments},
+        \item \texttt{Payments},
+        \item \texttt{PaymentComponent},
+        \item \texttt{ProblemReports},
+        \item \texttt{Polls},
+        \item \texttt{Votes},
+        \item \texttt{Documents},
+        \item \texttt{Announcements},
+        \item \texttt{NotificationTypes}.
+    \end{itemize}
+\end{itemize}
+
+Podział tabel na dwa pakiety zapewnia przejrzystość struktury kodu, łatwość zarządzania relacjami między encjami oraz ułatwia przyszłą rozbudowę systemu.
+
+
+\subsection{Relacje i integralność danych}
+
+Relacje między tabelami zostały szczegółowo odwzorowane za pomocą kluczy głównych i obcych, co umożliwia utrzymanie integralności danych oraz łatwe zarządzanie połączeniami między różnymi elementami bazy. Na przykład, tabela \texttt{Problem\_reports} zawiera klucze obce do tabel \texttt{Users} i \texttt{Apartments}, co pozwala na przypisanie zgłoszeń technicznych zarówno do konkretnego użytkownika, jak i lokalu. Analogicznie, tabela \texttt{Payments} jest powiązana z tabelą \texttt{Apartments}, co zapewnia pełną kontrolę nad płatnościami przypisanymi do danych lokali.
+
+\subsection{Mechanizmy optymalizacyjne}
+
+W celu poprawy wydajności bazy danych zastosowano następujące mechanizmy:
+\begin{itemize}
+    \item \textbf{Indeksy} -- kluczowe kolumny, takie jak \texttt{UUID}, zostały zaindeksowane w celu przyspieszenia operacji wyszukiwania i sortowania.
+    \item \textbf{Mapowanie ORM} -- baza danych została zintegrowana z aplikacją za pomocą narzędzia JPA (Java Persistence API), co umożliwia bezpośrednie mapowanie tabel na obiekty w kodzie aplikacji. Dzięki temu operacje CRUD (Create, Read, Update, Delete) mogą być realizowane w sposób wygodny i abstrakcyjny, bez konieczności pisania zapytań SQL.
+    \item \textbf{Konteneryzacja} -- PostgreSQL działa w środowisku Docker, co zapewnia łatwość zarządzania i możliwość skalowania systemu w zależności od obciążenia.
+		\item \textbf{Ograniczenia unikalności (ang. Unique Constraint)} -- w tabelach takich jak \texttt{Votes}, \texttt{PossessionHistory}, \texttt{NotificationTypes}, oraz \texttt{AnnouncementApartment} zastosowano ograniczenia unikalności (\texttt{UniqueConstraints}), co zapobiega wprowadzaniu niepożądanych duplikatów w relacjach wiele do wielu.
+\end{itemize}
+
+\subsection{Podsumowanie}
+
+Struktura bazy danych systemu \textbf{Harmony Home Net} została zaprojektowana w sposób umożliwiający jej skalowalność, wydajność oraz łatwość integracji z innymi komponentami aplikacji. Podejście \emph{Database First} okazało się optymalnym wyborem, zapewniając precyzyjne odwzorowanie wymagań biznesowych i technicznych systemu. Schematy konceptualny (rysunek \ref{fig:ebok_db_concept}) i fizyczny (rysunek \ref{fig:ebok_db_physical}) ilustrują relacje pomiędzy tabelami, które stanowią podstawę spójnego i efektywnego zarządzania danymi.
+
+
+
 
 \section{Bezpieczeństwo, uwierzytelnianie i autoryzacja w aplikacji}
 
