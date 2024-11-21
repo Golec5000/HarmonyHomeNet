@@ -35,7 +35,7 @@ public class PollReminderScheduler {
     @Scheduled(cron = "0 0 12 */4 * ?")
     @Async
     public void sendPollReminder() {
-        List<Poll> activePolls = pollRepository.findAllByEndDateBefore(Instant.now());
+        List<Poll> activePolls = pollRepository.findAllByEndDateAfter(Instant.now());
 
         for (Poll poll : activePolls) {
             List<User> owners = possessionHistoryRepository.findAllUniqueOwners();
@@ -56,7 +56,7 @@ public class PollReminderScheduler {
         }
     }
 
-    @Scheduled(fixedRate = 60000) // Check every minute
+    @Scheduled(cron = "0 0 * * * ?") // Check every hour
     @Async
     public void checkPollEndDates() {
         List<Poll> endedPolls = pollRepository.findAllByEndDateBeforeAndNotificationSentFalse(Instant.now());

@@ -13,5 +13,5 @@ public interface PollRepository extends JpaRepository<Poll, UUID> {
 
     List<Poll> findAllByEndDateBeforeAndNotificationSentFalse(Instant endDate);
 
-    List<Poll> findAllByEndDateBefore(Instant now);
+    List<Poll> findAllByEndDateAfter(Instant now);
 }
