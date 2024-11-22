@@ -1,72 +1,70 @@
 \chapter{Implementacja}
-
-W tej części pracy zostanie szczegółowo omówiona implementacja systemu eBOKa „Harmony Home Net”, która stanowi kluczowy etap realizacji projektu. Proces implementacji polega na przełożeniu założeń architektonicznych, wymagań funkcjonalnych oraz niefunkcjonalnych na działający kod, a także integracji poszczególnych komponentów systemu w spójną całość.
-
-Wdrożenie to obejmuje zarówno warstwę frontendową, odpowiadającą za interakcje użytkowników, jak i backend, zajmujący się logiką biznesową i zarządzaniem danymi. Kluczowym elementem implementacji jest również integracja z bazą danych PostgreSQL uruchomioną w środowisku Docker, co zapewnia elastyczność, łatwość zarządzania i skalowalność.
+%W tej części pracy zostanie omówiona implementacja systemu eBOKa „Harmony Home Net”. 
+Proces implementacji polega na przełożeniu założeń architektonicznych, wymagań funkcjonalnych oraz niefunkcjonalnych na działający kod, a także integracji poszczególnych komponentów systemu w spójną, gotową do wdrożenia całość. W przypadku systemu eBOKa „Harmony Home Net” obejmie on zarówno warstwę frontendową, odpowiadającą za interakcje użytkowników, jak i backend, zajmujący się logiką biznesową i zarządzaniem danymi. Kluczowym elementem implementacji będzie integracja z bazą danych PostgreSQL uruchomioną w środowisku Docker.
 
 W trakcie implementacji szczególny nacisk zostanie położony na wybór odpowiednich narzędzi i technologii, takich jak Next.js dla frontendu oraz Spring Boot dla backendu, a także Docker dla konteneryzacji systemu. Zostaną także omówione aspekty związane z optymalizacją kodu, testowaniem aplikacji oraz monitorowaniem jej działania.
 
-Rozdział ten rozpoczyna się od przedstawienia zastosowanej \textbf{architektury warstwowej}~\cite{n_tier_wiki}, która jest podstawą projektowanego systemu. Szczegółowo opisane zostaną wszystkie warstwy – prezentacji, logiki biznesowej oraz dostępu do danych – z uwzględnieniem ich ról oraz sposobu implementacji. Następnie przejdziemy do analizy projektu \textbf{bazy danych}, gdzie omówione zostaną podejścia Database First i Code First, wraz z uzasadnieniem wyboru pierwszego z nich. Szczegółowo przedstawiona zostanie struktura bazy danych oraz sposób jej integracji z aplikacją.
+Rozdział rozpocznie omówienie zastosowanej \textbf{architektury warstwowej}~\cite{n_tier_wiki}, która jest podstawą projektowanego systemu. Szczegółowo opisane zostaną wszystkie warstwy – prezentacji, logiki biznesowej oraz dostępu do danych – z uwzględnieniem ich ról oraz sposobu implementacji. Następnie uwaga zostanie zwrócona na \textbf{bazę danych}. Omówione zostaną podejścia Database First i Code First, wraz z uzasadnieniem wyboru pierwszego z nich. Podane zostaną szczegóły zaprojektowanej struktury bazy danych oraz sposób jej integracji z aplikacją.
 
-Kolejnym krokiem jest omówienie kluczowych elementów zaimplementowanych w systemie. Rozpoczniemy od \textbf{bezpieczeństwa}, w tym mechanizmów autoryzacji i uwierzytelniania zrealizowanych przy użyciu Spring Security. Następnie zostanie opisane \textbf{zarządzanie mieszkańcami} jako centralny element systemu, a także inne istotne funkcje, takie jak zarządzanie mieszkaniami, zgłoszeniami technicznymi, płatnościami i powiadomieniami.
+W kolejnym kroku dokonany zostanie przegląd kluczowych elementów systemu. Rozpocznie się on od tematu \textbf{bezpieczeństwa}, w tym mechanizmów autoryzacji i uwierzytelniania zrealizowanych przy użyciu Spring Security. Następnie zostanie opisane \textbf{zarządzanie mieszkańcami} jako centralny element systemu, a także inne istotne funkcje, takie jak zarządzanie mieszkaniami, zgłoszeniami technicznymi, płatnościami i powiadomieniami.
 
-Celem tej części pracy jest nie tylko opisanie kroków wdrożenia, ale również ukazanie, w jaki sposób zaimplementowane rozwiązania odpowiadają na postawione wymagania funkcjonalne i niefunkcjonalne. Rozdział kończy się krótkim podsumowaniem, które ocenia, jak wdrożone funkcjonalności wpisują się w założenia projektu oraz wskazuje potencjalne kierunki dalszego rozwoju aplikacji.
+% TO DO: czy rzeczywiście wdrożenia? Wdrożenie to proces instalacji i uruchomienia aplikacji w środowisku produkcyjnym.
+%        lekko przeredagowując można poniższe zdania przenieść do Układu pracy
+%Celem tej części pracy jest nie tylko opisanie kroków wdrożenia, ale również ukazanie, w jaki sposób zaimplementowane rozwiązania odpowiadają na postawione wymagania funkcjonalne i niefunkcjonalne. Rozdział kończy się krótkim podsumowaniem, które ocenia, jak wdrożone funkcjonalności wpisują się w założenia projektu oraz wskazuje potencjalne kierunki dalszego rozwoju aplikacji.
 
 
 \section{Architektura warstwowa}
 
-Architektura warstwowa jest jednym z najbardziej rozpowszechnionych wzorców projektowych w inżynierii oprogramowania. Polega na podziale aplikacji na logiczne warstwy, z których każda pełni określoną funkcję. Taki podział ułatwia zarządzanie kodem, jego rozwój oraz utrzymanie. W typowej architekturze warstwowej wyróżnia się cztery kluczowe warstwy: warstwę prezentacji, logiki biznesowej, dostępu do danych oraz warstwę danych~\cite{n_tier_baeldung, n_tier_medium}. Ich ogólny schemat przedstawiono na rysunku \ref{fig:n_tier_arch}. Poszczególne elementy schematu oznaczono literami (a, b, c, d), co pozwala na ich jednoznaczną identyfikację w dalszym opisie.
-
-\begin{figure}[ht]
-    \centering
-    \includegraphics[width=.9\linewidth]{rys03/diagram_architektury_warstwowej}
-    \caption{Ogólny schemat architektury warstwowej}
-    \label{fig:n_tier_arch}
-\end{figure}
-
-\subsection{Warstwa prezentacji (ang. Presentation Layer)}
-Warstwa prezentacji odpowiada za interakcję użytkownika z aplikacją, będąc głównym punktem styku użytkownika z systemem. Na tym poziomie użytkownik wprowadza dane wejściowe, a system zwraca wyniki w formie czytelnej i zrozumiałej. Głównym zadaniem warstwy prezentacji jest renderowanie interfejsu użytkownika oraz obsługa zdarzeń takich jak kliknięcia czy przesunięcia. Odpowiada również za wstępną walidację danych wejściowych, na przykład sprawdzanie, czy wprowadzony adres e-mail ma poprawny format. Przetworzone dane są następnie przekazywane do warstwy logiki biznesowej, gdzie są dalej analizowane i przetwarzane.
-
-Na schemacie (rysunek \ref{fig:n_tier_arch}) warstwa prezentacji jest oznaczona jako element ,,\textbf{a)}''. W systemie ,,Harmony Home Net,, została zrealizowana za pomocą frameworka Next.js w języku TypeScript. Odpowiada ona za wyświetlanie interfejsu użytkownika, w tym panelu mieszkańca, gdzie użytkownicy mogą przeglądać zgłoszenia techniczne, dokonywać płatności oraz uczestniczyć w głosowaniach. Użycie Next.js umożliwia renderowanie po stronie serwera, co poprawia wydajność aplikacji oraz jej pozycjonowanie w wyszukiwarkach (SEO). Dzięki komponentom wielokrotnego użytku interfejs użytkownika jest spójny wizualnie i funkcjonalnie. 
-
-\subsection{Warstwa logiki biznesowej (ang. Business Logic Layer)}
-
-Warstwa logiki biznesowej pełni kluczową rolę w przetwarzaniu danych wejściowych i realizacji reguł biznesowych. Na tym poziomie dane są analizowane i przetwarzane zgodnie z zasadami określonymi przez specyfikę aplikacji. Główne zadania tej warstwy obejmują koordynację przepływu danych między innymi warstwami oraz obsługę wyjątków, które mogą wystąpić w wyniku błędów na wcześniejszych etapach przetwarzania.
-
-Na schemacie (rysunek \ref{fig:n_tier_arch}) warstwa logiki biznesowej jest oznaczona jako element ,,\textbf{b)}''. W systemie ,,Harmony Home Net,, warstwa ta, oparta na Spring Boot, realizuje procesy biznesowe takie jak autoryzacja użytkowników przy użyciu OAuth 2.0, zarządzanie zgłoszeniami technicznymi oraz integracja z systemami płatności. Warstwa ta komunikuje się z frontendem poprzez REST API, co zapewnia efektywne przetwarzanie żądań i odpowiedzi. Dodatkowo technologia Spring Boot umożliwia implementację skalowalnych i bezpiecznych rozwiązań, co jest kluczowe w przypadku obsługi dużej liczby użytkowników.
-
-\subsection{Warstwa dostępu do danych (ang. Data Access Layer)}
-
-Warstwa dostępu do danych odpowiada za komunikację między logiką biznesową a fizycznym przechowywaniem danych. Jej główną funkcją jest wykonywanie operacji takich jak zapisywanie, odczytywanie, aktualizowanie i usuwanie danych w sposób zoptymalizowany i bezpieczny. Często korzysta się z bibliotek ORM, takich jak Hibernate lub JPA w Javie, które ułatwiają mapowanie danych między bazą a obiektami aplikacji.
-
-Na schemacie (rysunek \ref{fig:n_tier_arch}) warstwa dostępu do danych jest oznaczona jako element ,,\textbf{c)}''. W systemie ,,Harmony Home Net,, baza danych PostgreSQL została uruchomiona w środowisku Docker. Dzięki zastosowaniu JPA możliwe jest łatwe mapowanie danych między tabelami bazodanowymi a obiektami aplikacji w Javie. Taka implementacja umożliwia optymalizację zapytań i zapewnia wydajność operacji, co jest istotne w przypadku dużej ilości danych przechowywanych w systemie, takich jak zgłoszenia techniczne czy płatności mieszkańców.
-
-\subsection{Warstwa danych (ang. Data Layer)}
-
-Warstwa danych odpowiada za trwałe przechowywanie danych aplikacji w bazach danych. Obejmuje zarządzanie strukturą danych, ich bezpieczeństwem oraz udostępnianie ich innym warstwom w sposób wydajny i zorganizowany. W systemie ,,Harmony Home Net'' wykorzystano bazę danych PostgreSQL, która została wdrożona w kontenerze Docker. 
-
-Na schemacie (rysunek \ref{fig:n_tier_arch}) warstwa danych jest oznaczona jako element ,,\textbf{d)}''. Dzięki zastosowaniu mapowania ORM dane w bazie są bezpośrednio odwzorowywane na obiekty w aplikacji, co pozwala na wygodniejsze operacje na danych. Mechanizm ORM umożliwia wykonywanie zapytań SQL w sposób abstrakcyjny i bardziej czytelny, co upraszcza implementację i zmniejsza ryzyko błędów.
-
-\subsection{Zalety architektury warstwowej}
+Architektura warstwowa jest jednym z najbardziej rozpowszechnionych wzorców projektowych w inżynierii oprogramowania. Polega na podziale aplikacji na logiczne warstwy, z których każda pełni określoną funkcję. W typowej architekturze warstwowej wyróżnia się cztery kluczowe warstwy: warstwę prezentacji, logiki biznesowej, dostępu do danych oraz warstwę danych~\cite{n_tier_baeldung, n_tier_medium}. Ich ogólny schemat przedstawiono na rysunku \ref{fig:n_tier_arch}. Poszczególne elementy schematu oznaczono literami (a, b, c, d), co pozwala na ich jednoznaczną identyfikację w dalszym opisie.
 
 Podział na warstwy przynosi wiele korzyści:
 \begin{itemize}
     \item \textbf{Modularność} -- niezależność warstw ułatwia rozwój i utrzymanie systemu.
-    \item \textbf{Reużywalność} -- komponenty poszczególnych warstw mogą być łatwo wykorzystane w innych projektach.
-    \item \textbf{Skalowalność} -- każda warstwa może być skalowana oddzielnie, co zwiększa elastyczność aplikacji.
-    \item \textbf{Czytelność kodu} -- wyraźny podział odpowiedzialności sprawia, że kod jest bardziej przejrzysty.
+    \item \textbf{Reużywalność} -- komponenty warstw mogą być łatwo wykorzystane w innych projektach.
+    \item \textbf{Skalowalność} -- warstwy można skalować oddzielnie, co zwiększa elastyczność aplikacji.
+    \item \textbf{Czytelność kodu} -- podział odpowiedzialności sprawia, że kod jest bardziej przejrzysty.
     \item \textbf{Testowalność} -- warstwy mogą być testowane oddzielnie, co ułatwia identyfikację błędów.
 \end{itemize}
-
-\subsection{Wady architektury warstwowej}
-
+Do wad architektury warstwowej należą:
 \begin{itemize}
     \item \textbf{Potencjalny narzut} -- dodatkowe poziomy abstrakcji mogą obniżyć wydajność systemu.
-    \item \textbf{Złożoność implementacji} -- wymaga dokładnego zaplanowania, aby uniknąć nadmiernego zagnieżdżania warstw.
+    \item \textbf{Złożoność implementacji} -- koncepcja ma być bez nadmiernego zagnieżdżania warstw.
     \item \textbf{Brak elastyczności} -- w pewnych scenariuszach może być trudno dostosować architekturę do nietypowych wymagań.
 \end{itemize}
 
-\noindent Podsumowując, zastosowanie architektury warstwowej w systemie „Harmony Home Net” umożliwiło jego modularność, skalowalność oraz łatwość utrzymania, spełniając wymagania zarówno użytkowników końcowych, jak i administratorów.
+Zastosowanie architektury warstwowej w systemie „Harmony Home Net” zapewnić ma jego modularność, skalowalność oraz łatwość utrzymania, spełniając wymagania zarówno użytkowników końcowych, jak i administratorów.
+\begin{figure}[t]
+    \centering
+    \includegraphics[scale=1]{rys03/diagram_architektury_warstwowej}
+    \caption{Ogólny schemat architektury warstwowej} % TO DO: prosiłem o zacieśnianie diagramów - tutaj było za dużo białej przestrzeni
+    \label{fig:n_tier_arch}
+\end{figure}
+
+\subsection{Warstwa prezentacji (ang.\ \emph{Presentation Layer})}
+Warstwa prezentacji odpowiada za interakcję użytkownika z aplikacją, będąc głównym punktem styku użytkownika z systemem. Na tym poziomie użytkownik wprowadza dane wejściowe, a system zwraca wyniki w formie czytelnej i zrozumiałej. Głównym zadaniem warstwy prezentacji jest renderowanie interfejsu użytkownika oraz obsługa zdarzeń takich jak kliknięcia czy przesunięcia. Odpowiada również za wstępną walidację danych wejściowych, na przykład sprawdzanie, czy wprowadzony adres e-mail ma poprawny format. Przetworzone dane są następnie przekazywane do warstwy logiki biznesowej, gdzie są dalej analizowane i przetwarzane.
+
+Na rysunku \ref{fig:n_tier_arch} warstwa prezentacji jest oznaczona literą \texttt{a)}. W systemie ,,Harmony Home Net,, została zrealizowana za pomocą frameworka Next.js w języku TypeScript. Odpowiada ona za wyświetlanie interfejsu użytkownika, w tym panelu mieszkańca, gdzie użytkownicy mogą przeglądać zgłoszenia techniczne, dokonywać płatności oraz uczestniczyć w głosowaniach. Użycie Next.js umożliwia renderowanie po stronie serwera, co poprawia wydajność aplikacji oraz jej pozycjonowanie w wyszukiwarkach (SEO). Dzięki komponentom wielokrotnego użytku interfejs użytkownika jest spójny wizualnie i funkcjonalnie. 
+
+\subsection{Warstwa logiki biznesowej (ang.\ \emph{Business Logic Layer})}
+
+Warstwa logiki biznesowej pełni kluczową rolę w przetwarzaniu danych wejściowych i realizacji reguł biznesowych. Na tym poziomie dane są analizowane i przetwarzane zgodnie z zasadami określonymi przez specyfikę aplikacji. Główne zadania tej warstwy obejmują koordynację przepływu danych między innymi warstwami oraz obsługę wyjątków, które mogą wystąpić w wyniku błędów na wcześniejszych etapach przetwarzania.
+
+Na rysunku \ref{fig:n_tier_arch} warstwa logiki biznesowej jest oznaczona  literą \texttt{b)}. W~systemie ,,Harmony Home Net,, warstwa ta, oparta na Spring Boot, realizuje procesy biznesowe takie jak autoryzacja użytkowników przy użyciu OAuth 2.0, zarządzanie zgłoszeniami technicznymi oraz integracja z systemami płatności. Warstwa ta komunikuje się z frontendem poprzez REST API, co zapewnia efektywne przetwarzanie żądań i odpowiedzi. Dodatkowo technologia Spring Boot umożliwia implementację skalowalnych i bezpiecznych rozwiązań, co jest kluczowe w przypadku obsługi dużej liczby użytkowników.
+
+\subsection{Warstwa dostępu do danych (ang.\ \emph{Data Access Layer})}
+
+Warstwa dostępu do danych odpowiada za komunikację między logiką biznesową a fizycznym przechowywaniem danych. Jej główną funkcją jest wykonywanie operacji takich jak zapisywanie, odczytywanie, aktualizowanie i usuwanie danych w sposób zoptymalizowany i bezpieczny. Często korzysta się z bibliotek ORM, takich jak Hibernate lub JPA w Javie, które ułatwiają mapowanie danych między bazą a obiektami aplikacji.
+
+Na rysunku \ref{fig:n_tier_arch} warstwa dostępu do danych jest oznaczona literą \texttt{c)}. W systemie ,,Harmony Home Net,, baza danych PostgreSQL została uruchomiona w środowisku Docker. Dzięki zastosowaniu JPA możliwe jest łatwe mapowanie danych między tabelami bazodanowymi a obiektami aplikacji w Javie. Taka implementacja umożliwia optymalizację zapytań i zapewnia wydajność operacji, co jest istotne w przypadku dużej ilości danych przechowywanych w systemie, takich jak zgłoszenia techniczne czy płatności mieszkańców.
+
+\subsection{Warstwa danych (ang.\ \emph{Data Layer})}
+
+Warstwa danych odpowiada za trwałe przechowywanie danych aplikacji w bazach danych. Obejmuje zarządzanie strukturą danych, ich bezpieczeństwem oraz udostępnianie ich innym warstwom w sposób wydajny i zorganizowany. W systemie ,,Harmony Home Net'' wykorzystano bazę danych PostgreSQL, która została wdrożona w kontenerze Docker. 
+
+Na rysunku \ref{fig:n_tier_arch} warstwa danych jest oznaczona literą \texttt{d)}. Dzięki zastosowaniu mapowania ORM dane w bazie są bezpośrednio odwzorowywane na obiekty w aplikacji, co pozwala na wygodniejsze operacje na danych. Mechanizm ORM umożliwia wykonywanie zapytań SQL w sposób abstrakcyjny i bardziej czytelny, co upraszcza implementację i zmniejsza ryzyko błędów.
+
+\subsection{Zalety architektury warstwowej}
+
 
 \section{Struktura bazy danych}
 
@@ -78,20 +76,20 @@ Podejście \emph{Code First} zakłada najpierw zaprojektowanie modelu danych w k
 
 Z kolei podejście \emph{Database First} polega na wcześniejszym zaprojektowaniu schematu bazy danych, a następnie wygenerowaniu modelu aplikacji na jego podstawie. Jest to podejście bardziej tradycyjne, które umożliwia dokładne zdefiniowanie struktury danych jeszcze przed rozpoczęciem kodowania aplikacji~\cite{DB_FIRST}. Taka metodologia daje większą przewidywalność i precyzję, co jest istotne w systemach o wysokim stopniu zależności od integralności danych. Dodatkowo, podejście to pozwala na pełne wykorzystanie możliwości narzędzi ORM, takich jak JPA, ponieważ bazuje na uprzednio zaprojektowanym schemacie.
 
-\subsection{Wyboru podejścia Database First w systemie ,,Harmony Home Net''}
+\subsection{Wyboru podejścia Database First}
 
-W systemie \textbf{Harmony Home Net} zdecydowano się na podejście \emph{Database First} z kilku kluczowych powodów:
+W systemie „Harmony Home Net” zdecydowano się na podejście \emph{Database First} z kilku kluczowych powodów:
 
 \begin{itemize}
-    \item \textbf{Centralna rola bazy danych} -- baza danych pełni kluczową funkcję w systemie, przechowując informacje o użytkownikach, lokalach, zgłoszeniach technicznych oraz płatnościach. Precyzyjne zaprojektowanie jej struktury na etapie początkowym pozwoliło na lepsze zrozumienie relacji między danymi i ich hierarchii.
-    \item \textbf{Integracja z narzędziami ORM} -- dzięki wykorzystaniu podejścia \emph{Database First}, istniejące narzędzia ORM, takie jak JPA (Java Persistence API), mogły zostać bezproblemowo dostosowane do uprzednio przygotowanego schematu bazy danych, co uprościło implementację i zmniejszyło ryzyko błędów.
-    \item \textbf{Zgodność z wymaganiami aplikacji} -- rozpoczęcie od projektowania bazy danych zapewniło pełną zgodność struktury danych z wymaganiami funkcjonalnymi i niefunkcjonalnymi systemu. Umożliwiło to również identyfikację potencjalnych problemów na wczesnym etapie prac.
-    \item \textbf{Bezpieczeństwo i integralność danych} -- projektując bazę danych jako pierwszą, można było od razu uwzględnić mechanizmy zabezpieczeń, takie jak klucze główne, obce oraz indeksy. To podejście zminimalizowało ryzyko wystąpienia niespójności danych w trakcie działania systemu.
+    \item \textbf{Centralna rola bazy danych} -- baza danych pełni kluczową funkcję w systemie, przechowując informacje o użytkownikach, lokalach, zgłoszeniach technicznych oraz płatnościach. Precyzyjne zaprojektowanie jej struktury na etapie początkowym pozwoliło na lepsze zrozumienie relacji między danymi i~ich hierarchii.
+    \item \textbf{Integracja z narzędziami ORM} -- dzięki wykorzystaniu podejścia \emph{Database First}, istniejące narzędzia ORM, takie jak JPA (Java Persistence API), mogły zostać bezproblemowo dostosowane do uprzednio przygotowanego schematu bazy danych, co uprościło implementację i~zmniejszyło ryzyko błędów.
+    \item \textbf{Zgodność z wymaganiami aplikacji} -- rozpoczęcie od projektowania bazy danych zapewniło uzyskanie zgodności struktury danych z wymaganiami funkcjonalnymi i niefunkcjonalnymi. Umożliwiło również identyfikację potencjalnych problemów na wczesnym etapie prac.
+    \item \textbf{Bezpieczeństwo i integralność danych} -- projektując bazę danych jako pierwszą można było od razu uwzględnić mechanizmy zabezpieczeń, takie jak klucze główne, obce oraz indeksy. Zminimalizowało to ryzyko wystąpienia niespójności danych w trakcie działania systemu.
 \end{itemize}
 
-\subsection{Opis struktury bazy danych w systemie ,,Harmony Home Net''}
+\subsection{Opis struktury bazy danych}
 
-Struktura bazy danych w systemie \textbf{Harmony Home Net} została zaprojektowana z uwzględnieniem wymagań funkcjonalnych i niefunkcjonalnych aplikacji. Schemat bazy danych podzielono na warstwę konceptualną (rysunek \ref{fig:ebok_db_concept}) oraz fizyczną (rysunek \ref{fig:ebok_db_physical}), co umożliwiło dokładne odwzorowanie relacji pomiędzy danymi oraz optymalizację ich przechowywania.
+Strukturę bazy danych w systemie „Harmony Home Net” zaprojektowano z uwzględnieniem wymagań funkcjonalnych i niefunkcjonalnych aplikacji. Schemat bazy danych podzielono na warstwę konceptualną (rysunek \ref{fig:ebok_db_concept}) oraz fizyczną (rysunek \ref{fig:ebok_db_physical}), co umożliwiło dokładne odwzorowanie relacji pomiędzy danymi oraz optymalizację ich przechowywania.
 
 \begin{figure}[ht]
     \centering
@@ -102,7 +100,7 @@ Struktura bazy danych w systemie \textbf{Harmony Home Net} została zaprojektowa
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=.9\linewidth]{rys03/ebok_db_physical}
+    \includegraphics[width=1\linewidth]{rys03/ebok_db_physical}
     \caption{Schemat fizyczny bazy danych systemu}
     \label{fig:ebok_db_physical}
 \end{figure}

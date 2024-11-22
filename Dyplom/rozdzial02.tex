@@ -4,7 +4,7 @@ Analiza wymagań to kluczowy etap procesu tworzenia oprogramowania. Ma on na cel
 \section{Architektura systemu} 
 Zaprojektowanie architektury systemu przed jego implementacją umożliwia stworzenie efektywnego i funkcjonalnego rozwiązania. Proces projektowania architektury zazwyczaj rozpoczyna się od szkicowania jej zarysu, z wyszczególnieniem głównych komponentów systemu oraz ich wzajemnych interakcji. 
 
-Na rysunku \ref{fig:zarys_architektury} przedstawiono zarys architektury projektowanego systemu. Uwzględniono w nim współpracujące ze sobą komponenty, wdrożone przy użyciu technologii konteneryzacji. Konteneryzacja umożliwia izolację poszczególnych modułów, co sprzyja ich łatwej skalowalności oraz zarządzaniu.
+Na rysunku \ref{fig:zarys_architektury} przedstawiono zarys architektury projektowanego systemu. Uwzględniono w nim współpracujące ze sobą komponenty, wdrożone przy użyciu technologii konteneryzacji. Konteneryzacja umożliwia izolację poszczególnych modułów, co ułatwia zarządzanie środowiskiem, zwiększa bezpieczeństwo, sprzyja skalowalności~\cite{Docker-docs,vsupalov}.
 \begin{figure}[ht]
     \centering
     \includegraphics[width=.9\linewidth]{rys02/zarys_architektury}
@@ -17,15 +17,15 @@ Zgodnie z tym, co przedstawiono na rysunku~\ref{fig:zarys_architektury}, system 
 % TO DO: przypominam o regułach związanych z kropkami na końcach zdań i przy skrótach - mówiłem o tym na spotkaniu on-line!!!
 \begin{itemize}
 
-    \item \textbf{Interfejs użytkownika (Frontend)} -- jest warstwą prezentacyjną aplikacji, zrealizowaną przy użyciu frameworka Next.js (TypeScript), odpowiedzialną za interakcje z użytkownikami oraz prezentację danych. Na rysunku~\ref{fig:zarys_architektury} frontend został umieszczony po prawej stronie, gdzie obsługuje mieszkańców oraz pracowników. Komunikacja z backendem odbywa się przy użyciu protokołu HTTP. Frontend jest również uruchamiany w kontenerze Dockerowym, co zapewnia jego izolację i ułatwia wdrożenie w środowiskach produkcyjnych.
+    \item \textbf{Interfejs użytkownika (Frontend)} -- jest warstwą prezentacyjną aplikacji, zrealizowaną przy użyciu frameworka Next.js (TypeScript), odpowiedzialną za interakcje z użytkownikami oraz prezentację danych. Na rysunku~\ref{fig:zarys_architektury} frontend został umieszczony po prawej stronie, gdzie obsługuje mieszkańców oraz pracowników. Komunikacja z backendem odbywa się przy użyciu protokołu HTTP. Frontend jest również uruchamiany w kontenerze Dockerowym.
 
-    \item \textbf{Serwer (Backend)} -- to centralny moduł aplikacji, oparty na Spring Boot i~ uruchamiany w kontenerze Docker. Zarządza on logiką biznesową oraz przetwarzaniem danych. Na rysunku~\ref{fig:zarys_architektury}) backend znajduje się w centrum i pośredniczy między interfejsem użytkownika, bazą danych i zewnętrznymi systemami. Odpowiada za takie zadania, jak autoryzacja użytkowników (OAuth 2.0), zarządzanie zgłoszeniami technicznymi oraz obsługę transakcji finansowych. Konteneryzacja przy użyciu Dockera zapewnia elastyczność oraz ułatwia skalowanie.
+    \item \textbf{Serwer (Backend)} -- to centralny moduł aplikacji, oparty na Spring Boot, uruchamiany w kontenerze Docker. Zarządza on logiką biznesową oraz przetwarzaniem danych. Na rysunku~\ref{fig:zarys_architektury} backend znajduje się w centrum i pośredniczy między interfejsem użytkownika, bazą danych i zewnętrznymi systemami. Odpowiada za autoryzację użytkowników (OAuth 2.0), zarządzanie zgłoszeniami technicznymi oraz obsługę transakcji finansowych. 
 
     \item \textbf{Logika biznesowa} -- pełni funkcję koordynatora procesów biznesowych, odpowiedzialnego za przepływ danych pomiędzy warstwami systemu, takimi jak interfejs użytkownika, baza danych oraz systemy zewnętrzne. Na rysunku~\ref{fig:zarys_architektury} jest wyraźnie wyodrębniona jako kluczowy element przetwarzania zgłoszeń technicznych, zarządzania danymi użytkowników oraz integracji z systemami zewnętrznymi.
 
     \item \textbf{Warstwa dostępu do danych} -- odpowiada za operacje na bazie danych PostgreSQL, która przechowuje kluczowe informacje dotyczące użytkowników, zgłoszeń oraz transakcji. Na rysunku~\ref{fig:zarys_architektury} system bazodanowy został umieszczony po prawej stronie i bezpośrednio połączony z modułem serwerowym, co umożliwia efektywne zarządzanie danymi.
 
-    \item \textbf{System bazodanowy} -- jest elementem odpowiadającym za przechowywanie wszystkich danych przetwarzanych w systemie. Aplikacja korzysta z obrazu PostgreSQL uruchamianego w~kontenerze Docker. Na rysunku~\ref{fig:zarys_architektury} baza danych PostgreSQL stanowi kluczowy element infrastruktury. Konteneryzacja bazy danych pozwala na łatwe zarządzanie środowiskiem oraz zwiększa bezpieczeństwo i skalowalność~\cite{Docker-docs,vsupalov}.
+    \item \textbf{System bazodanowy} --  odpowiada za przechowywanie wszystkich danych przetwarzanych w systemie. Aplikacja korzysta z obrazu PostgreSQL uruchamianego w~kontenerze Docker. Na rysunku~\ref{fig:zarys_architektury} baza danych PostgreSQL stanowi kluczowy element infrastruktury. 
 
     \item \textbf{Moduł autoryzacji (OAuth 2.0)} -- zapewnia bezpieczny dostęp do zasobów systemu. Jak pokazano na rysunku~\ref{fig:zarys_architektury}, moduł ten pełni kluczową rolę w komunikacji pomiędzy warstwą serwerową a użytkownikami, kontrolując uprawnienia i dostęp do danych.
 
@@ -39,13 +39,13 @@ Interakcje między komponentami są kluczowe do poprawnego funkcjonowania całej
 
 \begin{itemize}
 
-	\item \textbf{Interfejs użytkownika i Serwer} -- moduł prezentacyjny (interfejs użytkownika) komunikuje się z warstwą serwerową poprzez żądania HTTP. Na rysunku~\ref{fig:zarys_architektury}połączenie pomiędzy tymi dwoma komponentami posiada ikonę \texttt{Checklist security}, symbolizującą kontrolę ról i~uprawnień użytkowników do konkretnych zasobów serwera. Warstwa serwerowa przetwarza zapytania i odsyła odpowiedzi w formacie JSON.
+	\item \textbf{Interfejs użytkownika i Serwer} -- moduł prezentacyjny (interfejs użytkownika) komunikuje się z warstwą serwerową poprzez żądania HTTP. Na rysunku~\ref{fig:zarys_architektury} połączenie pomiędzy tymi dwoma komponentami posiada ikonę \texttt{Checklist security}, symbolizującą kontrolę ról i~uprawnień użytkowników do konkretnych zasobów serwera. Warstwa serwerowa przetwarza zapytania i odsyła odpowiedzi w formacie JSON.
 
-	\item \textbf{Moduł serwerowy i baza danych} -- warstwa serwerowa łączy się z bazą danych PostgreSQL uruchomioną w kontenerze Docker. Na rysunku~\ref{fig:zarys_architektury} przedstawiono to jako bezpośrednie połączenie między komponentami, co umożliwia efektywne wykonywanie operacji odczytu i zapisu danych.
+	\item \textbf{Moduł serwerowy i baza danych} -- warstwa serwerowa łączy się z bazą danych PostgreSQL uruchomioną w kontenerze Docker. Na rysunku~\ref{fig:zarys_architektury} przedstawiono to jako bezpośrednie połączenie między komponentami, co umożliwia efektywne wykonywanie operacji odczytu i~zapisu danych.
 
 	\item \textbf{Zarządzanie płatnościami} -- moduł serwerowy integruje się z systemami płatności, zapewniając obsługę transakcji finansowych. Widać to na rysunku~\ref{fig:zarys_architektury} po lewej stronie, gdzie systemy płatności wymieniają dane z warstwą serwerową, umożliwiając aktualizację statusu transakcji w bazie danych.
 
-	\item \textbf{Powiadomienia dla użytkowników} -- powiadomienia są generowane bezpośrednio przez serwer i przesyłane do interfejsu użytkownika jako proste informacje, np. o zgłoszeniach, płatnościach lub głosowaniach. Na rysunku~\ref{fig:zarys_architektury} komunikację tę przedstawiono jako przepływ danych między serwerem, a interfejsem użytkownika, umożliwiając informowanie użytkowników o istotnych wydarzeniach w aplikacji.
+	\item \textbf{Powiadomienia dla użytkowników} -- powiadomienia są generowane bezpośrednio przez serwer i przesyłane do interfejsu użytkownika jako proste informacje, np.\ o zgłoszeniach, płatnościach lub głosowaniach. Na rysunku~\ref{fig:zarys_architektury} komunikację tę przedstawiono jako przepływ danych między serwerem, a interfejsem użytkownika, umożliwiając informowanie użytkowników o~istotnych wydarzeniach w aplikacji.
 	
 \end{itemize}
 
@@ -81,15 +81,15 @@ Wymagania funkcjonalne aplikacji eBOK koncentrują się na kluczowych działania
 
 	\item \textbf{Przegląd i płatność należności}: Właściciele lokali mogą przeglądać szczegóły dotyczące należności oraz historię płatności, a także realizować płatności online. System automatycznie wysyła powiadomienia o zaległościach, przypominając o konieczności uregulowania opłat. Pracownicy administracji mogą monitorować płatności wszystkich mieszkańców, przeglądać zaległości i zarządzać procesem windykacji. Administratorzy systemu mogą konfigurować integrację z systemami płatności oraz generować raporty dotyczące płatności.
 
-	\item \textbf{Zarządzanie zgłoszeniami technicznymi dla lokali}:Mieszkańcy mogą zgłaszać usterki lub problemy techniczne związane ze swoimi lokalami oraz monitorować status tych zgłoszeń. Pracownicy administracji monitorują zgłoszenia, przypisują je odpowiednim wykonawcom i śledzą postęp napraw. Administratorzy systemu mogą zarządzać zgłoszeniami na poziomie globalnym, przeglądać ich historię i tworzyć raporty.
+	\item \textbf{Zarządzanie zgłoszeniami technicznymi dla lokali}: Mieszkańcy mogą zgłaszać usterki lub problemy techniczne związane ze swoimi lokalami oraz monitorować status tych zgłoszeń. Pracownicy administracji monitorują zgłoszenia, przypisują je odpowiednim wykonawcom i śledzą postęp napraw. Administratorzy systemu mogą zarządzać zgłoszeniami na poziomie globalnym, przeglądać ich historię i tworzyć raporty.
 
-	\item \textbf{Zarządzanie dokumentami}: Właściciele mają pełen dostęp do dokumentów związanych z ich lokalami, takich jak umowy, regulaminy czy faktury. Pracownicy administracji zarządzają dokumentami powiązanymi z lokalami, przypisując je odpowiednim mieszkańcom oraz dbając o ich aktualność. Administratorzy systemu mogą tworzyć nowe kategorie dokumentów, zarządzać dostępami i monitorować całość systemu dokumentacji.
+	\item \textbf{Zarządzanie dokumentami}: Właściciele mają pełen dostęp do dokumentów związanych z~ich lokalami, takich jak umowy, regulaminy czy faktury. Pracownicy administracji zarządzają dokumentami powiązanymi z lokalami, przypisując je odpowiednim mieszkańcom oraz dbając o ich aktualność. Administratorzy systemu mogą tworzyć nowe kategorie dokumentów, zarządzać dostępami i monitorować całość systemu dokumentacji.
 
 	\item \textbf{Głosowania mieszkańców}: Właściciele mogą brać udział w głosowaniach dotyczących spraw wspólnoty mieszkaniowej. Pracownicy administracji organizują głosowania, publikują wyniki i zarządzają całością procesu głosowania. Administratorzy systemu mają dostęp do statystyk i wyników głosowań oraz mogą nadzorować ich przebieg.
 	
 	\item \textbf{Powiadomienia i komunikacja}: System wysyła powiadomienia do mieszkańców o ważnych wydarzeniach, takich jak zaległe płatności, zgłoszenia serwisowe, planowane prace konserwacyjne czy nadchodzące głosowania. Pracownicy administracji mogą zarządzać powiadomieniami, konfigurować harmonogram wysyłki oraz komunikować się z mieszkańcami za pomocą różnych kanałów (e-mail, SMS). Administratorzy systemu mogą monitorować i konfigurować system powiadomień.
 	
-	\item \textbf{Panel administracyjny}: Pracownicy administracji korzystają z panelu, który umożliwia zarządzanie lokalami, przypisywanie mieszkańców, monitorowanie zgłoszeń technicznych i kontrolowanie płatności. Administratorzy systemu mają dostęp do zaawansowanych funkcji, takich jak zarządzanie całą bazą danych lokali, użytkowników, dokumentów oraz konfiguracja integracji z zewnętrznymi systemami.
+	\item \textbf{Panel administracyjny}: Pracownicy administracji korzystają z panelu, który umożliwia zarządzanie lokalami, przypisywanie mieszkańców, monitorowanie zgłoszeń technicznych i~kontrolowanie płatności. Administratorzy systemu mają dostęp do zaawansowanych funkcji, takich jak zarządzanie całą bazą danych lokali, użytkowników, dokumentów oraz konfiguracja integracji z zewnętrznymi systemami.
 	
 	\item \textbf{Integracja z zewnętrznymi systemami}: Aplikacja eBOK integruje się z zewnętrznymi systemami, takimi jak systemy pomiarowe liczników mediów (np. wodomierze, liczniki energii) oraz platformy płatności. Integracja umożliwia automatyczne generowanie rachunków oraz synchronizację danych dotyczących zużycia mediów. Administratorzy systemu są odpowiedzialni za konfigurację i monitorowanie tych integracji.
 	
@@ -103,12 +103,12 @@ Wymagania funkcjonalne aplikacji eBOK koncentrują się na kluczowych działania
 
 \begin{enumerate}[label=\arabic*.,labelwidth=\widthof{10}]
 
-   \item \textbf{Skalowalność}: System musi być elastyczny, aby obsługiwać zarówno małe wspólnoty, jak i duże spółdzielnie, zarządzające setkami lub tysiącami lokali. Zastosowanie technologii Docker do konteneryzacji umożliwia skalowanie poziome (dodawanie instancji), co pozwala na efektywne rozdzielenie obciążenia.
+   \item \textbf{Skalowalność}: System musi być elastyczny, aby obsługiwać zarówno małe wspólnoty, jak i~duże spółdzielnie, zarządzające setkami lub tysiącami lokali. Zastosowanie technologii Docker do konteneryzacji umożliwia skalowanie poziome (dodawanie instancji), co pozwala na efektywne rozdzielenie obciążenia.
 
 	\item \textbf{Bezpieczeństwo}: Wszystkie dane muszą być przechowywane i przesyłane w sposób bezpieczny. Autoryzacja za pomocą OAuth 2.0. System musi także chronić dane przed nieautoryzowanym dostępem i atakami, np. SQL Injection czy XSS.
 
 	\item \textbf{Wydajność}: System powinien zapewniać szybki czas odpowiedzi, szczególnie podczas przetwarzania dużych ilości danych, takich jak zgłoszenia techniczne czy płatności. Warstwa serwerowa oparta na Spring Boot oraz baza danych PostgreSQL muszą być odpowiednio zoptymalizowane.
-
+% TO DO: co to znaczy "szybki", czy to 2 sekundy, czy może 10? Wymagania powinny być weryfikowalne - należy podać warunki ich spełnienia
 	\item \textbf{Dostępność}: Aplikacja powinna być dostępna przez 99,9\% czasu, z minimalnymi przerwami na konserwację. Monitorowanie serwerów oraz wdrożenie technologii Docker umożliwia szybkie przywracanie usług w przypadku awarii.
 
 	\item \textbf{Intuicyjność interfejsu}: Aplikacja musi być łatwa w obsłudze zarówno dla mieszkańców, jak i administratorów. Interfejs oparty na komponentach Shadcn UI, zgodny z WCAG 2.0, zapewnia dostępność i łatwość nawigacji.
