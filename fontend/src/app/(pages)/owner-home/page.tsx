@@ -32,6 +32,7 @@ import {Payments} from "@/components/owner-components/payments";
 import {UserSettings} from "@/hooks/user-settings";
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card";
 import {ForumComponent} from "@/components/common-components/forum";
+import {UtilityMeters} from "@/components/owner-components/utility-meters";
 
 const navItems = [
     {label: 'Strona główna', icon: Home},
@@ -131,7 +132,9 @@ export default function MainResidentsPage() {
             case 'Forum':
                 return <ForumComponent/>;
             case 'Głosowania':
-                return <div style={{color: 'red'}}>This feature will be implemented in the future</div>;
+                return <div style={{color: 'red'}}>Ta funkcja zostanie w przyszłości zaimplementowana</div>;
+            case 'Stany liczników':
+                return <UtilityMeters apartmentId={selectedApartment}/>;
             case 'Ustawienia':
                 return <UserSettings/>;
             default:
