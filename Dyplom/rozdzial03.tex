@@ -6,7 +6,7 @@ Warto podkreślić, że obecnie system „Harmony Home Net” ma charakter proto
 
 Rozdział rozpocznie omówienie zastosowanej \textbf{architektury warstwowej}~\cite{n_tier_wiki}, która jest podstawą projektowanego systemu. Szczegółowo opisane zostaną wszystkie warstwy – prezentacji, logiki biznesowej oraz dostępu do danych – z uwzględnieniem ich ról oraz sposobu implementacji. Następnie uwaga zostanie zwrócona na \textbf{bazę danych}. Omówione zostaną podejścia Database First i Code First, wraz z uzasadnieniem wyboru pierwszego z nich. Podane zostaną szczegóły zaprojektowanej struktury bazy danych oraz sposób jej integracji z aplikacją.
 
-W kolejnym kroku dokonany zostanie przegląd kluczowych elementów systemu. Rozpocznie się on od tematu \textbf{bezpieczeństwa}, w tym mechanizmów autoryzacji i uwierzytelniania zrealizowanych przy użyciu Spring Security. Następnie zostanie opisane \textbf{zarządzanie mieszkańcami} jako centralny element systemu, a także inne istotne funkcje, takie jak zarządzanie mieszkaniami, zgłoszeniami technicznymi, płatnościami i powiadomieniami.
+W kolejnym kroku dokonany zostanie przegląd kluczowych elementów systemu. Rozpocznie się on od tematu \textbf{bezpieczeństwa}, w tym mechanizmów autoryzacji i uwierzytelniania zrealizowanych przy użyciu Spring Security. Następnie zostanie opisane \textbf{zarządzanie użytkownikami systemu} jako centralny element systemu, a także inne istotne funkcje, takie jak zarządzanie mieszkaniami, zgłoszeniami technicznymi, płatnościami i powiadomieniami.
 
 
 % TO DO: czy rzeczywiście wdrożenia? Wdrożenie to proces instalacji i uruchomienia aplikacji w środowisku produkcyjnym.
@@ -44,7 +44,7 @@ Zastosowanie architektury warstwowej w systemie „Harmony Home Net” zapewnić
 \subsection{Warstwa prezentacji (ang.\ \emph{Presentation Layer})}
 Warstwa prezentacji odpowiada za interakcję użytkownika z aplikacją, będąc głównym punktem styku użytkownika z systemem. Na tym poziomie użytkownik wprowadza dane wejściowe, a system zwraca wyniki w formie czytelnej i zrozumiałej. Głównym zadaniem warstwy prezentacji jest renderowanie interfejsu użytkownika oraz obsługa zdarzeń takich jak kliknięcia czy przesunięcia. Odpowiada również za wstępną walidację danych wejściowych, na przykład sprawdzanie, czy wprowadzony adres e-mail ma poprawny format. Przetworzone dane są następnie przekazywane do warstwy logiki biznesowej, gdzie są dalej analizowane i przetwarzane.
 
-Na rysunku \ref{fig:n_tier_arch} warstwa prezentacji jest oznaczona literą \texttt{a)}. W systemie ,,Harmony Home Net,, została zrealizowana za pomocą frameworka Next.js w języku TypeScript. Odpowiada ona za wyświetlanie interfejsu użytkownika, w tym panelu mieszkańca, gdzie użytkownicy mogą przeglądać zgłoszenia techniczne, dokonywać płatności oraz uczestniczyć w głosowaniach. Użycie Next.js umożliwia renderowanie po stronie serwera, co poprawia wydajność aplikacji oraz jej pozycjonowanie w wyszukiwarkach (SEO). Dzięki komponentom wielokrotnego użytku interfejs użytkownika jest spójny wizualnie i funkcjonalnie. 
+Na rysunku \ref{fig:n_tier_arch} warstwa prezentacji jest oznaczona literą \texttt{a)}. W systemie ,,Harmony Home Net,, została zrealizowana za pomocą frameworka Next.js w języku TypeScript. Odpowiada ona za wyświetlanie interfejsu użytkownika, w tym panelu właściela, gdzie użytkownicy mogą przeglądać zgłoszenia techniczne, dokonywać płatności oraz uczestniczyć w głosowaniach. Użycie Next.js umożliwia renderowanie po stronie serwera, co poprawia wydajność aplikacji oraz jej pozycjonowanie w wyszukiwarkach (SEO). Dzięki komponentom wielokrotnego użytku interfejs użytkownika jest spójny wizualnie i funkcjonalnie. 
 
 \subsection{Warstwa logiki biznesowej (ang.\ \emph{Business Logic Layer})}
 
@@ -56,7 +56,7 @@ Na rysunku \ref{fig:n_tier_arch} warstwa logiki biznesowej jest oznaczona  liter
 
 Warstwa dostępu do danych odpowiada za komunikację między logiką biznesową a fizycznym przechowywaniem danych. Jej główną funkcją jest wykonywanie operacji takich jak zapisywanie, odczytywanie, aktualizowanie i usuwanie danych w sposób zoptymalizowany i bezpieczny. Często korzysta się z bibliotek ORM, takich jak Hibernate lub JPA w Javie, które ułatwiają mapowanie danych między bazą a obiektami aplikacji.
 
-Na rysunku \ref{fig:n_tier_arch} warstwa dostępu do danych jest oznaczona literą \texttt{c)}. W systemie ,,Harmony Home Net,, baza danych PostgreSQL została uruchomiona w środowisku Docker. Dzięki zastosowaniu JPA możliwe jest łatwe mapowanie danych między tabelami bazodanowymi a obiektami aplikacji w Javie. Taka implementacja umożliwia optymalizację zapytań i zapewnia wydajność operacji, co jest istotne w przypadku dużej ilości danych przechowywanych w systemie, takich jak zgłoszenia techniczne czy płatności mieszkańców.
+Na rysunku \ref{fig:n_tier_arch} warstwa dostępu do danych jest oznaczona literą \texttt{c)}. W systemie ,,Harmony Home Net,, baza danych PostgreSQL została uruchomiona w środowisku Docker. Dzięki zastosowaniu JPA możliwe jest łatwe mapowanie danych między tabelami bazodanowymi a obiektami aplikacji w Javie. Taka implementacja umożliwia optymalizację zapytań i zapewnia wydajność operacji, co jest istotne w przypadku dużej ilości danych przechowywanych w systemie, takich jak zgłoszenia techniczne czy płatności właścieli.
 
 \subsection{Warstwa danych (ang.\ \emph{Data Layer})}
 
@@ -395,7 +395,12 @@ Proces logowania składa się z następujących kroków, oznaczonych literami \t
 
     \item \textbf{Generowanie tokenu JWT \texttt{d)}} -- Jeśli dane logowania są poprawne, na podstawie informacji o użytkowniku generowany jest token JWT za pomocą usługi \texttt{JwtService}. Token zawiera zaszyfrowane informacje, takie jak identyfikator użytkownika, rola w systemie oraz data wygaśnięcia. Klucze RSA zapewniają bezpieczeństwo tokenu.
 
-    \item \textbf{Zwrócenie tokenu JWT w odpowiedzi \texttt{e)}} -- Token JWT jest przesyłany do użytkownika w odpowiedzi HTTP \texttt{200}. Użytkownik przechowuje token lokalnie (np. w pamięci przeglądarki lub w \emph{localStorage}), aby używać go do autoryzacji kolejnych żądań do API.
+    \item \textbf{Zwrócenie tokenu JWT w odpowiedzi \texttt{e)}} -- Token JWT jest przesyłany do użytkownika w odpowiedzi HTTP \texttt{200}. Użytkownik przechowuje token lokalnie (np. w pamięci przeglądarki lub w \emph{sessionStorage}), aby używać go do autoryzacji kolejnych żądań do API. Token posiada czas ważności 10 minut, co zapewnia odpowiedni balans pomiędzy bezpieczeństwem a wygodą użytkownika:
+\begin{itemize}
+    \item Krótki czas ważności minimalizuje ryzyko wykorzystania tokenu przez osoby nieuprawnione w przypadku jego przechwycenia lub zgubienia.
+    \item Jednocześnie, 10 minut jest wystarczające dla typowych operacji użytkownika, takich jak przeglądanie aplikacji i wykonywanie kolejnych żądań API bez konieczności częstego odświeżania tokenu.
+\end{itemize}
+ 
 \end{enumerate}
 
 W szczególności klasa \texttt{UserInfoManagerConfig}, wykorzystywana w kroku \texttt{c)}, jest odpowiedzialna za weryfikację istnienia użytkownika w bazie danych oraz dostarczenie szczegółów użytkownika wymaganych przez mechanizm uwierzytelniania. Kod klasy przedstawiono poniżej:
@@ -1105,7 +1110,7 @@ public ResponseEntity<PageResponse<UserResponse>> getAllUsers(
 
 \subsection{Przyszłe usprawnienia: integracja ACL}
 
-Jednym z możliwych kierunków rozwoju systemu jest integracja mechanizmu \textbf{ACL}~\cite{acl}. ACL umożliwia bardziej precyzyjne zarządzanie dostępem do zasobów poprzez przypisywanie uprawnień na poziomie pojedynczych zasobów (np. użytkownik może edytować tylko swoje zgłoszenia techniczne, ale nie ma dostępu do zgłoszeń innych mieszkańców). Dzięki temu system mógłby zapewniać większą elastyczność i bezpieczeństwo przy zarządzaniu użytkownikami.
+Jednym z możliwych kierunków rozwoju systemu jest integracja mechanizmu \textbf{ACL}~\cite{acl}. ACL umożliwia bardziej precyzyjne zarządzanie dostępem do zasobów poprzez przypisywanie uprawnień na poziomie pojedynczych zasobów (np. użytkownik może edytować tylko swoje zgłoszenia techniczne, ale nie ma dostępu do zgłoszeń innych właścicieli). Dzięki temu system mógłby zapewniać większą elastyczność i bezpieczeństwo przy zarządzaniu użytkownikami.
 
 ACL w przyszłości może obejmować:
 \begin{itemize}
@@ -1236,7 +1241,7 @@ public class PossessionHistory {
 
 Proces przypisywania mieszkania do użytkownika jest realizowany w serwisie \texttt{ApartmentsServiceImp}. Przykładowa implementacja:
 
-\begin{lstlisting}[language=Java, caption=Przypisywanie mieszkańców w \texttt{ApartmentsServiceImp}]
+\begin{lstlisting}[language=Java, caption=Przypisywanie właścicieli w \texttt{ApartmentsServiceImp}]
 @Override
 @Transactional
 public PossessionHistoryResponse createPossessionHistory(String apartmentSignature, UUID userId)
@@ -1266,7 +1271,7 @@ public PossessionHistoryResponse createPossessionHistory(String apartmentSignatu
 }
 \end{lstlisting}
 
-\subsection{Przyszłe usprawnienia dla zarządzania mieszkańcami}
+\subsection{Przyszłe usprawnienia dla zarządzania właścielami}
 
 Aktualnie proces dodawania i usuwania właścicieli mieszkań na warstwie frontendowej jest zrealizowany w sposób bardzo uproszony. Użytkownik musi ręcznie wprowadzić UUID osoby, która ma zostać przypisana jako właściciel mieszkania, co jest niepraktyczne i podatne na błędy w przypadku dużej liczby użytkowników.
 
@@ -1280,12 +1285,12 @@ Proponowane usprawnienia obejmują:
 
 W przyszłości planowane jest rozszerzenie systemu o następujące funkcje:
 \begin{itemize}
-    \item \textbf{Automatyczne generowanie powiadomień} -- informowanie mieszkańców o zmianach statusu mieszkania.
+    \item \textbf{Automatyczne generowanie powiadomień} -- informowanie właścicieli o zmianach statusu mieszkania.
     \item \textbf{Zaawansowana historia posiadania} -- dodanie możliwości załączania notatek i dokumentów do historii posiadania.
     \item \textbf{Integracja z systemami księgowymi} -- automatyczne generowanie opłat na podstawie powierzchni mieszkania i jego wartości procentowej.
 \end{itemize}
 
-Dzięki tym zmianom proces zarządzania właścicielami mieszkań stanie się bardziej intuicyjny i mniej podatny na błędy. Dodatkowo, lepsza prezentacja danych na froncie pozwoli pracownikom administracyjnym szybciej i sprawniej realizować operacje związane z przypisywaniem mieszkańców.
+Dzięki tym zmianom proces zarządzania właścicielami mieszkań stanie się bardziej intuicyjny i mniej podatny na błędy. Dodatkowo, lepsza prezentacja danych na froncie pozwoli pracownikom administracyjnym szybciej i sprawniej realizować operacje związane z przypisywaniem właścicieli.
 
 
 \section{Zarządzie dokumentami}
@@ -1348,8 +1353,7 @@ public class Document {
     \item \texttt{userDocumentConnections} -- lista obiektów reprezentujących relacje z użytkownikami.
 \end{itemize}
 
-\textbf{Encja \texttt{UserDocumentConnection}}  
-Tabela pośrednicząca \texttt{UserDocumentConnection} zarządza relacją między dokumentami a użytkownikami, którzy mają do nich dostęp. Jej kod wygląda następująco:
+\textbf{Encja \texttt{UserDocumentConnection}} -- tabela pośrednicząca \texttt{UserDocumentConnection} zarządza relacją między dokumentami a użytkownikami, którzy mają do nich dostęp. Jej kod wygląda następująco:
 
 \begin{lstlisting}[language=Java, caption=Encja \texttt{UserDocumentConnection}]
 @Entity
@@ -1477,7 +1481,7 @@ Fragment kodu serwisu:
             // Dokument publiczny - przypisujemy wszystkich użytkowników
             eligibleUsers = userRepository.findAll();
         } else {
-            // Dokument prywatny - pobierz mieszkańców apartamentu i pracowników oraz adminów
+            // Dokument prywatny - pobierz właścieli apartamentu i pracowników oraz adminów
             List<User> residents = possessionHistoryRepository.findActiveResidentsByApartment(apartmentSignature);
 
             if (residents.isEmpty()) {
@@ -1705,20 +1709,20 @@ Opis pól encji:
 
 \subsection{Proces zgłaszania i zarządzania zgłoszeniami}
 
-\paragraph{Zgłaszanie problemów przez właściciela:}
+Zgłaszanie problemów przez właściciela:
 \begin{itemize}
     \item Użytkownik, będący właścicielem mieszkania, może zgłosić problem dotyczący konkretnego mieszkania. 
     \item Zgłoszenie jest tworzone z określeniem kategorii, opisu problemu oraz inicjalnym statusem (\texttt{OPEN}).
 		\item Właściel/właściele danego mieszkania maja w czasie rzeczywistym podgąl do zgłsznie do danego mieszkania oraz dostaja powiadomienia jeśli dojdzie  do jakieś zmiany w zgłoszeniu.
 \end{itemize}
 
-\paragraph{Zarządzanie zgłoszeniami przez pracownika:}
+Zarządzanie zgłoszeniami przez pracownika:
 \begin{itemize}
     \item Pracownicy mogą edytować zgłoszenia, zmieniając ich status (\texttt{IN\_PROGRESS}, \texttt{DONE}) oraz wprowadzając dodatkowe informacje w notatkach.
     \item Obecna implementacja umożliwia jedynie manualne zarządzanie statusem i opisem zgłoszeń.
 \end{itemize}
 
-\paragraph{Utrzymanie zgłoszeń przy zmianie właściciela mieszkania:}
+Utrzymanie zgłoszeń przy zmianie właściciela mieszkania:
 \begin{itemize}
     \item W przypadku zmiany właściciela mieszkania, zgłoszenia pozostają w systemie i są automatycznie przypisywane nowym właścicielom.
     \item Dzięki temu historia problemów związanych z mieszkaniem pozostaje dostępna dla nowych właścicieli.
@@ -1729,7 +1733,7 @@ Opis pól encji:
 
 Serwis \texttt{ProblemReportServiceImp} obsługuje kluczowe operacje związane z zarządzaniem zgłoszeniami problemów. Oto szczegółowy opis funkcji wraz z ich implementacją:
 
-\paragraph{Tworzenie zgłoszenia problemu.}
+Tworzenie zgłoszenia problemu.
 
 Funkcja \texttt{createProblemReport} umożliwia dodanie nowego zgłoszenia problemu przez użytkownika. Proces obejmuje:
 \begin{enumerate}
@@ -1787,9 +1791,7 @@ public ProblemReportResponse createProblemReport(ProblemReportRequest problemRep
     }
 \end{lstlisting}
 
-\paragraph{Aktualizacja zgłoszenia problemu.}
-
-Funkcja \texttt{updateProblemReport} pozwala na aktualizację statusu zgłoszenia oraz jego szczegółów. Jeśli zgłoszenie zostanie oznaczone jako zakończone (\texttt{DONE}), ustawiana jest również data zakończenia.
+\textbf{Aktualizacja zgłoszenia problemu} -- funkcja \texttt{updateProblemReport} pozwala na aktualizację statusu zgłoszenia oraz jego szczegółów. Jeśli zgłoszenie zostanie oznaczone jako zakończone (\texttt{DONE}), ustawiana jest również data zakończenia.
 
 \begin{lstlisting}[language=Java, caption=Aktualizacja zgłoszenia problemu.]
 @Override
@@ -1847,9 +1849,7 @@ public ProblemReportResponse updateProblemReport(Long problemReportId, ProblemRe
     }
 \end{lstlisting}
 
-\paragraph{Powiadamianie użytkowników o zmianach statusu zgłoszeń.}
-
-Metoda \texttt{updateProblemReport} zawiera również logikę wysyłania powiadomień do użytkowników za pomocą e-maili lub wiadomości SMS o zmianie statusu zgłoszenia. Dzięki temu użytkownicy są na bieżąco informowani o postępach w realizacji zgłoszenia.
+\textbf{Powiadamianie użytkowników o zmianach statusu zgłoszeń} -- metoda \texttt{updateProblemReport} zawiera również logikę wysyłania powiadomień do użytkowników za pomocą e-maili lub wiadomości SMS o zmianie statusu zgłoszenia. Dzięki temu użytkownicy są na bieżąco informowani o postępach w realizacji zgłoszenia.
 
 \subsection{Przyszły rozwój systemu}
 Obecny system zarządzania zgłoszeniami jest prototypem, a jego funkcjonalności mogą zostać rozszerzone w przyszłości:
@@ -1860,9 +1860,353 @@ Obecny system zarządzania zgłoszeniami jest prototypem, a jego funkcjonalnośc
 \end{itemize}
 
 
-\section{Zarządzie ogłoszeniami}
+\section{Zarządzanie ogłoszeniami}
 
-\section{Zarządzie forum dla wspólnoty}
+System zarządzania ogłoszeniami w prototypie „Harmony Home Net” umożliwia administratorom i pracownikom publikowanie ogłoszeń oraz przypisywanie ich do konkretnych mieszkań. Mechanizm został zaprojektowany w sposób uproszczony, aby zaspokoić podstawowe potrzeby informacyjne użytkowników systemu.
+
+\subsection{Struktura danych}
+
+Ogłoszenia w systemie są reprezentowane przez encję \texttt{Announcement}, która przechowuje podstawowe informacje, takie jak tytuł, treść, czas utworzenia i aktualizacji oraz powiązanie z użytkownikiem odpowiedzialnym za dodanie ogłoszenia. Relacje z właścielami są zarządzane za pomocą tabeli pośredniczącej \texttt{AnnouncementApartment}. Poniżej przedstawiono kod implementacji encji:
+
+\textbf{Encja \texttt{Announcement}}
+\begin{lstlisting}[language=Java, caption=Encja \texttt{Announcement}]
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+@Entity
+@Table(name = "Announcements", indexes = {
+        @Index(name = "idx_announcement_user_id", columnList = "user_id"),
+        @Index(name = "idx_announcement_created_at", columnList = "created_at"),
+        @Index(name = "idx_announcement_updated_at", columnList = "updated_at")
+})
+public class Announcement {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID")
+    private Long id;
+
+    @NotEmpty
+    @Size(max = 50)
+    @Column(name = "Title", nullable = false, length = 50)
+    private String title;
+
+    @NotEmpty
+    @Size(max = 1000)
+    @Column(name = "Content", nullable = false, length = 1000)
+    private String content;
+
+    @CreationTimestamp
+    @Column(name = "Created_at", nullable = false)
+    private Instant createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "Updated_at")
+    private Instant updatedAt;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "UUID_id")
+    @JsonBackReference
+    private User user;
+
+    @OneToMany(mappedBy = "announcement", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private List<AnnouncementApartment> announcementApartments;
+
+}
+\end{lstlisting}
+
+\textbf{Tabela pośrednicząca \texttt{AnnouncementApartment}} -- tabela \texttt{AnnouncementApartment} zarządza relacjami między ogłoszeniami a mieszkaniami, umożliwiając przypisywanie i odłączanie ogłoszeń od wybranych nieruchomości. Przykładowa implementacja poniżej:
+
+\begin{lstlisting}[language=Java, caption=Encja \texttt{AnnouncementApartment}]
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+@Entity
+@Table(name = "Announcement_apartments",
+        indexes = {
+                @Index(name = "idx_announcement_apartment", columnList = "apartment_id"),
+                @Index(name = "idx_announcement", columnList = "announcement_id")
+        },
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"apartment_id", "announcement_id"})
+        })
+public class AnnouncementApartment {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID")
+    private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "apartment_id", referencedColumnName = "UUID_id")
+    @JsonBackReference
+    private Apartment apartment;
+
+    @ManyToOne
+    @JoinColumn(name = "announcement_id", referencedColumnName = "ID")
+    @JsonBackReference
+    private Announcement announcement;
+
+    public void removeAssociation() {
+        if (this.announcement != null) {
+            this.announcement.getAnnouncementApartments().remove(this);
+            this.announcement = null;
+        }
+        if (this.apartment != null) {
+            this.apartment.getAnnouncementApartments().remove(this);
+            this.apartment = null;
+        }
+    }
+}
+\end{lstlisting}
+
+\subsection{Funkcjonalności systemu ogłoszeń}
+
+\textbf{Dodawanie ogłoszeń} -- ogłoszenia mogą być dodawane przez administratorów i pracowników za pomocą metody \texttt{createAnnouncement}. W procesie tym podawane są informacje, takie jak tytuł, treść oraz identyfikator użytkownika odpowiedzialnego za utworzenie ogłoszenia. Poniżej przedstawiono implementację:
+
+\begin{lstlisting}[language=Java, caption=Dodawanie ogłoszenia.]
+@Override
+public AnnouncementResponse createAnnouncement(AnnouncementRequest announcementRequest) 
+        throws UserNotFoundException {
+
+    UUID userId = announcementRequest.getUserId();
+    User user = userRepository.findById(userId)
+            .orElseThrow(() -> new UserNotFoundException("User: " + userId + " not found"));
+
+    Announcement announcement = Announcement.builder()
+            .title(announcementRequest.getTitle())
+            .content(announcementRequest.getContent())
+            .user(user)
+            .build();
+
+    Announcement saved = announcementRepository.save(announcement);
+    return AnnouncementResponse.builder()
+            .id(saved.getId())
+            .title(saved.getTitle())
+            .content(saved.getContent())
+            .createdAt(saved.getCreatedAt())
+            .updatedAt(saved.getUpdatedAt())
+            .build();
+}
+\end{lstlisting}
+
+\textbf{Przypisywanie ogłoszeń do mieszkań} -- administratorzy i pracownicy mogą przypisywać ogłoszenia do konkretnych mieszkań za pomocą metody \texttt{linkAnnouncementsToApartments}. W procesie tym:
+\begin{enumerate}
+    \item Pobierane są identyfikatory mieszkań.
+    \item Tworzone są nowe powiązania między ogłoszeniem a mieszkaniami.
+    \item Powiadomienia o nowym ogłoszeniu są wysyłane do właścicieli mieszkań.
+\end{enumerate}
+
+\begin{lstlisting}[language=Java, caption=Przypisywanie ogłoszeń do mieszkań.]
+@Override
+@Transactional
+public String linkAnnouncementsToApartments(Long announcementId, List<String> apartmentSignatures) 
+        throws AnnouncementNotFoundException, ApartmentNotFoundException {
+
+    Announcement announcement = announcementRepository.findById(announcementId)
+            .orElseThrow(() -> new AnnouncementNotFoundException("Announcement: " + announcementId + " not found"));
+
+    List<AnnouncementApartment> newAnnouncementApartments = apartmentSignatures.stream()
+            .map(apartmentSignature -> apartmentsRepository.findByApartmentSignature(apartmentSignature)
+                    .orElseThrow(() -> new ApartmentNotFoundException("Apartment: " + apartmentSignature + " not found")))
+            .map(apartment -> AnnouncementApartment.builder()
+                    .announcement(announcement)
+                    .apartment(apartment)
+                    .build())
+            .toList();
+
+    announcementApartmentRepository.saveAll(newAnnouncementApartments);
+    return "Linked " + newAnnouncementApartments.size() + " apartments to announcement: " + announcementId;
+}
+\end{lstlisting}
+
+\textbf{Odłączanie ogłoszeń od mieszkań} -- odłączanie ogłoszeń od mieszkań odbywa się za pomocą metody \texttt{unlinkAnnouncementsFromApartments}. Proces ten usuwa powiązania między wskazanymi mieszkaniami a ogłoszeniem.
+
+\subsection{Możliwości rozbudowy systemu zarządzania ogłoszeniami}
+
+W obecnej formie system zarządzania ogłoszeniami w „Harmony Home Net” został zaprojektowany jako prototypowy, z podstawowym zestawem funkcji umożliwiających publikację i zarządzanie ogłoszeniami. W przyszłości można rozważyć rozszerzenie funkcjonalności systemu o poniższe elementy:
+
+\begin{enumerate}
+    \item \textbf{Rozbudowa uprawnień dostępu}
+    \begin{itemize}
+        \item Dodanie bardziej precyzyjnych mechanizmów kontroli dostępu, takich jak przypisywanie ról z różnymi poziomami uprawnień do ogłoszeń (np. możliwość przeglądania, edycji, usuwania).
+        \item Implementacja ACL w celu definiowania indywidualnych uprawnień na poziomie ogłoszeń, mieszkań czy użytkowników.
+    \end{itemize}
+
+    \item \textbf{Obsługa zaawansowanych powiadomień}
+    \begin{itemize}
+        \item Wprowadzenie dynamicznych powiadomień, takich jak notyfikacje push, integracje z aplikacjami mobilnymi czy webhooki do zewnętrznych systemów.
+        \item Możliwość tworzenia szablonów powiadomień z dostosowywaniem treści do odbiorcy (np. inny komunikat dla administratorów, a inny dla właścieli).
+    \end{itemize}
+
+    \item \textbf{Personalizacja ogłoszeń}
+    \begin{itemize}
+        \item Dodanie możliwości tworzenia ogłoszeń przypisanych do grup użytkowników (np. tylko do właścieli konkretnej dzielnicy lub piętra).
+        \item Opcja filtrowania ogłoszeń na podstawie kategorii, priorytetu lub statusu (np. aktywne, archiwalne).
+    \end{itemize}
+
+    \item \textbf{Historia i wersjonowanie ogłoszeń}
+    \begin{itemize}
+        \item Wprowadzenie historii zmian ogłoszeń, która umożliwi śledzenie edycji tytułów lub treści wraz z informacjami o autorach.
+        \item Możliwość powrotu do poprzednich wersji ogłoszeń w przypadku błędów lub pomyłek.
+    \end{itemize}
+
+    \item \textbf{Dodanie zaawansowanych kategorii i tagowania}
+    \begin{itemize}
+        \item Wprowadzenie kategorii ogłoszeń (np. techniczne, administracyjne, ogólne) oraz tagów umożliwiających lepsze wyszukiwanie i organizację treści.
+        \item Dynamiczne filtry w interfejsie użytkownika do łatwego przeszukiwania ogłoszeń na podstawie kategorii, tagów lub dat.
+    \end{itemize}
+
+    \item \textbf{Integracja z systemami zewnętrznymi}
+    \begin{itemize}
+        \item Połączenie systemu ogłoszeń z aplikacjami mobilnymi lub zewnętrznymi systemami zarządzania nieruchomościami (np. platformy CRM/ERP).
+        \item Dodanie API umożliwiającego zewnętrznym aplikacjom publikowanie ogłoszeń lub pobieranie ich w czasie rzeczywistym.
+    \end{itemize}
+
+    \item \textbf{Zaawansowana analiza i raportowanie}
+    \begin{itemize}
+        \item Tworzenie raportów na temat liczby opublikowanych ogłoszeń, ich zasięgu oraz aktywności użytkowników (np. ile osób otworzyło ogłoszenie).
+        \item Możliwość analizy skuteczności powiadomień w zależności od użytego kanału (e-mail, SMS, push).
+    \end{itemize}
+
+    \item \textbf{Automatyzacja publikacji ogłoszeń}
+    \begin{itemize}
+        \item Wprowadzenie harmonogramów publikacji ogłoszeń, aby mogły być one automatycznie publikowane w określonym czasie.
+        \item Opcja automatycznego archiwizowania ogłoszeń po upływie daty ważności.
+    \end{itemize}
+
+    \item \textbf{Dodanie systemu komentarzy i potwierdzeń}
+    \begin{itemize}
+        \item Możliwość dodawania komentarzy do ogłoszeń przez użytkowników w celu wyrażenia opinii lub zadania pytań.
+        \item Funkcja potwierdzenia przeczytania ogłoszenia przez użytkowników, co ułatwi monitorowanie zasięgu informacji.
+    \end{itemize}
+
+    \item \textbf{Mechanizmy bezpieczeństwa i zgodności}
+    \begin{itemize}
+        \item Wprowadzenie logowania aktywności związanych z zarządzaniem ogłoszeniami w celu zapewnienia audytowalności.
+        \item Zapewnienie zgodności z regulacjami prawnymi dotyczącymi ochrony danych, takimi jak RODO, w kontekście przechowywania i dystrybucji ogłoszeń.
+    \end{itemize}
+\end{enumerate}
+
+Dzięki tym usprawnieniom system zarządzania ogłoszeniami w „Harmony Home Net” może ewoluować w bardziej zaawansowane narzędzie, które zwiększy efektywność komunikacji między pracownikami wspólnoty, a właścielami mieszkań, jednocześnie oferując większą elastyczność i bezpieczeństwo.
+
+
+\section{Zarządzanie forum dla wspólnoty}
+
+System forum w aplikacji „Harmony Home Net” został zaprojektowany w formie uproszczonej, z uwzględnieniem podstawowych potrzeb komunikacyjnych mieszkańców wspólnoty. Forum pozwala użytkownikom tworzyć tematy, dodawać posty oraz zarządzać ich treścią w ramach jasno określonych zasad i ograniczeń.
+
+\subsection{Opis encji}
+Forum składa się z dwóch głównych encji: \texttt{Topic} (temat) i \texttt{Post} (post), które są powiązane z użytkownikami (\texttt{User}).
+
+\subsubsection{\texttt{Topic} -- Temat forum}
+Encja \texttt{Topic} reprezentuje główny wątek dyskusyjny. Każdy temat zawiera następujące pola:
+\begin{itemize}
+    \item \textbf{UUID\_id} -- unikalny identyfikator tematu.
+    \item \textbf{title} -- tytuł tematu, ograniczony do 50 znaków.
+    \item \textbf{createdAt} -- data utworzenia tematu.
+    \item \textbf{user} -- odniesienie do użytkownika, który stworzył temat.
+    \item \textbf{posts} -- lista postów przypisanych do danego tematu.
+\end{itemize}
+
+Kod encji:
+\begin{lstlisting}[language=Java, caption=Encja \texttt{Topic}]
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+@Entity
+@Table(name = "Topics", indexes = {
+        @Index(name = "idx_topic_created_at", columnList = "Created_at"),
+        @Index(name = "idx_topic_users_id", columnList = "users_id")
+})
+public class Topic {
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID uuidID;
+
+    @NotEmpty
+    @Size(max = 50)
+    private String title;
+
+    @CreationTimestamp
+    private Instant createdAt;
+
+    @ManyToOne
+    private User user;
+
+    @OneToMany(mappedBy = "topic", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Post> posts;
+}
+\end{lstlisting}
+
+\subsubsection{\texttt{Post} -- Post na forum}
+Encja \texttt{Post} reprezentuje pojedynczą wypowiedź w danym temacie. Każdy post zawiera następujące pola:
+\begin{itemize}
+    \item \textbf{UUID\_id} -- unikalny identyfikator posta.
+    \item \textbf{content} -- treść posta, ograniczona do 1000 znaków.
+    \item \textbf{createdAt} -- data utworzenia posta.
+    \item \textbf{topic} -- odniesienie do tematu, w którym post został zamieszczony.
+    \item \textbf{user} -- odniesienie do użytkownika, który zamieścił post.
+\end{itemize}
+
+Kod encji:
+\begin{lstlisting}[language=Java, caption=Encja \texttt{Post}]
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+@Entity
+@Table(name = "Posts", indexes = {
+        @Index(name = "idx_post_created_at", columnList = "Created_at"),
+        @Index(name = "idx_post_topic_id", columnList = "topic_id"),
+        @Index(name = "idx_post_users_id", columnList = "users_id")
+})
+public class Post {
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID uuidID;
+
+    @NotEmpty
+    @Size(max = 1000)
+    private String content;
+
+    @CreationTimestamp
+    private Instant createdAt;
+
+    @ManyToOne
+    private Topic topic;
+
+    @ManyToOne
+    private User user;
+}
+\end{lstlisting}
+
+\subsection{Obecna funkcjonalność systemu forum}
+\begin{itemize}
+    \item \textbf{Tworzenie tematów} -- każdy użytkownik może utworzyć nowy temat, który staje się dostępny dla wszystkich członków wspólnoty.
+    \item \textbf{Dodawanie postów} -- użytkownicy mogą dodawać odpowiedzi (posty) w ramach wybranego tematu.
+    \item \textbf{Zarządzanie postami i tematami} -- Posty i tematy nie mogą być edytowane, ale mogą być usuwane przez autora lub osoby z rolą pracowniczą.
+    \item \textbf{Historia i trwałość danych} -- posty i tematy pozostają w systemie nawet po usunięciu użytkownika, a w interfejsie użytkownika przy autorze wyświetlana jest informacja, że użytkownik został usunięty.
+    \item \textbf{Brak struktury drzewiastej} -- dyskusje w ramach tematów są liniowe, bez możliwości tworzenia wątków zagnieżdżonych.
+\end{itemize}
+
+\subsection{Możliwości rozbudowy systemu forum}
+\begin{itemize}
+    \item \textbf{Edycja postów i tematów} -- wprowadzenie funkcji edytowania istniejących postów i tematów, z zachowaniem historii zmian.
+    \item \textbf{Prywatne wątki} -- możliwość tworzenia wątków dostępnych tylko dla wybranej grupy użytkowników (np. mieszkańców konkretnego mieszkania).
+    \item \textbf{Powiadomienia} -- dynamiczne powiadamianie użytkowników o nowych postach lub tematach poprzez e-mail, SMS lub notyfikacje push.
+    \item \textbf{Ocena treści} -- dodanie funkcji oceniania postów (np. poprzez system „Lubię to” lub głosy w górę/w dół).
+    \item \textbf{Raportowanie treści} -- mechanizm zgłaszania nieodpowiednich treści do moderacji.
+    \item \textbf{Tagowanie tematów} -- wprowadzenie tagów pozwalających na łatwiejsze wyszukiwanie i organizację wątków.
+    \item \textbf{Integracja z innymi modułami} -- połączenie forum z modułem ogłoszeń lub zarządzania dokumentami, np. poprzez dodawanie linków do istotnych zasobów.
+    \item \textbf{Statystyki} -- generowanie raportów na temat aktywności użytkowników na forum.
+\end{itemize}
+
+Rozbudowa forum może znacząco zwiększyć zaangażowanie włąścieli oraz poprawić komunikację w ramach wspólnoty, czyniąc system bardziej funkcjonalnym i wszechstronnym.
+
 
 \section{Zarządzie płatnościami}
 
