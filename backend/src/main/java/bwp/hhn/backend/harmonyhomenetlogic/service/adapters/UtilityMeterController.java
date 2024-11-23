@@ -16,12 +16,12 @@ public class UtilityMeterController {
     private final UtilityMeterService utilityMeterService;
 
     @GetMapping("/water-meter/{id}")
-    public String getWaterMeterValue(@PathVariable UUID id) {
+    public String getWaterMeterValue(@PathVariable String id) {
         return utilityMeterService.getWaterMeterValue(id);
     }
 
     @GetMapping("/electricity-meter/{id}")
-    public String getElectricityMeterValue(@PathVariable UUID id) {
+    public String getElectricityMeterValue(@PathVariable String id) {
         return utilityMeterService.getElectricityMeterValue(id);
     }
 }

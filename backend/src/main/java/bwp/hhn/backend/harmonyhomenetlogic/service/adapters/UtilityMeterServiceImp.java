@@ -26,14 +26,14 @@ public class UtilityMeterServiceImp implements UtilityMeterService {
     }
 
     @Override
-    public String getWaterMeterValue(UUID utilityMeterId) {
+    public String getWaterMeterValue(String utilityMeterId) {
         LOG.info("Getting water meter value for utility meter with id: " + utilityMeterId);
-        return "Water meter value for utility meter with id: " + utilityMeterId + " is: " + waterMeterValue + " m^3";
+        return String.valueOf(waterMeterValue);
     }
 
     @Override
-    public String getElectricityMeterValue(UUID utilityMeterId) {
+    public String getElectricityMeterValue(String utilityMeterId) {
         LOG.info("Getting electricity meter value for utility meter with id: " + utilityMeterId);
-        return "Electricity meter value for utility meter with id: " + utilityMeterId + " is: " + electricityMeterValue + " kWh";
+        return String.valueOf(electricityMeterValue);
     }
 }

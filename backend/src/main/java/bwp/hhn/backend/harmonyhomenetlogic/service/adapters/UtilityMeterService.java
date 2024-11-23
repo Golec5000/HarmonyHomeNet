@@ -4,8 +4,8 @@ import java.util.UUID;
 
 public interface UtilityMeterService {
 
-    String getWaterMeterValue(UUID utilityMeterId);
+    String getWaterMeterValue(String utilityMeterId);
 
-    String getElectricityMeterValue(UUID utilityMeterId);
+    String getElectricityMeterValue(String utilityMeterId);
 
 }
