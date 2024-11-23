@@ -785,6 +785,37 @@ Opis działania metod:
 \end{itemize}
 
 
+\textbf{Implementacja czyszczenia wygasłych tokenów:}
+
+Aby zapewnić bezpieczeństwo i efektywne zarządzanie bazą danych, w systemie zaimplementowano usługę \texttt{TokenCleanupService}, która regularnie usuwa wygasłe tokeny resetujące hasła. Kluczowe elementy implementacji:
+\begin{itemize}
+    \item Usługa korzysta z adnotacji \texttt{@Scheduled}, aby wykonywać zadanie czyszczenia co 30 minut.
+    \item Metoda \texttt{cleanUpExpiredResetTokens} usuwa tokeny, które wygasły w oparciu o bieżący czas.
+    \item Usługa działa asynchronicznie dzięki adnotacji \texttt{@Async}, aby nie blokować innych operacji systemowych.
+\end{itemize}
+
+\begin{lstlisting}[language=Java, caption=Usługa czyszczenia wygasłych tokenów \texttt{TokenCleanupService}]
+@Service
+@RequiredArgsConstructor
+public class TokenCleanupService {
+
+    private final UserRepository userRepository;
+
+    @Scheduled(cron = "0 0/30 * * * *") // Co 30 minut
+    @Async
+    public void cleanUpExpiredResetTokens() {
+        userRepository.deleteAllExpiredResetTokens(Instant.now());
+    }
+
+}
+\end{lstlisting}
+
+\textbf{Szczegóły implementacji:}
+\begin{itemize}
+    \item \textbf{Token ważny czasowo} -- tokeny resetujące hasło mają ograniczony czas ważności, co minimalizuje ryzyko nieautoryzowanego użycia.
+    \item \textbf{Regularne usuwanie} -- mechanizm automatycznego czyszczenia zapewnia, że baza danych pozostaje wolna od nieaktualnych tokenów.
+\end{itemize}
+
 Bezpieczeństwo i walidacja:
 Każdy krok w procesie resetowania hasła jest zabezpieczony odpowiednimi walidacjami:
 \begin{enumerate}
@@ -1258,6 +1289,345 @@ Dzięki tym zmianom proces zarządzania właścicielami mieszkań stanie się ba
 
 
 \section{Zarządzie dokumentami}
+
+\subsection{Opis encji i relacji}
+
+\textbf{Encja \texttt{Document}}  
+Encja \texttt{Document} jest kluczowym elementem systemu zarządzania dokumentami, przechowując dane niezbędne do identyfikacji i obsługi dokumentów w systemie. Kod klasy przedstawia się następująco:
+
+\begin{lstlisting}[language=Java, caption=Encja \texttt{Document}]
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+@Entity
+@Table(name = "Documents")
+public class Document {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "UUID_id")
+    private UUID uuidID; 
+
+    @NotEmpty
+    @Size(max = 50)
+    @Column(name = "Document_name", nullable = false, unique = true, length = 50)
+    private String documentName; 
+
+    @NotEmpty
+    @Size(max = 8)
+    @Column(name = "Document_extension", nullable = false, length = 8)
+    private String documentExtension;
+    @NonNull
+    @Enumerated(EnumType.STRING)
+    @Column(name = "Document_type", nullable = false)
+    private DocumentType documentType; 
+
+    @Lob
+    @NotNull
+    @Column(name = "Document_data", nullable = false)
+    private byte[] documentData;
+
+    @CreationTimestamp
+    @Column(name = "Created_at", nullable = false, updatable = false)
+    private Instant createdAt; 
+
+    @OneToMany(mappedBy = "document", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserDocumentConnection> userDocumentConnections; 
+}
+\end{lstlisting}
+
+\textbf{Opis elementów encji:}
+\begin{itemize}
+    \item \texttt{uuidID} -- unikalny identyfikator UUID każdego dokumentu, generowany automatycznie.
+    \item \texttt{documentName} -- nazwa dokumentu, wymagana i unikalna w systemie.
+    \item \texttt{documentExtension} -- rozszerzenie pliku, wskazujące format przechowywanego dokumentu.
+    \item \texttt{documentType} -- typ dokumentu zdefiniowany w enumeracji \texttt{DocumentType}.
+    \item \texttt{documentData} -- dane dokumentu zapisane w postaci tablicy bajtów.
+    \item \texttt{createdAt} -- znacznik czasu wskazujący moment dodania dokumentu do systemu.
+    \item \texttt{userDocumentConnections} -- lista obiektów reprezentujących relacje z użytkownikami.
+\end{itemize}
+
+\textbf{Encja \texttt{UserDocumentConnection}}  
+Tabela pośrednicząca \texttt{UserDocumentConnection} zarządza relacją między dokumentami a użytkownikami, którzy mają do nich dostęp. Jej kod wygląda następująco:
+
+\begin{lstlisting}[language=Java, caption=Encja \texttt{UserDocumentConnection}]
+@Entity
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Table(name = "user_documents_connections", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"documents_id", "users_id"})
+})
+public class UserDocumentConnection {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID uuidID;
+
+    @ManyToOne
+    @JoinColumn(name = "documents_id", nullable = false)
+    private Document document;
+
+    @ManyToOne
+    @JoinColumn(name = "users_id", nullable = false)
+    private User user;
+
+    @CreationTimestamp
+    @Column(name = "granted_at", nullable = false)
+    private Instant grantedAt;
+}
+\end{lstlisting}
+
+\textbf{Opis elementów encji:}
+\begin{itemize}
+    \item \texttt{uuidID} -- unikalny identyfikator każdego rekordu w tabeli pośredniczącej.
+    \item \texttt{document} -- pole relacyjne wskazujące na powiązany dokument.
+    \item \texttt{user} -- pole relacyjne wskazujące na powiązanego użytkownika.
+    \item \texttt{grantedAt} -- data przyznania dostępu użytkownikowi do dokumentu.
+\end{itemize}
+
+\subsection{Rodzaje dokumentów}
+
+Rodzaje dokumentów w systemie są zdefiniowane w enumeracji \texttt{DocumentType}, która umożliwia kategoryzację dokumentów. Definicja wygląda następująco:
+
+\begin{lstlisting}[language=Java, caption=Enumeracja \texttt{DocumentType}]
+public enum DocumentType {
+    RESOLUTION,    // Uchwały.
+    DECISION,      // Decyzje.
+    PROPERTY_DEED, // Akty własności (prywatne).
+    OTHER          // Inne dokumenty.
+}
+\end{lstlisting}
+
+W systemie wszystkie dokumenty, które nie są typu \texttt{PROPERTY\_DEED}, są publiczne i dostępne dla każdego użytkownika.
+
+\subsection{Przepływ dokumentów w systemie ,,Harmony Home Net''}
+
+W prototypie systemu „Harmony Home Net” przepływ dokumentów został uproszczony:
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=.9\linewidth]{rys03/dodawanie_dokumentów_schemat}
+    \caption{Schemat dodawania dokumentów w systemie „Harmony Home Net”}
+    \label{fig:document_schema}
+\end{figure}
+
+Na schemacie ~\ref{fig:document_schema} oznaczono:
+\begin{itemize}
+    \item \texttt{D} -- Encja \texttt{Document}, reprezentująca dokument w systemie. Każdy dokument zawiera informacje o nazwie, typie, rozszerzeniu i danych pliku.
+    \item \texttt{D\_Pub} -- Dokumenty publiczne, które są automatycznie przypisywane do wszystkich użytkowników w systemie, np. decyzje lub uchwały.
+    \item \texttt{D\_Priv} -- Dokumenty prywatne (\texttt{PROPERTY\_DEED}), które są przypisywane wyłącznie właścicielom mieszkań na podstawie historii posiadania (\texttt{Ph}).
+    \item \texttt{U} -- Encja \texttt{User}, reprezentująca użytkownika systemu. Każdy użytkownik może mieć przypisane dokumenty zarówno publiczne, jak i prywatne.
+    \item \texttt{Ph} -- Tabela \texttt{PossessionHistory}, zawierająca informacje o historii posiadania mieszkań przez użytkowników, co umożliwia precyzyjne przypisanie dokumentów prywatnych.
+    \item \texttt{A} -- Encja \texttt{Apartment}, reprezentująca mieszkanie w systemie. Sygnatura mieszkania jest kluczowa przy przypisywaniu dokumentów prywatnych.
+\end{itemize}
+
+Opis procesu dodawania dokumentów:
+\begin{enumerate}
+    \item Dokument jest dodawany przez administratora lub pracownika systemu poprzez endpoint upload (\texttt{/upload-document}). W tym procesie określane są szczegóły dokumentu, takie jak jego typ oraz opcjonalne powiązanie z mieszkaniem (\texttt{A}).
+    \item Dokumenty publiczne (\texttt{D\_Pub}) są automatycznie przypisywane do wszystkich użytkowników w systemie. Mechanizm ten działa zarówno w momencie dodawania dokumentu, jak i tworzenia nowego użytkownika.
+    \item Dokumenty prywatne (\texttt{D\_Priv}) są przypisywane na podstawie tabeli \texttt{PossessionHistory} (\texttt{Ph}) do właścicieli mieszkań (\texttt{A}). Proces ten wymaga podania sygnatury mieszkania, co umożliwia precyzyjne przypisanie dokumentu do odpowiednich użytkowników.
+    \item W przypadku zmiany właściciela mieszkania lub dodania współwłaściciela:
+    \begin{itemize}
+        \item Połączenie dokumentu prywatnego z dotychczasowym właścicielem może zostać usunięte, jednak sam dokument pozostaje w archiwum.
+        \item Nowy dokument, odzwierciedlający zmienione prawa własności, jest dodawany do systemu, a odpowiednie połączenia z użytkownikami są aktualizowane.
+    \end{itemize}
+\end{enumerate}
+
+Dodatkowo, schemat~\ref{fig:document_schema} przedstawia trzy główne przypadki związane z dodawaniem dokumentów:
+\begin{itemize}
+    \item \texttt{a)} -- dodanie nowego dokumentu do systemu: Wymaga określenia rodzaju dokumentu (\texttt{D\_Pub} lub \texttt{D\_Priv}). Dokument publiczny automatycznie łączy się z wszystkimi użytkownikami (\texttt{U}), natomiast dokument prywatny jest przypisywany do użytkowników na podstawie historii posiadania (\texttt{Ph}).
+    \item \texttt{b)} -- dodanie nowego użytkownika do systemu: Wszystkie istniejące dokumenty publiczne (\texttt{D\_Pub}) są automatycznie przypisywane nowemu użytkownikowi (\texttt{U}).
+    \item \texttt{c)} -- zmiana właściciela mieszkania: W przypadku dokumentów prywatnych (\texttt{D\_Priv}), konieczne jest zaktualizowanie połączeń dokumentu z użytkownikami na podstawie nowej historii posiadania (\texttt{Ph}). W takiej sytuacji usuwa się stare połączenia i dodaje nowe, zgodnie z aktualnym stanem prawnym.
+\end{itemize}
+
+Fragment kodu kontrolera
+\begin{lstlisting}[language=Java, caption=Fragment klasy \texttt{DocumentController}]
+@PostMapping("/upload-document")
+public ResponseEntity<DocumentResponse> uploadDocument(
+        @RequestPart("file") MultipartFile file,
+        @RequestParam String apartmentSignature,
+        @RequestParam DocumentType documentType) throws IllegalArgumentException, IOException {
+    return ResponseEntity.ok(documentService.uploadDocument(file, apartmentSignature, documentType));
+}
+\end{lstlisting}
+
+Fragment kodu serwisu:
+\begin{lstlisting}[language=Java, caption=Metoda dodawania dokumentu w klasie \texttt{DocumentServiceImp}]
+		@Override
+    @Transactional
+    public DocumentResponse uploadDocument(MultipartFile file, String apartmentSignature, DocumentType documentType) throws IllegalArgumentException, IOException {
+
+        // Tworzenie nowego obiektu dokumentu
+        Document documentEntity = Document.builder()
+                .documentName(getOriginalFileNameWithoutExtension(file.getOriginalFilename()))
+                .documentData(file.getBytes())
+                .documentType(documentType)
+                .documentExtension(getFileExtension(file.getOriginalFilename()))
+                .build();
+
+        // Zapis dokumentu w repozytorium
+        documentRepository.save(documentEntity);
+
+        // Pobranie użytkowników do przypisania w zależności od typu dokumentu
+        List<User> eligibleUsers;
+        if (!documentType.equals(DocumentType.PROPERTY_DEED)) {
+            // Dokument publiczny - przypisujemy wszystkich użytkowników
+            eligibleUsers = userRepository.findAll();
+        } else {
+            // Dokument prywatny - pobierz mieszkańców apartamentu i pracowników oraz adminów
+            List<User> residents = possessionHistoryRepository.findActiveResidentsByApartment(apartmentSignature);
+
+            if (residents.isEmpty()) {
+                throw new IllegalArgumentException("No residents found in apartment with signature: " + apartmentSignature);
+            }
+
+            List<User> employees = userRepository.findAllByRole(Role.ROLE_EMPLOYEE);
+            List<User> admins = userRepository.findAllByRole(Role.ROLE_ADMIN);
+
+            eligibleUsers = new ArrayList<>(residents);
+            eligibleUsers.addAll(employees);
+            eligibleUsers.addAll(admins);
+        }
+
+        // Tworzenie połączeń dokumentu z wybranymi użytkownikami
+        List<UserDocumentConnection> connections = new ArrayList<>();
+        for (User user : eligibleUsers) {
+            // Sprawdzenie, czy połączenie już istnieje
+            if (userDocumentConnectionRepository.existsByDocumentUuidIDAndUserUuidID(documentEntity.getUuidID(), user.getUuidID())) {
+                continue; // Pomijamy tworzenie połączenia, jeśli już istnieje
+            }
+
+            UserDocumentConnection connection = UserDocumentConnection.builder()
+                    .document(documentEntity)
+                    .user(user)
+                    .build();
+            connections.add(connection);
+
+            // Przypisanie połączenia użytkownikowi
+            if (user.getUserDocumentConnections() == null) user.setUserDocumentConnections(new ArrayList<>());
+            user.getUserDocumentConnections().add(connection);
+
+            // Przypisanie połączenia dokumentowi
+            if (documentEntity.getUserDocumentConnections() == null)
+                documentEntity.setUserDocumentConnections(new ArrayList<>());
+
+            documentEntity.getUserDocumentConnections().add(connection);
+        }
+
+        // Zapis wszystkich połączeń w bazie danych
+        userDocumentConnectionRepository.saveAll(connections);
+
+        // Wysyłanie powiadomień do użytkowników na podstawie ich preferencji
+        eligibleUsers.forEach(user -> {
+            if (user.getNotificationTypes() != null) {
+                user.getNotificationTypes().forEach(notificationType -> {
+                    switch (notificationType.getType()) {
+                        case EMAIL:
+                            mailService.sendNotificationMail(
+                                    "Nowy dokument",
+                                    "Nowy dokument został oddany: " + documentEntity.getDocumentName(),
+                                    user.getEmail()
+                            );
+                            break;
+                        case SMS:
+                            smsService.sendSms(
+                                    "Nowy dokument został oddany: " + documentEntity.getDocumentName(),
+                                    user.getPhoneNumber()
+                            );
+                            break;
+                        default:
+                            throw new IllegalStateException("Unexpected value: " + notificationType.getType());
+                    }
+                });
+            }
+        });
+
+        // Zwracanie odpowiedzi z informacjami o nowo załadowanym dokumencie
+        return DocumentResponse.builder()
+                .documentName(documentEntity.getDocumentName())
+                .documentType(documentEntity.getDocumentType())
+                .createdAt(documentEntity.getCreatedAt())
+                .documentExtension(documentEntity.getDocumentExtension())
+                .build();
+    }
+\end{lstlisting}
+
+\begin{lstlisting}[language=Java, caption=Metoda usuwania dokumetów i konretnych połaczeń z dokumentami w klasie \texttt{DocumentServiceImp}]
+ @Override
+    @Transactional
+    public String deleteDocument(UUID documentId, UUID userId, Boolean deleteCompletely) throws DocumentNotFoundException, UserNotFoundException, IllegalArgumentException {
+
+        Document document = documentRepository.findById(documentId)
+                .orElseThrow(() -> new DocumentNotFoundException("Document id: " + documentId + " not found"));
+
+        if (deleteCompletely) {
+
+            documentRepository.delete(document);
+            return "Document id: " + documentId + " deleted successfully for all users";
+
+        } else {
+
+            // Usuwanie tylko połączenia użytkownika z dokumentem
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new UserNotFoundException("User id: " + userId + " not found"));
+
+            UserDocumentConnection connection = userDocumentConnectionRepository
+                    .findByDocumentUuidIDAndUserUuidID(documentId, userId)
+                    .orElseThrow(() -> new IllegalArgumentException("Connection not found"));
+
+            // Inicjalizujemy listy, jeśli są nullem, aby uniknąć NullPointerException
+            if (user.getUserDocumentConnections() == null) user.setUserDocumentConnections(new ArrayList<>());
+            if (document.getUserDocumentConnections() == null) document.setUserDocumentConnections(new ArrayList<>());
+
+            // Usunięcie połączenia
+            user.getUserDocumentConnections().remove(connection);
+            document.getUserDocumentConnections().remove(connection);
+
+            userDocumentConnectionRepository.delete(connection);
+
+            mailService.sendNotificationMail(
+                    "Dokument odłączony",
+                    "Dokument został odłaczony od twojego konta: " + document.getDocumentName(),
+                    user.getEmail()
+            );
+
+            smsService.sendSms(
+                    "Dokument został odłaczony od twojego konta: " + document.getDocumentName(),
+                    user.getPhoneNumber()
+            );
+
+            return "Document id: " + documentId + " disconnected successfully for user id: " + userId;
+        }
+    }
+}
+\end{lstlisting}
+
+
+\subsection{Istniejące rozwiązania do ochrony i przepływu dokumentów}
+
+Współczesne systemy zarządzania dokumentami (DMS) oferują szereg funkcji zapewniających bezpieczeństwo oraz efektywny przepływ dokumentów w organizacjach. Poniżej przedstawiono kluczowe mechanizmy i narzędzia stosowane w tym zakresie:
+
+\begin{itemize}
+	\item \textbf{Kontrola dostępu ACL} -- umożliwia definiowanie uprawnień dla użytkowników lub grup, określając, kto może przeglądać, edytować czy usuwać konkretne dokumenty. Dzięki temu tylko upoważnione osoby mają dostęp do wrażliwych informacji~\cite{acl, acl_2}.
+	
+	\item \textbf{Szyfrowanie danych} -- zapewnia ochronę dokumentów podczas ich przechowywania oraz transmisji, uniemożliwiając nieautoryzowanym podmiotom odczytanie zawartości bez odpowiednich kluczy deszyfrujących~\cite{szyrowanie_danych}.
+
+	\item \textbf{Śledzenie wersji (Version Control)} -- pozwala na monitorowanie zmian w dokumentach, zachowując historię modyfikacji. Umożliwia to powrót do wcześniejszych wersji oraz identyfikację autorów poszczególnych zmian~\cite{kotntrola_wersji}. 
+	
+	\item \textbf{Elektroniczny obieg dokumentów (Workflow Automation)} -- automatyzuje procesy związane z przepływem dokumentów między pracownikami i działami, eliminując potrzebę ręcznego przekazywania dokumentów i przyspieszając procesy decyzyjne~\cite{workflow_utomation}.
+
+	\item \textbf{Integracja z innymi systemami} -- nowoczesne DMS często integrują się z innymi narzędziami biznesowymi, takimi jak systemy ERP czy CRM, co umożliwia spójny przepływ informacji w całej organizacji~\cite{dms}. 
+
+	\item \textbf{Zgodność z regulacjami prawnymi} -- systemy te są projektowane tak, aby spełniać wymogi prawne dotyczące przechowywania i ochrony danych, co jest kluczowe w kontekście RODO czy innych regulacji branżowych~\cite{rodo_dokumenty}.
+	
+	\item \textbf{Guardian w Pythonie} -- w środowiskach programistycznych opartych na Pythonie popularnym rozwiązaniem do zarządzania uprawnieniami jest biblioteka \texttt{Guardian}. Umożliwia ona implementację bardziej zaawansowanych mechanizmów kontroli dostępu, takich jak przypisywanie uprawnień na poziomie obiektów (\emph{object-level permissions}). Dzięki \texttt{Guardian} każdemu dokumentowi można przypisać indywidualne reguły dostępu, zapewniając wysoki poziom bezpieczeństwa w aplikacjach. Przykładowo, dostęp do dokumentu może być ograniczony do konkretnego użytkownika lub grupy użytkowników, z precyzyjną kontrolą nad operacjami, które mogą oni wykonywać (np. odczyt, edycja, usunięcie)~\cite{django_guardian}.  
+	
+\end{itemize}
+
+Wybór odpowiedniego systemu zarządzania dokumentami powinien uwzględniać specyficzne potrzeby organizacji, jej strukturę oraz obowiązujące regulacje prawne. Implementacja takich rozwiązań przyczynia się do zwiększenia efektywności operacyjnej oraz podniesienia poziomu bezpieczeństwa informacji.
 
 \section{Zarządzie zgłoszeniami problemów}
 
