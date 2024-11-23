@@ -1,12 +1,13 @@
 \chapter{Implementacja}
 %W tej części pracy zostanie omówiona implementacja systemu eBOKa „Harmony Home Net”. 
-Proces implementacji polega na przełożeniu założeń architektonicznych, wymagań funkcjonalnych oraz niefunkcjonalnych na działający kod, a także integracji poszczególnych komponentów systemu w spójną, gotową do wdrożenia całość. W przypadku systemu eBOKa „Harmony Home Net” obejmie on zarówno warstwę frontendową, odpowiadającą za interakcje użytkowników, jak i backend, zajmujący się logiką biznesową i zarządzaniem danymi. Kluczowym elementem implementacji będzie integracja z bazą danych PostgreSQL uruchomioną w środowisku Docker.
+Proces implementacji polega na przełożeniu założeń architektonicznych, wymagań funkcjonalnych oraz niefunkcjonalnych na działający kod, a także integracji poszczególnych komponentów systemu w spójną, gotową do wdrożenia całość. W przypadku systemu eBOKa „Harmony Home Net” proces ten obejmuje zarówno warstwę frontendową, odpowiadającą za interakcje użytkowników, jak i backend, zajmujący się logiką biznesową i zarządzaniem danymi. Kluczowym elementem implementacji jest integracja z bazą danych PostgreSQL uruchomioną w środowisku Docker.
 
-W trakcie implementacji szczególny nacisk zostanie położony na wybór odpowiednich narzędzi i technologii, takich jak Next.js dla frontendu oraz Spring Boot dla backendu, a także Docker dla konteneryzacji systemu. Zostaną także omówione aspekty związane z optymalizacją kodu, testowaniem aplikacji oraz monitorowaniem jej działania.
+Warto podkreślić, że obecnie system „Harmony Home Net” ma charakter prototypu. Prototyp ten umożliwia walidację podstawowych założeń oraz funkcjonalności aplikacji eBOK, jednocześnie stanowiąc fundament dla przyszłego rozwoju w pełnoprawną aplikację produkcyjną. Zastosowane technologie, takie jak Next.js dla frontendu, Spring Boot dla backendu oraz Docker dla konteneryzacji, zapewniają skalowalność oraz łatwość rozbudowy systemu w kolejnych etapach.
 
 Rozdział rozpocznie omówienie zastosowanej \textbf{architektury warstwowej}~\cite{n_tier_wiki}, która jest podstawą projektowanego systemu. Szczegółowo opisane zostaną wszystkie warstwy – prezentacji, logiki biznesowej oraz dostępu do danych – z uwzględnieniem ich ról oraz sposobu implementacji. Następnie uwaga zostanie zwrócona na \textbf{bazę danych}. Omówione zostaną podejścia Database First i Code First, wraz z uzasadnieniem wyboru pierwszego z nich. Podane zostaną szczegóły zaprojektowanej struktury bazy danych oraz sposób jej integracji z aplikacją.
 
 W kolejnym kroku dokonany zostanie przegląd kluczowych elementów systemu. Rozpocznie się on od tematu \textbf{bezpieczeństwa}, w tym mechanizmów autoryzacji i uwierzytelniania zrealizowanych przy użyciu Spring Security. Następnie zostanie opisane \textbf{zarządzanie mieszkańcami} jako centralny element systemu, a także inne istotne funkcje, takie jak zarządzanie mieszkaniami, zgłoszeniami technicznymi, płatnościami i powiadomieniami.
+
 
 % TO DO: czy rzeczywiście wdrożenia? Wdrożenie to proces instalacji i uruchomienia aplikacji w środowisku produkcyjnym.
 %        lekko przeredagowując można poniższe zdania przenieść do Układu pracy
@@ -36,7 +37,7 @@ Zastosowanie architektury warstwowej w systemie „Harmony Home Net” zapewnić
 \begin{figure}[t]
     \centering
     \includegraphics[scale=1]{rys03/diagram_architektury_warstwowej}
-    \caption{Ogólny schemat architektury warstwowej} % TO DO: prosiłem o zacieśnianie diagramów - tutaj było za dużo białej przestrzeni
+    \caption{Ogólny schemat architektury warstwowej}
     \label{fig:n_tier_arch}
 \end{figure}
 
@@ -62,8 +63,6 @@ Na rysunku \ref{fig:n_tier_arch} warstwa dostępu do danych jest oznaczona liter
 Warstwa danych odpowiada za trwałe przechowywanie danych aplikacji w bazach danych. Obejmuje zarządzanie strukturą danych, ich bezpieczeństwem oraz udostępnianie ich innym warstwom w sposób wydajny i zorganizowany. W systemie ,,Harmony Home Net'' wykorzystano bazę danych PostgreSQL, która została wdrożona w kontenerze Docker. 
 
 Na rysunku \ref{fig:n_tier_arch} warstwa danych jest oznaczona literą \texttt{d)}. Dzięki zastosowaniu mapowania ORM dane w bazie są bezpośrednio odwzorowywane na obiekty w aplikacji, co pozwala na wygodniejsze operacje na danych. Mechanizm ORM umożliwia wykonywanie zapytań SQL w sposób abstrakcyjny i bardziej czytelny, co upraszcza implementację i zmniejsza ryzyko błędów.
-
-\subsection{Zalety architektury warstwowej}
 
 
 \section{Struktura bazy danych}
@@ -227,14 +226,1036 @@ W celu poprawy wydajności bazy danych zastosowano następujące mechanizmy:
 
 Struktura bazy danych systemu \textbf{Harmony Home Net} została zaprojektowana w sposób umożliwiający jej skalowalność, wydajność oraz łatwość integracji z innymi komponentami aplikacji. Podejście \emph{Database First} okazało się optymalnym wyborem, zapewniając precyzyjne odwzorowanie wymagań biznesowych i technicznych systemu. Schematy konceptualny (rysunek \ref{fig:ebok_db_concept}) i fizyczny (rysunek \ref{fig:ebok_db_physical}) ilustrują relacje pomiędzy tabelami, które stanowią podstawę spójnego i efektywnego zarządzania danymi.
 
-
-
-
 \section{Bezpieczeństwo, uwierzytelnianie i autoryzacja w aplikacji}
 
-\section{Zarządzie użytkownikami}
 
-\section{Zarządzie mieszkaniami}
+\subsection{Wprowadzenie do mechanizmów bezpieczeństwa}
+
+Sekcja dotycząca bezpieczeństwa opisuje mechanizmy zastosowane w systemie „Harmony Home Net” w celu zapewnienia ochrony danych użytkowników oraz bezpiecznego dostępu do zasobów. W ramach tej części pracy przedstawione zostały szczegóły implementacji konfiguracji bezpieczeństwa opartej na Spring Security, wykorzystanie tokenów JWT oraz \emph{OAuth 2.0 Resource Server} jako mechanizmów uwierzytelniania i autoryzacji.
+
+W szczególności omówiono rolę \emph{OAuth 2.0 Resource Server} w weryfikacji tokenów dostępu generowanych w ramach sesji użytkownika. Mechanizm ten umożliwia bezpieczne zarządzanie dostępem do zasobów oraz bezstanowe uwierzytelnianie użytkowników, eliminując konieczność utrzymywania sesji po stronie serwera.
+
+W tej sekcji można znaleźć:
+
+\begin{itemize}
+    \item \textbf{Wprowadzenie do mechanizmów bezpieczeństwa} -- Omówienie kluczowych elementów konfiguracji, takich jak filtry bezpieczeństwa (\emph{SecurityFilterChain}), zarządzanie sesjami w trybie bezstanowym oraz zabezpieczenie API za pomocą tokenów JWT i \emph{OAuth 2.0 Resource Server}. W tej części przedstawiono również znaczenie \texttt{JwtAuthenticationConverter} i jego rolę w integracji z mechanizmami Spring Security.
+
+    \item \textbf{Proces logowania} -- Szczegółowy opis procesu logowania z wykorzystaniem nazw użytkowników, haseł oraz generowania tokenów JWT. Proces uwierzytelniania użytkowników opisano w oparciu o klasę \texttt{UserInfoManagerConfig}, która integruje bazę danych z mechanizmami uwierzytelniania w Spring Security.
+
+    \item \textbf{Zarządzanie tokenami JWT i autoryzacji użytkowników} -- Szczegółowy opis sposobu generowania i weryfikacji tokenów JWT. Proces ten obejmuje również schemat związany z uwierzytelnianiem użytkowników przy użyciu \emph{OAuth 2.0 Resource Server}. Omówiono mechanizmy sprawdzania poprawności i wykrywania wygasłych lub nieautoryzowanych tokenów, a także kluczową rolę klasy \texttt{JwtAccessTokenFilter}, która weryfikuje tokeny w żądaniach HTTP.
+
+    \item \textbf{Zarządzanie czarną listą tokenów} -- Implementacja usługi \texttt{TokenBlacklistService}, która pozwala na unieważnianie tokenów w momencie wylogowania użytkownika. Dzięki temu użytkownicy mogą zostać natychmiast wylogowani, a sesje mogą być anulowane w przypadku wykrycia naruszeń bezpieczeństwa. Usługa obejmuje również harmonogram automatycznego usuwania wygasłych tokenów z czarnej listy, co zwiększa wydajność systemu.
+
+    \item \textbf{Mechanizmy resetowania hasła} -- Konfiguracja specjalnego łańcucha filtrów bezpieczeństwa dedykowanego resetowaniu hasła, który umożliwia różnicowanie poziomów dostępu na podstawie ścieżek. Mechanizm ten obsługuje żądania związane z resetowaniem hasła, przy zachowaniu odpowiedniego poziomu bezpieczeństwa dla publicznych punktów końcowych.
+
+\end{itemize}
+
+
+
+\subsection{Konfiguracja łańcucha filtrów bezpieczeństwa}
+
+Łańcuch filtrów bezpieczeństwa (\emph{Security Filter Chain}) odgrywa kluczową rolę w zapewnieniu ochrony aplikacji. W systemie „Harmony Home Net” został on skonfigurowany przy użyciu klasy \texttt{SecurityConfig}, która definiuje różne ścieżki żądań oraz odpowiadające im mechanizmy uwierzytelniania i autoryzacji. Każda ścieżka obsługiwana jest przez dedykowany łańcuch filtrów, co umożliwia elastyczne zarządzanie poziomem bezpieczeństwa.
+
+W konfiguracji wykorzystano mechanizm \texttt{JwtAuthenticationConverter}, który umożliwia niestandardowe przekształcanie tokenów JWT na obiekty \texttt{Authentication}, dodając autoryzacje na podstawie zawartości tokenu. Dzięki temu aplikacja może elastycznie zarządzać dostępem użytkowników na podstawie przypisanych im ról lub innych atrybutów zawartych w tokenie JWT.
+
+Kluczowym elementem konfiguracji jest również zastosowanie adnotacji \texttt{@Order}. Każdy łańcuch filtrów posiada określoną kolejność, która decyduje o tym, w jakiej sekwencji będą przetwarzane żądania. Dzięki temu można precyzyjnie kontrolować, które mechanizmy mają priorytet w przetwarzaniu poszczególnych ścieżek. Niewłaściwe ustawienie kolejności mogłoby spowodować nieprawidłowe działanie zabezpieczeń.
+
+W systemie zaimplementowano cztery główne łańcuchy filtrów:
+\begin{itemize}
+    \item \textbf{Łańcuch obsługi resetowania hasła} -- scieżki \texttt{/auth/forgot-password} i \texttt{/auth/reset-password} są publicznie dostępne bez konieczności uwierzytelniania (\texttt{@Order(1)}).
+    \item \textbf{Łańcuch logowania} -- obsługuje ścieżkę \texttt{/auth/login}, zapewniając uwierzytelnianie użytkownika przy użyciu nazw użytkowników i haseł (\texttt{@Order(2)}).
+    \item \textbf{Łańcuch API} -- chroni wszystkie ścieżki API zaczynające się od \texttt{/api/v1/}, wymagając tokenu JWT do autoryzacji (\texttt{@Order(3)}).
+    \item \textbf{Łańcuch wylogowania} -- obsługuje ścieżkę \texttt{/logout}, umożliwiając wylogowanie użytkownika i unieważnienie tokenu JWT (\texttt{@Order(4)}).
+\end{itemize}
+
+Każdy z łańcuchów został skonfigurowany jako komponent Spring Bean, dzięki czemu można elastycznie dostosowywać ustawienia w zależności od potrzeb. Poniżej przedstawiono pełny kod konfiguracji:
+
+\begin{lstlisting}[language=Java, caption=Pełna konfiguracja łańcucha filtrów bezpieczeństwa]
+@Configuration
+@EnableWebSecurity
+@EnableMethodSecurity
+@RequiredArgsConstructor
+@Import(JwtConfig.class)
+public class SecurityConfig {
+
+    private final UserInfoManagerConfig userInfoManagerConfig;
+    private final RSAKeyRecord rsaKeyRecord;
+    private final JwtTokenUtils jwtTokenUtils;
+    private final TokenBlacklistService tokenBlacklistService;
+
+    @Order(1)
+    @Bean
+    public SecurityFilterChain forgotPasswordSecurityFilterChain(HttpSecurity httpSecurity) throws Exception {
+        return httpSecurity
+                .securityMatcher(new OrRequestMatcher(
+                        new AntPathRequestMatcher("/auth/forgot-password"),
+                        new AntPathRequestMatcher("/auth/reset-password")
+                ))
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .cors(withDefaults())
+                .build();
+    }
+
+    @Order(2)
+    @Bean
+    public SecurityFilterChain loginSecurityFilterChain(HttpSecurity http) throws Exception {
+        return http
+                .securityMatcher(new AntPathRequestMatcher("/auth/login"))
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+                .userDetailsService(userInfoManagerConfig)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .httpBasic(withDefaults())
+                .cors(withDefaults())
+                .build();
+    }
+
+    @Order(3)
+    @Bean
+    public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
+        return http
+                .securityMatcher(new AntPathRequestMatcher("/api/v1/**"))
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
+                )
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(new JwtAccessTokenFilter(rsaKeyRecord, jwtTokenUtils, tokenBlacklistService), UsernamePasswordAuthenticationFilter.class)
+                .cors(withDefaults())
+                .build();
+    }
+
+    @Order(4)
+    @Bean
+    public SecurityFilterChain logoutSecurityFilterChain(HttpSecurity httpSecurity) throws Exception {
+        return httpSecurity
+                .securityMatcher(new AntPathRequestMatcher("/logout"))
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessHandler((request, response, authentication) -> {
+                            String token = request.getHeader("Authorization").replace("Bearer ", "");
+                            tokenBlacklistService.blacklistToken(token);
+                            SecurityContextHolder.clearContext();
+                        })
+                )
+                .cors(withDefaults())
+                .build();
+    }
+
+    @Bean
+    public JwtAuthenticationConverter jwtAuthenticationConverter() {
+        JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
+        converter.setJwtGrantedAuthoritiesConverter(jwt -> {
+            List<GrantedAuthority> authorities = new ArrayList<>();
+            String role = jwt.getClaimAsString("role");
+            if (role != null) {
+                authorities.add(new SimpleGrantedAuthority(role));
+            }
+            return authorities;
+        });
+        return converter;
+    }
+}
+\end{lstlisting}
+
+---
+
+Dzięki tej konfiguracji system:
+\begin{itemize}
+    \item Rozdziela odpowiedzialność za różne ścieżki żądań, pozwalając na precyzyjne zarządzanie dostępem.
+    \item Wykorzystuje \texttt{JwtAuthenticationConverter} do niestandardowego zarządzania autoryzacją na podstawie zawartości tokenu JWT.
+    \item Umożliwia bezstanowe zarządzanie sesjami za pomocą tokenów JWT.
+    \item Zachowuje odpowiednią kolejność przetwarzania żądań dzięki zastosowaniu adnotacji \texttt{@Order}.
+\end{itemize}
+
+\subsection{Proces logowania}
+
+Mechanizm logowania w systemie „Harmony Home Net” został zaprojektowany w oparciu o Spring Security i tokeny JWT. Poniżej przedstawiono szczegółowy opis procesu logowania, krok po kroku, na podstawie schematu zaprezentowanego na rysunku \ref{fig:ebok_db_concept}.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=.9\linewidth]{rys03/proces_logowania}
+    \caption{Schemat działania procesu logowania w systemie~\cite{JWToauth}}
+    \label{fig:ebok_db_concept}
+\end{figure}
+
+Proces logowania składa się z następujących kroków, oznaczonych literami \textbf{a}–\textbf{e} na schemacie:
+
+\begin{enumerate}
+    \item \textbf{Przesłanie danych logowania \texttt{a)}} -- Użytkownik wysyła żądanie HTTP \texttt{POST} na endpoint \texttt{/auth/login}, dostarczając swoje dane logowania, takie jak nazwa użytkownika i hasło. 
+		
+    \item \textbf{Uwierzytelnienie użytkownika przez \texttt{AuthenticationManager} \texttt{b)}} -- \texttt{AuthenticationManager} to kluczowy komponent Spring Security, który weryfikuje dane logowania. W pierwszym kroku proces uwierzytelniania odbywa się za pomocą dostarczonej nazwy użytkownika i hasła.
+
+    \item \textbf{Sprawdzenie danych w repozytorium użytkowników \texttt{c)}} -- \texttt{AuthenticationManager} deleguje żądanie do repozytorium użytkowników (\texttt{UserRepository}), które weryfikuje, czy użytkownik o podanym loginie istnieje w systemie. W tym celu wykorzystywana jest klasa \texttt{UserInfoManagerConfig}, która implementuje interfejs \texttt{UserDetailsService}. Jeśli użytkownik nie zostanie znaleziony lub dane logowania są niepoprawne, proces logowania kończy się niepowodzeniem i zwracany jest status \texttt{HTTP 403}.
+
+    \item \textbf{Generowanie tokenu JWT \texttt{d)}} -- Jeśli dane logowania są poprawne, na podstawie informacji o użytkowniku generowany jest token JWT za pomocą usługi \texttt{JwtService}. Token zawiera zaszyfrowane informacje, takie jak identyfikator użytkownika, rola w systemie oraz data wygaśnięcia. Klucze RSA zapewniają bezpieczeństwo tokenu.
+
+    \item \textbf{Zwrócenie tokenu JWT w odpowiedzi \texttt{e)}} -- Token JWT jest przesyłany do użytkownika w odpowiedzi HTTP \texttt{200}. Użytkownik przechowuje token lokalnie (np. w pamięci przeglądarki lub w \emph{localStorage}), aby używać go do autoryzacji kolejnych żądań do API.
+\end{enumerate}
+
+W szczególności klasa \texttt{UserInfoManagerConfig}, wykorzystywana w kroku \texttt{c)}, jest odpowiedzialna za weryfikację istnienia użytkownika w bazie danych oraz dostarczenie szczegółów użytkownika wymaganych przez mechanizm uwierzytelniania. Kod klasy przedstawiono poniżej:
+
+\begin{lstlisting}[language=Java, caption=Klasa \texttt{UserInfoManagerConfig} odpowiedzialna za zarządzanie użytkownikami]
+package bwp.hhn.backend.harmonyhomenetlogic.configuration.security;
+
+import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+
+@Service
+@RequiredArgsConstructor
+public class UserInfoManagerConfig implements UserDetailsService {
+
+    private final UserRepository userRepository;
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return userRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    }
+}
+\end{lstlisting}
+
+Kluczowe funkcje tej klasy:
+\begin{itemize}
+    \item \textbf{Implementacja metody \texttt{loadUserByUsername}:} Weryfikuje istnienie użytkownika w bazie danych na podstawie adresu e-mail.
+    \item \textbf{Obsługa wyjątków:} W przypadku, gdy użytkownik nie zostanie znaleziony, rzucany jest wyjątek \texttt{UsernameNotFoundException}, który kończy proces logowania.
+    \item \textbf{Repozytorium \texttt{UserRepository}:} Umożliwia dostęp do bazy danych w celu wyszukiwania użytkowników.
+\end{itemize}
+
+Mechanizm logowania zapewnia bezpieczną i bezstanową autoryzację użytkowników, minimalizując ryzyko naruszenia danych i nieuprawnionego dostępu.
+
+\subsection{Zarządzanie tokenami JWT i autoryzacja użytkowników}
+
+Zarządzanie tokenami JWT w systemie „Harmony Home Net” opiera się na zaawansowanych mechanizmach walidacji i autoryzacji, integrując je z frameworkiem Spring Security. Schemat ilustrujący proces dostępu do zasobów systemu został przedstawiony na rysunku \ref{fig:resource_access_flow}.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=.9\linewidth]{rys03/Diagram_dotępu_do_zasobów_systemu}
+    \caption{Diagram zarządzania tokenami JWT i autoryzacji użytkowników~\cite{JWToauth}}
+    \label{fig:resource_access_flow}
+\end{figure}
+
+Proces składa się z następujących kroków, oznaczonych literami \textbf{a}–\textbf{i} na schemacie:
+
+\begin{itemize}
+    \item \textbf{Przesłanie żądania przez użytkownika \texttt{a)}} -- użytkownik wysyła żądanie HTTP do usługi API z dołączonym tokenem JWT w nagłówku \texttt{Authorization}.
+    
+    \item \textbf{Przechwycenie żądania przez \texttt{JwtAccessTokenFilter} \texttt{b)}} -- niestandardowy filtr \texttt{JwtAccessTokenFilter}, zintegrowany z \texttt{SecurityFilterChain}, przechwytuje żądanie i analizuje token JWT. Jeśli token jest nieobecny lub niepoprawny, zwracana jest odpowiedź z kodem HTTP \texttt{403}.
+    
+    \item \textbf{Ekstrakcja danych z tokenu JWT przez \texttt{Jwt Service / OAuth 2.0 Resource Server} \texttt{c)}} -- w przypadku obecności tokenu JWT, usługa \texttt{Jwt Service}, korzystająca z mechanizmu \emph{OAuth 2.0 Resource Server}, jest wywoływana w celu ekstrakcji adresu e-mail użytkownika (\texttt{userEmail}). Jeśli dane użytkownika nie mogą zostać odczytane lub token jest nieprawidłowy, zwracany jest status HTTP \texttt{403}.
+
+    \item \textbf{Sprawdzenie użytkownika w bazie danych \texttt{d)}} -- Wyodrębniony adres e-mail użytkownika jest wykorzystywany do zapytania w bazie danych za pomocą \texttt{UserDetailsService}. Jeśli użytkownik nie istnieje w bazie, zwracana jest odpowiedź z kodem HTTP \texttt{403}.
+    
+    \item \textbf{Walidacja tokenu JWT \texttt{e)}} -- token JWT jest weryfikowany pod kątem poprawności oraz daty ważności. Jeśli token wygasł, zwracana jest odpowiedź HTTP \texttt{403}.
+    
+    \item \textbf{Utworzenie obiektu \texttt{UsernamePasswordAuthenticationToken} \texttt{f)}} -- jeśli token JWT jest ważny, informacje o użytkowniku są przetwarzane w obiekt \texttt{UsernamePasswordAuthenticationToken}, który następnie jest przechowywany w \texttt{SecurityContextHolder}.
+    
+    \item \textbf{Autoryzacja przez Spring Security \texttt{g)}} -- mechanizm autoryzacji Spring Security jest automatycznie wywoływany, aby sprawdzić, czy użytkownik ma odpowiednie uprawnienia do dostępu do zasobów.
+    
+    \item \textbf{Przekazanie żądania do kontrolera \texttt{h)}} -- po pomyślnym uwierzytelnieniu i autoryzacji żądanie jest kierowane do odpowiedniego kontrolera, który obsługuje dalsze przetwarzanie.
+    
+    \item \textbf{Zwrócenie odpowiedzi \texttt{i)}} -- po przetworzeniu żądania kontroler zwraca odpowiedź JSON z kodem HTTP \texttt{200}.
+\end{itemize}
+
+Kluczowym elementem procesu zarządzania tokenami JWT jest klasa \texttt{JwtAccessTokenFilter}, której zadaniem jest przechwytywanie i weryfikacja tokenów JWT w żądaniach HTTP. Kod tej klasy przedstawiono poniżej:
+
+\begin{lstlisting}[language=Java, caption=Kod niestandardowego filtra \texttt{JwtAccessTokenFilter}]
+@RequiredArgsConstructor
+public class JwtAccessTokenFilter extends OncePerRequestFilter {
+
+    private final RSAKeyRecord rsaKeyRecord;
+    private final JwtTokenUtils jwtTokenUtils;
+    private final TokenBlacklistService tokenBlacklistService;
+
+    @Override
+    protected void doFilterInternal(@NonNull HttpServletRequest request, 
+                                    @NonNull HttpServletResponse response, 
+                                    @NonNull FilterChain filterChain) 
+            throws ServletException, IOException {
+
+        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+
+        if (authHeader == null || !authHeader.startsWith(TokenType.Bearer.name())) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        final String token = authHeader.substring(7);
+
+        if (tokenBlacklistService.isTokenBlacklisted(token)) {
+            response.setStatus(HttpStatus.UNAUTHORIZED.value());
+            response.getWriter().write("Token is blacklisted");
+            return;
+        }
+
+        JwtDecoder jwtDecoder = NimbusJwtDecoder.withPublicKey(rsaKeyRecord.publicKey()).build();
+        Jwt jwtToken = jwtDecoder.decode(token);
+
+        String userName = jwtTokenUtils.getUserName(jwtToken);
+
+        if (userName != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            UserDetails userDetails = jwtTokenUtils.userDetails(userName);
+
+            if (jwtTokenUtils.isTokenValid(jwtToken, userDetails)) {
+                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                        userDetails, null, userDetails.getAuthorities());
+                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+            }
+        }
+        filterChain.doFilter(request, response);
+    }
+}
+\end{lstlisting}
+
+Opis działania klasy:
+
+\begin{itemize}
+    \item Klasa \texttt{JwtAccessTokenFilter} dziedziczy po \texttt{OncePerRequestFilter}, dzięki czemu jest wywoływana raz dla każdego żądania.
+    \item Weryfikacja nagłówka \texttt{Authorization} zapewnia, że token JWT jest obecny i poprawny.
+    \item Tokeny znajdujące się na czarnej liście są odrzucane z kodem HTTP \texttt{401}.
+    \item Token JWT jest dekodowany za pomocą klucza publicznego RSA, a dane użytkownika są odczytywane i weryfikowane.
+    \item Po pomyślnej weryfikacji dane użytkownika są zapisywane w \texttt{SecurityContextHolder}, umożliwiając dalszy proces autoryzacji.
+\end{itemize}
+
+
+Klasa \texttt{JwtConfig} zapewnia konfigurację mechanizmów dekodowania i kodowania tokenów JWT przy użyciu kluczy RSA. Kod klasy:
+
+\begin{lstlisting}[language=Java, caption=Klasa \texttt{JwtConfig}]
+@Configuration
+public class JwtConfig {
+
+    private final RSAKeyRecord rsaKeyRecord;
+
+    public JwtConfig(RSAKeyRecord rsaKeyRecord) {
+        this.rsaKeyRecord = rsaKeyRecord;
+    }
+
+    @Bean
+    public JwtDecoder jwtDecoder() {
+        return NimbusJwtDecoder.withPublicKey(rsaKeyRecord.publicKey()).build();
+    }
+
+    @Bean
+    public JwtEncoder jwtEncoder() {
+        JWK jwk = new RSAKey.Builder(rsaKeyRecord.publicKey())
+                           .privateKey(rsaKeyRecord.privateKey())
+                           .build();
+        JWKSource<SecurityContext> jwkSource = new ImmutableJWKSet<>(new JWKSet(jwk));
+        return new NimbusJwtEncoder(jwkSource);
+    }
+}
+\end{lstlisting}
+
+Klasa \texttt{JwtTokenUtils} odpowiada za operacje związane z tokenami JWT, takie jak ekstrakcja danych, weryfikacja poprawności oraz walidacja zgodności z danymi użytkownika. Kod tej klasy przedstawiono poniżej:
+
+\begin{lstlisting}[language=Java, caption=Klasa \texttt{JwtTokenUtils}]
+@Component
+@RequiredArgsConstructor
+public class JwtTokenUtils {
+
+    private final UserRepository userRepository;
+
+    public String getUserName(Jwt jwtToken) {
+        return jwtToken.getSubject();
+    }
+
+    public boolean isTokenValid(Jwt jwtToken, UserDetails userDetails) {
+        final String userName = getUserName(jwtToken);
+        boolean isTokenExpired = jwtToken.getExpiresAt().isBefore(Instant.now());
+        return !isTokenExpired && userName.equals(userDetails.getUsername());
+    }
+
+    public UserDetails userDetails(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    }
+}
+\end{lstlisting}
+
+\begin{itemize}
+    \item \texttt{JwtAccessTokenFilter} przechwytuje żądania HTTP, weryfikuje tokeny JWT i zapisuje dane użytkownika w kontekście bezpieczeństwa.
+    \item \texttt{JwtTokenUtils} obsługuje logikę ekstrakcji i walidacji danych z tokenu.
+    \item \texttt{JwtConfig} dostarcza konfigurację mechanizmów kodowania i dekodowania tokenów JWT z użyciem kluczy RSA.
+\end{itemize}
+
+
+\subsection{Zarządzanie czarną listą tokenów}
+
+Mechanizm zarządzania czarną listą tokenów jest kluczowym elementem zapewnienia bezpieczeństwa w systemie „Harmony Home Net”. Umożliwia on unieważnienie tokenów JWT, co jest szczególnie istotne w procesie wylogowania użytkownika. Dzięki temu można natychmiast zakończyć sesję użytkownika i uniemożliwić dostęp do zasobów chronionych systemu przy użyciu starego tokenu.
+
+\textbf{Proces wylogowania i dodawania tokenu do czarnej listy} -- podczas wylogowania system korzysta z dedykowanego łańcucha filtrów \texttt{logoutSecurityFilterChain}, zdefiniowanego w klasie \texttt{SecurityConfig}. Fragment konfiguracji przedstawiono poniżej:
+
+\begin{lstlisting}[language=Java, caption=Konfiguracja łańcucha wylogowania]
+@Bean
+@Order(4)
+public SecurityFilterChain logoutSecurityFilterChain(HttpSecurity httpSecurity) throws Exception {
+    return httpSecurity
+            .securityMatcher(new AntPathRequestMatcher("/logout"))
+            .csrf(AbstractHttpConfigurer::disable)
+            .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+            .oauth2ResourceServer(oauth2 -> oauth2.jwt(withDefaults()))
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .logout(logout -> logout
+                    .logoutUrl("/logout")
+                    .logoutSuccessHandler((request, response, authentication) -> {
+                        String token = request.getHeader("Authorization").replace("Bearer ", "");
+                        tokenBlacklistService.blacklistToken(token);
+                        SecurityContextHolder.clearContext();
+                    })
+            )
+            .cors(withDefaults())
+            .build();
+}
+\end{lstlisting}
+
+Podczas wylogowania użytkownik wysyła żądanie HTTP na ścieżkę \texttt{/logout}. Mechanizm \texttt{logoutSuccessHandler} wykonuje następujące kroki:
+\begin{itemize}
+    \item Ekstrakcja tokenu JWT z nagłówka \texttt{Authorization}.
+    \item Dodanie tokenu do czarnej listy za pomocą usługi \texttt{TokenBlacklistService}.
+    \item Wyczyszczenie kontekstu bezpieczeństwa (\texttt{SecurityContextHolder}) w celu unieważnienia sesji użytkownika.
+\end{itemize}
+
+\textbf{Zarządzanie czarną listą tokenów} -- klasa \texttt{TokenBlacklistService} odpowiada za przechowywanie tokenów w czarnej liście oraz ich usuwanie po wygaśnięciu. Kod klasy przedstawiono poniżej:
+
+\begin{lstlisting}[language=Java, caption=Klasa \texttt{TokenBlacklistService}]
+@Service
+@RequiredArgsConstructor
+public class TokenBlacklistService {
+    private final Set<String> blacklistedTokens = new HashSet<>();
+    private final JwtDecoder jwtDecoder;
+
+    public void blacklistToken(String token) {
+        blacklistedTokens.add(token);
+    }
+
+    public boolean isTokenBlacklisted(String token) {
+        return blacklistedTokens.contains(token);
+    }
+
+    @Scheduled(cron = "0 */15 * * * *") // Every 15 minutes
+    @Async
+    public void clearExpiredTokens() {
+        blacklistedTokens.removeIf(this::isTokenExpired);
+    }
+
+    private boolean isTokenExpired(String token) {
+        return Date.from(
+                Objects.requireNonNull(
+                        jwtDecoder.decode(token).getExpiresAt()
+                )
+        ).before(new Date());
+    }
+}
+\end{lstlisting}
+
+Funkcjonalności tej klasy obejmują:
+\begin{itemize}
+    \item \texttt{blacklistToken} -- dodaje token JWT do czarnej listy w momencie wylogowania.
+    \item \texttt{isTokenBlacklisted} -- sprawdza, czy dany token znajduje się na czarnej liście.
+    \item \texttt{clearExpiredTokens} -- usuwa z czarnej listy tokeny, które wygasły, aby ograniczyć zużycie pamięci.
+\end{itemize}
+
+\textbf{Harmonogram czyszczenia czarnej listy} --  usługa \texttt{TokenBlacklistService} korzysta z metody \texttt{@Scheduled}, która co 15 minut sprawdza i usuwa tokeny wygasłe. Jest to realizowane asynchronicznie, dzięki czemu proces ten nie wpływa na wydajność aplikacji.
+
+Dzięki implementacji mechanizmu czarnej listy system skutecznie zapobiega nieautoryzowanemu dostępowi do zasobów po wylogowaniu użytkownika lub wykryciu naruszenia bezpieczeństwa.
+
+\subsection{Mechanizmy resetowania hasła}
+
+Mechanizm resetowania hasła w systemie „Harmony Home Net” został zaprojektowany z uwzględnieniem podstawowych wymagań bezpieczeństwa. Jako że aplikacja jest prototypem, proces został uproszczony w stosunku do tego, jak wyglądałby w pełnoprawnej produkcyjnej aplikacji. W profesjonalnych wdrożeniach resetowanie hasła zwykle obejmuje podział na osobne endpointy oraz wieloetapowy proces potwierdzania tożsamości użytkownika.
+
+Główne funkcjonalności mechanizmu resetowania hasła:
+
+\begin{itemize}
+    \item \textbf{Prośba o reset hasła} -- użytkownik przesyła żądanie na endpoint \texttt{/forgot-password}, dostarczając swój adres e-mail. Jeśli podany e-mail znajduje się w bazie danych, generowany jest unikalny token zabezpieczający, który jest wysyłany na podany adres e-mail użytkownika wraz z linkiem do resetowania hasła. 
+
+    \item \textbf{Resetowanie hasła} -- po kliknięciu w link użytkownik zostaje przekierowany na dedykowaną stronę resetowania hasła, gdzie przesyła nową wartość hasła oraz potwierdzenie. Endpoint \texttt{/reset-password} przyjmuje token oraz nowe hasło, weryfikuje poprawność i aktualizuje dane w bazie, jeśli token jest ważny i jeszcze nie wygasł.
+
+    \item \textbf{Zmiana hasła} -- użytkownik, który jest zalogowany, może zmienić swoje hasło bez potrzeby resetowania go. Endpoint \texttt{/change-password} umożliwia przesłanie nowego hasła oraz jego potwierdzenia. Przed zmianą hasła system weryfikuje zgodność adresu e-mail i autoryzację użytkownika.
+\end{itemize}
+
+Podział mechanizmów resetowania w profesjonalnych aplikacjach:
+
+W przypadku produkcyjnych aplikacji mechanizmy resetowania hasła są bardziej rozbudowane. Proces ten obejmuje:
+\begin{itemize}
+    \item \emph{Wysłanie zabezpieczonego linku na e-mail} -- prośba o reset hasła generuje link zawierający jednorazowy token uwierzytelniający, wysyłany na adres e-mail użytkownika.
+    \item \emph{Weryfikacja linku} -- po kliknięciu w link użytkownik zostaje przekierowany na stronę umożliwiającą ustawienie nowego hasła, gdzie token jest weryfikowany.
+    \item \emph{Dodatkowe zabezpieczenia} -- ograniczenie czasowe ważności tokenu (np. 15 minut–1 godzina), szyfrowanie danych oraz logowanie operacji resetu w celu audytowania.
+\end{itemize}
+
+Implementacja w systemie „Harmony Home Net”:
+
+Mechanizmy obsługujące resetowanie hasła zostały zaimplementowane w kontrolerze \texttt{AuthController}. Kod przedstawia poniższe endpointy:
+
+\begin{lstlisting}[language=Java, caption=Fragment klasy \texttt{AuthController}]
+@PostMapping("/forgot-password")
+public ResponseEntity<String> forgotPassword(@RequestBody PasswordResetRequest request) {
+    authService.forgotPassword(request.getEmail());
+    return ResponseEntity.ok("Password reset link has been sent to your email.");
+}
+
+@PostMapping("/reset-password")
+public ResponseEntity<String> resetPassword(@RequestBody PasswordUpdateRequest request) {
+    authService.resetPassword(request.getToken(), request.getNewPassword(), request.getConfirmPassword());
+    return ResponseEntity.ok("Password has been reset successfully.");
+}
+
+@PostMapping("/change-password")
+public ResponseEntity<String> changePassword(@RequestBody PasswordChangeRequest request) {
+    authService.changePassword(request.getNewPassword(), request.getConfirmPassword(), request.getEmail());
+    return ResponseEntity.ok("Password has been changed successfully.");
+}
+\end{lstlisting}
+
+Szczegóły implementacji:
+
+- \textbf{\texttt{forgotPassword}} -- generuje token resetujący, który jest wysyłany na podany adres e-mail użytkownika. Token ma ograniczoną ważność, co zwiększa bezpieczeństwo.
+- \textbf{\texttt{resetPassword}} -- weryfikuje token przesłany przez użytkownika, sprawdza jego ważność oraz zgodność przesłanych haseł. W przypadku pomyślnej walidacji hasło użytkownika jest aktualizowane w bazie.
+- \textbf{\texttt{changePassword}} -- pozwala na zmianę hasła dla zalogowanych użytkowników, weryfikując zgodność adresu e-mail i przesłanych danych.
+
+Obsługa resetowania hasła w klasie \texttt{AuthService}:
+
+Funkcjonalność resetowania hasła w systemie „Harmony Home Net” jest realizowana przez klasę \texttt{AuthServiceImp}, która implementuje interfejs \texttt{AuthService}. Kluczowe metody odpowiedzialne za reset hasła to:
+
+\begin{lstlisting}[language=Java, caption=Metody resetowania hasła w klasie \texttt{AuthServiceImp}]
+@Override
+public void forgotPassword(String email) {
+    User user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+    String token = bCryptPasswordEncoder.encode(UUID.randomUUID().toString());
+    user.setResetToken(token);
+    user.setResetTokenExpiry(Instant.now().plus(1, ChronoUnit.HOURS));
+    userRepository.save(user);
+
+    mailService.sendNotificationMail(
+            "Password Reset Request",
+            token,
+            user.getEmail()
+    );
+}
+
+@Override
+public void resetPassword(String token, String newPassword, String confirmPassword) {
+    User user = userRepository.findByResetToken(token)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid token"));
+
+    if (!newPassword.equals(confirmPassword)) {
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Passwords do not match");
+    }
+
+    if (user.getResetTokenExpiry().isBefore(Instant.now())) {
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Token has expired");
+    }
+
+    user.setPassword(bCryptPasswordEncoder.encode(newPassword));
+    user.setResetToken(null);
+    user.setResetTokenExpiry(null);
+    userRepository.save(user);
+}
+\end{lstlisting}
+
+Opis działania metod:
+
+\begin{itemize}
+    \item \texttt{forgotPassword(String email)} -- ta metoda generuje token resetowania hasła dla użytkownika z podanym adresem e-mail. W szczególności:
+    \begin{enumerate}
+        \item Sprawdza, czy użytkownik istnieje w bazie danych. Jeśli nie, rzuca wyjątek \texttt{UserNotFoundException}.
+        \item Generuje unikalny token przy użyciu \texttt{UUID} i szyfruje go za pomocą algorytmu \texttt{BCrypt}.
+        \item Ustawia token oraz datę jego wygaśnięcia (np. 1 godzina od momentu utworzenia) w obiekcie użytkownika.
+        \item Wysyła wiadomość e-mail z tokenem i informacją o resetowaniu hasła za pomocą usługi \texttt{MailService}.
+    \end{enumerate}
+
+    \item \texttt{resetPassword(String token, String newPassword, String confirmPassword)} -- ta metoda obsługuje resetowanie hasła na podstawie tokenu. Kluczowe kroki:
+    \begin{enumerate}
+        \item Pobiera użytkownika z bazy danych na podstawie przesłanego tokenu. Jeśli token jest nieprawidłowy, rzuca wyjątek \texttt{ResponseStatusException}.
+        \item Sprawdza, czy nowe hasło oraz jego potwierdzenie są zgodne. W przypadku niezgodności rzuca wyjątek \texttt{BAD\_REQUEST}.
+        \item Weryfikuje, czy token nie wygasł, porównując jego datę wygaśnięcia z bieżącym czasem.
+        \item Aktualizuje hasło użytkownika, resetuje token oraz jego datę ważności w bazie danych.
+    \end{enumerate}
+\end{itemize}
+
+
+Bezpieczeństwo i walidacja:
+Każdy krok w procesie resetowania hasła jest zabezpieczony odpowiednimi walidacjami:
+\begin{enumerate}
+    \item Token jest szyfrowany i przechowywany w bazie danych, co uniemożliwia jego odczytanie w przypadku naruszenia bezpieczeństwa bazy.
+    \item Token ma ograniczoną ważność, co minimalizuje ryzyko jego wykorzystania po upływie określonego czasu.
+    \item Sprawdzana jest zgodność nowego hasła i jego potwierdzenia, aby uniknąć przypadkowych błędów ze strony użytkownika.
+\end{enumerate}
+
+Rozszerzenie funkcjonalności w przyszłości:
+W przyszłości mechanizm może zostać rozszerzony o dodatkowe funkcje, takie jak:
+\begin{enumerate}
+    \item Logowanie operacji resetowania hasła w celu audytowania.
+    \item Dodanie wieloskładnikowego uwierzytelniania (MFA) podczas resetowania hasła.
+    \item Wysyłanie linku resetującego, który odsyła użytkownika na dedykowaną stronę, zamiast przesyłania samego tokenu w wiadomości.
+\end{enumerate}
+
+Bezpieczeństwo i wygoda użytkownika: 
+Mechanizmy te, choć uproszczone w prototypie, zapewniają podstawowy poziom bezpieczeństwa, jednocześnie umożliwiając wygodne resetowanie hasła. W przyszłości aplikacja może zostać rozszerzona o dodatkowe zabezpieczenia, takie jak wieloskładnikowe uwierzytelnianie (MFA) lub mechanizmy monitorujące nieautoryzowane próby resetowania hasła.
+
+
+\section{Zarządzanie użytkownikami}
+
+System zarządzania użytkownikami w prototypie \textbf{Harmony Home Net} został zaprojektowany jako zamknięty system, co oznacza, że proces rejestracji nowych użytkowników odbywa się wyłącznie z poziomu pracownika administracyjnego. Brak publicznego systemu rejestracji użytkowników jest zamierzonym rozwiązaniem, mającym na celu zwiększenie bezpieczeństwa systemu oraz ograniczenie dostępu jedynie do osób upoważnionych. 
+
+\subsection{Encja użytkownika \texttt{User}}
+
+Encja \texttt{User} jest jednym z dwóch centralnym elementem systemu zarządzania użytkownikami. Reprezentuje dane użytkownika w systemie, takie jak imię, nazwisko, adres e-mail, numer telefonu oraz przypisana rola. Klasa \texttt{User} implementuje interfejs \texttt{UserDetails} z biblioteki Spring Security, co umożliwia jej bezpośrednie wykorzystanie w procesie autoryzacji i uwierzytelniania użytkowników.
+
+\textbf{Kluczowe cechy encji \texttt{User}:}
+\begin{itemize}
+    \item \textbf{Implementacja \texttt{UserDetails}} -- dzięki implementacji interfejsu \texttt{UserDetails}, encja \texttt{User} jest zintegrowana z mechanizmami Spring Security, które wykorzystują ją do przechowywania i zarządzania danymi uwierzytelniającymi.
+    \item \textbf{Adnotacje JPA} -- encja jest zmapowana na tabelę \texttt{Users} w bazie danych przy użyciu adnotacji JPA, takich jak \texttt{@Entity}, \texttt{@Table} oraz \texttt{@Column}.
+    \item \textbf{Powiązania z innymi encjami} -- encja posiada relacje z wieloma innymi tabelami, takimi jak \texttt{NotificationType}, \texttt{UserDocumentConnection} oraz \texttt{PossessionHistory}, które odzwierciedlają jej złożoną strukturę w systemie.
+    \item \textbf{Zabezpieczenia danych} -- pola, takie jak hasło (\texttt{Password}), są odpowiednio walidowane i szyfrowane przed zapisaniem w bazie danych.
+\end{itemize}
+
+\textbf{Fragment kodu encji \texttt{User}:}
+\begin{lstlisting}[language=Java, caption=Encja użytkownika \texttt{User}]
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+@Entity
+@Table(name = "Users", indexes = {
+        @Index(name = "idx_user_email_unq", columnList = "Email", unique = true),
+        @Index(name = "idx_user_uuid", columnList = "UUID_id", unique = true)
+})
+public class User implements UserDetails {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "UUID_id")
+    private UUID uuidID;
+
+    @NotEmpty
+    @Size(min = 3, max = 50)
+    @Column(name = "First_name", nullable = false, length = 50)
+    private String firstName;
+
+    @NotEmpty
+    @Size(min = 3, max = 50)
+    @Column(name = "Last_name", nullable = false, length = 50)
+    private String lastName;
+
+    @NotEmpty
+    @Email
+    @Pattern(regexp = "^[A-Za-z0-9+_.-]+@(.+)$", message = "Invalid email format")
+    @Column(name = "Email", nullable = false, unique = true, length = 50)
+    private String email;
+
+    @NotEmpty
+    @Size(min = 10, max = 255)
+    @Column(name = "Password", nullable = false)
+    private String password;
+
+    @Column(name = "Role", length = 20)
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
+    @NotEmpty
+    @Pattern(regexp = "^\\d{9,11}$", message = "Invalid phone number format")
+    @Column(name = "Phone_number", nullable = false, unique = true, length = 11)
+    private String phoneNumber;
+
+    @CreationTimestamp
+    @Column(name = "Create_at")
+    private Instant createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "Update_at")
+    private Instant updatedAt;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<NotificationType> notificationTypes;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<UserDocumentConnection> userDocumentConnections;
+
+    @Column(name = "reset_token")
+    private String resetToken;
+
+    @Column(name = "reset_token_expiry")
+    private Instant resetTokenExpiry;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(role);
+    }
+
+    @Override
+    public String getPassword() {
+        return password;
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
+}
+\end{lstlisting}
+
+\textbf{Rola w procesie autoryzacji} -- dzięki implementacji metody \texttt{getAuthorities()} z interfejsu \texttt{UserDetails}, encja \texttt{User} umożliwia Spring Security odczytywanie ról przypisanych użytkownikowi. To pozwala na efektywne zarządzanie dostępem do zasobów w systemie i egzekwowanie polityk bezpieczeństwa na podstawie ról użytkowników.
+
+
+\subsection{Role i poziomy dostępu}
+
+System zarządzania użytkownikami opiera się na hierarchii ról, które są zdefiniowane w klasie \texttt{Role}. Każda rola ma przypisany poziom dostępu, wyrażony jako liczba całkowita. Dzięki temu system może łatwo określić, czy użytkownik posiada wystarczające uprawnienia do wykonania określonej operacji, takiej jak edycja danych innego użytkownika czy przypisanie nowej roli.
+
+\textbf{Definicja ról w systemie:}
+\begin{itemize}
+    \item \texttt{ROLE\_OWNER} -- poziom 1, właściciel mieszkania, podstawowa rola w systemie.
+    \item \texttt{ROLE\_EMPLOYEE} -- poziom 2, pracownik administracyjny.
+    \item \texttt{ROLE\_ADMIN} -- poziom 3, administrator systemu.
+    \item \texttt{ROLE\_SUPER\_ADMIN} -- poziom 4, najwyższy poziom dostępu, superadministrator.
+\end{itemize}
+
+Fragment kodu definiującego enumerację \texttt{Role}:
+\begin{lstlisting}[language=Java, caption=Definicja ról w systemie \texttt{Role}]
+package bwp.hhn.backend.harmonyhomenetlogic.utils.enums;
+
+import lombok.Getter;
+import org.springframework.security.core.GrantedAuthority;
+
+@Getter
+public enum Role implements GrantedAuthority {
+    ROLE_OWNER(1),
+    ROLE_EMPLOYEE(2),
+    ROLE_ADMIN(3),
+    ROLE_SUPER_ADMIN(4);
+
+    private final int level;
+
+    Role(int level) {
+        this.level = level;
+    }
+
+    @Override
+    public String getAuthority() {
+        return name();
+    }
+}
+\end{lstlisting}
+
+\textbf{Działanie hierarchii ról:}
+\begin{itemize}
+    \item Każda rola ma swoją wartość liczbową (\texttt{level}), która określa jej miejsce w hierarchii uprawnień.
+    \item Funkcje takie jak przypisywanie nowych ról czy edycja danych sprawdzają, czy użytkownik wykonujący operację posiada wyższy lub równy poziom dostępu (\texttt{level}) w stosunku do użytkownika, którego dane mają być zmodyfikowane.
+    \item Rola \texttt{ROLE\_OWNER} jest specjalnie zabezpieczona, aby zapobiec jej zmianie na inną rolę bez uprzedniego usunięcia użytkownika i ponownej rejestracji.
+\end{itemize}
+
+
+\subsection{Dodawanie użytkowników i przypisywanie ról}
+
+Proces zarządzania użytkownikami, w tym ich dodawanie i edycja, jest realizowany za pomocą prostego mechanizmu autoryzacji opartego na wartościach liczbowych przypisanych do ról w enumeracji \texttt{Role}. Każda rola (np. \texttt{ROLE\_OWNER}, \texttt{ROLE\_EMPLOYEE}, \texttt{ROLE\_ADMIN}) ma przypisany poziom dostępu, który określa możliwość wykonywania operacji takich jak dodawanie, edytowanie czy usuwanie użytkowników. Mechanizm ten wymaga, aby poziom dostępu osoby wykonującej daną operację był równy lub wyższy od poziomu użytkownika, na którym operacja ma być wykonana.
+
+\textbf{Kluczowe założenia mechanizmu:}
+\begin{itemize}
+    \item \textbf{Hierarchia poziomów dostępu} -- wartości liczbowe przypisane do ról zapewniają, że np. użytkownik z rolą \texttt{ROLE\_ADMIN} może edytować użytkowników z rolami o niższym poziomie, ale nie może przypisać im roli o poziomie wyższym od swojego.
+    \item \textbf{Zabezpieczenie ról} -- rola \texttt{ROLE\_OWNER} jest szczególnie chroniona – nie można zmienić jej na inną rolę, taką jak \texttt{ROLE\_EMPLOYEE} lub \texttt{ROLE\_ADMIN}, i odwrotnie. Aby dokonać takiej zmiany, konieczne jest usunięcie użytkownika i ponowne dodanie go z nową rolą.
+\end{itemize}
+
+Proces rejestracji użytkownika został zaimplementowany w usłudze \texttt{AuthServiceImp}, a jego kluczowe elementy to:
+\begin{itemize}
+    \item \textbf{Weryfikacja dostępu pracownika rejestrującego} -- Przy każdej rejestracji token JWT dostarczony przez pracownika jest weryfikowany, aby upewnić się, że osoba rejestrująca ma odpowiednie uprawnienia do przypisania nowego użytkownika i jego roli.
+    \item \textbf{Przypisywanie ról} -- Użytkownikowi można przypisać jedną z dostępnych ról (\texttt{ROLE\_OWNER}, \texttt{ROLE\_EMPLOYEE}, \texttt{ROLE\_ADMIN}, \texttt{ROLE\_SUPER\_ADMIN}). Każda rola ma określony poziom dostępu, co zapobiega nadawaniu wyższych ról przez osoby z niższymi uprawnieniami.
+    \item \textbf{Wysyłanie powitalnego e-maila} -- Po poprawnym zapisaniu użytkownika w bazie danych, na jego adres e-mail wysyłana jest wiadomość powitalna za pomocą usługi \texttt{MailService}.
+\end{itemize}
+
+Fragment kodu obsługującego rejestrację użytkownika:
+\begin{lstlisting}[language=Java, caption=Rejestracja użytkownika w \texttt{AuthServiceImp}]
+@Override
+@Transactional
+public String register(RegisterRequest userRequest, String accessToken) {
+    JwtDecoder jwtDecoder = NimbusJwtDecoder.withPublicKey(rsaKeyRecord.publicKey()).build();
+    final Jwt jwtToken = jwtDecoder.decode(accessToken);
+
+    Role role = Role.valueOf(jwtToken.getClaim("role"));
+
+    if (role.getLevel() < userRequest.getRole().getLevel()) {
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Insufficient permissions to update or assign the role");
+    }
+
+    if (userRepository.existsByEmail(userRequest.getEmail())) {
+        throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already exists");
+    }
+
+    User user = User.builder()
+            .email(userRequest.getEmail())
+            .password(bCryptPasswordEncoder.encode(userRequest.getPassword()))
+            .role(userRequest.getRole())
+            .firstName(userRequest.getFirstName())
+            .lastName(userRequest.getLastName())
+            .phoneNumber(userRequest.getPhoneNumber())
+            .build();
+
+    userRepository.save(user);
+    mailService.sendNotificationMail("Welcome to Harmony Home Net", "Your account has been successfully created.", user.getEmail());
+    return "User registered successfully.";
+}
+\end{lstlisting}
+
+\subsection{Zarządzanie użytkownikami i ich danymi}
+
+Funkcjonalność zarządzania użytkownikami obejmuje:
+\begin{itemize}
+    \item \textbf{Paginację} -- dla efektywnego zarządzania dużą liczbą użytkowników, zaimplementowano mechanizm stronicowania (\texttt{Pagination}), który umożliwia pobieranie danych w mniejszych porcjach.
+    \item \textbf{Edycja danych użytkownika} -- administratorzy mogą zmieniać dane użytkowników, takie jak e-mail, imię, nazwisko czy rola.
+    \item \textbf{Usuwanie użytkowników} -- system pozwala na usuwanie użytkowników wraz z powiązanymi danymi, takimi jak powiadomienia czy głosy.
+\end{itemize}
+
+\textbf{Fragment kodu obsługującego edycję użytkownika:}
+\begin{lstlisting}[language=Java, caption=Edycja użytkownika w \texttt{UserServiceImp}]
+@Override
+public UserResponse updateUser(UUID userId, UserRequest user, String accessToken) throws UserNotFoundException {
+    JwtDecoder jwtDecoder = NimbusJwtDecoder.withPublicKey(rsaKeyRecord.publicKey()).build();
+    final Jwt jwtToken = jwtDecoder.decode(accessToken);
+
+    Role role = Role.valueOf(jwtToken.getClaim("role"));
+
+    if (role.getLevel() < user.getRole().getLevel()) {
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Insufficient permissions to update or assign the role");
+    }
+
+    User userEntity = userRepository.findByUuidIDOrEmail(userId, null)
+            .orElseThrow(() -> new UserNotFoundException("User id: " + userId + " not found"));
+
+    if (userEntity.getRole() == Role.ROLE_OWNER && user.getRole() != Role.ROLE_OWNER) {
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Cannot change the role of an OWNER");
+    }
+
+    if ((userEntity.getRole() == Role.ROLE_ADMIN || userEntity.getRole() == Role.ROLE_EMPLOYEE) && user.getRole() == Role.ROLE_OWNER) {
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Cannot change the role to OWNER");
+    }
+
+    userEntity.setEmail(user.getEmail() != null ? user.getEmail() : userEntity.getEmail());
+    userEntity.setFirstName(user.getFirstName() != null ? user.getFirstName() : userEntity.getFirstName());
+    userEntity.setLastName(user.getLastName() != null ? user.getLastName() : userEntity.getLastName());
+    userEntity.setPhoneNumber(user.getPhoneNumber() != null ? user.getPhoneNumber() : userEntity.getPhoneNumber());
+    userEntity.setRole(user.getRole() != null ? user.getRole() : userEntity.getRole());
+    userEntity.setPassword(user.getPassword() != null ? bCryptPasswordEncoder.encode(user.getPassword()) : userEntity.getPassword());
+
+    User saved = userRepository.save(userEntity);
+
+    return UserResponse.builder()
+            .email(saved.getEmail())
+            .firstName(saved.getFirstName())
+            .lastName(saved.getLastName())
+            .updatedAt(saved.getUpdatedAt())
+            .createdAt(saved.getCreatedAt())
+            .phoneNumber(saved.getPhoneNumber())
+            .build();
+}
+\end{lstlisting}
+
+
+Fragment kontrolera odpowiedzialnego za paginację i zarządzanie użytkownikami:
+\begin{lstlisting}[language=Java, caption=Metoda paginacji w \texttt{UserController}]
+@GetMapping("/get-all-users")
+public ResponseEntity<PageResponse<UserResponse>> getAllUsers(
+        @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
+        @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize) {
+    return ResponseEntity.ok(userService.getAllUsers(pageNo, pageSize));
+}
+\end{lstlisting}
+
+\subsection{Przyszłe usprawnienia: integracja ACL}
+
+Jednym z możliwych kierunków rozwoju systemu jest integracja mechanizmu \textbf{ACL}~\cite{acl}. ACL umożliwia bardziej precyzyjne zarządzanie dostępem do zasobów poprzez przypisywanie uprawnień na poziomie pojedynczych zasobów (np. użytkownik może edytować tylko swoje zgłoszenia techniczne, ale nie ma dostępu do zgłoszeń innych mieszkańców). Dzięki temu system mógłby zapewniać większą elastyczność i bezpieczeństwo przy zarządzaniu użytkownikami.
+
+ACL w przyszłości może obejmować:
+\begin{itemize}
+    \item Definiowanie uprawnień na poziomie obiektów (np. dostęp do konkretnego mieszkania).
+    \item Tworzenie hierarchii uprawnień dostosowanych do struktury organizacyjnej wspólnoty mieszkaniowej.
+    \item Logowanie i audyt działań użytkowników w celu monitorowania potencjalnych nadużyć.
+\end{itemize}
+
+W obecnym prototypie systemu, zarządzanie użytkownikami i przypisywanie ról stanowi solidną podstawę, którą można rozbudować o bardziej zaawansowane mechanizmy, takie jak ACL, w przyszłych wersjach aplikacji.
+
+
+\section{Zarządzanie mieszkaniami}
+
+Zarządzanie mieszkaniami w prototypie systemu ,,Harmony Home Net'' jest kluczowym elementem jego funkcjonalności. Mieszkanie stanowi jedną z dwóch podstawowych tabel w systemie, obok tabeli użytkowników. W ramach tej sekcji omówione zostaną szczegóły implementacyjne, w tym struktura encji, tabela pośrednicząca \texttt{PossessionHistory}, sposób zarządzania mieszkaniami, właścicielami oraz przyszłe funkcje, które mogą zostać zaimplementowane.
+
+\subsection{Encja \texttt{Apartment}}
+
+Encja \texttt{Apartment} reprezentuje mieszkanie w systemie. Każdy rekord zawiera informacje takie jak adres, powierzchnia, wartość procentowa oraz sygnatura unikalna dla każdego mieszkania. Struktura encji jest następująca:
+
+\begin{lstlisting}[language=Java, caption=Encja mieszkania \texttt{Apartment}]
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+@Entity
+@Table(name = "Apartments", indexes = {
+        @Index(name = "idx_apartment_unq", columnList = "Apartment_signature", unique = true)
+})
+public class Apartment {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "UUID_id")
+    private UUID uuidID;
+
+    @NotNull
+    @Size(min = 1, max = 60)
+    @Column(name = "Apartment_signature", nullable = false, unique = true, length = 60)
+    private String apartmentSignature;
+
+    @NotEmpty
+    @Size(max = 50)
+    @Column(name = "Address", nullable = false, length = 50)
+    private String address;
+
+    @NotEmpty
+    @Size(max = 20)
+    @Column(name = "City", nullable = false, length = 20)
+    private String city;
+
+    @NotEmpty
+    @Pattern(regexp = "^\\d{2}-\\d{3}$", message = "Invalid zip code format")
+    @Column(name = "Zip_code", nullable = false, length = 6)
+    private String zipCode;
+
+    @NotNull
+    @DecimalMin(value = "0.0", inclusive = false)
+    @Digits(integer = 3, fraction = 2)
+    @Column(name = "Apartment_area", nullable = false, precision = 5, scale = 2)
+    private BigDecimal apartmentArea;
+
+    @NotNull
+    @DecimalMin(value = "0.0", inclusive = false)
+    @Column(name = "Apartment_percent_value", nullable = false, precision = 5, scale = 2)
+    private BigDecimal apartmentPercentValue;
+
+    @CreationTimestamp
+    @Column(name = "Create_at", nullable = false, updatable = false)
+    private Instant createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "Update_at", updatable = false)
+    private Instant updatedAt;
+
+    @OneToMany(mappedBy = "apartment", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PossessionHistory> possessionHistories;
+
+    // Additional relationships and fields
+}
+\end{lstlisting}
+
+\subsection{Tabela pośrednicząca \texttt{PossessionHistory}}
+
+Tabela \texttt{PossessionHistory} umożliwia zarządzanie relacjami pomiędzy użytkownikami a mieszkaniami. Zawiera informacje o tym, które mieszkania są aktualnie przypisane do jakich użytkowników oraz historię przypisań. Struktura tabeli zapewnia unikalność pary użytkownik-mieszkanie.
+
+\begin{lstlisting}[language=Java, caption=Tabela pośrednicząca \texttt{PossessionHistory}]
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+@Entity
+@Table(name = "Possession_history", indexes = {
+        @Index(name = "idx_possession_user_id", columnList = "user_id"),
+        @Index(name = "idx_possession_apartment_id", columnList = "apartment_id"),
+        @Index(name = "idx_possession_start_date", columnList = "start_date"),
+        @Index(name = "idx_possession_end_date", columnList = "end_date")
+}, uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"user_id", "apartment_id"})
+})
+public class PossessionHistory {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID")
+    private Long id;
+
+    @CreationTimestamp
+    @Column(name = "Start_date", nullable = false)
+    private Instant startDate;
+
+    @Column(name = "End_date")
+    private Instant endDate;
+
+    @Column(name = "Status_notes", length = 1000)
+    private String statusNotes;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "UUID_id")
+    private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "apartment_id", referencedColumnName = "UUID_id")
+    private Apartment apartment;
+}
+\end{lstlisting}
+
+\subsection{Przypisywanie i odłączanie właścieli}
+
+Proces przypisywania mieszkania do użytkownika jest realizowany w serwisie \texttt{ApartmentsServiceImp}. Przykładowa implementacja:
+
+\begin{lstlisting}[language=Java, caption=Przypisywanie mieszkańców w \texttt{ApartmentsServiceImp}]
+@Override
+@Transactional
+public PossessionHistoryResponse createPossessionHistory(String apartmentSignature, UUID userId)
+        throws ApartmentNotFoundException, UserNotFoundException {
+    User user = userRepository.findById(userId)
+            .orElseThrow(() -> new UserNotFoundException("User: " + userId + " not found"));
+
+    Apartment apartment = apartmentsRepository.findByApartmentSignature(apartmentSignature)
+            .orElseThrow(() -> new ApartmentNotFoundException("Apartment with signature: " + apartmentSignature + " not found"));
+
+    if (possessionHistoryRepository.existsByUserUuidIDAndApartmentUuidID(userId, apartment.getUuidID())) {
+        throw new ApartmentNotFoundException("User already has this apartment assigned");
+    }
+
+    PossessionHistory possessionHistory = PossessionHistory.builder()
+            .user(user)
+            .apartment(apartment)
+            .build();
+
+    PossessionHistory saved = possessionHistoryRepository.save(possessionHistory);
+
+    return PossessionHistoryResponse.builder()
+            .userName(saved.getUser().getFirstName() + " " + saved.getUser().getLastName())
+            .apartmentName(saved.getApartment().getAddress())
+            .startDate(saved.getStartDate())
+            .build();
+}
+\end{lstlisting}
+
+\subsection{Przyszłe usprawnienia dla zarządzania mieszkańcami}
+
+Aktualnie proces dodawania i usuwania właścicieli mieszkań na warstwie frontendowej jest zrealizowany w sposób bardzo uproszony. Użytkownik musi ręcznie wprowadzić UUID osoby, która ma zostać przypisana jako właściciel mieszkania, co jest niepraktyczne i podatne na błędy w przypadku dużej liczby użytkowników.
+
+Proponowane usprawnienia obejmują:
+
+\begin{itemize}
+    \item \textbf{Lista wyliczeniowa użytkowników} -- Zastąpienie ręcznego wpisywania UUID możliwością wyboru użytkownika z listy dostępnych właścicieli. Lista mogłaby wyświetlać podstawowe informacje o użytkownikach, takie jak imię, nazwisko, e-mail czy numer telefonu.
+    \item \textbf{Filtry wyszukiwania} -- wprowadzenie mechanizmu filtrów, który umożliwiłby wyszukiwanie użytkowników na podstawie określonych kryteriów, takich jak rola, adres e-mail czy numer telefonu.
+    \item \textbf{Intuicyjny interfejs} -- dodanie opcji podglądu szczegółowych informacji o użytkowniku bez opuszczania ekranu zarządzania mieszkaniami.
+\end{itemize}
+
+W przyszłości planowane jest rozszerzenie systemu o następujące funkcje:
+\begin{itemize}
+    \item \textbf{Automatyczne generowanie powiadomień} -- informowanie mieszkańców o zmianach statusu mieszkania.
+    \item \textbf{Zaawansowana historia posiadania} -- dodanie możliwości załączania notatek i dokumentów do historii posiadania.
+    \item \textbf{Integracja z systemami księgowymi} -- automatyczne generowanie opłat na podstawie powierzchni mieszkania i jego wartości procentowej.
+\end{itemize}
+
+Dzięki tym zmianom proces zarządzania właścicielami mieszkań stanie się bardziej intuicyjny i mniej podatny na błędy. Dodatkowo, lepsza prezentacja danych na froncie pozwoli pracownikom administracyjnym szybciej i sprawniej realizować operacje związane z przypisywaniem mieszkańców.
+
 
 \section{Zarządzie dokumentami}
 
