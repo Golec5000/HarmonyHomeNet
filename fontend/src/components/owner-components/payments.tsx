@@ -1,9 +1,9 @@
 'use client'
 
-import React, {useCallback, useEffect, useState} from 'react';
-import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
-import {Button} from "@/components/ui/button";
-import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
+import React, {useCallback, useEffect, useState} from 'react'
+import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card"
+import {Button} from "@/components/ui/button"
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table"
 import {
     AlertCircle,
     Calendar,
@@ -13,81 +13,87 @@ import {
     ChevronUp,
     CreditCard,
     DollarSign
-} from 'lucide-react';
-import {format, parseISO} from 'date-fns';
-import {Collapsible, CollapsibleContent, CollapsibleTrigger} from "@/components/ui/collapsible";
-import {toast} from 'sonner';
+} from 'lucide-react'
+import {format, parseISO} from 'date-fns'
+import {Collapsible, CollapsibleContent, CollapsibleTrigger} from "@/components/ui/collapsible"
+import {toast} from 'sonner'
+import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger} from "@/components/ui/dialog"
+import {Input} from "@/components/ui/input"
+import {Label} from "@/components/ui/label"
 
 interface PaymentComponentResponse {
-    id: number;
-    componentType: string;
-    unitPrice: number;
-    specialMultiplier: number;
-    componentAmount: number;
-    createdAt: string;
-    updatedAt: string;
-    unit: string;
+    id: number
+    componentType: string
+    unitPrice: number
+    specialMultiplier: number
+    componentAmount: number
+    createdAt: string
+    updatedAt: string
+    unit: string
 }
 
 interface PaymentResponse {
-    paymentId: string;
-    paymentStatus: 'PENDING' | 'PAID' | 'OVERDUE';
-    paymentDate: string;
-    paymentTime: string;
-    paymentAmount: number;
-    createdAt: string;
-    description: string;
-    components?: PaymentComponentResponse[];
-    readyToPay: boolean;
+    paymentId: string
+    paymentStatus: 'PENDING' | 'PAID' | 'OVERDUE'
+    paymentDate: string
+    paymentTime: string
+    paymentAmount: number
+    createdAt: string
+    description: string
+    components?: PaymentComponentResponse[]
+    readyToPay: boolean
 }
 
 interface PageResponse {
-    currentPage: number;
-    pageSize: number;
-    totalPages: number;
-    content: PaymentResponse[];
-    last: boolean;
-    hasNext: boolean;
-    hasPrevious: boolean;
+    currentPage: number
+    pageSize: number
+    totalPages: number
+    content: PaymentResponse[]
+    last: boolean
+    hasNext: boolean
+    hasPrevious: boolean
 }
 
 interface PaymentsProps {
-    apartmentSignature: string | null;
+    apartmentSignature: string | null
 }
 
 export function Payments({apartmentSignature}: PaymentsProps) {
-    const [payments, setPayments] = useState<PageResponse | null>(null);
-    const [expandedPayment, setExpandedPayment] = useState<string | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
+    const [payments, setPayments] = useState<PageResponse | null>(null)
+    const [expandedPayment, setExpandedPayment] = useState<string | null>(null)
+    const [isLoading, setIsLoading] = useState(true)
+    const [isPayDialogOpen, setIsPayDialogOpen] = useState(false)
+    const [accountNumber, setAccountNumber] = useState('')
+    const [selectedPaymentId, setSelectedPaymentId] = useState<string | null>(null)
 
     const fetchPayments = useCallback(async (page: number) => {
-        setIsLoading(true);
+        setIsLoading(true)
         try {
             const response = await fetch(`http://localhost:8444/bwp/hhn/api/v1/payment/get-payment-by-apartment?apartmentSignature=${apartmentSignature}&pageNo=${page}&pageSize=5`, {
                 headers: {
                     'Authorization': `Bearer ${sessionStorage.getItem('jwt_accessToken')}`
                 },
-            });
+            })
             if (response.ok) {
-                const data: PageResponse = await response.json();
-                setPayments(data);
+                const data: PageResponse = await response.json()
+                setPayments(data)
             } else if (response.status === 401 || response.status === 403) {
-                window.location.href = '/login';
+                window.location.href = '/login'
             } else {
-                console.error('Failed to fetch payments:', response.statusText);
+                console.error('Failed to fetch payments:', response.statusText)
             }
         } catch (error) {
-            console.error('Error fetching payments:', error);
+            console.error('Error fetching payments:', error)
         } finally {
-            setIsLoading(false);
+            setIsLoading(false)
         }
-    }, [apartmentSignature]);
+    }, [apartmentSignature])
 
     useEffect(() => {
         if (apartmentSignature) {
-            fetchPayments(0);
+            fetchPayments(0)
         }
-    }, [apartmentSignature, fetchPayments]);
+    }, [apartmentSignature, fetchPayments])
 
     const fetchPaymentComponents = async (paymentId: string) => {
         try {
@@ -95,86 +101,90 @@ export function Payments({apartmentSignature}: PaymentsProps) {
                 headers: {
                     'Authorization': `Bearer ${sessionStorage.getItem('jwt_accessToken')}`
                 },
-            });
+            })
             if (response.ok) {
-                const components: PaymentComponentResponse[] = await response.json();
+                const components: PaymentComponentResponse[] = await response.json()
                 setPayments((prevPayments) => {
-                    if (!prevPayments) return prevPayments;
+                    if (!prevPayments) return prevPayments
                     return {
                         ...prevPayments,
                         content: prevPayments.content.map((payment) =>
                             payment.paymentId === paymentId ? {...payment, components} : payment
                         ),
-                    };
-                });
+                    }
+                })
             } else {
-                console.error('Failed to fetch payment components:', response.statusText);
+                console.error('Failed to fetch payment components:', response.statusText)
             }
         } catch (error) {
-            console.error('Error fetching payment components:', error);
+            console.error('Error fetching payment components:', error)
         }
-    };
+    }
 
     const toggleExpand = (id: string) => {
         if (expandedPayment === id) {
-            setExpandedPayment(null);
+            setExpandedPayment(null)
             setPayments((prevPayments) => {
-                if (!prevPayments) return prevPayments;
+                if (!prevPayments) return prevPayments
                 return {
                     ...prevPayments,
                     content: prevPayments.content.map((payment) =>
                         payment.paymentId === id ? {...payment, components: undefined} : payment
                     ),
-                };
-            });
+                }
+            })
         } else {
-            setExpandedPayment(id);
-            fetchPaymentComponents(id);
+            setExpandedPayment(id)
+            fetchPaymentComponents(id)
         }
-    };
+    }
 
-    const handlePayPayment = async (paymentId: string) => {
+    const handlePayPayment = async () => {
+        if (!selectedPaymentId) return
         try {
-            const response = await fetch(`http://localhost:8444/bwp/hhn/api/v1/payment/pay?paymentId=${paymentId}`, {
+            const response = await fetch(`http://localhost:8444/bwp/hhn/api/v1/payment/pay?paymentId=${selectedPaymentId}&account=${accountNumber}`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${sessionStorage.getItem('jwt_accessToken')}`
                 }
-            });
+            })
             if (response.ok) {
-                toast.success('Payment successful');
-                fetchPayments(0); // Refresh the payments list
+                toast.success('Payment successful')
+                fetchPayments(0) // Refresh the payments list
+                setIsPayDialogOpen(false)
+                setAccountNumber('')
+                setSelectedPaymentId(null)
             } else {
-                toast.error('Failed to process payment');
+                toast.error('Failed to process payment')
             }
         } catch (error) {
-            console.error('Error processing payment:', error);
-            toast.error('An error occurred while processing the payment');
+            console.error('Error processing payment:', error)
+            toast.error('An error occurred while processing the payment')
         }
-    };
+    }
 
     const handlePrevious = () => {
         if (payments && payments.hasPrevious) {
-            fetchPayments(payments.currentPage - 1);
+            fetchPayments(payments.currentPage - 1)
         }
-    };
+    }
 
     const handleNext = () => {
         if (payments && payments.hasNext) {
-            fetchPayments(payments.currentPage + 1);
+            fetchPayments(payments.currentPage + 1)
         }
-    };
+    }
 
     const getStatusColor = (status: string) => {
         switch (status) {
             case 'PAID':
-                return 'text-green-600 dark:text-green-400';
+                return 'text-green-600 dark:text-green-400'
             case 'OVERDUE':
-                return 'text-red-600 dark:text-red-400';
+                return 'text-red-600 dark:text-red-400'
             default:
-                return 'text-yellow-600 dark:text-yellow-400';
+                return 'text-yellow-600 dark:text-yellow-400'
         }
-    };
+    }
 
     return (
         <div className="space-y-6 bg-background text-foreground">
@@ -237,14 +247,42 @@ export function Payments({apartmentSignature}: PaymentsProps) {
                                             <TableCell>
                                                 <div className="flex space-x-2">
                                                     {payment.paymentStatus !== 'PAID' && (
-                                                        <Button
-                                                            variant="outline"
-                                                            size="sm"
-                                                            disabled={!payment.readyToPay}
-                                                            onClick={() => handlePayPayment(payment.paymentId)}
-                                                        >
-                                                            Pay Now
-                                                        </Button>
+                                                        <Dialog open={isPayDialogOpen}
+                                                                onOpenChange={setIsPayDialogOpen}>
+                                                            <DialogTrigger asChild>
+                                                                <Button
+                                                                    variant="outline"
+                                                                    size="sm"
+                                                                    disabled={!payment.readyToPay}
+                                                                    onClick={() => setSelectedPaymentId(payment.paymentId)}
+                                                                >
+                                                                    Pay Now
+                                                                </Button>
+                                                            </DialogTrigger>
+                                                            <DialogContent>
+                                                                <DialogHeader>
+                                                                    <DialogTitle>Pay Payment</DialogTitle>
+                                                                </DialogHeader>
+                                                                <div className="space-y-4">
+                                                                    <div className="text-red-500 text-sm font-bold">
+                                                                        This is a mock payment system. No real
+                                                                        transactions will be processed.
+                                                                    </div>
+                                                                    <div>
+                                                                        <Label htmlFor="accountNumber">Account
+                                                                            Number</Label>
+                                                                        <Input
+                                                                            id="accountNumber"
+                                                                            value={accountNumber}
+                                                                            onChange={(e) => setAccountNumber(e.target.value)}
+                                                                            placeholder="Enter your account number"
+                                                                        />
+                                                                    </div>
+                                                                    <Button onClick={handlePayPayment}>Confirm
+                                                                        Payment</Button>
+                                                                </div>
+                                                            </DialogContent>
+                                                        </Dialog>
                                                     )}
                                                     <Collapsible>
                                                         <CollapsibleTrigger asChild>
@@ -322,8 +360,8 @@ export function Payments({apartmentSignature}: PaymentsProps) {
                             Previous
                         </Button>
                         <span className="text-sm">
-                            Page {payments ? payments.currentPage + 1 : 0} of {payments ? payments.totalPages : 0}
-                        </span>
+              Page {payments ? payments.currentPage + 1 : 0} of {payments ? payments.totalPages : 0}
+            </span>
                         <Button
                             variant="outline"
                             size="sm"
@@ -337,5 +375,5 @@ export function Payments({apartmentSignature}: PaymentsProps) {
                 </CardContent>
             </Card>
         </div>
-    );
+    )
 }

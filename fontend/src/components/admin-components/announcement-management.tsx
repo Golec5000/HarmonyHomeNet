@@ -79,7 +79,6 @@ export function AnnouncementManagement() {
     const [apartments, setApartments] = useState<Apartment[]>([])
     const [currentPage, setCurrentPage] = useState(0)
     const [totalPages, setTotalPages] = useState(0)
-    const [searchTerm, setSearchTerm] = useState('')
     const [isAddAnnouncementDialogOpen, setIsAddAnnouncementDialogOpen] = useState(false)
     const [isEditAnnouncementDialogOpen, setIsEditAnnouncementDialogOpen] = useState(false)
     const [editingAnnouncement, setEditingAnnouncement] = useState<Announcement | null>(null)
@@ -87,7 +86,7 @@ export function AnnouncementManagement() {
     const [apartmentPage, setApartmentPage] = useState(0)
     const [totalApartmentPages, setTotalApartmentPages] = useState(0)
     const [isLinkApartmentsDialogOpen, setIsLinkApartmentsDialogOpen] = useState(false)
-    const [expandedAnnouncementId, setExpandedAnnouncementId] = useState<number | null>(null)
+    const [expandedAnnouncementId] = useState<number | null>(null)
     const [selectedAnnouncementId, setSelectedAnnouncementId] = useState<number | null>(null)
 
     const {register, handleSubmit, reset, formState: {errors}} = useForm<z.infer<typeof announcementSchema>>({
@@ -316,10 +315,6 @@ export function AnnouncementManagement() {
         }
     }
 
-    const toggleAnnouncementExpansion = (id: number) => {
-        setExpandedAnnouncementId(expandedAnnouncementId === id ? null : id)
-    }
-
     return (
         <Card>
             <CardHeader>
@@ -432,14 +427,7 @@ export function AnnouncementManagement() {
                                                     setSelectedApartments([]);
                                                     setSelectedAnnouncementId(announcement.id);
                                                 }}>
-                                                    Przypisz do Mieszkań
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem onClick={() => {
-                                                    setIsLinkApartmentsDialogOpen(true);
-                                                    setSelectedApartments([]);
-                                                    setSelectedAnnouncementId(announcement.id);
-                                                }}>
-                                                    Odłącz od Mieszkań
+                                                    Zarządznie ogłoszniemi do mieszkań
                                                 </DropdownMenuItem>
                                                 <DropdownMenuSeparator/>
                                                 <DropdownMenuItem
