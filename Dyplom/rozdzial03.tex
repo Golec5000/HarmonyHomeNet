@@ -1631,6 +1631,235 @@ Wybór odpowiedniego systemu zarządzania dokumentami powinien uwzględniać spe
 
 \section{Zarządzie zgłoszeniami problemów}
 
+System zarządzania zgłoszeniami problemów w prototypie „Harmony Home Net” umożliwia użytkownikom zgłaszanie różnego rodzaju problemów związanych z ich mieszkaniem. Obecna implementacja zapewnia podstawowe funkcjonalności dodawania zgłoszeń, zarządzania ich statusem oraz powiązania ich z odpowiednimi użytkownikami i mieszkaniami.
+
+\subsection{Opis encji \texttt{ProblemReport}}
+
+Encja \texttt{ProblemReport} jest centralnym elementem zarządzania zgłoszeniami. Poniżej przedstawiono jej definicję oraz szczegółowy opis.
+
+\begin{lstlisting}[language=Java, caption=Definicja encji \texttt{ProblemReport}]
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+@Entity
+@Table(name = "Problem_reports", indexes = {
+    @Index(name = "idx_problem_filing_date", columnList = "End_date"),
+    @Index(name = "idx_problem_status", columnList = "status"),
+    @Index(name = "idx_problem_user_id", columnList = "user_id"),
+    @Index(name = "idx_problem_apartment_id", columnList = "apartment_id"),
+    @Index(name = "idx_problem_create_at", columnList = "Created_at")
+})
+public class ProblemReport {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID")
+    private Long id;
+
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(name = "Status", nullable = false)
+    private ReportStatus reportStatus;
+
+    @NotEmpty
+    @Size(max = 1000)
+    @Column(name = "Note", length = 1000, nullable = false)
+    private String note;
+
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(name = "Category", nullable = false)
+    private Category category;
+
+    @Column(name = "End_date")
+    private Instant endDate;
+
+    @CreationTimestamp
+    @Column(name = "Created_at", nullable = false)
+    private Instant createdAt;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "UUID_id")
+    @JsonBackReference
+    private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "apartment_id", referencedColumnName = "UUID_id")
+    @JsonBackReference
+    private Apartment apartment;
+}
+\end{lstlisting}
+
+Opis pól encji:
+\begin{itemize}
+    \item \textbf{\texttt{id}} -- Unikalny identyfikator zgłoszenia.
+    \item \textbf{\texttt{reportStatus}} -- Status zgłoszenia (\texttt{OPEN}, \texttt{IN\_PROGRESS}, \texttt{DONE}).
+    \item \textbf{\texttt{note}} -- Szczegóły zgłoszenia, opisujące problem (maksymalnie 1000 znaków).
+    \item \textbf{\texttt{category}} -- Kategoria zgłoszenia (\texttt{GENERAL}, \texttt{TECHNICAL}, \texttt{FINANCIAL}, \texttt{OTHER}).
+    \item \textbf{\texttt{endDate}} -- Data zakończenia zgłoszenia.
+    \item \textbf{\texttt{createdAt}} -- Data utworzenia zgłoszenia.
+    \item \textbf{\texttt{user}} -- Powiązanie zgłoszenia z użytkownikiem, który je złożył.
+    \item \textbf{\texttt{apartment}} -- Powiązanie zgłoszenia z mieszkaniem, którego dotyczy.
+\end{itemize}
+
+\subsection{Proces zgłaszania i zarządzania zgłoszeniami}
+
+\paragraph{Zgłaszanie problemów przez właściciela:}
+\begin{itemize}
+    \item Użytkownik, będący właścicielem mieszkania, może zgłosić problem dotyczący konkretnego mieszkania. 
+    \item Zgłoszenie jest tworzone z określeniem kategorii, opisu problemu oraz inicjalnym statusem (\texttt{OPEN}).
+		\item Właściel/właściele danego mieszkania maja w czasie rzeczywistym podgąl do zgłsznie do danego mieszkania oraz dostaja powiadomienia jeśli dojdzie  do jakieś zmiany w zgłoszeniu.
+\end{itemize}
+
+\paragraph{Zarządzanie zgłoszeniami przez pracownika:}
+\begin{itemize}
+    \item Pracownicy mogą edytować zgłoszenia, zmieniając ich status (\texttt{IN\_PROGRESS}, \texttt{DONE}) oraz wprowadzając dodatkowe informacje w notatkach.
+    \item Obecna implementacja umożliwia jedynie manualne zarządzanie statusem i opisem zgłoszeń.
+\end{itemize}
+
+\paragraph{Utrzymanie zgłoszeń przy zmianie właściciela mieszkania:}
+\begin{itemize}
+    \item W przypadku zmiany właściciela mieszkania, zgłoszenia pozostają w systemie i są automatycznie przypisywane nowym właścicielom.
+    \item Dzięki temu historia problemów związanych z mieszkaniem pozostaje dostępna dla nowych właścicieli.
+\end{itemize}
+
+
+\subsection{Funkcje serwisu \texttt{ProblemReportServiceImp}}
+
+Serwis \texttt{ProblemReportServiceImp} obsługuje kluczowe operacje związane z zarządzaniem zgłoszeniami problemów. Oto szczegółowy opis funkcji wraz z ich implementacją:
+
+\paragraph{Tworzenie zgłoszenia problemu.}
+
+Funkcja \texttt{createProblemReport} umożliwia dodanie nowego zgłoszenia problemu przez użytkownika. Proces obejmuje:
+\begin{enumerate}
+    \item Walidację istnienia mieszkania na podstawie sygnatury (\texttt{apartmentSignature}).
+    \item Sprawdzenie, czy użytkownik jest powiązany z danym mieszkaniem na podstawie tabeli historii posiadania (\texttt{PossessionHistory}).
+    \item Utworzenie nowego zgłoszenia problemu z przypisaniem go do odpowiedniego użytkownika i mieszkania.
+    \item Zapis zgłoszenia w repozytorium \texttt{ProblemReportRepository}.
+\end{enumerate}
+
+\begin{lstlisting}[language=Java, caption=Tworzenie zgłoszenia problemu.]
+@Override
+@Transactional
+public ProblemReportResponse createProblemReport(ProblemReportRequest problemReportRequest) throws UserNotFoundException, ApartmentNotFoundException {
+
+        String apartmentSignature = problemReportRequest.getApartmentSignature();
+        Apartment apartment = apartmentsRepository.findByApartmentSignature(apartmentSignature)
+                .orElseThrow(() -> new ApartmentNotFoundException("Apartment not found with id: " + apartmentSignature));
+
+        UUID userId = problemReportRequest.getUserId();
+
+        if (!possessionHistoryRepository.existsByUserUuidIDAndApartmentUuidID(userId, apartment.getUuidID())) {
+            throw new UserNotFoundException("User with id: " + userId + " does not have access to apartment with signature: " + apartmentSignature);
+        }
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
+
+        ProblemReport newProblemReport = ProblemReport.builder()
+                .note(problemReportRequest.getNote())
+                .reportStatus(problemReportRequest.getReportStatus())
+                .category(problemReportRequest.getCategory())
+                .user(user)
+                .apartment(apartment)
+                .build();
+
+
+        if (user.getProblemReports() == null) user.setProblemReports(new ArrayList<>());
+        user.getProblemReports().add(newProblemReport);
+
+        if (apartment.getProblemReports() == null) apartment.setProblemReports(new ArrayList<>());
+        apartment.getProblemReports().add(newProblemReport);
+
+        ProblemReport saved = problemReportRepository.save(newProblemReport);
+        userRepository.save(user);
+        apartmentsRepository.save(apartment);
+
+        return ProblemReportResponse.builder()
+                .id(saved.getId())
+                .note(saved.getNote())
+                .reportStatus(saved.getReportStatus())
+                .category(saved.getCategory())
+                .userName(user.getFirstName() + " " + user.getLastName())
+                .apartmentAddress(apartment.getAddress())
+                .build();
+    }
+\end{lstlisting}
+
+\paragraph{Aktualizacja zgłoszenia problemu.}
+
+Funkcja \texttt{updateProblemReport} pozwala na aktualizację statusu zgłoszenia oraz jego szczegółów. Jeśli zgłoszenie zostanie oznaczone jako zakończone (\texttt{DONE}), ustawiana jest również data zakończenia.
+
+\begin{lstlisting}[language=Java, caption=Aktualizacja zgłoszenia problemu.]
+@Override
+public ProblemReportResponse updateProblemReport(Long problemReportId, ProblemReportRequest problemReportRequest) throws ProblemReportNotFoundException {
+
+        ProblemReport problemReportToUpdate = problemReportRepository.findById(problemReportId)
+                .orElseThrow(() -> new ProblemReportNotFoundException("Problem report not found with id: " + problemReportId));
+
+        problemReportToUpdate.setNote(problemReportRequest.getNote() != null ? problemReportRequest.getNote() : problemReportToUpdate.getNote());
+        problemReportToUpdate.setReportStatus(problemReportRequest.getReportStatus() != null ? problemReportRequest.getReportStatus() : problemReportToUpdate.getReportStatus());
+        problemReportToUpdate.setCategory(problemReportRequest.getCategory() != null ? problemReportRequest.getCategory() : problemReportToUpdate.getCategory());
+
+        if (ReportStatus.DONE.equals(problemReportRequest.getReportStatus()))
+            problemReportToUpdate.setEndDate(Instant.now());
+
+        User user = problemReportToUpdate.getUser();
+
+        if (user.getNotificationTypes() != null){
+            user.getNotificationTypes().forEach(notificationType -> {
+                switch (notificationType.getType()) {
+                    case EMAIL:
+                        switch (problemReportRequest.getReportStatus()) {
+                            case DONE -> mailService.sendNotificationMail("Problem report done", "Your problem report has been done", user.getEmail());
+                            case IN_PROGRESS -> mailService.sendNotificationMail("Problem report in progress", "Your problem report is in progress", user.getEmail());
+                            case OPEN -> mailService.sendNotificationMail("Problem report open", "Your problem report is open", user.getEmail());
+                        }
+                        break;
+                    case SMS:
+                        switch (problemReportRequest.getReportStatus()) {
+                            case DONE -> smsService.sendSms("Your problem report has been done", user.getPhoneNumber());
+                            case IN_PROGRESS -> smsService.sendSms("Your problem report is in progress", user.getPhoneNumber());
+                            case OPEN -> smsService.sendSms("Your problem report is open", user.getPhoneNumber());
+                        }
+                        break;
+
+                    default:
+                        throw new IllegalStateException("Unexpected value: " + notificationType.getType());
+                }
+            });
+        }
+
+
+        ProblemReport updated = problemReportRepository.save(problemReportToUpdate);
+
+        return ProblemReportResponse.builder()
+                .id(updated.getId())
+                .note(updated.getNote())
+                .reportStatus(updated.getReportStatus())
+                .category(updated.getCategory())
+                .userName(updated.getUser().getFirstName() + " " + updated.getUser().getLastName())
+                .apartmentAddress(updated.getApartment().getAddress())
+                .endDate(updated.getEndDate())
+                .build();
+
+    }
+\end{lstlisting}
+
+\paragraph{Powiadamianie użytkowników o zmianach statusu zgłoszeń.}
+
+Metoda \texttt{updateProblemReport} zawiera również logikę wysyłania powiadomień do użytkowników za pomocą e-maili lub wiadomości SMS o zmianie statusu zgłoszenia. Dzięki temu użytkownicy są na bieżąco informowani o postępach w realizacji zgłoszenia.
+
+\subsection{Przyszły rozwój systemu}
+Obecny system zarządzania zgłoszeniami jest prototypem, a jego funkcjonalności mogą zostać rozszerzone w przyszłości:
+\begin{itemize}
+    \item Wprowadzenie integracji z systemami zarządzania usługami naprawczymi, aby automatycznie przekazywać zgłoszenia do odpowiednich serwisów zewnętrznych.
+    \item Rozbudowa struktury zgłoszeń o możliwość przypisywania zgłoszeń do konkretnych pracowników odpowiedzialnych za ich realizację.
+    \item Dodanie możliwości załączania zdjęć i plików do zgłoszeń w celu dokładniejszego dokumentowania problemów.
+\end{itemize}
+
+
 \section{Zarządzie ogłoszeniami}
 
 \section{Zarządzie forum dla wspólnoty}
@@ -1640,6 +1869,8 @@ Wybór odpowiedniego systemu zarządzania dokumentami powinien uwzględniać spe
 \section{Zarządzie głosowaniami}
 
 \section{Systemy zewnętrzne}
+
+\section{Testy}
 
 
 
