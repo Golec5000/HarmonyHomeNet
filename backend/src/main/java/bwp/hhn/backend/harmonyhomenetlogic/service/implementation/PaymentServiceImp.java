@@ -128,7 +128,7 @@ public class PaymentServiceImp implements PaymentService {
 
 
     @Override
-    public PaymentResponse payPayment(UUID paymentId) throws PaymentNotFoundException, IllegalArgumentException {
+    public PaymentResponse payPayment(UUID paymentId, String account) throws PaymentNotFoundException, IllegalArgumentException {
 
         Payment payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new PaymentNotFoundException("Payment: " + paymentId + " not found"));
@@ -141,7 +141,7 @@ public class PaymentServiceImp implements PaymentService {
 
         Payment saved = paymentRepository.save(payment);
 
-        bankingService.pay(payment.getPaymentAmount());
+        bankingService.pay(payment.getPaymentAmount(), account);
 
         return PaymentResponse.builder()
                 .paymentId(saved.getUuidID())
@@ -181,22 +181,7 @@ public class PaymentServiceImp implements PaymentService {
         if (payment.getPaymentComponents() == null) payment.setPaymentComponents(new ArrayList<>());
         payment.getPaymentComponents().add(paymentComponent);
 
-        paymentComponentRepository.save(paymentComponent);
-
-        recalculatePaymentAmount(payment);
-        Payment saved = paymentRepository.save(payment);
-
-        return PaymentResponse.builder()
-                .paymentId(saved.getUuidID())
-                .paymentStatus(saved.getPaymentStatus())
-                .paymentDate(saved.getPaymentDate())
-                .paymentTime(saved.getPaymentTime())
-                .paymentAmount(saved.getPaymentAmount())
-                .createdAt(saved.getCreatedAt())
-                .readyToPay(saved.getReadyToPay())
-                .description(saved.getDescription())
-                .apartmentSignature(saved.getApartment().getApartmentSignature())
-                .build();
+        return getPaymentResponse(payment, paymentComponent);
     }
 
     @Override
@@ -251,22 +236,7 @@ public class PaymentServiceImp implements PaymentService {
         }
         paymentComponent.setSpecialMultiplier(specialMultiplier);
 
-        paymentComponentRepository.save(paymentComponent);
-
-        recalculatePaymentAmount(payment);
-        Payment saved = paymentRepository.save(payment);
-
-        return PaymentResponse.builder()
-                .paymentId(saved.getUuidID())
-                .paymentStatus(saved.getPaymentStatus())
-                .paymentDate(saved.getPaymentDate())
-                .paymentTime(saved.getPaymentTime())
-                .paymentAmount(saved.getPaymentAmount())
-                .createdAt(saved.getCreatedAt())
-                .readyToPay(saved.getReadyToPay())
-                .description(saved.getDescription())
-                .apartmentSignature(saved.getApartment().getApartmentSignature())
-                .build();
+        return getPaymentResponse(payment, paymentComponent);
     }
 
     @Override
@@ -291,41 +261,41 @@ public class PaymentServiceImp implements PaymentService {
     @Override
     public String activatePayment(UUID paymentId, Boolean setActive) throws PaymentNotFoundException {
 
-            Payment payment = paymentRepository.findById(paymentId)
-                    .orElseThrow(() -> new PaymentNotFoundException("Payment: " + paymentId + " not found"));
+        Payment payment = paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new PaymentNotFoundException("Payment: " + paymentId + " not found"));
 
-            payment.setReadyToPay(setActive);
-            paymentRepository.save(payment);
+        payment.setReadyToPay(setActive);
+        paymentRepository.save(payment);
 
-            return "Payment: " + paymentId + " activated";
+        return "Payment: " + paymentId + " activated";
     }
 
     @Override
     @Transactional
-    public PaymentResponse updatePayment(UUID paymentId, PaymentRequest paymentRequest) throws PaymentNotFoundException, ApartmentNotFoundException{
+    public PaymentResponse updatePayment(UUID paymentId, PaymentRequest paymentRequest) throws PaymentNotFoundException, ApartmentNotFoundException {
 
-            Payment payment = paymentRepository.findById(paymentId)
-                    .orElseThrow(() -> new PaymentNotFoundException("Payment: " + paymentId + " not found"));
+        Payment payment = paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new PaymentNotFoundException("Payment: " + paymentId + " not found"));
 
-            Apartment apartment = apartmentsRepository.findByApartmentSignature(paymentRequest.getApartmentSignature())
-                    .orElseThrow(() -> new ApartmentNotFoundException("Apartment: " + paymentRequest.getApartmentSignature() + " not found"));
+        Apartment apartment = apartmentsRepository.findByApartmentSignature(paymentRequest.getApartmentSignature())
+                .orElseThrow(() -> new ApartmentNotFoundException("Apartment: " + paymentRequest.getApartmentSignature() + " not found"));
 
-            payment.setApartment(apartment);
-            payment.setDescription(paymentRequest.getDescription() != null ? paymentRequest.getDescription() : payment.getDescription());
+        payment.setApartment(apartment);
+        payment.setDescription(paymentRequest.getDescription() != null ? paymentRequest.getDescription() : payment.getDescription());
 
-            Payment saved = paymentRepository.save(payment);
+        Payment saved = paymentRepository.save(payment);
 
-            return PaymentResponse.builder()
-                    .paymentId(saved.getUuidID())
-                    .paymentStatus(saved.getPaymentStatus())
-                    .paymentDate(saved.getPaymentDate())
-                    .paymentTime(saved.getPaymentTime())
-                    .paymentAmount(saved.getPaymentAmount())
-                    .createdAt(saved.getCreatedAt())
-                    .description(saved.getDescription())
-                    .readyToPay(saved.getReadyToPay())
-                    .apartmentSignature(saved.getApartment().getApartmentSignature())
-                    .build();
+        return PaymentResponse.builder()
+                .paymentId(saved.getUuidID())
+                .paymentStatus(saved.getPaymentStatus())
+                .paymentDate(saved.getPaymentDate())
+                .paymentTime(saved.getPaymentTime())
+                .paymentAmount(saved.getPaymentAmount())
+                .createdAt(saved.getCreatedAt())
+                .description(saved.getDescription())
+                .readyToPay(saved.getReadyToPay())
+                .apartmentSignature(saved.getApartment().getApartmentSignature())
+                .build();
     }
 
     private void recalculatePaymentAmount(Payment payment) {
@@ -362,5 +332,24 @@ public class PaymentServiceImp implements PaymentService {
                 payments.hasNext(),
                 payments.hasPrevious()
         );
+    }
+
+    private PaymentResponse getPaymentResponse(Payment payment, PaymentComponent paymentComponent) {
+        paymentComponentRepository.save(paymentComponent);
+
+        recalculatePaymentAmount(payment);
+        Payment saved = paymentRepository.save(payment);
+
+        return PaymentResponse.builder()
+                .paymentId(saved.getUuidID())
+                .paymentStatus(saved.getPaymentStatus())
+                .paymentDate(saved.getPaymentDate())
+                .paymentTime(saved.getPaymentTime())
+                .paymentAmount(saved.getPaymentAmount())
+                .createdAt(saved.getCreatedAt())
+                .readyToPay(saved.getReadyToPay())
+                .description(saved.getDescription())
+                .apartmentSignature(saved.getApartment().getApartmentSignature())
+                .build();
     }
 }

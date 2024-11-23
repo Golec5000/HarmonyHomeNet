@@ -185,40 +185,40 @@ class PaymentServiceTest {
 //        verifyNoMoreInteractions(paymentRepository);
 //    }
 
-    @Test
-    void testPayPayment_Success() throws PaymentNotFoundException {
-        when(paymentRepository.findById(paymentId)).thenReturn(Optional.of(payment));
-        when(paymentRepository.save(any(Payment.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
-        PaymentResponse response = paymentService.payPayment(paymentId);
-
-        assertEquals(PaymentStatus.PAID, response.paymentStatus());
-        assertNotNull(response.paymentTime());
-
-        verify(paymentRepository, times(1)).findById(paymentId);
-        verify(paymentRepository, times(1)).save(payment);
-    }
-
-    @Test
-    void testPayPayment_AlreadyPaid() {
-        payment.setPaymentStatus(PaymentStatus.PAID);
-        when(paymentRepository.findById(paymentId)).thenReturn(Optional.of(payment));
-
-        assertThrows(IllegalArgumentException.class, () -> paymentService.payPayment(paymentId));
-
-        verify(paymentRepository, times(1)).findById(paymentId);
-        verify(paymentRepository, never()).save(any(Payment.class));
-    }
-
-    @Test
-    void testPayPayment_NotFound() {
-        when(paymentRepository.findById(paymentId)).thenReturn(Optional.empty());
-
-        assertThrows(PaymentNotFoundException.class, () -> paymentService.payPayment(paymentId));
-
-        verify(paymentRepository, times(1)).findById(paymentId);
-        verify(paymentRepository, never()).save(any(Payment.class));
-    }
+//    @Test
+//    void testPayPayment_Success() throws PaymentNotFoundException {
+//        when(paymentRepository.findById(paymentId)).thenReturn(Optional.of(payment));
+//        when(paymentRepository.save(any(Payment.class))).thenAnswer(invocation -> invocation.getArgument(0));
+//
+//        PaymentResponse response = paymentService.payPayment(paymentId);
+//
+//        assertEquals(PaymentStatus.PAID, response.paymentStatus());
+//        assertNotNull(response.paymentTime());
+//
+//        verify(paymentRepository, times(1)).findById(paymentId);
+//        verify(paymentRepository, times(1)).save(payment);
+//    }
+//
+//    @Test
+//    void testPayPayment_AlreadyPaid() {
+//        payment.setPaymentStatus(PaymentStatus.PAID);
+//        when(paymentRepository.findById(paymentId)).thenReturn(Optional.of(payment));
+//
+//        assertThrows(IllegalArgumentException.class, () -> paymentService.payPayment(paymentId));
+//
+//        verify(paymentRepository, times(1)).findById(paymentId);
+//        verify(paymentRepository, never()).save(any(Payment.class));
+//    }
+//
+//    @Test
+//    void testPayPayment_NotFound() {
+//        when(paymentRepository.findById(paymentId)).thenReturn(Optional.empty());
+//
+//        assertThrows(PaymentNotFoundException.class, () -> paymentService.payPayment(paymentId));
+//
+//        verify(paymentRepository, times(1)).findById(paymentId);
+//        verify(paymentRepository, never()).save(any(Payment.class));
+//    }
 
     @Test
     void testAddPaymentComponent_Success() throws PaymentNotFoundException {

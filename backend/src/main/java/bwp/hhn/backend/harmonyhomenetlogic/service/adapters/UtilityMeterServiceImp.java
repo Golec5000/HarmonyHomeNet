@@ -1,7 +1,9 @@
 package bwp.hhn.backend.harmonyhomenetlogic.service.adapters;
 
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.util.Random;
 import java.util.UUID;
 import java.util.logging.Logger;
 
@@ -10,17 +12,28 @@ public class UtilityMeterServiceImp implements UtilityMeterService {
 
     private static final Logger LOG = Logger.getLogger(UtilityMeterServiceImp.class.getName());
 
-    //todo shedile co miesiąc losowa wartośc
+    private final Random random = new Random();
+
+    private double waterMeterValue;
+
+    private double electricityMeterValue;
+
+    @Scheduled(cron = "0 0 0 * * ?") // Run daily at midnight
+    public void generateRandomMeterReadings() {
+        LOG.info("Generating random meter readings");
+        waterMeterValue = random.nextDouble() * 1000;
+        electricityMeterValue = random.nextDouble() * 1000;
+    }
 
     @Override
     public String getWaterMeterValue(UUID utilityMeterId) {
         LOG.info("Getting water meter value for utility meter with id: " + utilityMeterId);
-        return "Water meter value for utility meter with id: " + utilityMeterId + " is 123";
+        return "Water meter value for utility meter with id: " + utilityMeterId + " is: " + waterMeterValue + " m^3";
     }
 
     @Override
     public String getElectricityMeterValue(UUID utilityMeterId) {
         LOG.info("Getting electricity meter value for utility meter with id: " + utilityMeterId);
-        return "Electricity meter value for utility meter with id: " + utilityMeterId + " is 456";
+        return "Electricity meter value for utility meter with id: " + utilityMeterId + " is: " + electricityMeterValue + " kWh";
     }
 }

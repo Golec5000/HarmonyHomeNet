@@ -53,8 +53,8 @@ public class PaymentController {
 
     //POST
     @PostMapping("/pay")
-    public ResponseEntity<PaymentResponse> payPayment(@RequestParam UUID paymentId) throws PaymentNotFoundException, IllegalArgumentException {
-        return ResponseEntity.ok(paymentService.payPayment(paymentId));
+    public ResponseEntity<PaymentResponse> payPayment(@RequestParam UUID paymentId, @RequestParam String account) throws PaymentNotFoundException, IllegalArgumentException {
+        return ResponseEntity.ok(paymentService.payPayment(paymentId, account));
     }
 
     @PostMapping("/add-component-to-payment")

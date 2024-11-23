@@ -24,7 +24,7 @@ public interface PaymentService {
 
     PageResponse<PaymentResponse> getPaymentsByApartmentSignature(String apartmentSignature, int pageNo, int pageSize) throws ApartmentNotFoundException;
 
-    PaymentResponse payPayment(UUID paymentId) throws PaymentNotFoundException, IllegalArgumentException;
+    PaymentResponse payPayment(UUID paymentId, String account) throws PaymentNotFoundException, IllegalArgumentException;
 
     PaymentResponse addPaymentComponent(UUID paymentId, PaymentComponentRequest paymentComponentRequest) throws PaymentNotFoundException;
 

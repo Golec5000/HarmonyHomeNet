@@ -23,13 +23,6 @@ public class UserController {
     private final UserService userService;
 
     //GET
-    //TODO to remove ?
-//    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_EMPLOYEE')")
-//    @GetMapping("/get-user-by-id")
-//    public ResponseEntity<UserResponse> getUserById(@RequestParam UUID userId) throws UserNotFoundException {
-//        return ResponseEntity.ok(userService.getUserById(userId));
-//    }
-
     @GetMapping("/get-all-users")
     public ResponseEntity<PageResponse<UserResponse>> getAllUsers(
             @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
