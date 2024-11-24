@@ -229,10 +229,10 @@ public class ApartmentsServiceImp implements ApartmentsService {
         PossessionHistory saved = possessionHistoryRepository.save(possessionHistory);
 
         return PossessionHistoryResponse.builder()
-                .userName(possessionHistory.getUser().getFirstName() + " " + possessionHistory.getUser().getLastName())
-                .apartmentName(possessionHistory.getApartment().getAddress())
-                .startDate(possessionHistory.getStartDate())
-                .endDate(possessionHistory.getEndDate())
+                .userName(saved.getUser().getFirstName() + " " + saved.getUser().getLastName())
+                .apartmentName(saved.getApartment().getAddress())
+                .startDate(saved.getStartDate())
+                .endDate(saved.getEndDate())
                 .build();
     }
 

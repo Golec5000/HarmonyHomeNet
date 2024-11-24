@@ -4,7 +4,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.Random;
-import java.util.UUID;
 import java.util.logging.Logger;
 
 @Service

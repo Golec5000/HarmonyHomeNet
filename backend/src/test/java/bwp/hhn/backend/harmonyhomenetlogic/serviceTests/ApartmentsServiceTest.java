@@ -9,22 +9,25 @@ import bwp.hhn.backend.harmonyhomenetlogic.entity.sideTables.PossessionHistory;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.ApartmentsRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.UserRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.sideTables.PossessionHistoryRepository;
+import bwp.hhn.backend.harmonyhomenetlogic.service.adapters.SmsService;
 import bwp.hhn.backend.harmonyhomenetlogic.service.implementation.ApartmentsServiceImp;
+import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.MailService;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Role;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.ApartmentRequest;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.page.PageResponse;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.ApartmentResponse;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.PossessionHistoryResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.UserResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.*;
+import org.springframework.data.domain.*;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.Optional;
-import java.util.UUID;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -39,6 +42,12 @@ class ApartmentsServiceTest {
 
     @Mock
     private ApartmentsRepository apartmentsRepository;
+
+    @Mock
+    private MailService mailService;
+
+    @Mock
+    private SmsService smsService;
 
     @InjectMocks
     private ApartmentsServiceImp apartmentsService;
@@ -73,13 +82,14 @@ class ApartmentsServiceTest {
                 .firstName("John")
                 .lastName("Doe")
                 .email("john.doe@example.com")
+                .role(Role.ROLE_OWNER)
                 .build();
 
         possessionHistory = PossessionHistory.builder()
                 .id(1L)
                 .user(user)
                 .apartment(apartment)
-                .startDate(Instant.now().minus(1, ChronoUnit.MONTHS))
+                .startDate(ZonedDateTime.now(ZoneOffset.UTC).minusMonths(1).toInstant())
                 .endDate(null)
                 .build();
     }
@@ -196,21 +206,25 @@ class ApartmentsServiceTest {
         verify(apartmentsRepository, times(1)).findByApartmentSignature("A101");
     }
 
-//    @Test
-//    void testGetCurrentApartmentsByUserId_Success() throws ApartmentNotFoundException, UserNotFoundException {
-//        // Given
-//        when(possessionHistoryRepository.findByUserUuidIDAndEndDateIsNull(userId, pageable))
-//                .thenReturn(Collections.singletonList(possessionHistory));
-//
-//        // When
-//        List<ApartmentResponse> responses = apartmentsService.getCurrentApartmentsByUserId(userId);
-//
-//        // Then
-//        assertNotNull(responses);
-//        assertEquals(1, responses.size());
-//        assertEquals("Test Address", responses.get(0).address());
-//        verify(possessionHistoryRepository, times(1)).findByUserUuidIDAndEndDateIsNull(userId, pageable);
-//    }
+    @Test
+    void testGetAllApartments_Success() {
+        // Given
+        int pageNo = 0;
+        int pageSize = 10;
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        List<Apartment> apartmentList = Collections.singletonList(apartment);
+        Page<Apartment> apartmentPage = new PageImpl<>(apartmentList, pageable, apartmentList.size());
+
+        when(apartmentsRepository.findAll(pageable)).thenReturn(apartmentPage);
+
+        // When
+        PageResponse<ApartmentResponse> response = apartmentsService.getAllApartments(pageNo, pageSize);
+
+        // Then
+        assertNotNull(response);
+        assertEquals(1, response.content().size());
+        verify(apartmentsRepository, times(1)).findAll(pageable);
+    }
 
     @Test
     void testGetPossessionHistory_Success() throws ApartmentNotFoundException, UserNotFoundException {
@@ -295,97 +309,90 @@ class ApartmentsServiceTest {
         verify(possessionHistoryRepository, times(1)).findByUserUuidIDAndApartmentUuidID(userId, apartmentId);
         verify(possessionHistoryRepository, times(1)).save(any(PossessionHistory.class));
     }
-//
-//    @Test
-//    void testDeletePossessionHistory_Success() throws PossessionHistoryNotFoundException {
-//        // Given
-//        Long possessionHistoryId = 1L;
-//        when(possessionHistoryRepository.existsById(possessionHistoryId)).thenReturn(true);
-//        doNothing().when(possessionHistoryRepository).deleteById(possessionHistoryId);
-//
-//        // When
-//        String result = apartmentsService.deletePossessionHistory(possessionHistoryId);
-//
-//        // Then
-//        assertEquals("Possession history deleted successfully", result);
-//        verify(possessionHistoryRepository, times(1)).existsById(possessionHistoryId);
-//        verify(possessionHistoryRepository, times(1)).deleteById(possessionHistoryId);
-//    }
 
-//    @Test
-//    void testDeletePossessionHistory_NotFound() {
-//        // Given
-//        Long possessionHistoryId = 1L;
-//        when(possessionHistoryRepository.existsById(possessionHistoryId)).thenReturn(false);
-//
-//        // When & Then
-//        assertThrows(PossessionHistoryNotFoundException.class, () -> apartmentsService.deletePossessionHistory(possessionHistoryId));
-//        verify(possessionHistoryRepository, times(1)).existsById(possessionHistoryId);
-//        verify(possessionHistoryRepository, never()).deleteById(possessionHistoryId);
-//    }
+    @Test
+    void testDeletePossessionHistory_Success() throws PossessionHistoryNotFoundException {
+        // Given
+        when(possessionHistoryRepository.existsByApartmentSignatureAndUserId("A101", userId)).thenReturn(true);
+        doNothing().when(possessionHistoryRepository).deleteByApartmentSignatureAndUserId("A101", userId);
 
-//    @Test
-//    void testGetCurrentResidents_Success() throws ApartmentNotFoundException {
-//        // Given
-//        when(possessionHistoryRepository.findActiveResidentsByApartment("A101", pageable)).thenReturn(Collections.singletonList(user));
-//
-//        // When
-//        List<UserResponse> responses = apartmentsService.getCurrentResidents("A101");
-//
-//        // Then
-//        assertNotNull(responses);
-//        assertEquals(1, responses.size());
-//        assertEquals("John", responses.get(0).firstName());
-//        verify(possessionHistoryRepository, times(1)).findActiveResidentsByApartment("A101", pageable);
-//    }
+        // When
+        String result = apartmentsService.deletePossessionHistory("A101", userId);
 
-//    @Test
-//    void testGetApartmentPossessionHistory_Success() throws ApartmentNotFoundException {
-//        // Given
-//        when(apartmentsRepository.findByApartmentSignature("A101")).thenReturn(Optional.of(apartment));
-//        when(possessionHistoryRepository.findByApartmentUuidID(apartmentId, pageable)).thenReturn(Collections.singletonList(possessionHistory));
-//
-//        // When
-//        List<PossessionHistoryResponse> responses = apartmentsService.getApartmentPossessionHistory("A101");
-//
-//        // Then
-//        assertNotNull(responses);
-//        assertEquals(1, responses.size());
-//        assertEquals("John Doe", responses.get(0).userName());
-//        verify(apartmentsRepository, times(1)).findByApartmentSignature("A101");
-//        verify(possessionHistoryRepository, times(1)).findByApartmentUuidID(apartmentId, pageable);
-//    }
+        // Then
+        assertEquals("Possession history deleted successfully", result);
+        verify(possessionHistoryRepository, times(1)).existsByApartmentSignatureAndUserId("A101", userId);
+        verify(possessionHistoryRepository, times(1)).deleteByApartmentSignatureAndUserId("A101", userId);
+    }
 
-//    @Test
-//    void testGetAllUserApartments_Success() throws UserNotFoundException {
-//        // Given
-//        when(possessionHistoryRepository.findByUserUuidID(userId, pageable)).thenReturn(Collections.singletonList(possessionHistory));
-//
-//        // When
-//        List<ApartmentResponse> responses = apartmentsService.getAllUserApartments(userId);
-//
-//        // Then
-//        assertNotNull(responses);
-//        assertEquals(1, responses.size());
-//        assertEquals("Test Address", responses.get(0).address());
-//        verify(possessionHistoryRepository, times(1)).findByUserUuidID(userId, pageable);
-//    }
+    @Test
+    void testDeletePossessionHistory_NotFound() {
+        // Given
+        when(possessionHistoryRepository.existsByApartmentSignatureAndUserId("A101", userId)).thenReturn(false);
 
-//    @Test
-//    void testGetAllResidentsByApartmentId_Success() throws ApartmentNotFoundException {
-//        // Given
-//        when(apartmentsRepository.findByApartmentSignature("A101")).thenReturn(Optional.of(apartment));
-//        when(possessionHistoryRepository.findByApartmentUuidID(apartmentId, pageable)).thenReturn(Collections.singletonList(possessionHistory));
-//
-//        // When
-//        List<UserResponse> responses = apartmentsService.getAllResidentsByApartmentId("A101");
-//
-//        // Then
-//        assertNotNull(responses);
-//        assertEquals(1, responses.size());
-//        assertEquals("John", responses.get(0).firstName());
-//        verify(apartmentsRepository, times(1)).findByApartmentSignature("A101");
-//        verify(possessionHistoryRepository, times(1)).findByApartmentUuidID(apartmentId, pageable);
-//    }
+        // When & Then
+        assertThrows(PossessionHistoryNotFoundException.class, () -> apartmentsService.deletePossessionHistory("A101", userId));
+        verify(possessionHistoryRepository, times(1)).existsByApartmentSignatureAndUserId("A101", userId);
+        verify(possessionHistoryRepository, never()).deleteByApartmentSignatureAndUserId("A101", userId);
+    }
 
+    @Test
+    void testGetAllUserApartments_Success() throws UserNotFoundException {
+        // Given
+        when(possessionHistoryRepository.findApartmentsByUserUuidID(userId)).thenReturn(Collections.singletonList(apartment));
+
+        // When
+        List<ApartmentResponse> responses = apartmentsService.getAllUserApartments(userId);
+
+        // Then
+        assertNotNull(responses);
+        assertEquals(1, responses.size());
+        assertEquals("Test Address", responses.get(0).address());
+        verify(possessionHistoryRepository, times(1)).findApartmentsByUserUuidID(userId);
+    }
+
+    @Test
+    void testGetApartmentPossessionHistory_Success() throws ApartmentNotFoundException {
+        // Given
+        int pageNo = 0;
+        int pageSize = 10;
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+
+        when(apartmentsRepository.findByApartmentSignature("A101")).thenReturn(Optional.of(apartment));
+        Page<PossessionHistory> possessionHistoryPage = new PageImpl<>(Collections.singletonList(possessionHistory), pageable, 1);
+        when(possessionHistoryRepository.findByApartmentUuidID(apartmentId, pageable)).thenReturn(possessionHistoryPage);
+
+        // When
+        PageResponse<PossessionHistoryResponse> response = apartmentsService.getApartmentPossessionHistory("A101", pageNo, pageSize);
+
+        // Then
+        assertNotNull(response);
+        assertEquals(1, response.content().size());
+        assertEquals("John Doe", response.content().get(0).userName());
+        verify(apartmentsRepository, times(1)).findByApartmentSignature("A101");
+        verify(possessionHistoryRepository, times(1)).findByApartmentUuidID(apartmentId, pageable);
+    }
+
+    @Test
+    void testGetAllResidentsByApartmentId_Success() throws ApartmentNotFoundException {
+        // Given
+        int pageNo = 0;
+        int pageSize = 10;
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+
+        when(apartmentsRepository.findByApartmentSignature("A101")).thenReturn(Optional.of(apartment));
+        PossessionHistory possessionHistory = PossessionHistory.builder().user(user).apartment(apartment).build();
+        Page<PossessionHistory> possessionHistoryPage = new PageImpl<>(Collections.singletonList(possessionHistory), pageable, 1);
+        when(possessionHistoryRepository.findByApartmentUuidID(apartmentId, pageable)).thenReturn(possessionHistoryPage);
+
+        // When
+        PageResponse<UserResponse> responses = apartmentsService.getAllResidentsByApartmentId("A101", pageNo, pageSize);
+
+        // Then
+        assertNotNull(responses);
+        assertEquals(1, responses.content().size());
+        assertEquals("John", responses.content().get(0).firstName());
+        verify(apartmentsRepository, times(1)).findByApartmentSignature("A101");
+        verify(possessionHistoryRepository, times(1)).findByApartmentUuidID(apartmentId, pageable);
+    }
 }

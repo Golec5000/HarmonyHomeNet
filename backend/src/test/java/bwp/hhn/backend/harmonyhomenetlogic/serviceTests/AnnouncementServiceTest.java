@@ -5,23 +5,29 @@ import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.
 import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.UserNotFoundException;
 import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.Announcement;
 import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.Apartment;
+import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.NotificationType;
 import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.User;
 import bwp.hhn.backend.harmonyhomenetlogic.entity.sideTables.AnnouncementApartment;
+import bwp.hhn.backend.harmonyhomenetlogic.entity.sideTables.PossessionHistory;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.AnnouncementRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.ApartmentsRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.UserRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.sideTables.AnnouncementApartmentRepository;
+import bwp.hhn.backend.harmonyhomenetlogic.service.adapters.SmsService;
 import bwp.hhn.backend.harmonyhomenetlogic.service.implementation.AnnouncementServiceImp;
+import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.MailService;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Notification;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.AnnouncementRequest;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.page.PageResponse;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.AnnouncementResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.*;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -41,6 +47,12 @@ class AnnouncementServiceTest {
     @Mock
     private AnnouncementApartmentRepository announcementApartmentRepository;
 
+    @Mock
+    private MailService mailService;
+
+    @Mock
+    private SmsService smsService;
+
     @InjectMocks
     private AnnouncementServiceImp announcementService;
 
@@ -49,6 +61,9 @@ class AnnouncementServiceTest {
     private AnnouncementRequest announcementRequest;
     private UUID userId;
     private Long announcementId;
+    private int pageNo;
+    private int pageSize;
+    private Pageable pageable;
 
     @BeforeEach
     void setUp() {
@@ -56,6 +71,9 @@ class AnnouncementServiceTest {
 
         userId = UUID.randomUUID();
         announcementId = 1L;
+        pageNo = 0;
+        pageSize = 10;
+        pageable = PageRequest.of(pageNo, pageSize);
 
         user = User.builder()
                 .uuidID(userId)
@@ -191,68 +209,25 @@ class AnnouncementServiceTest {
         verify(announcementRepository, times(1)).findById(announcementId);
     }
 
-//    @Test
-//    void testGetAllAnnouncements() {
-//        // Given
-//        when(announcementRepository.findAll()).thenReturn(Collections.singletonList(announcement));
-//
-//        // When
-//        List<AnnouncementResponse> responses = announcementService.getAllAnnouncements();
-//
-//        // Then
-//        assertNotNull(responses);
-//        assertEquals(1, responses.size());
-//        assertEquals("Test Announcement", responses.get(0).title());
-//        verify(announcementRepository, times(1)).findAll();
-//    }
+    @Test
+    void testGetAllAnnouncements() {
+        // Given
+        List<Announcement> announcementList = Collections.singletonList(announcement);
+        Page<Announcement> announcementPage = new PageImpl<>(announcementList, pageable, 1);
 
-//    @Test
-//    void testGetAnnouncementsByUserId_Success() throws UserNotFoundException {
-//        // Given
-//        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-//        when(announcementRepository.findByUserUuidID(userId, pageable)).thenReturn(Collections.singletonList(announcement));
-//
-//        // When
-//        List<AnnouncementResponse> responses = announcementService.getAnnouncementsByUserId(userId);
-//
-//        // Then
-//        assertNotNull(responses);
-//        assertEquals(1, responses.size());
-//        assertEquals("Test Announcement", responses.get(0).title());
-//        verify(userRepository, times(1)).findById(userId);
-//        verify(announcementRepository, times(1)).findByUserUuidID(userId, pageable);
-//    }
+        when(announcementRepository.findAll(pageable)).thenReturn(announcementPage);
 
-//    @Test
-//    void testGetAnnouncementsByUserId_UserNotFound() {
-//        // Given
-//        when(userRepository.findById(userId)).thenReturn(Optional.empty());
-//
-//        // When & Then
-//        assertThrows(UserNotFoundException.class, () -> announcementService.getAnnouncementsByUserId(userId));
-//        verify(userRepository, times(1)).findById(userId);
-//        verifyNoInteractions(announcementRepository);
-//    }
+        // When
+        PageResponse<AnnouncementResponse> response = announcementService.getAllAnnouncements(pageNo, pageSize);
 
-//    @Test
-//    void testGetAnnouncementsFromStartDateToEndDate() {
-//        // Given
-//        DateRequest dateRequest = new DateRequest();
-//        dateRequest.setStartDate(LocalDateTime.now().minusDays(1));
-//        dateRequest.setEndDate(LocalDateTime.now().plusDays(1));
-//
-//        when(announcementRepository.findDistinctByCreatedAtOrUpdatedAtBetween(dateRequest.getStartDate(), dateRequest.getEndDate(), pageable))
-//                .thenReturn(Collections.singletonList(announcement));
-//
-//        // When
-//        List<AnnouncementResponse> responses = announcementService.getAnnouncementsFromStartDateTOEndDate(dateRequest);
-//
-//        // Then
-//        assertNotNull(responses);
-//        assertEquals(1, responses.size());
-//        assertEquals("Test Announcement", responses.get(0).title());
-//        verify(announcementRepository, times(1)).findDistinctByCreatedAtOrUpdatedAtBetween(dateRequest.getStartDate(), dateRequest.getEndDate(), pageable);
-//    }
+        // Then
+        assertNotNull(response);
+        assertEquals(1, response.totalPages());
+        assertEquals(1, response.content().size());
+        assertEquals("Test Announcement", response.content().get(0).title());
+
+        verify(announcementRepository, times(1)).findAll(pageable);
+    }
 
     @Test
     void testLinkAnnouncementsToApartments_Success() throws AnnouncementNotFoundException, ApartmentNotFoundException {
@@ -262,10 +237,27 @@ class AnnouncementServiceTest {
         List<String> apartmentSignatures = Collections.singletonList(apartmentSignature);
         UUID apartmentId = UUID.randomUUID();
 
+        User resident = User.builder()
+                .uuidID(UUID.randomUUID())
+                .email("resident@example.com")
+                .phoneNumber("123456789")
+                .notificationTypes(Arrays.asList(
+                        NotificationType.builder().type(Notification.EMAIL).build(),
+                        NotificationType.builder().type(Notification.SMS).build()
+                ))
+                .build();
+
+        PossessionHistory possessionHistory = PossessionHistory.builder()
+                .user(resident)
+                .build();
+
         Apartment apartment = Apartment.builder()
                 .uuidID(apartmentId)
                 .apartmentSignature(apartmentSignature)
+                .possessionHistories(Collections.singletonList(possessionHistory))
                 .build();
+
+        possessionHistory.setApartment(apartment);
 
         when(announcementRepository.findById(announcementId)).thenReturn(Optional.of(announcement));
         when(announcementApartmentRepository.findApartmentIdsByAnnouncementId(announcementId)).thenReturn(Collections.emptyList());
@@ -281,6 +273,17 @@ class AnnouncementServiceTest {
         verify(announcementApartmentRepository, times(1)).findApartmentIdsByAnnouncementId(announcementId);
         verify(apartmentsRepository, times(1)).findByApartmentSignature(apartmentSignature);
         verify(announcementRepository, times(1)).save(any(Announcement.class));
+
+        // Verify that mailService and smsService were called
+        verify(mailService, times(1)).sendNotificationMail(
+                eq("Nowe ogłoszenie"),
+                eq("Nowe ogłoszenie zostało oddane: " + announcement.getTitle()),
+                eq(resident.getEmail())
+        );
+        verify(smsService, times(1)).sendSms(
+                eq("Nowe ogłoszenie zostało oddane: " + announcement.getTitle()),
+                eq(resident.getPhoneNumber())
+        );
     }
 
     @Test
@@ -353,7 +356,6 @@ class AnnouncementServiceTest {
         verify(announcementRepository, times(1)).save(any(Announcement.class));
     }
 
-
     @Test
     void testUnlinkAnnouncementsFromApartments_AnnouncementNotFound() {
         // Given
@@ -370,47 +372,56 @@ class AnnouncementServiceTest {
         verifyNoMoreInteractions(announcementRepository);
     }
 
-//    @Test
-//    void testGetAnnouncementsByApartmentSignature_Success() throws ApartmentNotFoundException {
-//        // Given
-//        String apartmentSignature = "A101";
-//        Apartment apartment = Apartment.builder()
-//                .uuidID(UUID.randomUUID())
-//                .apartmentSignature(apartmentSignature)
-//                .build();
-//
-//        AnnouncementApartment announcementApartment = AnnouncementApartment.builder()
-//                .announcement(announcement)
-//                .apartment(apartment)
-//                .build();
-//
-//        when(announcementApartmentRepository.findByApartmentSignature(apartmentSignature, pageable))
-//                .thenReturn(Collections.singletonList(announcementApartment));
-//
-//        // When
-//        List<AnnouncementResponse> responses = announcementService.getAnnouncementsByApartmentSignature(apartmentSignature);
-//
-//        // Then
-//        assertNotNull(responses);
-//        assertEquals(1, responses.size());
-//        assertEquals("Test Announcement", responses.get(0).title());
-//        verify(announcementApartmentRepository, times(1)).findByApartmentSignature(apartmentSignature, pageable);
-//    }
+    @Test
+    void testGetAnnouncementsByApartmentSignature_Success() {
+        // Given
+        String apartmentSignature = "A101";
+        Apartment apartment = Apartment.builder()
+                .uuidID(UUID.randomUUID())
+                .apartmentSignature(apartmentSignature)
+                .build();
 
-//    @Test
-//    void testGetAnnouncementsByApartmentSignature_NotFound() throws ApartmentNotFoundException {
-//        // Given
-//        String apartmentSignature = "A101";
-//
-//        when(announcementApartmentRepository.findByApartmentSignature(apartmentSignature, pageable))
-//                .thenReturn(Collections.emptyList());
-//
-//        // When
-//        List<AnnouncementResponse> responses = announcementService.getAnnouncementsByApartmentSignature(apartmentSignature);
-//
-//        // Then
-//        assertNotNull(responses);
-//        assertTrue(responses.isEmpty());
-//        verify(announcementApartmentRepository, times(1)).findByApartmentSignature(apartmentSignature, pageable);
-//    }
+        AnnouncementApartment announcementApartment = AnnouncementApartment.builder()
+                .announcement(announcement)
+                .apartment(apartment)
+                .build();
+
+        List<AnnouncementApartment> announcementApartmentList = Collections.singletonList(announcementApartment);
+        Page<AnnouncementApartment> announcementApartmentPage = new PageImpl<>(announcementApartmentList, pageable, 1);
+
+        when(announcementApartmentRepository.findByApartmentSignature(apartmentSignature, pageable))
+                .thenReturn(announcementApartmentPage);
+
+        // When
+        PageResponse<AnnouncementResponse> response = announcementService.getAnnouncementsByApartmentSignature(apartmentSignature, pageNo, pageSize);
+
+        // Then
+        assertNotNull(response);
+        assertEquals(1, response.totalPages());
+        assertEquals(1, response.content().size());
+        assertEquals("Test Announcement", response.content().get(0).title());
+
+        verify(announcementApartmentRepository, times(1)).findByApartmentSignature(apartmentSignature, pageable);
+    }
+
+    @Test
+    void testGetAnnouncementsByApartmentSignature_NotFound() {
+        // Given
+        String apartmentSignature = "A101";
+
+        Page<AnnouncementApartment> emptyPage = new PageImpl<>(Collections.emptyList(), pageable, 0);
+
+        when(announcementApartmentRepository.findByApartmentSignature(apartmentSignature, pageable))
+                .thenReturn(emptyPage);
+
+        // When
+        PageResponse<AnnouncementResponse> response = announcementService.getAnnouncementsByApartmentSignature(apartmentSignature, pageNo, pageSize);
+
+        // Then
+        assertNotNull(response);
+        assertEquals(0, response.totalPages());
+        assertTrue(response.content().isEmpty());
+
+        verify(announcementApartmentRepository, times(1)).findByApartmentSignature(apartmentSignature, pageable);
+    }
 }

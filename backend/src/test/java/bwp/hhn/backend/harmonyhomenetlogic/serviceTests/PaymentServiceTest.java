@@ -9,23 +9,24 @@ import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.PaymentComponent;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.ApartmentsRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.PaymentComponentRepository;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.PaymentRepository;
+import bwp.hhn.backend.harmonyhomenetlogic.service.adapters.BankingService;
 import bwp.hhn.backend.harmonyhomenetlogic.service.implementation.PaymentServiceImp;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.PaymentStatus;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.PaymentComponentRequest;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.PaymentRequest;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.page.PageResponse;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.PaymentComponentResponse;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.PaymentResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.*;
+import org.springframework.data.domain.*;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Optional;
-import java.util.UUID;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -40,6 +41,9 @@ class PaymentServiceTest {
 
     @Mock
     private PaymentComponentRepository paymentComponentRepository;
+
+    @Mock
+    private BankingService bankingService;
 
     @InjectMocks
     private PaymentServiceImp paymentService;
@@ -64,18 +68,22 @@ class PaymentServiceTest {
 
         payment = Payment.builder()
                 .uuidID(paymentId)
-                .paymentDate(Instant.now())
+                .paymentDate(ZonedDateTime.now(ZoneOffset.UTC).toInstant())
                 .paymentStatus(PaymentStatus.UNPAID)
                 .paymentAmount(BigDecimal.ZERO)
                 .paymentComponents(new ArrayList<>())
                 .apartment(apartment)
+                .createdAt(Instant.now())
                 .build();
+
+        apartment.getPayments().add(payment);
     }
 
     @Test
     void testCreatePayment_Success() throws ApartmentNotFoundException {
         PaymentRequest paymentRequest = new PaymentRequest();
         paymentRequest.setApartmentSignature("A1");
+        paymentRequest.setDescription("Test Payment");
 
         when(apartmentsRepository.findByApartmentSignature("A1")).thenReturn(Optional.of(apartment));
         when(paymentRepository.save(any(Payment.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -85,7 +93,7 @@ class PaymentServiceTest {
 
         assertNotNull(response);
         assertEquals(PaymentStatus.UNPAID, response.paymentStatus());
-        assertEquals(apartment.getUuidID(), payment.getApartment().getUuidID());
+        assertEquals(apartment.getApartmentSignature(), response.apartmentSignature());
 
         verify(apartmentsRepository, times(1)).findByApartmentSignature("A1");
         verify(paymentRepository, times(1)).save(any(Payment.class));
@@ -102,7 +110,7 @@ class PaymentServiceTest {
         assertThrows(ApartmentNotFoundException.class, () -> paymentService.createPayment(paymentRequest));
 
         verify(apartmentsRepository, times(1)).findByApartmentSignature("A1");
-        verifyNoMoreInteractions(paymentRepository);
+        verifyNoInteractions(paymentRepository);
     }
 
     @Test
@@ -149,76 +157,96 @@ class PaymentServiceTest {
         verify(paymentRepository, never()).deleteById(any(UUID.class));
     }
 
-//    @Test
-//    void testGetAllPayments() {
-//        when(paymentRepository.findAll()).thenReturn(Collections.singletonList(payment));
-//
-//        List<PaymentResponse> responses = paymentService.getAllPayments();
-//
-//        assertEquals(1, responses.size());
-//        assertEquals(paymentId, responses.get(0).paymentId());
-//
-//        verify(paymentRepository, times(1)).findAll();
-//    }
+    @Test
+    void testGetAllPayments_Success() {
+        int pageNo = 0;
+        int pageSize = 10;
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        List<Payment> payments = Collections.singletonList(payment);
+        Page<Payment> paymentPage = new PageImpl<>(payments, pageable, payments.size());
 
-//    @Test
-//    void testGetPaymentsByApartmentSignature_Success() throws ApartmentNotFoundException {
-//        when(apartmentsRepository.findByApartmentSignature("A1")).thenReturn(Optional.of(apartment));
-//        when(paymentRepository.findAllByApartmentUuidID(apartmentId, pageable)).thenReturn(Collections.singletonList(payment));
-//
-//        List<PaymentResponse> responses = paymentService.getPaymentsByApartmentSignature("A1");
-//
-//        assertEquals(1, responses.size());
-//        assertEquals(paymentId, responses.get(0).paymentId());
-//
-//        verify(apartmentsRepository, times(1)).findByApartmentSignature("A1");
-//        verify(paymentRepository, times(1)).findAllByApartmentUuidID(apartmentId, pageable);
-//    }
-//
-//    @Test
-//    void testGetPaymentsByApartmentSignature_NotFound() {
-//        when(apartmentsRepository.findByApartmentSignature("A1")).thenReturn(Optional.empty());
-//
-//        assertThrows(ApartmentNotFoundException.class, () -> paymentService.getPaymentsByApartmentSignature("A1"));
-//
-//        verify(apartmentsRepository, times(1)).findByApartmentSignature("A1");
-//        verifyNoMoreInteractions(paymentRepository);
-//    }
+        when(paymentRepository.findAll(pageable)).thenReturn(paymentPage);
 
-//    @Test
-//    void testPayPayment_Success() throws PaymentNotFoundException {
-//        when(paymentRepository.findById(paymentId)).thenReturn(Optional.of(payment));
-//        when(paymentRepository.save(any(Payment.class))).thenAnswer(invocation -> invocation.getArgument(0));
-//
-//        PaymentResponse response = paymentService.payPayment(paymentId);
-//
-//        assertEquals(PaymentStatus.PAID, response.paymentStatus());
-//        assertNotNull(response.paymentTime());
-//
-//        verify(paymentRepository, times(1)).findById(paymentId);
-//        verify(paymentRepository, times(1)).save(payment);
-//    }
-//
-//    @Test
-//    void testPayPayment_AlreadyPaid() {
-//        payment.setPaymentStatus(PaymentStatus.PAID);
-//        when(paymentRepository.findById(paymentId)).thenReturn(Optional.of(payment));
-//
-//        assertThrows(IllegalArgumentException.class, () -> paymentService.payPayment(paymentId));
-//
-//        verify(paymentRepository, times(1)).findById(paymentId);
-//        verify(paymentRepository, never()).save(any(Payment.class));
-//    }
-//
-//    @Test
-//    void testPayPayment_NotFound() {
-//        when(paymentRepository.findById(paymentId)).thenReturn(Optional.empty());
-//
-//        assertThrows(PaymentNotFoundException.class, () -> paymentService.payPayment(paymentId));
-//
-//        verify(paymentRepository, times(1)).findById(paymentId);
-//        verify(paymentRepository, never()).save(any(Payment.class));
-//    }
+        PageResponse<PaymentResponse> responses = paymentService.getAllPayments(pageNo, pageSize);
+
+        assertEquals(1, responses.content().size());
+        assertEquals(paymentId, responses.content().get(0).paymentId());
+
+        verify(paymentRepository, times(1)).findAll(pageable);
+    }
+
+    @Test
+    void testGetPaymentsByApartmentSignature_Success() throws ApartmentNotFoundException {
+        int pageNo = 0;
+        int pageSize = 10;
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        List<Payment> payments = Collections.singletonList(payment);
+        Page<Payment> paymentPage = new PageImpl<>(payments, pageable, payments.size());
+
+        when(apartmentsRepository.findByApartmentSignature("A1")).thenReturn(Optional.of(apartment));
+        when(paymentRepository.findAllByApartmentUuidID(apartmentId, pageable)).thenReturn(paymentPage);
+
+        PageResponse<PaymentResponse> responses = paymentService.getPaymentsByApartmentSignature("A1", pageNo, pageSize);
+
+        assertEquals(1, responses.content().size());
+        assertEquals(paymentId, responses.content().get(0).paymentId());
+
+        verify(apartmentsRepository, times(1)).findByApartmentSignature("A1");
+        verify(paymentRepository, times(1)).findAllByApartmentUuidID(apartmentId, pageable);
+    }
+
+    @Test
+    void testGetPaymentsByApartmentSignature_NotFound() {
+        int pageNo = 0;
+        int pageSize = 10;
+
+        when(apartmentsRepository.findByApartmentSignature("A1")).thenReturn(Optional.empty());
+
+        assertThrows(ApartmentNotFoundException.class, () -> paymentService.getPaymentsByApartmentSignature("A1", pageNo, pageSize));
+
+        verify(apartmentsRepository, times(1)).findByApartmentSignature("A1");
+        verifyNoInteractions(paymentRepository);
+    }
+
+    @Test
+    void testPayPayment_Success() throws PaymentNotFoundException {
+        String account = "1234567890";
+        when(paymentRepository.findById(paymentId)).thenReturn(Optional.of(payment));
+        when(paymentRepository.save(any(Payment.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        PaymentResponse response = paymentService.payPayment(paymentId, account);
+
+        assertEquals(PaymentStatus.PAID, response.paymentStatus());
+        assertNotNull(response.paymentTime());
+
+        verify(paymentRepository, times(1)).findById(paymentId);
+        verify(paymentRepository, times(1)).save(payment);
+        verify(bankingService, times(1)).pay(payment.getPaymentAmount(), account);
+    }
+
+    @Test
+    void testPayPayment_AlreadyPaid() {
+        String account = "1234567890";
+        payment.setPaymentStatus(PaymentStatus.PAID);
+        when(paymentRepository.findById(paymentId)).thenReturn(Optional.of(payment));
+
+        assertThrows(IllegalArgumentException.class, () -> paymentService.payPayment(paymentId, account));
+
+        verify(paymentRepository, times(1)).findById(paymentId);
+        verify(paymentRepository, never()).save(any(Payment.class));
+        verifyNoInteractions(bankingService);
+    }
+
+    @Test
+    void testPayPayment_NotFound() {
+        String account = "1234567890";
+        when(paymentRepository.findById(paymentId)).thenReturn(Optional.empty());
+
+        assertThrows(PaymentNotFoundException.class, () -> paymentService.payPayment(paymentId, account));
+
+        verify(paymentRepository, times(1)).findById(paymentId);
+        verifyNoInteractions(bankingService);
+    }
 
     @Test
     void testAddPaymentComponent_Success() throws PaymentNotFoundException {
@@ -253,7 +281,7 @@ class PaymentServiceTest {
         assertThrows(PaymentNotFoundException.class, () -> paymentService.addPaymentComponent(paymentId, componentRequest));
 
         verify(paymentRepository, times(1)).findById(paymentId);
-        verifyNoMoreInteractions(paymentComponentRepository);
+        verifyNoInteractions(paymentComponentRepository);
     }
 
     @Test
@@ -293,7 +321,7 @@ class PaymentServiceTest {
         assertThrows(PaymentNotFoundException.class, () -> paymentService.removePaymentComponent(paymentId, 1L));
 
         verify(paymentRepository, times(1)).findById(paymentId);
-        verifyNoMoreInteractions(paymentComponentRepository);
+        verifyNoInteractions(paymentComponentRepository);
     }
 
     @Test
@@ -350,7 +378,7 @@ class PaymentServiceTest {
         assertThrows(PaymentNotFoundException.class, () -> paymentService.updatePaymentComponent(paymentId, 1L, componentRequest));
 
         verify(paymentRepository, times(1)).findById(paymentId);
-        verifyNoMoreInteractions(paymentComponentRepository);
+        verifyNoInteractions(paymentComponentRepository);
     }
 
     @Test
@@ -366,39 +394,111 @@ class PaymentServiceTest {
         verify(paymentComponentRepository, times(1)).findById(1L);
     }
 
-//    @Test
-//    void testGetPaymentComponents_Success() throws PaymentNotFoundException {
-//        PaymentComponent component = PaymentComponent.builder()
-//                .id(1L)
-//                .componentType("Electricity")
-//                .componentAmount(new BigDecimal("100"))
-//                .unitPrice(new BigDecimal("0.5"))
-//                .specialMultiplier(new BigDecimal("1"))
-//                .unit("kWh")
-//                .build();
-//
-//        payment.getPaymentComponents().add(component);
-//
-//        when(paymentComponentRepository.findAllByPaymentUuidID(paymentId, pageable)).thenReturn(Collections.singletonList(component));
-//
-//        List<PaymentComponentResponse> responses = paymentService.getPaymentComponents(paymentId);
-//
-//        assertNotNull(responses);
-//        assertEquals(1, responses.size());
-//        assertEquals("Electricity", responses.get(0).componentType());
-//
-//        verify(paymentComponentRepository, times(1)).findAllByPaymentUuidID(paymentId, pageable);
-//    }
-//
-//    @Test
-//    void testGetPaymentComponents_PaymentNotFound() {
-//        when(paymentComponentRepository.findAllByPaymentUuidID(paymentId, pageable)).thenReturn(Collections.emptyList());
-//
-//        List<PaymentComponentResponse> responses = paymentService.getPaymentComponents(paymentId);
-//
-//        assertNotNull(responses);
-//        assertEquals(0, responses.size());
-//
-//        verify(paymentComponentRepository, times(1)).findAllByPaymentUuidID(paymentId, pageable);
-//    }
+    @Test
+    void testGetPaymentComponents_Success() throws PaymentNotFoundException {
+        PaymentComponent component = PaymentComponent.builder()
+                .id(1L)
+                .componentType("Electricity")
+                .componentAmount(new BigDecimal("100"))
+                .unitPrice(new BigDecimal("0.5"))
+                .specialMultiplier(new BigDecimal("1"))
+                .unit("kWh")
+                .createdAt(Instant.now())
+                .updatedAt(Instant.now())
+                .build();
+
+        payment.getPaymentComponents().add(component);
+
+        when(paymentComponentRepository.findAllByPaymentUuidID(paymentId)).thenReturn(Collections.singletonList(component));
+
+        List<PaymentComponentResponse> responses = paymentService.getPaymentComponents(paymentId);
+
+        assertNotNull(responses);
+        assertEquals(1, responses.size());
+        assertEquals("Electricity", responses.get(0).componentType());
+
+        verify(paymentComponentRepository, times(1)).findAllByPaymentUuidID(paymentId);
+    }
+
+    @Test
+    void testGetPaymentComponents_EmptyList() throws PaymentNotFoundException {
+        when(paymentComponentRepository.findAllByPaymentUuidID(paymentId)).thenReturn(Collections.emptyList());
+
+        List<PaymentComponentResponse> responses = paymentService.getPaymentComponents(paymentId);
+
+        assertNotNull(responses);
+        assertEquals(0, responses.size());
+
+        verify(paymentComponentRepository, times(1)).findAllByPaymentUuidID(paymentId);
+    }
+
+    @Test
+    void testActivatePayment_Success() throws PaymentNotFoundException {
+        when(paymentRepository.findById(paymentId)).thenReturn(Optional.of(payment));
+        when(paymentRepository.save(any(Payment.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        String result = paymentService.activatePayment(paymentId, true);
+
+        assertEquals("Payment: " + paymentId + " activated", result);
+        assertTrue(payment.getReadyToPay());
+
+        verify(paymentRepository, times(1)).findById(paymentId);
+        verify(paymentRepository, times(1)).save(payment);
+    }
+
+    @Test
+    void testActivatePayment_PaymentNotFound() {
+        when(paymentRepository.findById(paymentId)).thenReturn(Optional.empty());
+
+        assertThrows(PaymentNotFoundException.class, () -> paymentService.activatePayment(paymentId, true));
+
+        verify(paymentRepository, times(1)).findById(paymentId);
+        verify(paymentRepository, never()).save(any(Payment.class));
+    }
+
+    @Test
+    void testUpdatePayment_Success() throws PaymentNotFoundException, ApartmentNotFoundException {
+        PaymentRequest paymentRequest = new PaymentRequest();
+        paymentRequest.setApartmentSignature("A1");
+        paymentRequest.setDescription("Updated Description");
+
+        when(paymentRepository.findById(paymentId)).thenReturn(Optional.of(payment));
+        when(apartmentsRepository.findByApartmentSignature("A1")).thenReturn(Optional.of(apartment));
+        when(paymentRepository.save(any(Payment.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        PaymentResponse response = paymentService.updatePayment(paymentId, paymentRequest);
+
+        assertNotNull(response);
+        assertEquals("Updated Description", response.description());
+
+        verify(paymentRepository, times(1)).findById(paymentId);
+        verify(apartmentsRepository, times(1)).findByApartmentSignature("A1");
+        verify(paymentRepository, times(1)).save(payment);
+    }
+
+    @Test
+    void testUpdatePayment_PaymentNotFound() {
+        PaymentRequest paymentRequest = new PaymentRequest();
+
+        when(paymentRepository.findById(paymentId)).thenReturn(Optional.empty());
+
+        assertThrows(PaymentNotFoundException.class, () -> paymentService.updatePayment(paymentId, paymentRequest));
+
+        verify(paymentRepository, times(1)).findById(paymentId);
+        verifyNoInteractions(apartmentsRepository);
+    }
+
+    @Test
+    void testUpdatePayment_ApartmentNotFound() {
+        PaymentRequest paymentRequest = new PaymentRequest();
+        paymentRequest.setApartmentSignature("A1");
+
+        when(paymentRepository.findById(paymentId)).thenReturn(Optional.of(payment));
+        when(apartmentsRepository.findByApartmentSignature("A1")).thenReturn(Optional.empty());
+
+        assertThrows(ApartmentNotFoundException.class, () -> paymentService.updatePayment(paymentId, paymentRequest));
+
+        verify(paymentRepository, times(1)).findById(paymentId);
+        verify(apartmentsRepository, times(1)).findByApartmentSignature("A1");
+    }
 }

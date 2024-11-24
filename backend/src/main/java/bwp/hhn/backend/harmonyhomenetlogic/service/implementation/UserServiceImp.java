@@ -2,7 +2,6 @@ package bwp.hhn.backend.harmonyhomenetlogic.service.implementation;
 
 import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.NotificationNotFoundException;
 import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.UserNotFoundException;
-import bwp.hhn.backend.harmonyhomenetlogic.configuration.security.RSAKeyRecord;
 import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.NotificationType;
 import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.Post;
 import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.Topic;
@@ -27,7 +26,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -43,14 +41,13 @@ public class UserServiceImp implements UserService {
     private final UserRepository userRepository;
     private final NotificationTypeRepository notificationTypeRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
-    private final RSAKeyRecord rsaKeyRecord;
     private final PostRepository postRepository;
     private final TopicRepository topicRepository;
+    private final JwtDecoder jwtDecoder;
 
     @Override
     public UserResponse updateUser(UUID userId, UserRequest user, String accessToken) throws UserNotFoundException {
 
-        JwtDecoder jwtDecoder = NimbusJwtDecoder.withPublicKey(rsaKeyRecord.publicKey()).build();
         final Jwt jwtToken = jwtDecoder.decode(accessToken);
 
         Role role = Role.valueOf(jwtToken.getClaim("role"));
@@ -154,7 +151,6 @@ public class UserServiceImp implements UserService {
         User userEntity = userRepository.findByUuidIDOrEmail(userId, null)
                 .orElseThrow(() -> new UserNotFoundException("User id: " + userId + " not found"));
 
-        JwtDecoder jwtDecoder = NimbusJwtDecoder.withPublicKey(rsaKeyRecord.publicKey()).build();
         final Jwt jwtToken = jwtDecoder.decode(accessToken);
 
         Role role = Role.valueOf(jwtToken.getClaim("role"));

@@ -24,6 +24,7 @@ public class UserDocumentConnection {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "UUID_id")
     private UUID uuidID;
 
     @ManyToOne

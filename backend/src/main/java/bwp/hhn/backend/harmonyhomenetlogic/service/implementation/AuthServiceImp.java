@@ -1,7 +1,6 @@
 package bwp.hhn.backend.harmonyhomenetlogic.service.implementation;
 
 import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.UserNotFoundException;
-import bwp.hhn.backend.harmonyhomenetlogic.configuration.security.RSAKeyRecord;
 import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.Document;
 import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.User;
 import bwp.hhn.backend.harmonyhomenetlogic.entity.sideTables.UserDocumentConnection;
@@ -38,15 +37,14 @@ public class AuthServiceImp implements AuthService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final JwtEncoder jwtEncoder;
     private final MailService mailService;
-    private final RSAKeyRecord rsaKeyRecord;
     private final UserDocumentConnectionRepository userDocumentConnectionRepository;
     private final DocumentRepository documentRepository;
+    private final JwtDecoder jwtDecoder;
 
     @Override
     @Transactional
     public String register(RegisterRequest userRequest, String accessToken) {
 
-        JwtDecoder jwtDecoder = NimbusJwtDecoder.withPublicKey(rsaKeyRecord.publicKey()).build();
         final Jwt jwtToken = jwtDecoder.decode(accessToken);
 
         Role role = Role.valueOf(jwtToken.getClaim("role"));
@@ -171,7 +169,7 @@ public class AuthServiceImp implements AuthService {
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer("harmony-home-net")
                 .issuedAt(Instant.now())
-                .expiresAt(Instant.now().plus(1, ChronoUnit.HOURS))
+                .expiresAt(Instant.now().plus(10, ChronoUnit.MINUTES))
                 .subject(user.getEmail())
                 .claim("userId", user.getUuidID())
                 .claim("role", user.getRole().name())

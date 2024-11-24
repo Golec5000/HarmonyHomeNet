@@ -4,14 +4,19 @@ import bwp.hhn.backend.harmonyhomenetlogic.configuration.exeptions.customErrors.
 import bwp.hhn.backend.harmonyhomenetlogic.entity.mainTables.*;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.*;
 import bwp.hhn.backend.harmonyhomenetlogic.repository.sideTables.PossessionHistoryRepository;
+import bwp.hhn.backend.harmonyhomenetlogic.service.adapters.SmsService;
 import bwp.hhn.backend.harmonyhomenetlogic.service.implementation.ProblemReportServiceImp;
+import bwp.hhn.backend.harmonyhomenetlogic.service.interfaces.MailService;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Category;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.Notification;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.enums.ReportStatus;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.request.ProblemReportRequest;
+import bwp.hhn.backend.harmonyhomenetlogic.utils.response.page.PageResponse;
 import bwp.hhn.backend.harmonyhomenetlogic.utils.response.typesOfPage.ProblemReportResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
+import org.springframework.data.domain.*;
 
 import java.util.*;
 
@@ -31,6 +36,12 @@ class ProblemReportServiceTest {
 
     @Mock
     private PossessionHistoryRepository possessionHistoryRepository;
+
+    @Mock
+    private MailService mailService;
+
+    @Mock
+    private SmsService smsService;
 
     @InjectMocks
     private ProblemReportServiceImp problemReportService;
@@ -53,6 +64,9 @@ class ProblemReportServiceTest {
                 .uuidID(userId)
                 .firstName("John")
                 .lastName("Doe")
+                .email("john.doe@example.com")
+                .phoneNumber("+1234567890")
+                .notificationTypes(new ArrayList<>())
                 .build();
 
         apartment = Apartment.builder()
@@ -86,6 +100,8 @@ class ProblemReportServiceTest {
         when(possessionHistoryRepository.existsByUserUuidIDAndApartmentUuidID(userId, apartmentId)).thenReturn(true);
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(problemReportRepository.save(any(ProblemReport.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(apartmentsRepository.save(any(Apartment.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // When
         ProblemReportResponse response = problemReportService.createProblemReport(problemReportRequest);
@@ -100,6 +116,8 @@ class ProblemReportServiceTest {
         verify(possessionHistoryRepository, times(1)).existsByUserUuidIDAndApartmentUuidID(userId, apartmentId);
         verify(userRepository, times(1)).findById(userId);
         verify(problemReportRepository, times(1)).save(any(ProblemReport.class));
+        verify(userRepository, times(1)).save(any(User.class));
+        verify(apartmentsRepository, times(1)).save(any(Apartment.class));
     }
 
     @Test
@@ -111,9 +129,9 @@ class ProblemReportServiceTest {
         assertThrows(ApartmentNotFoundException.class, () -> problemReportService.createProblemReport(problemReportRequest));
 
         verify(apartmentsRepository, times(1)).findByApartmentSignature("A101");
-        verifyNoMoreInteractions(possessionHistoryRepository);
-        verifyNoMoreInteractions(userRepository);
-        verifyNoMoreInteractions(problemReportRepository);
+        verifyNoInteractions(possessionHistoryRepository);
+        verifyNoInteractions(userRepository);
+        verifyNoInteractions(problemReportRepository);
     }
 
     @Test
@@ -127,8 +145,8 @@ class ProblemReportServiceTest {
 
         verify(apartmentsRepository, times(1)).findByApartmentSignature("A101");
         verify(possessionHistoryRepository, times(1)).existsByUserUuidIDAndApartmentUuidID(userId, apartmentId);
-        verifyNoMoreInteractions(userRepository);
-        verifyNoMoreInteractions(problemReportRepository);
+        verifyNoInteractions(userRepository);
+        verifyNoInteractions(problemReportRepository);
     }
 
     @Test
@@ -137,8 +155,19 @@ class ProblemReportServiceTest {
         ProblemReportRequest updateRequest = ProblemReportRequest.builder()
                 .note("Fixed leaky faucet")
                 .reportStatus(ReportStatus.DONE)
-                .category(Category.GENERAL)
+                .category(Category.TECHNICAL)
                 .build();
+
+        NotificationType emailNotification = NotificationType.builder()
+                .type(Notification.EMAIL)
+                .build();
+
+        NotificationType smsNotification = NotificationType.builder()
+                .type(Notification.SMS)
+                .build();
+
+        user.getNotificationTypes().add(emailNotification);
+        user.getNotificationTypes().add(smsNotification);
 
         when(problemReportRepository.findById(1L)).thenReturn(Optional.of(problemReport));
         when(problemReportRepository.save(any(ProblemReport.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -150,10 +179,13 @@ class ProblemReportServiceTest {
         assertNotNull(response);
         assertEquals("Fixed leaky faucet", response.note());
         assertEquals(ReportStatus.DONE, response.reportStatus());
+        assertEquals(Category.TECHNICAL, response.category());
         assertNotNull(response.endDate());
 
         verify(problemReportRepository, times(1)).findById(1L);
         verify(problemReportRepository, times(1)).save(any(ProblemReport.class));
+        verify(mailService, times(1)).sendNotificationMail(eq("Problem report done"), eq("Your problem report has been done"), eq(user.getEmail()));
+        verify(smsService, times(1)).sendSms(eq("Your problem report has been done"), eq(user.getPhoneNumber()));
     }
 
     @Test
@@ -201,105 +233,64 @@ class ProblemReportServiceTest {
         verifyNoMoreInteractions(problemReportRepository);
     }
 
-//    @Test
-//    void testGetProblemReportsByUserId_Success() throws UserNotFoundException {
-//        // Given
-//        when(userRepository.existsById(userId)).thenReturn(true);
-//        when(problemReportRepository.findAllByUserUuidID(userId)).thenReturn(Collections.singletonList(problemReport));
-//
-//        // When
-//        List<ProblemReportResponse> responses = problemReportService.getProblemReportsByUserId(userId);
-//
-//        // Then
-//        assertNotNull(responses);
-//        assertEquals(1, responses.size());
-//        assertEquals("Leaky faucet", responses.get(0).note());
-//        verify(userRepository, times(1)).existsById(userId);
-//        verify(problemReportRepository, times(1)).findAllByUserUuidID(userId);
-//    }
+    @Test
+    void testGetProblemReportsByApartmentSignature_Success() throws ApartmentNotFoundException {
+        // Given
+        int pageNo = 0;
+        int pageSize = 10;
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        List<ProblemReport> problemReports = Collections.singletonList(problemReport);
+        Page<ProblemReport> problemReportPage = new PageImpl<>(problemReports, pageable, problemReports.size());
 
-//    @Test
-//    void testGetProblemReportsByUserId_UserNotFound() {
-//        // Given
-//        when(userRepository.existsById(userId)).thenReturn(false);
-//
-//        // When & Then
-//        assertThrows(UserNotFoundException.class, () -> problemReportService.getProblemReportsByUserId(userId));
-//
-//        verify(userRepository, times(1)).existsById(userId);
-//        verifyNoMoreInteractions(problemReportRepository);
-//    }
+        when(apartmentsRepository.findByApartmentSignature("A101")).thenReturn(Optional.of(apartment));
+        when(problemReportRepository.findAllByApartmentUuidID(apartmentId, pageable)).thenReturn(problemReportPage);
 
-//    @Test
-//    void testGetProblemReportsByApartmentSignature_Success() throws ApartmentNotFoundException {
-//        // Given
-//        when(apartmentsRepository.findByApartmentSignature("A101")).thenReturn(Optional.of(apartment));
-//        when(problemReportRepository.findAllByApartmentUuidID(apartmentId, pageable)).thenReturn(Collections.singletonList(problemReport));
-//
-//        // When
-//        List<ProblemReportResponse> responses = problemReportService.getProblemReportsByApartmentSignature("A101");
-//
-//        // Then
-//        assertNotNull(responses);
-//        assertEquals(1, responses.size());
-//        assertEquals("Leaky faucet", responses.get(0).note());
-//        verify(apartmentsRepository, times(1)).findByApartmentSignature("A101");
-//        verify(problemReportRepository, times(1)).findAllByApartmentUuidID(apartmentId, pageable);
-//    }
+        // When
+        PageResponse<ProblemReportResponse> responses = problemReportService.getProblemReportsByApartmentSignature("A101", pageNo, pageSize);
 
-//    @Test
-//    void testGetProblemReportsByApartmentSignature_NotFound() {
-//        // Given
-//        when(apartmentsRepository.findByApartmentSignature("A101")).thenReturn(Optional.empty());
-//
-//        // When & Then
-//        assertThrows(ApartmentNotFoundException.class, () -> problemReportService.getProblemReportsByApartmentSignature("A101"));
-//
-//        verify(apartmentsRepository, times(1)).findByApartmentSignature("A101");
-//        verifyNoMoreInteractions(problemReportRepository);
-//    }
+        // Then
+        assertNotNull(responses);
+        assertEquals(1, responses.content().size());
+        assertEquals("Leaky faucet", responses.content().get(0).note());
 
-//    @Test
-//    void testGetAllProblemReports() {
-//        // Given
-//        when(problemReportRepository.findAll()).thenReturn(Collections.singletonList(problemReport));
-//
-//        // When
-//        List<ProblemReportResponse> responses = problemReportService.getAllProblemReports();
-//
-//        // Then
-//        assertNotNull(responses);
-//        assertEquals(1, responses.size());
-//        assertEquals("Leaky faucet", responses.get(0).note());
-//        verify(problemReportRepository, times(1)).findAll();
-//    }
-//
-//    @Test
-//    void testGetProblemReportsByStatus_Success() {
-//        // Given
-//        when(problemReportRepository.findAllByReportStatus(ReportStatus.OPEN)).thenReturn(Collections.singletonList(problemReport));
-//
-//        // When
-//        List<ProblemReportResponse> responses = problemReportService.getProblemReportsByStatus(ReportStatus.OPEN);
-//
-//        // Then
-//        assertNotNull(responses);
-//        assertEquals(1, responses.size());
-//        assertEquals("Leaky faucet", responses.get(0).note());
-//        verify(problemReportRepository, times(1)).findAllByReportStatus(ReportStatus.OPEN);
-//    }
-//
-//    @Test
-//    void testGetProblemReportsByStatus_Empty() {
-//        // Given
-//        when(problemReportRepository.findAllByReportStatus(ReportStatus.DONE)).thenReturn(Collections.emptyList());
-//
-//        // When
-//        List<ProblemReportResponse> responses = problemReportService.getProblemReportsByStatus(ReportStatus.DONE);
-//
-//        // Then
-//        assertNotNull(responses);
-//        assertTrue(responses.isEmpty());
-//        verify(problemReportRepository, times(1)).findAllByReportStatus(ReportStatus.DONE);
-//    }
+        verify(apartmentsRepository, times(1)).findByApartmentSignature("A101");
+        verify(problemReportRepository, times(1)).findAllByApartmentUuidID(apartmentId, pageable);
+    }
+
+    @Test
+    void testGetProblemReportsByApartmentSignature_NotFound() {
+        // Given
+        int pageNo = 0;
+        int pageSize = 10;
+
+        when(apartmentsRepository.findByApartmentSignature("A101")).thenReturn(Optional.empty());
+
+        // When & Then
+        assertThrows(ApartmentNotFoundException.class, () -> problemReportService.getProblemReportsByApartmentSignature("A101", pageNo, pageSize));
+
+        verify(apartmentsRepository, times(1)).findByApartmentSignature("A101");
+        verifyNoInteractions(problemReportRepository);
+    }
+
+    @Test
+    void testGetAllProblemReports_Success() {
+        // Given
+        int pageNo = 0;
+        int pageSize = 10;
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        List<ProblemReport> problemReports = Collections.singletonList(problemReport);
+        Page<ProblemReport> problemReportPage = new PageImpl<>(problemReports, pageable, problemReports.size());
+
+        when(problemReportRepository.findAll(pageable)).thenReturn(problemReportPage);
+
+        // When
+        PageResponse<ProblemReportResponse> responses = problemReportService.getAllProblemReports(pageNo, pageSize);
+
+        // Then
+        assertNotNull(responses);
+        assertEquals(1, responses.content().size());
+        assertEquals("Leaky faucet", responses.content().get(0).note());
+
+        verify(problemReportRepository, times(1)).findAll(pageable);
+    }
 }
