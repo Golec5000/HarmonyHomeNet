@@ -2033,7 +2033,7 @@ W obecnej formie system zarządzania ogłoszeniami w „Harmony Home Net” zost
     \item \textbf{Rozbudowa uprawnień dostępu}
     \begin{itemize}
         \item Dodanie bardziej precyzyjnych mechanizmów kontroli dostępu, takich jak przypisywanie ról z różnymi poziomami uprawnień do ogłoszeń (np. możliwość przeglądania, edycji, usuwania).
-        \item Implementacja ACL w celu definiowania indywidualnych uprawnień na poziomie ogłoszeń, mieszkań czy użytkowników.
+        \item Implementacja ACL w celu definiowania indywidualnych uprawnień na poziomie ogłoszeń, mieszkań czy użytkowników~\cite{acl, acl_2}.
     \end{itemize}
 
     \item \textbf{Obsługa zaawansowanych powiadomień}
@@ -2207,12 +2207,570 @@ public class Post {
 
 Rozbudowa forum może znacząco zwiększyć zaangażowanie włąścieli oraz poprawić komunikację w ramach wspólnoty, czyniąc system bardziej funkcjonalnym i wszechstronnym.
 
+\section{Zarządzanie płatnościami}
 
-\section{Zarządzie płatnościami}
+System zarządzania płatnościami w prototypie „Harmony Home Net” został zaprojektowany w sposób uproszczony. Mechanizm umożliwia przypisywanie płatności do konkretnego mieszkania z pomocą sygnatury lokalu, z opcją dodawania szczegółowych komponentów płatności. Kluczowym elementem jest pole \texttt{Ready\_to\_Pay}, które pełni funkcję zabezpieczenia przed przedwczesnym udostępnieniem płatności do realizacji. Właściciel mieszkania ma dostęp do listy wszystkich przypisanych płatności, jednak możliwość ich wykonania (np. poprzez aktywny przycisk płatności) jest blokowana do momentu ustawienia pola \texttt{Ready\_to\_Pay} na \texttt{true}. Dzięki temu płatności nie mogą zostać zrealizowane przed ich odpowiednim przygotowaniem.
 
-\section{Zarządzie głosowaniami}
+\subsection{Opis encji}
+
+Encja \texttt{Payment} -- reprezentuje płatność przypisaną do konkretnego mieszkania. Oto kluczowe elementy:
+
+\begin{lstlisting}[language=Java, caption=Kod encji \texttt{Payment}]
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+@Entity
+@Table(name = "Payments", indexes = {
+        @Index(name = "idx_payment_apartment_id", columnList = "apartment_id"),
+        @Index(name = "idx_payment_date", columnList = "Payment_date"),
+})
+public class Payment {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID uuidID;
+
+    @NotEmpty
+    private String description;
+
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private PaymentStatus paymentStatus;
+
+    @NotNull
+    private Instant paymentDate;
+
+    private Instant paymentTime;
+
+    @DecimalMin(value = "0.0")
+    private BigDecimal paymentAmount;
+
+    @CreationTimestamp
+    private Instant createdAt;
+
+    private Boolean readyToPay;
+
+    @ManyToOne
+    @JoinColumn(name = "apartment_id", referencedColumnName = "UUID_id")
+    private Apartment apartment;
+
+    @OneToMany(mappedBy = "payment", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PaymentComponent> paymentComponents;
+
+    @PrePersist
+    public void prePersist() {
+        this.setPaymentDate(LocalDateTime.now().plusMonths(1).atZone(ZoneId.systemDefault()).toInstant());
+        if (this.readyToPay == null) {
+            this.readyToPay = false;
+        }
+    }
+}
+\end{lstlisting}
+
+\begin{itemize}
+    \item \textbf{\texttt{Ready\_to\_Pay}} -- pole definiujące, czy płatność jest gotowa do realizacji. Po stworzeniu płatność domyślnie ma wartość \texttt{false}.
+    \item \textbf{Połączenie z mieszkaniem} -- każda płatność jest powiązana z encją \texttt{Apartment}, co pozwala na precyzyjne przypisanie jej do konkretnej nieruchomości.
+    \item \textbf{\texttt{PrePersist}} -- mechanizm inicjalizujący datę płatności na jeden miesiąc od momentu jej utworzenia.
+\end{itemize}
+
+\textbf{Encja \texttt{PaymentComponent}} --- reprezentuje szczegółowy składnik płatności, który pozwala na rozbicie płatności na mniejsze części.
+
+\begin{lstlisting}[language=Java, caption=Kod encji \texttt{PaymentComponent}]
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+@Entity
+@Table(name = "Payment_components", indexes = {
+        @Index(name = "idx_paymentcomponent", columnList = "payment_id")
+})
+public class PaymentComponent {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @NotEmpty
+    @Size(max = 50)
+    private String componentType;
+
+    @NotNull
+    @DecimalMin(value = "0.0", inclusive = false)
+    private BigDecimal unitPrice;
+
+    @DecimalMin(value = "1.0")
+    private BigDecimal specialMultiplier;
+
+    @DecimalMin(value = "0.0", inclusive = false)
+    private BigDecimal componentAmount;
+
+    @NotNull
+    private String unit;
+
+    @CreationTimestamp
+    private Instant createdAt;
+
+    @UpdateTimestamp
+    private Instant updatedAt;
+
+    @ManyToOne
+    @JoinColumn(name = "payment_id", referencedColumnName = "UUID_id")
+    private Payment payment;
+}
+\end{lstlisting}
+
+\begin{itemize}
+    \item \textbf{\texttt{componentType}} -- typ komponentu płatności, np. \emph{energia elektryczna}, \emph{woda}.
+    \item \textbf{\texttt{unitPrice}} -- cena jednostkowa za komponent.
+    \item \textbf{\texttt{specialMultiplier}} -- specjalny mnożnik, pozwalający na modyfikację kosztów (np. rabaty, dodatkowe opłaty).
+    \item \textbf{\texttt{componentAmount}} -- ilość jednostek związanych z danym komponentem.
+\end{itemize}
+
+\subsection{Proces dodawania płatności}
+
+W prototypie systemu „Harmony Home Net” proces zarządzania płatnościami przebiega w trzech etapach. Obecnie jest to uproszczony mechanizm pełniący funkcję demonstracyjną (\emph{mock}). System nie posiada jeszcze zaawansowanych funkcjonalności, takich jak integracja z systemami płatności czy automatyzacja generowania komponentów. Niemniej jednak, poniższe etapy ilustrują podstawowy przepływ operacji:
+
+\begin{enumerate}
+    \item \textbf{Tworzenie płatności} -- Płatność jest tworzona przez administratora lub pracownika systemu. Na tym etapie płatność jest automatycznie przypisywana do mieszkania, a pole \texttt{Ready\_to\_Pay} zostaje ustawione na \texttt{false}. Dzięki temu płatność jest widoczna dla właściciela mieszkania, ale nie może być jeszcze zrealizowana. Poniżej znajduje się fragment kodu odpowiedzialny za ten proces:
+
+\begin{lstlisting}[language=Java, caption=Fragment metody \texttt{createPayment}]
+@Override
+@Transactional
+public PaymentResponse createPayment(PaymentRequest paymentRequest) throws ApartmentNotFoundException {
+    Apartment apartment = apartmentsRepository.findByApartmentSignature(paymentRequest.getApartmentSignature())
+            .orElseThrow(() -> new ApartmentNotFoundException("Apartment: " + paymentRequest.getApartmentSignature() + " not found"));
+
+    Payment payment = Payment.builder()
+            .paymentComponents(new ArrayList<>())
+            .paymentStatus(PaymentStatus.UNPAID)
+            .apartment(apartment)
+            .description(paymentRequest.getDescription())
+            .paymentAmount(BigDecimal.ZERO)
+            .readyToPay(Boolean.FALSE)
+            .build();
+
+    Payment saved = paymentRepository.save(payment);
+    apartmentsRepository.save(apartment);
+
+    return PaymentResponse.builder()
+            .paymentId(saved.getUuidID())
+            .paymentStatus(saved.getPaymentStatus())
+            .description(saved.getDescription())
+            .readyToPay(saved.getReadyToPay())
+            .build();
+}
+\end{lstlisting}
+
+    \item \textbf{Dodawanie komponentów} -- Po stworzeniu płatności administrator lub pracownik dodaje komponenty płatności, takie jak opłaty za media. Każdy komponent jest dodawany osobno, a brak automatyzacji powoduje konieczność ręcznego wprowadzenia danych. Fragment kodu odpowiedzialny za dodawanie komponentów przedstawia poniższa metoda:
+
+\begin{lstlisting}[language=Java, caption=Fragment metody \texttt{addPaymentComponent}]
+@Override
+@Transactional
+public PaymentResponse addPaymentComponent(UUID paymentId, PaymentComponentRequest paymentComponentRequest) throws PaymentNotFoundException {
+    Payment payment = paymentRepository.findById(paymentId)
+            .orElseThrow(() -> new PaymentNotFoundException("Payment: " + paymentId + " not found"));
+
+    PaymentComponent paymentComponent = PaymentComponent.builder()
+            .payment(payment)
+            .componentType(paymentComponentRequest.getComponentType())
+            .componentAmount(paymentComponentRequest.getComponentAmount())
+            .unitPrice(paymentComponentRequest.getUnitPrice())
+            .specialMultiplier(paymentComponentRequest.getSpecialMultiplier())
+            .unit(paymentComponentRequest.getUnit())
+            .build();
+
+    payment.getPaymentComponents().add(paymentComponent);
+    recalculatePaymentAmount(payment);
+    paymentRepository.save(payment);
+
+    return getPaymentResponse(payment, paymentComponent);
+}
+\end{lstlisting}
+
+    \item \textbf{Aktywacja płatności} -- Po dodaniu wszystkich komponentów płatności i upewnieniu się, że nie występują nieprawidłowości, pole \texttt{Ready\_to\_Pay} zostaje ustawione na \texttt{true}, co pozwala właścicielowi mieszkania na dokonanie płatności. Fragment kodu aktywującego płatność:
+
+\begin{lstlisting}[language=Java, caption=Fragment metody \texttt{activatePayment}]
+@Override
+public String activatePayment(UUID paymentId, Boolean setActive) throws PaymentNotFoundException {
+    Payment payment = paymentRepository.findById(paymentId)
+            .orElseThrow(() -> new PaymentNotFoundException("Payment: " + paymentId + " not found"));
+
+    payment.setReadyToPay(setActive);
+    paymentRepository.save(payment);
+
+    return "Payment: " + paymentId + " activated";
+}
+\end{lstlisting}
+\end{enumerate}
+
+\subsection{Realizacja płatności}
+
+Realizacja płatności w aktualnym prototypie jest uproszczona i pełni funkcję \emph{mock}. Mechanizm polega na zmianie statusu płatności na \texttt{PAID} oraz ustawieniu czasu jej realizacji. Przykład kodu:
+
+\begin{lstlisting}[language=Java, caption=Fragment metody \texttt{payPayment}]
+@Override
+public PaymentResponse payPayment(UUID paymentId, String account) throws PaymentNotFoundException {
+    Payment payment = paymentRepository.findById(paymentId)
+            .orElseThrow(() -> new PaymentNotFoundException("Payment: " + paymentId + " not found"));
+
+    if (payment.getPaymentStatus() == PaymentStatus.PAID)
+        throw new IllegalArgumentException("Payment: " + paymentId + " already paid");
+
+    payment.setPaymentStatus(PaymentStatus.PAID);
+    payment.setPaymentTime(Instant.now());
+
+    Payment saved = paymentRepository.save(payment);
+
+    bankingService.pay(payment.getPaymentAmount(), account);
+
+    return PaymentResponse.builder()
+            .paymentId(saved.getUuidID())
+            .paymentStatus(saved.getPaymentStatus())
+            .paymentTime(saved.getPaymentTime())
+            .build();
+}
+\end{lstlisting}
+
+W kolejnych etapach rozwoju systemu realizacja płatności zostanie rozbudowana i szczegółowo opisana w sekcji \textbf{Systemy zewnętrzne}. Planowane jest wprowadzenie integracji z zewnętrznymi dostawcami usług płatniczych, takimi jak Stripe, PayPal czy polski BLIK, co pozwoli na pełną automatyzację i bezpieczną obsługę transakcji.
+
+\subsection{Harmonogram przypomnień o płatnościach}
+
+W prototypie systemu „Harmony Home Net” za implementację automatycznych przypomnień o płatnościach odpowiada mechanizm harmonogramowania oparty na klasie \texttt{PaymentReminderScheduler}. Funkcjonalność ta obejmuje:
+
+\begin{itemize}
+    \item \textbf{Przypomnienia przed terminem płatności} -- użytkownicy otrzymują powiadomienia o nadchodzących płatnościach na dwa tygodnie oraz tydzień przed ich terminem. Mechanizm ten uruchamia się automatycznie w każdy poniedziałek o godzinie 12:00. Przykład fragmentu kodu obsługującego to przypomnienie:
+
+\begin{lstlisting}[language=Java, caption=Przypomnienie o nadchodzących płatnościach]
+@Scheduled(cron = "0 0 12 * * MON")
+@Async
+public void sendUpcomingPaymentReminders() {
+    Instant twoWeeksBefore = Instant.now().plus(2, ChronoUnit.WEEKS);
+    Instant oneWeekBefore = Instant.now().plus(1, ChronoUnit.WEEKS);
+
+    List<Payment> upcomingPayments = paymentRepository.findByPaymentDateBetween(twoWeeksBefore, oneWeekBefore);
+
+    for (Payment payment : upcomingPayments) {
+        List<User> owners = payment.getApartment().getPossessionHistories().stream()
+                .map(PossessionHistory::getUser)
+                .toList();
+
+        owners.forEach(owner -> {
+            String message = "Przypomnienie: Twoja płatność za " + payment.getDescription() +
+                    " jest wymagana do " + payment.getPaymentDate() + ".";
+            sendNotification(owner.getEmail(), owner.getPhoneNumber(), message);
+        });
+    }
+}
+\end{lstlisting}
+
+    \item \textbf{Przypomnienia o zaległych płatnościach} -- jeśli płatność nie zostanie zrealizowana w terminie, użytkownicy otrzymują przypomnienia co dwa dni. Ten mechanizm działa automatycznie i przypomina o konieczności uregulowania zaległości. Przykład fragmentu kodu odpowiedzialnego za przypomnienia po terminie:
+
+\begin{lstlisting}[language=Java, caption=Przypomnienie o zaległych płatnościach]
+@Scheduled(cron = "0 0 12 */2 * ?")
+@Async
+public void sendOverduePaymentReminders() {
+    Instant today = Instant.now();
+
+    List<Payment> overduePayments = paymentRepository.findByDueDateBeforeAndIsPaidFalse(today);
+
+    for (Payment payment : overduePayments) {
+        List<User> owners = payment.getApartment().getPossessionHistories().stream()
+                .map(PossessionHistory::getUser)
+                .toList();
+
+        owners.forEach(owner -> {
+            String message = "Przypomnienie o zaległej płatności: Twoja płatność za " + payment.getDescription() +
+                    " była wymagana do " + payment.getPaymentDate() + ". Prosimy o dokonanie płatności jak najszybciej.";
+            sendNotification(owner.getEmail(), owner.getPhoneNumber(), message);
+        });
+    }
+}
+\end{lstlisting}
+\end{itemize}
+
+\textbf{Powiadomienia} są wysyłane za pomocą e-maila lub SMS-a w zależności od preferencji użytkownika. Mechanizm ten bazuje na konfiguracji przechowywanej w tabeli z typami powiadomień (\texttt{NotificationType}).
+
+Przykład metody wysyłającej powiadomienia:
+\begin{lstlisting}[language=Java, caption=Wysyłanie powiadomień]
+private void sendNotification(String email, String phoneNumber, String message) {
+    List<NotificationType> notificationTypes = notificationTypeRepository.findByUserEmail(email);
+
+    if (notificationTypes.contains(Notification.EMAIL)) {
+        mailService.sendNotificationMail("Payment Reminder", message, email);
+    }
+    if (notificationTypes.contains(Notification.SMS)) {
+        smsService.sendSms(phoneNumber, message);
+    }
+}
+\end{lstlisting}
+
+Harmonogram przypomnień pozwala na regularne powiadamianie użytkowników o statusie ich płatności, minimalizując ryzyko opóźnień. W przyszłości funkcjonalność ta może zostać rozwinięta o bardziej zaawansowane metody planowania i integrację z dodatkowymi kanałami komunikacji, co zostanie szczegółowo opisane w sekcji „Systemy zewnętrzne”.
+
+\subsection{Profesjonalne podejście do zarządzania płatnościami}
+
+W pełnowymiarowych systemach płatności procesy te są znacznie bardziej złożone i obejmują:
+\begin{itemize}
+    \item \textbf{Automatyzację} -- generowanie komponentów płatności na podstawie danych historycznych, zapisów w umowach i prognoz zużycia, co eliminuje konieczność ręcznego wprowadzania danych.
+    \item \textbf{Przewidywanie kosztów} -- wykorzystanie zaawansowanych modeli analizy danych do prognozowania przyszłych kosztów, co pozwala użytkownikom na lepsze planowanie budżetu.
+    \item \textbf{Integrację z systemami płatności} -- obsługę popularnych dostawców, takich jak Stripe, PayPal czy polski BLIK, umożliwiając realizację transakcji bezpośrednio z poziomu systemu.
+    \item \textbf{Natychmiastową realizację płatności} -- synchronizację transakcji z systemami księgowymi w czasie rzeczywistym, zapewniając aktualność danych finansowych.
+    \item \textbf{Raportowanie} -- generowanie szczegółowych raportów dla właścicieli mieszkań i administratorów, umożliwiających monitorowanie statusu płatności i szczegółów transakcji.
+\end{itemize}
+
+\subsection{Diagramy BPMN}
+
+\textbf{Diagramy BPMN} -- to standardowe narzędzie do modelowania procesów biznesowych, które umożliwia graficzne przedstawienie przepływu operacji~\cite{BPMN_wiki, BPMN_spec}. Są one używane do:
+\begin{itemize}
+    \item Definiowania ról (\emph{swimlanes}), takich jak użytkownik, administrator czy zewnętrzny dostawca usług płatniczych.
+    \item Opisu zdarzeń początkowych, końcowych i pośrednich, które inicjują lub zmieniają bieg procesu.
+    \item Modelowania decyzji i reguł biznesowych za pomocą bramek (\emph{gateways}), które określają różne ścieżki przepływu procesu.
+    \item Przedstawienia czynności (\emph{tasks}) wykonywanych przez system lub użytkowników.
+\end{itemize}
+
+Dzięki BPMN można optymalizować procesy, identyfikować potencjalne punkty ryzyka oraz planować automatyzację i integrację z innymi systemami.
+
+Przykładowy diagram BPMN dla procesu zarządzania płatnościami mógłby zawierać~\cite{BPMN_camunda}:
+\begin{itemize}
+    \item Generowanie płatności automatycznie na podstawie danych z systemu zarządzania nieruchomościami.
+    \item Weryfikację poprawności komponentów płatności przez administratora.
+    \item Przekazanie płatności do systemu zewnętrznego i odbiór potwierdzenia realizacji.
+    \item Notyfikacje dla właścicieli mieszkań o statusie płatności.
+\end{itemize}
+
+Diagramy BPMN wspierają zarówno techniczne, jak i biznesowe aspekty zarządzania procesami, umożliwiając transparentność oraz łatwiejszą komunikację między zespołami technicznymi i biznesowymi.
+
+\section{Zarządzanie głosowaniami}
+
+System głosowań w prototypie „Harmony Home Net” umożliwia organizację głosowań nad ważnymi decyzjami dla wspólnoty mieszkaniowej. 
+
+\subsection{Obecny stan implementacji}
+
+W aktualnym prototypie system obsługuje głosowania na poziomie administracyjnym. Proces obejmuje tworzenie głosowania, przesyłanie dokumentu nad którym głosowanie się odbywa, oraz określenie dwóch kluczowych parametrów:
+\begin{itemize}
+    \item \textbf{Kworum} -- minimalna liczba oddanych głosów, aby głosowanie było ważne. Przykładowo, przy 100 mieszkaniach, ustalenie kworum na 60 oznacza, że co najmniej 60 mieszkań musi oddać głos.
+    \item \textbf{Minimalny próg procentowy} -- suma udziałów procentowych mieszkań głosujących \texttt{FOR}, która musi zostać osiągnięta. Udziały te wynikają z powierzchni mieszkań w stosunku do całkowitej powierzchni wspólnoty.
+\end{itemize}
+
+Proces tworzenia głosowania jest w pełni funkcjonalny po stronie administracyjnej. Dokument głosowania jest przechowywany jako załącznik, a wynik pozytywny skutkuje zapisaniem głosowania do tabeli \texttt{Documents}, gdzie jest dostępny jako archiwum dla wszystkich użytkowników.
+
+\textbf{Kluczowe aspekty techniczne}
+
+1. \textbf{Głosowanie w przypadku współwłasności mieszkań} -- jeżeli mieszkanie ma kilku właścicieli, system akceptuje głos pierwszego z nich, który odda głos.
+2. \textbf{Przypomnienia o głosowaniach} -- mechanizm harmonogramowania przypomina użytkownikom o aktywnych głosowaniach oraz informuje o ich wynikach.
+
+\subsection{Proces głosowania}
+
+\textbf{Tworzenie głosowania} odbywa się przy użyciu metody serwisowej \texttt{createPoll}, która przyjmuje nazwę głosowania, treść, wymagane parametry (kworum, próg procentowy) oraz plik dokumentu. Fragment kodu:
+
+\begin{lstlisting}[language=Java, caption=Fragment metody \texttt{createPoll}]
+@Override
+@Transactional
+public PollResponse createPoll(PollRequest pollRequest, UUID employeeId, MultipartFile file) throws UserNotFoundException, IOException {
+    User user = userRepository.findById(employeeId)
+            .orElseThrow(() -> new UserNotFoundException("User: " + employeeId + " not found"));
+
+    Poll poll = Poll.builder()
+            .pollName(pollRequest.getPollName())
+            .content(pollRequest.getContent())
+            .uploadData(file.getBytes())
+            .fileName(getOriginalFileNameWithoutExtension(file.getOriginalFilename()))
+            .fileExtension(getFileExtension(file.getOriginalFilename()))
+            .endDate(pollRequest.getEndDate())
+            .summary(BigDecimal.ZERO)
+            .currentVotesCount(0)
+            .minCurrentVotesCount(pollRequest.getMinCurrentVotesCount())
+            .minSummary(pollRequest.getMinSummary())
+            .user(user)
+            .build();
+
+    pollRepository.save(poll);
+    return mapPollToPollResponse(poll);
+}
+\end{lstlisting}
+
+\textbf{Oddawanie głosów} przez właścicieli mieszkań odbywa się za pomocą metody serwisowej \texttt{vote}. Przykładowy fragment kodu:
+
+\begin{lstlisting}[language=Java, caption=Fragment metody \texttt{vote}]
+@Override
+@Transactional
+public VoteResponse vote(UUID pollId, UUID userId, String apartmentSignature, VoteChoice voteChoice) throws UserNotFoundException, PollNotFoundException, ApartmentNotFoundException {
+    User user = userRepository.findById(userId)
+            .orElseThrow(() -> new UserNotFoundException("User: " + userId + " not found"));
+
+    Poll poll = pollRepository.findById(pollId)
+            .orElseThrow(() -> new PollNotFoundException("Poll: " + pollId + " not found"));
+
+    if (voteRepository.existsByPollUuidIDAndApartmentSignature(pollId, apartmentSignature))
+        throw new IllegalArgumentException("Vote already exists for apartment");
+
+    Vote vote = Vote.builder()
+            .voteChoice(voteChoice)
+            .user(user)
+            .poll(poll)
+            .apartmentSignature(apartmentSignature)
+            .build();
+
+    voteRepository.save(vote);
+    recalculateSummary(poll);
+    return mapVoteToVoteResponse(vote);
+}
+\end{lstlisting}
+
+\subsection{Osiągnięcia w aktualnym systemie}
+
+W prototypie systemu „Harmony Home Net” udało się zaimplementować:
+\begin{itemize}
+    \item \textbf{Tworzenie głosowań} -- funkcjonalność pozwala administratorowi na utworzenie głosowania, załączenie dokumentów oraz określenie kworum i minimalnego progu procentowego.
+    \item \textbf{Przypomnienia} -- mechanizm harmonogramowania przypomnień dla aktywnych głosowań, wysyłanych jako SMS lub e-mail.
+    \item \textbf{Walidacja wyników} -- weryfikacja wyników głosowania pod kątem spełnienia kworum i progu procentowego.
+\end{itemize}
+
+\subsection{Braki i aspekty do rozwoju}
+
+Mimo osiągniętych rezultatów, w prototypie nie udało się zrealizować kilku istotnych funkcji lub wymagają one dalszego rozwoju:
+\begin{itemize}
+    \item \textbf{Pełny interfejs użytkownika} -- brakuje rozbudowanego UI dla właścicieli mieszkań umożliwiającego przeglądanie głosowań i wyników.
+    \item \textbf{Oddawanie głosów} -- mechanizm został zaimplementowany i przetestowany w prostych przypadkach, ale brak UI dla właścicieli może ujawnić potencjalne problemy i aspekty wymagające usprawnienia.
+    \item \textbf{Zaawansowane raportowanie} -- aktualnie brak automatycznego generowania szczegółowych raportów wyników głosowań.
+    \item \textbf{Integracja z systemami prawnymi} -- nie wdrożono automatycznego przesyłania wyników głosowania do systemów prawnych lub rejestrów.
+    \item \textbf{Wsparcie dla różnych scenariuszy głosowania} -- brak obsługi bardziej złożonych mechanizmów liczenia głosów, takich jak podział na grupy czy różne wagi głosów.
+\end{itemize}
+
+\subsection{Profesjonalne podejście do głosowań}
+
+W profesjonalnym systemie zarządzania głosowaniami proces jest zaprojektowany tak, aby był w pełni zautomatyzowany, przejrzysty i skalowalny. Obejmuje takie funkcje jak:
+\begin{itemize}
+    \item \textbf{Automatyczne przypomnienia} -- harmonogramowe wysyłanie powiadomień do użytkowników o aktywnych i nadchodzących głosowaniach oraz o ich wynikach. 
+    \item \textbf{Zaawansowane scenariusze głosowania} -- obsługa różnych typów głosów (większość kwalifikowana, zwykła), ustalanie indywidualnych progów dla głosowań, dynamiczne dostosowanie mechanizmów liczenia głosów.
+    \item \textbf{Generowanie raportów} -- automatyczne tworzenie raportów podsumowujących wyniki głosowania, z podziałem na głosy, osiągnięte kworum oraz spełnienie progu procentowego.
+    \item \textbf{Integracja z systemami zewnętrznymi} -- powiązanie wyników głosowań z systemami zarządzania dokumentami, księgowością lub systemami prawnymi, które automatycznie implementują wyniki głosowania (np. rejestracja uchwał w systemie prawnym).
+    \item \textbf{Wsparcie dla użytkowników} -- intuicyjny interfejs dla właścicieli mieszkań z możliwością przeglądania wyników, oddawania głosów oraz śledzenia historii głosowań.
+\end{itemize}
+
+Rozwinięcie systemu do poziomu profesjonalnego wymagałoby zastosowania diagramów BPMN, które pozwalają na:
+\begin{itemize}
+    \item Graficzne przedstawienie procesu głosowania, w tym wszystkich zdarzeń, decyzji i przepływów.
+    \item Określenie ról i zadań uczestników procesu (administrator, właściciele mieszkań, system powiadomień).
+    \item Analizę i optymalizację działania systemu.
+\end{itemize}
+
+Dzięki BPMN procesy takie jak tworzenie głosowań, przypomnienia, oddawanie głosów oraz generowanie wyników można dokładnie zaplanować i zaimplementować w sposób efektywny.
+
 
 \section{Systemy zewnętrzne}
+
+System „Harmony Home Net” wykorzystuje kilka integracji z systemami zewnętrznymi, jednak w prototypie większość funkcjonalności została zaimplementowana jako \emph{mocki}, co oznacza uproszczoną symulację rzeczywistego działania. Poniżej opis poszczególnych integracji oraz ich aktualny stan.
+
+\subsection{System bankowości}
+
+Funkcjonalność płatności w systemie jest realizowana za pomocą klasy \texttt{BankingServiceImp}, która symuluje przesłanie żądania płatności do systemu bankowego. W obecnym stanie logika płatności ogranicza się do wyświetlenia odpowiednich informacji w konsoli, oarz do uproszczonego formularza w UI właściela:
+
+\begin{lstlisting}[language=Java, caption=Fragment klasy \texttt{BankingServiceImp}]
+@Override
+public void pay(BigDecimal amount, String account) {
+    LOGGER.info("Paying " + amount + " to " + account);
+}
+\end{lstlisting}
+
+Pełna integracja z rzeczywistymi systemami bankowymi wymagałaby dostępu do ich API, co zazwyczaj wiąże się z dodatkowymi kosztami i spełnieniem wymagań formalnych (np. certyfikacji)~\cite{paypal_api, stripe_api}.
+
+\subsection{System powiadomień SMS}
+
+Wysyłanie powiadomień SMS jest realizowane przez klasę \texttt{SmsServiceImp}, która również działa jako \emph{mock}. Symuluje wysyłanie SMS-ów, zapisując treść i odbiorcę w logach systemowych:
+
+\begin{lstlisting}[language=Java, caption=Fragment klasy \texttt{SmsServiceImp}]
+@Override
+@Async
+public void sendSms(String text, String recipient) {
+    LOG.info("Sending SMS to " + recipient);
+    LOG.info("SMS text: " + text);
+}
+\end{lstlisting}
+
+Dostęp do rzeczywistych usług SMS wymaga skorzystania z zewnętrznych platform, takich jak Twilio czy Clickatell, które są płatne~\cite{twilio, clickatell}.
+
+\subsection{System odczytów liczników mediów}
+
+Odczyty wody i prądu są generowane przez klasę \texttt{UtilityMeterServiceImp}. Zamiast rzeczywistych danych, raz na dobę generowane są losowe wartości:
+
+\begin{lstlisting}[language=Java, caption=Fragment klasy \texttt{UtilityMeterServiceImp}]
+@Scheduled(cron = "0 0 0 * * ?")
+public void generateRandomMeterReadings() {
+    LOG.info("Generating random meter readings");
+    waterMeterValue = random.nextDouble() * 1000;
+    electricityMeterValue = random.nextDouble() * 1000;
+}
+\end{lstlisting}
+
+Integracja z rzeczywistymi licznikami wymagałaby dostępu do odpowiednich urządzeń i ich API. Obecnie jest to poza zakresem prototypu.
+
+\subsection{System wysyłania e-maili}
+
+Jedynym w pełni funkcjonalnym systemem zewnętrznym w prototypie jest wysyłanie powiadomień e-mail. Implementacja wykorzystuje usługę \texttt{JavaMailSender}, skonfigurowaną do współpracy z serwerem Gmail:
+
+\begin{lstlisting}[language=Java, caption=Fragment klasy \texttt{MailServiceImp}]
+@Override
+@Async
+public void sendNotificationMail(String subject, String text, String recipient) {
+    try {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+        helper.setTo(recipient);
+        helper.setFrom(mailFrom, "Harmony Home Net");
+        helper.setSubject(subject);
+        helper.setText(text, true);
+
+        mailSender.send(message);
+    } catch (Exception ex) {
+        throw new RuntimeException("Failed to send email", ex);
+    }
+}
+\end{lstlisting}
+
+Wysyłanie e-maili wymaga konfiguracji konta Gmail oraz przestrzegania jego zasad bezpieczeństwa, takich jak generowanie hasła aplikacji~\cite{gmail_api}.
+
+Poniżej znajduje się fragment kodu konfiguracji \texttt{application.yml}, który definiuje ustawienia dla usługi pocztowej w Spring Boot:
+
+\begin{lstlisting}[language=YAML, caption=Fragment konfiguracji poczty w \texttt{application.yml}]
+mail:
+  host: smtp.gmail.com
+  port: 587
+  username: # your email
+  password: # your password
+  properties:
+    mail:
+      smtp:
+        auth: true
+        starttls:
+          enable: true
+\end{lstlisting}
+
+\textbf{Opis konfiguracji:}
+\begin{itemize}
+    \item \texttt{host} -- adres serwera SMTP Gmail.
+    \item \texttt{port} -- port używany przez serwer SMTP (587 dla połączeń TLS).
+    \item \texttt{username} -- adres e-mail nadawcy.
+    \item \texttt{password} -- hasło do konta e-mail (zalecane jest korzystanie z haseł aplikacji).
+    \item \texttt{auth} -- włączenie uwierzytelniania SMTP.
+    \item \texttt{starttls.enable} -- aktywacja szyfrowania TLS.
+\end{itemize}
+
+Dzięki tej konfiguracji, wiadomości e-mail mogą być wysyłane bezpośrednio przez serwer Gmail, co zapewnia bezpieczeństwo oraz prostą integrację. W pełnowymiarowej aplikacji zaleca się przechowywanie poufnych danych, takich jak hasła, w zaszyfrowanych menedżerach sekretów 
+(np. \emph{HashiCorp Vault} lub \emph{AWS Secrets Manager})~\cite{hashicorp_vault, aws_secret}.
+
+
+\subsection{Typy powiadomień użytkownika}
+
+Użytkownicy systemu mogą określić preferowany sposób otrzymywania powiadomień za pomocą encji \texttt{NotificationType}. Obsługiwane są dwa typy powiadomień:
+\begin{itemize}
+    \item \texttt{EMAIL} -- powiadomienia e-mail.
+    \item \texttt{SMS} -- powiadomienia SMS (obecnie jako \emph{mock}).
+\end{itemize}
+
+Każdy typ powiadomienia przypisany do użytkownika pozwala na indywidualizację komunikacji, ale pełna funkcjonalność wymaga integracji z rzeczywistymi systemami SMS. 
+
 
 \section{Testy}
 
