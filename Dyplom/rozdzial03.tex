@@ -1,8 +1,9 @@
 \chapter{Implementacja}
 %W tej części pracy zostanie omówiona implementacja systemu eBOKa „Harmony Home Net”. 
-Proces implementacji polega na przełożeniu założeń architektonicznych, wymagań funkcjonalnych oraz niefunkcjonalnych na działający kod, a także integracji poszczególnych komponentów systemu w spójną, gotową do wdrożenia całość. W przypadku systemu eBOKa „Harmony Home Net” proces ten obejmuje zarówno warstwę frontendową, odpowiadającą za interakcje użytkowników, jak i backend, zajmujący się logiką biznesową i zarządzaniem danymi. Kluczowym elementem implementacji jest integracja z bazą danych PostgreSQL uruchomioną w środowisku Docker.
+Proces implementacji polega na przełożeniu założeń architektonicznych, wymagań funkcjonalnych oraz niefunkcjonalnych na działający kod, a także integracji poszczególnych komponentów systemu w spójną całość. W przypadku systemu eBOKa „Harmony Home Net” proces ten obejmuje zarówno warstwę frontendową, odpowiadającą za interakcje użytkowników, jak i backend, zajmujący się logiką biznesową i zarządzaniem danymi. Kluczowym elementem implementacji jest integracja z bazą danych PostgreSQL uruchomioną w środowisku Docker.
 
-Warto podkreślić, że obecnie system „Harmony Home Net” ma charakter prototypu. Prototyp ten umożliwia walidację podstawowych założeń oraz funkcjonalności aplikacji eBOK, jednocześnie stanowiąc fundament dla przyszłego rozwoju w pełnoprawną aplikację produkcyjną. Zastosowane technologie, takie jak Next.js dla frontendu, Spring Boot dla backendu oraz Docker dla konteneryzacji, zapewniają skalowalność oraz łatwość rozbudowy systemu w kolejnych etapach.
+% TO DO: praca wymaga poprawek stylistycznych. Niektóre zdania są "zbyt pompatyczne", czasem też niegramatyczne.
+Warto podkreślić, że obecnie system „Harmony Home Net” ma charakter prototypu. Pozwala on na walidację podstawowych założeń oraz funkcji aplikacji eBOK, jednocześnie stanowiąc fundament dla przyszłego rozwoju pełnoprawnej aplikacji produkcyjnej. Zastosowane technologie, takie jak Next.js dla frontendu, Spring Boot dla backendu oraz Docker dla konteneryzacji, zapewniają skalowalność oraz łatwość rozbudowy systemu w kolejnych etapach.
 
 Rozdział rozpocznie omówienie zastosowanej \textbf{architektury warstwowej}~\cite{n_tier_wiki}, która jest podstawą projektowanego systemu. Szczegółowo opisane zostaną wszystkie warstwy – prezentacji, logiki biznesowej oraz dostępu do danych – z uwzględnieniem ich ról oraz sposobu implementacji. Następnie uwaga zostanie zwrócona na \textbf{bazę danych}. Omówione zostaną podejścia Database First i Code First, wraz z uzasadnieniem wyboru pierwszego z nich. Podane zostaną szczegóły zaprojektowanej struktury bazy danych oraz sposób jej integracji z aplikacją.
 
@@ -71,14 +72,13 @@ Projektowanie bazy danych to jeden z kluczowych etapów tworzenia systemów info
 
 \subsection{Porównanie podejść Database First i Code First}
 
-Podejście \emph{Code First} zakłada najpierw zaprojektowanie modelu danych w kodzie aplikacji, a następnie generowanie schematu bazy danych na podstawie tego modelu~\cite{CODE_FIRST}. To rozwiązanie charakteryzuje się dużą elastycznością, co pozwala na dynamiczne zmiany w strukturze danych podczas rozwoju aplikacji. Jest ono szczególnie przydatne w projektach, gdzie schemat bazy danych może często ewoluować w odpowiedzi na zmieniające się wymagania biznesowe. Jednakże, z uwagi na brak wstępnego schematu, podejście \emph{Code First} może być trudniejsze do utrzymania w dużych projektach, w których schemat danych jest złożony i wymaga precyzyjnej kontroli.
+Podejście \emph{Code First} zakłada, że na początku w kodzie aplikacji powstanie model danych. Następnie na podstawie tego kodu zostanie wygenerowany schemat bazy danych~\cite{CODE_FIRST}. Dzięki temu podejściu możliwe są dynamiczne zmiany w~strukturze danych podczas rozwoju aplikacji. Przydaje się to w projektach, gdzie schemat bazy danych ewoluuje w odpowiedzi na zmieniające się wymagania biznesowe. Jednak w dużych projektach, w których schemat danych jest złożony i~wymaga precyzyjnej kontroli, podejście to może nie zadziałać.
 
 Z kolei podejście \emph{Database First} polega na wcześniejszym zaprojektowaniu schematu bazy danych, a następnie wygenerowaniu modelu aplikacji na jego podstawie. Jest to podejście bardziej tradycyjne, które umożliwia dokładne zdefiniowanie struktury danych jeszcze przed rozpoczęciem kodowania aplikacji~\cite{DB_FIRST}. Taka metodologia daje większą przewidywalność i precyzję, co jest istotne w systemach o wysokim stopniu zależności od integralności danych. Dodatkowo, podejście to pozwala na pełne wykorzystanie możliwości narzędzi ORM, takich jak JPA, ponieważ bazuje na uprzednio zaprojektowanym schemacie.
 
 \subsection{Wyboru podejścia Database First}
 
-W systemie „Harmony Home Net” zdecydowano się na podejście \emph{Database First} z kilku kluczowych powodów:
-
+Zdecydowano się na podejście \emph{Database First} z kilku ważnych powodów.
 \begin{itemize}
     \item \textbf{Centralna rola bazy danych} -- baza danych pełni kluczową funkcję w systemie, przechowując informacje o użytkownikach, lokalach, zgłoszeniach technicznych oraz płatnościach. Precyzyjne zaprojektowanie jej struktury na etapie początkowym pozwoliło na lepsze zrozumienie relacji między danymi i~ich hierarchii.
     \item \textbf{Integracja z narzędziami ORM} -- dzięki wykorzystaniu podejścia \emph{Database First}, istniejące narzędzia ORM, takie jak JPA (Java Persistence API), mogły zostać bezproblemowo dostosowane do uprzednio przygotowanego schematu bazy danych, co uprościło implementację i~zmniejszyło ryzyko błędów.
@@ -89,14 +89,12 @@ W systemie „Harmony Home Net” zdecydowano się na podejście \emph{Database 
 \subsection{Opis struktury bazy danych}
 
 Strukturę bazy danych w systemie „Harmony Home Net” zaprojektowano z uwzględnieniem wymagań funkcjonalnych i niefunkcjonalnych aplikacji. Schemat bazy danych podzielono na warstwę konceptualną (rysunek \ref{fig:ebok_db_concept}) oraz fizyczną (rysunek \ref{fig:ebok_db_physical}), co umożliwiło dokładne odwzorowanie relacji pomiędzy danymi oraz optymalizację ich przechowywania.
-
 \begin{figure}[ht]
     \centering
     \includegraphics[width=.9\linewidth]{rys03/ebok_db_concept}
     \caption{Schemat konceptualny bazy danych systemu}
     \label{fig:ebok_db_concept}
 \end{figure}
-
 \begin{figure}[ht]
     \centering
     \includegraphics[width=1\linewidth]{rys03/ebok_db_physical}
@@ -105,7 +103,6 @@ Strukturę bazy danych w systemie „Harmony Home Net” zaprojektowano z uwzgl�
 \end{figure}
 
 \subsubsection{Opis tabel}
-
 Poniżej szczegółowo opisano wszystkie tabele w bazie danych:
 
 \begin{itemize}
@@ -154,12 +151,8 @@ Poniżej szczegółowo opisano wszystkie tabele w bazie danych:
         \item Klucze obce \texttt{UsersUUID} i \texttt{ApartmentsUUID}.
     \end{itemize}
 
-    \item \textbf{Tabela \texttt{Polls} i \texttt{Votes}:}
-    Obsługuje głosowania:
-    \begin{itemize}
-        \item Tabela \texttt{Polls} zawiera dane głosowań, a \texttt{Votes} przechowuje głosy użytkowników,
-        \item Wprowadzono ograniczenie unikalności głosów w relacji \texttt{pollId} oraz \texttt{apartmentSignature}.
-    \end{itemize}
+    \item \textbf{Tabele \texttt{Polls} i \texttt{Votes}:} 
+		Obsługują głosowania: tabela \texttt{Polls} zawiera dane głosowań, a \texttt{Votes} przechowuje głosy użytkowników. Wprowadzono ograniczenie unikalności głosów w relacji \texttt{pollId} oraz \texttt{apartmentSignature}.
 
     \item \textbf{Tabela \texttt{Documents} i \texttt{UserDocumentConnection}:}
     \texttt{UserDocumentConnection} pełni rolę łącznika w relacji wiele do wielu między \texttt{Users} a \texttt{Documents}. Tabela \texttt{Documents} przechowuje informacje o plikach, takie jak nazwa, typ, treść (\texttt{UploadData}) oraz data dodania.
@@ -190,7 +183,8 @@ W implementacji kodu wszystkie tabele zostały podzielone na dwa logiczne pakiet
         \item \texttt{AnnouncementApartment}.
     \end{itemize}
 
-    \item \textbf{Pakiet \texttt{mainTables}:} Obejmuje główne tabele przechowujące kluczowe dane systemu, takie jak:
+    \item \textbf{Pakiet \texttt{mainTables}:} Obejmuje główne tabele przechowujące kluczowe dane systemu:
+		\begin{multicols}{2}\setlength\topskip{0pt}
     \begin{itemize}
         \item \texttt{Users},
         \item \texttt{Apartments},
@@ -203,6 +197,7 @@ W implementacji kodu wszystkie tabele zostały podzielone na dwa logiczne pakiet
         \item \texttt{Announcements},
         \item \texttt{NotificationTypes}.
     \end{itemize}
+		\end{multicols}
 \end{itemize}
 
 Podział tabel na dwa pakiety zapewnia przejrzystość struktury kodu, łatwość zarządzania relacjami między encjami oraz ułatwia przyszłą rozbudowę systemu.
@@ -226,34 +221,23 @@ W celu poprawy wydajności bazy danych zastosowano następujące mechanizmy:
 
 Struktura bazy danych systemu \textbf{Harmony Home Net} została zaprojektowana w sposób umożliwiający jej skalowalność, wydajność oraz łatwość integracji z innymi komponentami aplikacji. Podejście \emph{Database First} okazało się optymalnym wyborem, zapewniając precyzyjne odwzorowanie wymagań biznesowych i technicznych systemu. Schematy konceptualny (rysunek \ref{fig:ebok_db_concept}) i fizyczny (rysunek \ref{fig:ebok_db_physical}) ilustrują relacje pomiędzy tabelami, które stanowią podstawę spójnego i efektywnego zarządzania danymi.
 
-\section{Bezpieczeństwo, uwierzytelnianie i autoryzacja w aplikacji}
+\section{Bezpieczeństwo, uwierzytelnianie i autoryzacja w~aplikacji}
+% TO DO: pojawiło się wodolejstwo. Opisał Pan dość dokładnie zawartość podrozdziałów, by potem tę zawartość dokładnie przedstawić. Efekt - pewien galimatias.
+%        trochę poskracałem i uporzatkowałem treść, ale jeszcze nie jestem zadowolony z efektu.
+Aby zapewnić ochronę danych użytkowników oraz bezpieczny dostęp do zasobów w implementacji systemu „Harmony Home Net” wdrożono różne mechanizmy bezpieczeństwa. Zastosowano przy tym Spring Security, wykorzystując obsługą tokenów JWT oraz \emph{OAuth 2.0 Resource Server} do uwierzytelniania i autoryzacji. 
 
+Poniżej wyjaśniono rolę \emph{OAuth 2.0 Resource Server} w weryfikacji tokenów dostępu generowanych w ramach sesji użytkownika. Mechanizm ten umożliwia bezpieczne zarządzanie dostępem do zasobów oraz bezstanowe uwierzytelnianie użytkowników, eliminując konieczność utrzymywania sesji po stronie serwera.
 
-\subsection{Wprowadzenie do mechanizmów bezpieczeństwa}
+Następnie zajęto się filtrami bezpieczeństwa (\emph{SecurityFilterChain}), zarządzaniem sesjami w trybie bezstanowym oraz zabezpieczeniem API za pomocą tokenów JWT i \emph{OAuth 2.0 Resource Server}. W tej części przedstawiono również znaczenie \texttt{JwtAuthenticationConverter} i jego rolę w integracji z mechanizmami Spring Security. Następnie zwrócono uwagę na proces logowania z wykorzystaniem nazw użytkowników, haseł oraz generowania tokenów JWT. Proces uwierzytelniania użytkowników opisano w oparciu o klasę \texttt{UserInfoManagerConfig}, która integruje bazę danych z mechanizmami uwierzytelniania w Spring Security.
 
-Sekcja dotycząca bezpieczeństwa opisuje mechanizmy zastosowane w systemie „Harmony Home Net” w celu zapewnienia ochrony danych użytkowników oraz bezpiecznego dostępu do zasobów. W ramach tej części pracy przedstawione zostały szczegóły implementacji konfiguracji bezpieczeństwa opartej na Spring Security, wykorzystanie tokenów JWT oraz \emph{OAuth 2.0 Resource Server} jako mechanizmów uwierzytelniania i autoryzacji.
+W osobnym podrozdziale opisano zarządzanie tokenami JWT i autoryzacji użytkowników. W procesie tym obsłużono schemat związany z uwierzytelnianiem użytkowników przy użyciu \emph{OAuth 2.0 Resource Server}. Zaimplementowane mechanizmy pozwalają na sprawdzanie poprawności i wykrywania wygasłych lub nieautoryzowanych tokenów. Kluczową rolę pełni w tym klasa \texttt{JwtAccessTokenFilter}, która weryfikuje tokeny w żądaniach HTTP.
 
-W szczególności omówiono rolę \emph{OAuth 2.0 Resource Server} w weryfikacji tokenów dostępu generowanych w ramach sesji użytkownika. Mechanizm ten umożliwia bezpieczne zarządzanie dostępem do zasobów oraz bezstanowe uwierzytelnianie użytkowników, eliminując konieczność utrzymywania sesji po stronie serwera.
+Przedstawiono też implementacją usługi \texttt{TokenBlacklistService}, która pozwala na unieważnianie tokenów w momencie wylogowania użytkownika. Dzięki temu użytkownicy mogą zostać natychmiast wylogowani, a sesje mogą być anulowane w przypadku wykrycia naruszeń bezpieczeństwa. Usługa obejmuje również harmonogram automatycznego usuwania wygasłych tokenów z czarnej listy, co zwiększa wydajność systemu.
 
-W tej sekcji można znaleźć:
-
-\begin{itemize}
-    \item \textbf{Wprowadzenie do mechanizmów bezpieczeństwa} -- Omówienie kluczowych elementów konfiguracji, takich jak filtry bezpieczeństwa (\emph{SecurityFilterChain}), zarządzanie sesjami w trybie bezstanowym oraz zabezpieczenie API za pomocą tokenów JWT i \emph{OAuth 2.0 Resource Server}. W tej części przedstawiono również znaczenie \texttt{JwtAuthenticationConverter} i jego rolę w integracji z mechanizmami Spring Security.
-
-    \item \textbf{Proces logowania} -- Szczegółowy opis procesu logowania z wykorzystaniem nazw użytkowników, haseł oraz generowania tokenów JWT. Proces uwierzytelniania użytkowników opisano w oparciu o klasę \texttt{UserInfoManagerConfig}, która integruje bazę danych z mechanizmami uwierzytelniania w Spring Security.
-
-    \item \textbf{Zarządzanie tokenami JWT i autoryzacji użytkowników} -- Szczegółowy opis sposobu generowania i weryfikacji tokenów JWT. Proces ten obejmuje również schemat związany z uwierzytelnianiem użytkowników przy użyciu \emph{OAuth 2.0 Resource Server}. Omówiono mechanizmy sprawdzania poprawności i wykrywania wygasłych lub nieautoryzowanych tokenów, a także kluczową rolę klasy \texttt{JwtAccessTokenFilter}, która weryfikuje tokeny w żądaniach HTTP.
-
-    \item \textbf{Zarządzanie czarną listą tokenów} -- Implementacja usługi \texttt{TokenBlacklistService}, która pozwala na unieważnianie tokenów w momencie wylogowania użytkownika. Dzięki temu użytkownicy mogą zostać natychmiast wylogowani, a sesje mogą być anulowane w przypadku wykrycia naruszeń bezpieczeństwa. Usługa obejmuje również harmonogram automatycznego usuwania wygasłych tokenów z czarnej listy, co zwiększa wydajność systemu.
-
-    \item \textbf{Mechanizmy resetowania hasła} -- Konfiguracja specjalnego łańcucha filtrów bezpieczeństwa dedykowanego resetowaniu hasła, który umożliwia różnicowanie poziomów dostępu na podstawie ścieżek. Mechanizm ten obsługuje żądania związane z resetowaniem hasła, przy zachowaniu odpowiedniego poziomu bezpieczeństwa dla publicznych punktów końcowych.
-
-\end{itemize}
-
+Podrozdział kończy omówienie mechanizmy resetowania hasła. Bazuje on na konfiguracja specjalnego łańcucha filtrów bezpieczeństwa, który umożliwia różnicowanie poziomów dostępu na podstawie ścieżek. Mechanizm ten obsługuje żądania związane z resetowaniem hasła, przy zachowaniu odpowiedniego poziomu bezpieczeństwa dla publicznych punktów końcowych.
 
 
 \subsection{Konfiguracja łańcucha filtrów bezpieczeństwa}
-
 Łańcuch filtrów bezpieczeństwa (\emph{Security Filter Chain}) odgrywa kluczową rolę w zapewnieniu ochrony aplikacji. W systemie „Harmony Home Net” został on skonfigurowany przy użyciu klasy \texttt{SecurityConfig}, która definiuje różne ścieżki żądań oraz odpowiadające im mechanizmy uwierzytelniania i autoryzacji. Każda ścieżka obsługiwana jest przez dedykowany łańcuch filtrów, co umożliwia elastyczne zarządzanie poziomem bezpieczeństwa.
 
 W konfiguracji wykorzystano mechanizm \texttt{JwtAuthenticationConverter}, który umożliwia niestandardowe przekształcanie tokenów JWT na obiekty \texttt{Authentication}, dodając autoryzacje na podstawie zawartości tokenu. Dzięki temu aplikacja może elastycznie zarządzać dostępem użytkowników na podstawie przypisanych im ról lub innych atrybutów zawartych w tokenie JWT.
@@ -270,7 +254,7 @@ W systemie zaimplementowano cztery główne łańcuchy filtrów:
 
 Każdy z łańcuchów został skonfigurowany jako komponent Spring Bean, dzięki czemu można elastycznie dostosowywać ustawienia w zależności od potrzeb. Poniżej przedstawiono pełny kod konfiguracji:
 
-\begin{lstlisting}[language=Java, caption=Pełna konfiguracja łańcucha filtrów bezpieczeństwa]
+\begin{lstlisting}[language=Java, style=JavaStyle, caption=Pełna konfiguracja łańcucha filtrów bezpieczeństwa]
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -287,64 +271,64 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain forgotPasswordSecurityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
-                .securityMatcher(new OrRequestMatcher(
-                        new AntPathRequestMatcher("/auth/forgot-password"),
-                        new AntPathRequestMatcher("/auth/reset-password")
-                ))
-                .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .cors(withDefaults())
-                .build();
+					.securityMatcher(new OrRequestMatcher(
+									new AntPathRequestMatcher("/auth/forgot-password"),
+									new AntPathRequestMatcher("/auth/reset-password")
+					))
+					.csrf(AbstractHttpConfigurer::disable)
+					.authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+					.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+					.cors(withDefaults())
+					.build();
     }
 
     @Order(2)
     @Bean
     public SecurityFilterChain loginSecurityFilterChain(HttpSecurity http) throws Exception {
         return http
-                .securityMatcher(new AntPathRequestMatcher("/auth/login"))
-                .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
-                .userDetailsService(userInfoManagerConfig)
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .httpBasic(withDefaults())
-                .cors(withDefaults())
-                .build();
+					.securityMatcher(new AntPathRequestMatcher("/auth/login"))
+					.csrf(AbstractHttpConfigurer::disable)
+					.authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+					.userDetailsService(userInfoManagerConfig)
+					.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+					.httpBasic(withDefaults())
+					.cors(withDefaults())
+					.build();
     }
 
     @Order(3)
     @Bean
     public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
         return http
-                .securityMatcher(new AntPathRequestMatcher("/api/v1/**"))
-                .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
-                .oauth2ResourceServer(oauth2 -> oauth2
-                        .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
-                )
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(new JwtAccessTokenFilter(rsaKeyRecord, jwtTokenUtils, tokenBlacklistService), UsernamePasswordAuthenticationFilter.class)
-                .cors(withDefaults())
-                .build();
+					.securityMatcher(new AntPathRequestMatcher("/api/v1/**"))
+					.csrf(AbstractHttpConfigurer::disable)
+					.authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+					.oauth2ResourceServer(oauth2 -> oauth2
+									.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
+					)
+					.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+					.addFilterBefore(new JwtAccessTokenFilter(rsaKeyRecord, jwtTokenUtils, tokenBlacklistService), UsernamePasswordAuthenticationFilter.class)
+					.cors(withDefaults())
+					.build();
     }
 
     @Order(4)
     @Bean
     public SecurityFilterChain logoutSecurityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
-                .securityMatcher(new AntPathRequestMatcher("/logout"))
-                .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
-                .logout(logout -> logout
-                        .logoutUrl("/logout")
-                        .logoutSuccessHandler((request, response, authentication) -> {
-                            String token = request.getHeader("Authorization").replace("Bearer ", "");
-                            tokenBlacklistService.blacklistToken(token);
-                            SecurityContextHolder.clearContext();
-                        })
-                )
-                .cors(withDefaults())
-                .build();
+						.securityMatcher(new AntPathRequestMatcher("/logout"))
+						.csrf(AbstractHttpConfigurer::disable)
+						.authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+						.logout(logout -> logout
+										.logoutUrl("/logout")
+										.logoutSuccessHandler((request, response, authentication) -> {
+												String token = request.getHeader("Authorization").replace("Bearer ", "");
+												tokenBlacklistService.blacklistToken(token);
+												SecurityContextHolder.clearContext();
+										})
+						)
+						.cors(withDefaults())
+						.build();
     }
 
     @Bean
@@ -363,8 +347,8 @@ public class SecurityConfig {
 }
 \end{lstlisting}
 
----
-
+%---
+\noindent
 Dzięki tej konfiguracji system:
 \begin{itemize}
     \item Rozdziela odpowiedzialność za różne ścieżki żądań, pozwalając na precyzyjne zarządzanie dostępem.
@@ -403,9 +387,9 @@ Proces logowania składa się z następujących kroków, oznaczonych literami \t
  
 \end{enumerate}
 
-W szczególności klasa \texttt{UserInfoManagerConfig}, wykorzystywana w kroku \texttt{c)}, jest odpowiedzialna za weryfikację istnienia użytkownika w bazie danych oraz dostarczenie szczegółów użytkownika wymaganych przez mechanizm uwierzytelniania. Kod klasy przedstawiono poniżej:
+W szczególności klasa \texttt{UserInfoManagerConfig}, wykorzystywana w kroku \texttt{c)}, odpowiada za weryfikację istnienia użytkownika w bazie danych oraz dostarczenie szczegółów użytkownika wymaganych przez mechanizm uwierzytelniania. Kod klasy przedstawiono poniżej:
 
-\begin{lstlisting}[language=Java, caption=Klasa \texttt{UserInfoManagerConfig} odpowiedzialna za zarządzanie użytkownikami]
+\begin{lstlisting}[language=Java, style=JavaStyle, caption=Klasa \texttt{UserInfoManagerConfig} odpowiedzialna za zarządzanie użytkownikami]
 package bwp.hhn.backend.harmonyhomenetlogic.configuration.security;
 
 import bwp.hhn.backend.harmonyhomenetlogic.repository.mainTables.UserRepository;
@@ -473,7 +457,7 @@ Proces składa się z następujących kroków, oznaczonych literami \textbf{a}�
 
 Kluczowym elementem procesu zarządzania tokenami JWT jest klasa \texttt{JwtAccessTokenFilter}, której zadaniem jest przechwytywanie i weryfikacja tokenów JWT w żądaniach HTTP. Kod tej klasy przedstawiono poniżej:
 
-\begin{lstlisting}[language=Java, caption=Kod niestandardowego filtra \texttt{JwtAccessTokenFilter}]
+\begin{lstlisting}[language=Java, style=JavaStyle, caption=Kod niestandardowego filtra \texttt{JwtAccessTokenFilter}]
 @RequiredArgsConstructor
 public class JwtAccessTokenFilter extends OncePerRequestFilter {
 
@@ -535,7 +519,7 @@ Opis działania klasy:
 
 Klasa \texttt{JwtConfig} zapewnia konfigurację mechanizmów dekodowania i kodowania tokenów JWT przy użyciu kluczy RSA. Kod klasy:
 
-\begin{lstlisting}[language=Java, caption=Klasa \texttt{JwtConfig}]
+\begin{lstlisting}[language=Java, style=JavaStyle, caption=Klasa \texttt{JwtConfig}]
 @Configuration
 public class JwtConfig {
 
@@ -563,7 +547,7 @@ public class JwtConfig {
 
 Klasa \texttt{JwtTokenUtils} odpowiada za operacje związane z tokenami JWT, takie jak ekstrakcja danych, weryfikacja poprawności oraz walidacja zgodności z danymi użytkownika. Kod tej klasy przedstawiono poniżej:
 
-\begin{lstlisting}[language=Java, caption=Klasa \texttt{JwtTokenUtils}]
+\begin{lstlisting}[language=Java, style=JavaStyle, caption=Klasa \texttt{JwtTokenUtils}]
 @Component
 @RequiredArgsConstructor
 public class JwtTokenUtils {
@@ -600,7 +584,7 @@ Mechanizm zarządzania czarną listą tokenów jest kluczowym elementem zapewnie
 
 \textbf{Proces wylogowania i dodawania tokenu do czarnej listy} -- podczas wylogowania system korzysta z dedykowanego łańcucha filtrów \texttt{logoutSecurityFilterChain}, zdefiniowanego w klasie \texttt{SecurityConfig}. Fragment konfiguracji przedstawiono poniżej:
 
-\begin{lstlisting}[language=Java, caption=Konfiguracja łańcucha wylogowania]
+\begin{lstlisting}[language=Java, style=JavaStyle, caption=Konfiguracja łańcucha wylogowania]
 @Bean
 @Order(4)
 public SecurityFilterChain logoutSecurityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -632,7 +616,7 @@ Podczas wylogowania użytkownik wysyła żądanie HTTP na ścieżkę \texttt{/lo
 
 \textbf{Zarządzanie czarną listą tokenów} -- klasa \texttt{TokenBlacklistService} odpowiada za przechowywanie tokenów w czarnej liście oraz ich usuwanie po wygaśnięciu. Kod klasy przedstawiono poniżej:
 
-\begin{lstlisting}[language=Java, caption=Klasa \texttt{TokenBlacklistService}]
+\begin{lstlisting}[language=Java, style=JavaStyle, caption=Klasa \texttt{TokenBlacklistService}]
 @Service
 @RequiredArgsConstructor
 public class TokenBlacklistService {
@@ -672,21 +656,20 @@ Funkcjonalności tej klasy obejmują:
 
 \textbf{Harmonogram czyszczenia czarnej listy} --  usługa \texttt{TokenBlacklistService} korzysta z metody \texttt{@Scheduled}, która co 15 minut sprawdza i usuwa tokeny wygasłe. Jest to realizowane asynchronicznie, dzięki czemu proces ten nie wpływa na wydajność aplikacji.
 
-Dzięki implementacji mechanizmu czarnej listy system skutecznie zapobiega nieautoryzowanemu dostępowi do zasobów po wylogowaniu użytkownika lub wykryciu naruszenia bezpieczeństwa.
+Dzięki istnieniu czarnych list system skutecznie zapobiega nieautoryzowanemu dostępowi do zasobów po wylogowaniu użytkownika lub wykryciu naruszenia bezpieczeństwa.
 
 \subsection{Mechanizmy resetowania hasła}
 
-Mechanizm resetowania hasła w systemie „Harmony Home Net” został zaprojektowany z uwzględnieniem podstawowych wymagań bezpieczeństwa. Jako że aplikacja jest prototypem, proces został uproszczony w stosunku do tego, jak wyglądałby w pełnoprawnej produkcyjnej aplikacji. W profesjonalnych wdrożeniach resetowanie hasła zwykle obejmuje podział na osobne endpointy oraz wieloetapowy proces potwierdzania tożsamości użytkownika. To jak obecnie wygląda proces resetu hasła jest przestawione na rysunku~\ref{fig:ui_password_reset}.
+Mechanizm resetowania hasła zaprojektowano z uwzględnieniem podstawowych wymagań bezpieczeństwa. Proces został uproszczony w stosunku do tego, jak wyglądałby w pełnoprawnej produkcyjnej aplikacji. W profesjonalnych wdrożeniach resetowanie hasła zwykle obejmuje podział na osobne endpointy oraz wieloetapowy proces potwierdzania tożsamości użytkownika. To, jak obecnie wygląda proces resetu hasła, pokazano na rysunku~\ref{fig:ui_password_reset}.
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=0.63\linewidth]{rys03/pass_resert}
-    \caption{Interfejs użytkownika mechanizmu resetowania hasła w prototypie systemu „Harmony Home Net”}
+    \includegraphics[width=0.95\linewidth]{rys03/pass_resert}
+    \caption{Interfejs użytkownika wykorzystywany podczas resetowania hasła w „Harmony Home Net”}
     \label{fig:ui_password_reset}
 \end{figure}
 
-Główne funkcjonalności mechanizmu resetowania hasła przedstawionego na rysunku~\ref{fig:ui_password_reset}:
-
+Samo resetowania hasła odbywa się według kroków:
 \begin{itemize}
     \item \textbf{Prośba o reset hasła} -- użytkownik korzysta z sekcji \emph{Send Reset Link}, gdzie wprowadza swój adres e-mail i przesyła żądanie za pomocą przycisku \emph{Send Reset Link}. Po przesłaniu żądania na endpoint \texttt{/forgot-password} generowany jest unikalny token zabezpieczający, który zostaje wysłany na wskazany adres e-mail.
     
@@ -698,8 +681,6 @@ Główne funkcjonalności mechanizmu resetowania hasła przedstawionego na rysun
 \end{itemize}
 
 
-Podział mechanizmów resetowania w profesjonalnych aplikacjach:
-
 W przypadku produkcyjnych aplikacji mechanizmy resetowania hasła są bardziej rozbudowane. Proces ten obejmuje:
 \begin{itemize}
     \item \emph{Wysłanie zabezpieczonego linku na e-mail} -- prośba o reset hasła generuje link zawierający jednorazowy token uwierzytelniający, wysyłany na adres e-mail użytkownika.
@@ -707,11 +688,9 @@ W przypadku produkcyjnych aplikacji mechanizmy resetowania hasła są bardziej r
     \item \emph{Dodatkowe zabezpieczenia} -- ograniczenie czasowe ważności tokenu (np. 15 minut–1 godzina), szyfrowanie danych oraz logowanie operacji resetu w celu audytowania.
 \end{itemize}
 
-Implementacja w systemie „Harmony Home Net”:
+Jeśli chodzi o „Harmony Home Net”, to mechanizm resetowania hasła zaimplementowano z~użyciem kontrolera \texttt{AuthController} obsługującego endpointy o kodzie jak niżej.
 
-Mechanizmy obsługujące resetowanie hasła zostały zaimplementowane w kontrolerze \texttt{AuthController}. Kod przedstawia poniższe endpointy:
-
-\begin{lstlisting}[language=Java, caption=Fragment klasy \texttt{AuthController}]
+\begin{lstlisting}[language=Java, style=JavaStyle, caption=Fragment klasy \texttt{AuthController}]
 @PostMapping("/forgot-password")
 public ResponseEntity<String> forgotPassword(@RequestBody PasswordResetRequest request) {
     authService.forgotPassword(request.getEmail());
@@ -731,17 +710,14 @@ public ResponseEntity<String> changePassword(@RequestBody PasswordChangeRequest 
 }
 \end{lstlisting}
 
-Szczegóły implementacji:
+Znaczenie poszczególnych endpointów jest następujące.\newline
+\texttt{forgotPassword} -- generuje token resetujący, który jest wysyłany na podany adres e-mail użytkownika. Token ma ograniczoną ważność, co zwiększa bezpieczeństwo.\newline
+\texttt{resetPassword} -- weryfikuje token przesłany przez użytkownika, sprawdza jego ważność oraz zgodność przesłanych haseł. W przypadku pomyślnej walidacji hasło użytkownika jest aktualizowane w bazie.\newline
+\texttt{changePassword} -- pozwala na zmianę hasła dla zalogowanych użytkowników, weryfikując zgodność adresu e-mail i przesłanych danych.
 
-- \textbf{\texttt{forgotPassword}} -- generuje token resetujący, który jest wysyłany na podany adres e-mail użytkownika. Token ma ograniczoną ważność, co zwiększa bezpieczeństwo.
-- \textbf{\texttt{resetPassword}} -- weryfikuje token przesłany przez użytkownika, sprawdza jego ważność oraz zgodność przesłanych haseł. W przypadku pomyślnej walidacji hasło użytkownika jest aktualizowane w bazie.
-- \textbf{\texttt{changePassword}} -- pozwala na zmianę hasła dla zalogowanych użytkowników, weryfikując zgodność adresu e-mail i przesłanych danych.
 
-Obsługa resetowania hasła w klasie \texttt{AuthService}:
-
-Funkcjonalność resetowania hasła w systemie „Harmony Home Net” jest realizowana przez klasę \texttt{AuthServiceImp}, która implementuje interfejs \texttt{AuthService}. Kluczowe metody odpowiedzialne za reset hasła to:
-
-\begin{lstlisting}[language=Java, caption=Metody resetowania hasła w klasie \texttt{AuthServiceImp}]
+Resetowania hasła jest realizowane przez klasę \texttt{AuthServiceImp}, która implementuje interfejs \texttt{AuthService}. Kluczowe metody odpowiedzialne za reset przedstwiono na listingu poniżej.
+\begin{lstlisting}[language=Java, style=JavaStyle, caption=Metody resetowania hasła w klasie \texttt{AuthServiceImp}]
 @Override
 public void forgotPassword(String email) {
     User user = userRepository.findByEmail(email)
@@ -779,25 +755,21 @@ public void resetPassword(String token, String newPassword, String confirmPasswo
 }
 \end{lstlisting}
 
-Opis działania metod:
-
-\begin{itemize}
-    \item \texttt{forgotPassword(String email)} -- ta metoda generuje token resetowania hasła dla użytkownika z podanym adresem e-mail. W szczególności:
+Działanie poszczególnych metod jest następujące.\newline
+\texttt{forgotPassword(String email)} -- ta metoda generuje token resetowania hasła dla użytkownika z podanym adresem e-mail. W szczególności:
     \begin{enumerate}
         \item Sprawdza, czy użytkownik istnieje w bazie danych. Jeśli nie, rzuca wyjątek \texttt{UserNotFoundException}.
         \item Generuje unikalny token przy użyciu \texttt{UUID} i szyfruje go za pomocą algorytmu \texttt{BCrypt}.
         \item Ustawia token oraz datę jego wygaśnięcia (np. 1 godzina od momentu utworzenia) w obiekcie użytkownika.
         \item Wysyła wiadomość e-mail z tokenem i informacją o resetowaniu hasła za pomocą usługi \texttt{MailService}.
     \end{enumerate}
-
-    \item \texttt{resetPassword(String token, String newPassword, String confirmPassword)} -- ta metoda obsługuje resetowanie hasła na podstawie tokenu. Kluczowe kroki:
+ \texttt{resetPassword(String token, String newPassword, String confirmPassword)} -- ta metoda obsługuje resetowanie hasła na podstawie tokenu. Kluczowe kroki:
     \begin{enumerate}
         \item Pobiera użytkownika z bazy danych na podstawie przesłanego tokenu. Jeśli token jest nieprawidłowy, rzuca wyjątek \texttt{ResponseStatusException}.
         \item Sprawdza, czy nowe hasło oraz jego potwierdzenie są zgodne. W przypadku niezgodności rzuca wyjątek \texttt{BAD\_REQUEST}.
         \item Weryfikuje, czy token nie wygasł, porównując jego datę wygaśnięcia z bieżącym czasem.
         \item Aktualizuje hasło użytkownika, resetuje token oraz jego datę ważności w bazie danych.
     \end{enumerate}
-\end{itemize}
 
 
 \textbf{Implementacja czyszczenia wygasłych tokenów:}
@@ -805,11 +777,11 @@ Opis działania metod:
 Aby zapewnić bezpieczeństwo i efektywne zarządzanie bazą danych, w systemie zaimplementowano usługę \texttt{TokenCleanupService}, która regularnie usuwa wygasłe tokeny resetujące hasła. Kluczowe elementy implementacji:
 \begin{itemize}
     \item Usługa korzysta z adnotacji \texttt{@Scheduled}, aby wykonywać zadanie czyszczenia co 30 minut.
-    \item Metoda \texttt{cleanUpExpiredResetTokens} usuwa tokeny, które wygasły w oparciu o bieżący czas.
-    \item Usługa działa asynchronicznie dzięki adnotacji \texttt{@Async}, aby nie blokować innych operacji systemowych.
+    \item Metoda \texttt{cleanUpExpiredResetTokens} usuwa tokeny wygasłe w oparciu o bieżący czas.
+    \item Usługa działa asynchronicznie, dzięki adnotacji \texttt{@Async} nie blokuje innych operacji.
 \end{itemize}
 
-\begin{lstlisting}[language=Java, caption=Usługa czyszczenia wygasłych tokenów \texttt{TokenCleanupService}]
+\begin{lstlisting}[language=Java, style=JavaStyle, caption=Usługa czyszczenia wygasłych tokenów \texttt{TokenCleanupService}]
 @Service
 @RequiredArgsConstructor
 public class TokenCleanupService {
@@ -868,15 +840,15 @@ Encja \texttt{User} jest jednym z dwóch centralnym elementem systemu zarządzan
 \end{itemize}
 
 \textbf{Fragment kodu encji \texttt{User}:}
-\begin{lstlisting}[language=Java, caption=Encja użytkownika \texttt{User}]
+\begin{lstlisting}[language=Java, style=JavaStyle, caption=Encja użytkownika \texttt{User}]
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Entity
 @Table(name = "Users", indexes = {
-        @Index(name = "idx_user_email_unq", columnList = "Email", unique = true),
-        @Index(name = "idx_user_uuid", columnList = "UUID_id", unique = true)
+	@Index(name = "idx_user_email_unq", columnList = "Email", unique = true),
+	@Index(name = "idx_user_uuid", columnList = "UUID_id", unique = true)
 })
 public class User implements UserDetails {
 
@@ -970,7 +942,7 @@ System zarządzania użytkownikami opiera się na hierarchii ról, które są zd
 \end{itemize}
 
 Fragment kodu definiującego enumerację \texttt{Role}:
-\begin{lstlisting}[language=Java, caption=Definicja ról w systemie \texttt{Role}]
+\begin{lstlisting}[language=Java, style=JavaStyle, caption=Definicja ról w systemie \texttt{Role}]
 package bwp.hhn.backend.harmonyhomenetlogic.utils.enums;
 
 import lombok.Getter;
@@ -998,7 +970,7 @@ public enum Role implements GrantedAuthority {
 
 \textbf{Działanie hierarchii ról:}
 \begin{itemize}
-    \item Każda rola ma swoją wartość liczbową (\texttt{level}), która określa jej miejsce w hierarchii uprawnień.
+    \item Każda rola ma wartość liczbową (\texttt{level}), określającą jej miejsce w hierarchii uprawnień.
     \item Funkcje takie jak przypisywanie nowych ról czy edycja danych sprawdzają, czy użytkownik wykonujący operację posiada wyższy lub równy poziom dostępu (\texttt{level}) w stosunku do użytkownika, którego dane mają być zmodyfikowane.
     \item Rola \texttt{ROLE\_OWNER} jest specjalnie zabezpieczona, aby zapobiec jej zmianie na inną rolę bez uprzedniego usunięcia użytkownika i ponownej rejestracji.
 \end{itemize}
@@ -1022,7 +994,7 @@ Proces rejestracji użytkownika został zaimplementowany w usłudze \texttt{Auth
 \end{itemize}
 
 Fragment kodu obsługującego rejestrację użytkownika:
-\begin{lstlisting}[language=Java, caption=Rejestracja użytkownika w \texttt{AuthServiceImp}]
+\begin{lstlisting}[language=Java, style=JavaStyle, caption=Rejestracja użytkownika w \texttt{AuthServiceImp}]
 @Override
 @Transactional
 public String register(RegisterRequest userRequest, String accessToken) {
@@ -1064,7 +1036,7 @@ Funkcjonalność zarządzania użytkownikami obejmuje:
 \end{itemize}
 
 \textbf{Fragment kodu obsługującego edycję użytkownika:}
-\begin{lstlisting}[language=Java, caption=Edycja użytkownika w \texttt{UserServiceImp}]
+\begin{lstlisting}[language=Java, style=JavaStyle, caption=Edycja użytkownika w \texttt{UserServiceImp}]
 @Override
 public UserResponse updateUser(UUID userId, UserRequest user, String accessToken) throws UserNotFoundException {
     JwtDecoder jwtDecoder = NimbusJwtDecoder.withPublicKey(rsaKeyRecord.publicKey()).build();
@@ -1109,7 +1081,7 @@ public UserResponse updateUser(UUID userId, UserRequest user, String accessToken
 
 
 Fragment kontrolera odpowiedzialnego za paginację i zarządzanie użytkownikami:
-\begin{lstlisting}[language=Java, caption=Metoda paginacji w \texttt{UserController}]
+\begin{lstlisting}[language=Java, style=JavaStyle, caption=Metoda paginacji w \texttt{UserController}]
 @GetMapping("/get-all-users")
 public ResponseEntity<PageResponse<UserResponse>> getAllUsers(
         @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
@@ -1140,7 +1112,7 @@ Zarządzanie mieszkaniami w prototypie systemu ,,Harmony Home Net'' jest kluczow
 
 Encja \texttt{Apartment} reprezentuje mieszkanie w systemie. Każdy rekord zawiera informacje takie jak adres, powierzchnia, wartość procentowa oraz sygnatura unikalna dla każdego mieszkania. Struktura encji jest następująca:
 
-\begin{lstlisting}[language=Java, caption=Encja mieszkania \texttt{Apartment}]
+\begin{lstlisting}[language=Java, style=JavaStyle, caption=Encja mieszkania \texttt{Apartment}]
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -1206,7 +1178,7 @@ public class Apartment {
 
 Tabela \texttt{PossessionHistory} umożliwia zarządzanie relacjami pomiędzy użytkownikami a mieszkaniami. Zawiera informacje o tym, które mieszkania są aktualnie przypisane do jakich użytkowników oraz historię przypisań. Struktura tabeli zapewnia unikalność pary użytkownik-mieszkanie.
 
-\begin{lstlisting}[language=Java, caption=Tabela pośrednicząca \texttt{PossessionHistory}]
+\begin{lstlisting}[language=Java, style=JavaStyle, caption=Tabela pośrednicząca \texttt{PossessionHistory}]
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -1251,7 +1223,7 @@ public class PossessionHistory {
 
 Proces przypisywania mieszkania do użytkownika jest realizowany w serwisie \texttt{ApartmentsServiceImp}. Przykładowa implementacja:
 
-\begin{lstlisting}[language=Java, caption=Przypisywanie właścicieli w \texttt{ApartmentsServiceImp}]
+\begin{lstlisting}[language=Java, style=JavaStyle, caption=Przypisywanie właścicieli w \texttt{ApartmentsServiceImp}]
 @Override
 @Transactional
 public PossessionHistoryResponse createPossessionHistory(String apartmentSignature, UUID userId)
@@ -1310,7 +1282,7 @@ Dzięki tym zmianom proces zarządzania właścicielami mieszkań stanie się ba
 \textbf{Encja \texttt{Document}}  
 Encja \texttt{Document} jest kluczowym elementem systemu zarządzania dokumentami, przechowując dane niezbędne do identyfikacji i obsługi dokumentów w systemie. Kod klasy przedstawia się następująco:
 
-\begin{lstlisting}[language=Java, caption=Encja \texttt{Document}]
+\begin{lstlisting}[language=Java, style=JavaStyle, caption=Encja \texttt{Document}]
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -1365,7 +1337,7 @@ public class Document {
 
 \textbf{Encja \texttt{UserDocumentConnection}} -- tabela pośrednicząca \texttt{UserDocumentConnection} zarządza relacją między dokumentami a użytkownikami, którzy mają do nich dostęp. Jej kod wygląda następująco:
 
-\begin{lstlisting}[language=Java, caption=Encja \texttt{UserDocumentConnection}]
+\begin{lstlisting}[language=Java, style=JavaStyle, caption=Encja \texttt{UserDocumentConnection}]
 @Entity
 @Data
 @Builder
@@ -1406,7 +1378,7 @@ public class UserDocumentConnection {
 
 Rodzaje dokumentów w systemie są zdefiniowane w enumeracji \texttt{DocumentType}, która umożliwia kategoryzację dokumentów. Definicja wygląda następująco:
 
-\begin{lstlisting}[language=Java, caption=Enumeracja \texttt{DocumentType}]
+\begin{lstlisting}[language=Java, style=JavaStyle, caption=Enumeracja \texttt{DocumentType}]
 public enum DocumentType {
     RESOLUTION,    // Uchwały.
     DECISION,      // Decyzje.
@@ -1423,7 +1395,7 @@ W prototypie systemu „Harmony Home Net” przepływ dokumentów został uprosz
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=.9\linewidth]{rys03/dodawanie_dokumentów_schemat}
+    \includegraphics[width=.8\linewidth]{rys03/dodawanie_dokumentów_schemat}
     \caption{Schemat dodawania dokumentów w systemie „Harmony Home Net”}
     \label{fig:document_schema}
 \end{figure}
@@ -1458,7 +1430,7 @@ Dodatkowo, schemat~\ref{fig:document_schema} przedstawia trzy główne przypadki
 \end{itemize}
 
 Fragment kodu kontrolera
-\begin{lstlisting}[language=Java, caption=Fragment klasy \texttt{DocumentController}]
+\begin{lstlisting}[language=Java, style=JavaStyle, caption=Fragment klasy \texttt{DocumentController}]
 @PostMapping("/upload-document")
 public ResponseEntity<DocumentResponse> uploadDocument(
         @RequestPart("file") MultipartFile file,
@@ -1469,107 +1441,108 @@ public ResponseEntity<DocumentResponse> uploadDocument(
 \end{lstlisting}
 
 Fragment kodu serwisu:
-\begin{lstlisting}[language=Java, caption=Metoda dodawania dokumentu w klasie \texttt{DocumentServiceImp}]
-		@Override
-    @Transactional
-    public DocumentResponse uploadDocument(MultipartFile file, String apartmentSignature, DocumentType documentType) throws IllegalArgumentException, IOException {
+\begin{lstlisting}[language=Java, style=JavaStyle, caption=Metoda dodawania dokumentu w klasie \texttt{DocumentServiceImp}]
+@Override
+@Transactional
+public DocumentResponse uploadDocument(MultipartFile file, String apartmentSignature, DocumentType documentType) throws IllegalArgumentException, IOException {
 
-        // Tworzenie nowego obiektu dokumentu
-        Document documentEntity = Document.builder()
-                .documentName(getOriginalFileNameWithoutExtension(file.getOriginalFilename()))
-                .documentData(file.getBytes())
-                .documentType(documentType)
-                .documentExtension(getFileExtension(file.getOriginalFilename()))
-                .build();
+		// Tworzenie nowego obiektu dokumentu
+		Document documentEntity = Document.builder()
+						.documentName(getOriginalFileNameWithoutExtension(file.getOriginalFilename()))
+						.documentData(file.getBytes())
+						.documentType(documentType)
+						.documentExtension(getFileExtension(file.getOriginalFilename()))
+						.build();
 
-        // Zapis dokumentu w repozytorium
-        documentRepository.save(documentEntity);
+		// Zapis dokumentu w repozytorium
+		documentRepository.save(documentEntity);
 
-        // Pobranie użytkowników do przypisania w zależności od typu dokumentu
-        List<User> eligibleUsers;
-        if (!documentType.equals(DocumentType.PROPERTY_DEED)) {
-            // Dokument publiczny - przypisujemy wszystkich użytkowników
-            eligibleUsers = userRepository.findAll();
-        } else {
-            // Dokument prywatny - pobierz właścieli apartamentu i pracowników oraz adminów
-            List<User> residents = possessionHistoryRepository.findActiveResidentsByApartment(apartmentSignature);
+		// Pobranie użytkowników do przypisania w zależności od typu dokumentu
+		List<User> eligibleUsers;
+		if (!documentType.equals(DocumentType.PROPERTY_DEED)) {
+				// Dokument publiczny - przypisujemy wszystkich użytkowników
+				eligibleUsers = userRepository.findAll();
+		} else {
+				// Dokument prywatny - pobierz właścieli apartamentu i pracowników oraz adminów
+				List<User> residents = possessionHistoryRepository.findActiveResidentsByApartment(apartmentSignature);
 
-            if (residents.isEmpty()) {
-                throw new IllegalArgumentException("No residents found in apartment with signature: " + apartmentSignature);
-            }
+				if (residents.isEmpty()) {
+						throw new IllegalArgumentException("No residents found in apartment with signature: " + apartmentSignature);
+				}
 
-            List<User> employees = userRepository.findAllByRole(Role.ROLE_EMPLOYEE);
-            List<User> admins = userRepository.findAllByRole(Role.ROLE_ADMIN);
+				List<User> employees = userRepository.findAllByRole(Role.ROLE_EMPLOYEE);
+				List<User> admins = userRepository.findAllByRole(Role.ROLE_ADMIN);
 
-            eligibleUsers = new ArrayList<>(residents);
-            eligibleUsers.addAll(employees);
-            eligibleUsers.addAll(admins);
-        }
+				eligibleUsers = new ArrayList<>(residents);
+				eligibleUsers.addAll(employees);
+				eligibleUsers.addAll(admins);
+		}
 
-        // Tworzenie połączeń dokumentu z wybranymi użytkownikami
-        List<UserDocumentConnection> connections = new ArrayList<>();
-        for (User user : eligibleUsers) {
-            // Sprawdzenie, czy połączenie już istnieje
-            if (userDocumentConnectionRepository.existsByDocumentUuidIDAndUserUuidID(documentEntity.getUuidID(), user.getUuidID())) {
-                continue; // Pomijamy tworzenie połączenia, jeśli już istnieje
-            }
+		// Tworzenie połączeń dokumentu z wybranymi użytkownikami
+		List<UserDocumentConnection> connections = new ArrayList<>();
+		for (User user : eligibleUsers) {
+				// Sprawdzenie, czy połączenie już istnieje
+				if (userDocumentConnectionRepository.existsByDocumentUuidIDAndUserUuidID(documentEntity.getUuidID(), user.getUuidID())) {
+						continue; // Pomijamy tworzenie połączenia, jeśli już istnieje
+				}
 
-            UserDocumentConnection connection = UserDocumentConnection.builder()
-                    .document(documentEntity)
-                    .user(user)
-                    .build();
-            connections.add(connection);
+				UserDocumentConnection connection = UserDocumentConnection.builder()
+								.document(documentEntity)
+								.user(user)
+								.build();
+				connections.add(connection);
 
-            // Przypisanie połączenia użytkownikowi
-            if (user.getUserDocumentConnections() == null) user.setUserDocumentConnections(new ArrayList<>());
-            user.getUserDocumentConnections().add(connection);
+				// Przypisanie połączenia użytkownikowi
+				if (user.getUserDocumentConnections() == null) user.setUserDocumentConnections(new ArrayList<>());
+				user.getUserDocumentConnections().add(connection);
 
-            // Przypisanie połączenia dokumentowi
-            if (documentEntity.getUserDocumentConnections() == null)
-                documentEntity.setUserDocumentConnections(new ArrayList<>());
+				// Przypisanie połączenia dokumentowi
+				if (documentEntity.getUserDocumentConnections() == null)
+						documentEntity.setUserDocumentConnections(new ArrayList<>());
 
-            documentEntity.getUserDocumentConnections().add(connection);
-        }
+				documentEntity.getUserDocumentConnections().add(connection);
+		}
 
-        // Zapis wszystkich połączeń w bazie danych
-        userDocumentConnectionRepository.saveAll(connections);
+		// Zapis wszystkich połączeń w bazie danych
+		userDocumentConnectionRepository.saveAll(connections);
 
-        // Wysyłanie powiadomień do użytkowników na podstawie ich preferencji
-        eligibleUsers.forEach(user -> {
-            if (user.getNotificationTypes() != null) {
-                user.getNotificationTypes().forEach(notificationType -> {
-                    switch (notificationType.getType()) {
-                        case EMAIL:
-                            mailService.sendNotificationMail(
-                                    "Nowy dokument",
-                                    "Nowy dokument został oddany: " + documentEntity.getDocumentName(),
-                                    user.getEmail()
-                            );
-                            break;
-                        case SMS:
-                            smsService.sendSms(
-                                    "Nowy dokument został oddany: " + documentEntity.getDocumentName(),
-                                    user.getPhoneNumber()
-                            );
-                            break;
-                        default:
-                            throw new IllegalStateException("Unexpected value: " + notificationType.getType());
-                    }
-                });
-            }
-        });
+		// Wysyłanie powiadomień do użytkowników na podstawie ich preferencji
+		eligibleUsers.forEach(user -> {
+			if (user.getNotificationTypes() != null) {
+				user.getNotificationTypes().forEach(notificationType -> {
+					switch (notificationType.getType()) {
+						case EMAIL:
+							mailService
+							.sendNotificationMail(
+										"Nowy dokument",
+										"Nowy dokument został oddany: " + documentEntity.getDocumentName(),
+										user.getEmail()
+							);
+							break;
+						case SMS:
+							smsService.sendSms(
+											"Nowy dokument został oddany: " + documentEntity.getDocumentName(),
+											user.getPhoneNumber()
+							);
+							break;
+						default:
+							throw new IllegalStateException("Unexpected value: " + notificationType.getType());
+					}
+			});
+		}
+		});
 
-        // Zwracanie odpowiedzi z informacjami o nowo załadowanym dokumencie
-        return DocumentResponse.builder()
-                .documentName(documentEntity.getDocumentName())
-                .documentType(documentEntity.getDocumentType())
-                .createdAt(documentEntity.getCreatedAt())
-                .documentExtension(documentEntity.getDocumentExtension())
-                .build();
-    }
+		// Zwracanie odpowiedzi z informacjami o nowo załadowanym dokumencie
+		return DocumentResponse.builder()
+						.documentName(documentEntity.getDocumentName())
+						.documentType(documentEntity.getDocumentType())
+						.createdAt(documentEntity.getCreatedAt())
+						.documentExtension(documentEntity.getDocumentExtension())
+						.build();
+}
 \end{lstlisting}
 
-\begin{lstlisting}[language=Java, caption=Metoda usuwania dokumetów i konretnych połaczeń z dokumentami w klasie \texttt{DocumentServiceImp}]
+\begin{lstlisting}[language=Java, style=JavaStyle, caption=Metoda usuwania dokumetów i konretnych połaczeń z dokumentami w klasie \texttt{DocumentServiceImp}]
  @Override
     @Transactional
     public String deleteDocument(UUID documentId, UUID userId, Boolean deleteCompletely) throws DocumentNotFoundException, UserNotFoundException, IllegalArgumentException {
@@ -1651,7 +1624,7 @@ System zarządzania zgłoszeniami problemów w prototypie „Harmony Home Net”
 
 Encja \texttt{ProblemReport} jest centralnym elementem zarządzania zgłoszeniami. Poniżej przedstawiono jej definicję oraz szczegółowy opis.
 
-\begin{lstlisting}[language=Java, caption=Definicja encji \texttt{ProblemReport}]
+\begin{lstlisting}[language=Java, style=JavaStyle, caption=Definicja encji \texttt{ProblemReport}]
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -1753,7 +1726,7 @@ Funkcja \texttt{createProblemReport} umożliwia dodanie nowego zgłoszenia probl
     \item Zapis zgłoszenia w repozytorium \texttt{ProblemReportRepository}.
 \end{enumerate}
 
-\begin{lstlisting}[language=Java, caption=Tworzenie zgłoszenia problemu.]
+\begin{lstlisting}[language=Java, style=JavaStyle, caption=Tworzenie zgłoszenia problemu.]
 @Override
 @Transactional
 public ProblemReportResponse createProblemReport(ProblemReportRequest problemReportRequest) throws UserNotFoundException, ApartmentNotFoundException {
@@ -1803,12 +1776,12 @@ public ProblemReportResponse createProblemReport(ProblemReportRequest problemRep
 
 \textbf{Aktualizacja zgłoszenia problemu} -- funkcja \texttt{updateProblemReport} pozwala na aktualizację statusu zgłoszenia oraz jego szczegółów. Jeśli zgłoszenie zostanie oznaczone jako zakończone (\texttt{DONE}), ustawiana jest również data zakończenia.
 
-\begin{lstlisting}[language=Java, caption=Aktualizacja zgłoszenia problemu.]
+\begin{lstlisting}[language=Java, style=JavaStyle, caption=Aktualizacja zgłoszenia problemu.]
 @Override
 public ProblemReportResponse updateProblemReport(Long problemReportId, ProblemReportRequest problemReportRequest) throws ProblemReportNotFoundException {
 
         ProblemReport problemReportToUpdate = problemReportRepository.findById(problemReportId)
-                .orElseThrow(() -> new ProblemReportNotFoundException("Problem report not found with id: " + problemReportId));
+             .orElseThrow(() -> new ProblemReportNotFoundException("Problem report not found with id: " + problemReportId));
 
         problemReportToUpdate.setNote(problemReportRequest.getNote() != null ? problemReportRequest.getNote() : problemReportToUpdate.getNote());
         problemReportToUpdate.setReportStatus(problemReportRequest.getReportStatus() != null ? problemReportRequest.getReportStatus() : problemReportToUpdate.getReportStatus());
@@ -1879,7 +1852,7 @@ System zarządzania ogłoszeniami w prototypie „Harmony Home Net” umożliwia
 Ogłoszenia w systemie są reprezentowane przez encję \texttt{Announcement}, która przechowuje podstawowe informacje, takie jak tytuł, treść, czas utworzenia i aktualizacji oraz powiązanie z użytkownikiem odpowiedzialnym za dodanie ogłoszenia. Relacje z właścielami są zarządzane za pomocą tabeli pośredniczącej \texttt{AnnouncementApartment}. Poniżej przedstawiono kod implementacji encji:
 
 \textbf{Encja \texttt{Announcement}}
-\begin{lstlisting}[language=Java, caption=Encja \texttt{Announcement}]
+\begin{lstlisting}[language=Java, style=JavaStyle, caption=Encja \texttt{Announcement}]
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -1929,7 +1902,7 @@ public class Announcement {
 
 \textbf{Tabela pośrednicząca \texttt{AnnouncementApartment}} -- tabela \texttt{AnnouncementApartment} zarządza relacjami między ogłoszeniami a mieszkaniami, umożliwiając przypisywanie i odłączanie ogłoszeń od wybranych nieruchomości. Przykładowa implementacja poniżej:
 
-\begin{lstlisting}[language=Java, caption=Encja \texttt{AnnouncementApartment}]
+\begin{lstlisting}[language=Java, style=JavaStyle, caption=Encja \texttt{AnnouncementApartment}]
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -1977,7 +1950,7 @@ public class AnnouncementApartment {
 
 \textbf{Dodawanie ogłoszeń} -- ogłoszenia mogą być dodawane przez administratorów i pracowników za pomocą metody \texttt{createAnnouncement}. W procesie tym podawane są informacje, takie jak tytuł, treść oraz identyfikator użytkownika odpowiedzialnego za utworzenie ogłoszenia. Poniżej przedstawiono implementację:
 
-\begin{lstlisting}[language=Java, caption=Dodawanie ogłoszenia.]
+\begin{lstlisting}[language=Java, style=JavaStyle, caption=Dodawanie ogłoszenia.]
 @Override
 public AnnouncementResponse createAnnouncement(AnnouncementRequest announcementRequest) 
         throws UserNotFoundException {
@@ -2010,7 +1983,7 @@ public AnnouncementResponse createAnnouncement(AnnouncementRequest announcementR
     \item Powiadomienia o nowym ogłoszeniu są wysyłane do właścicieli mieszkań.
 \end{enumerate}
 
-\begin{lstlisting}[language=Java, caption=Przypisywanie ogłoszeń do mieszkań.]
+\begin{lstlisting}[language=Java, style=JavaStyle, caption=Przypisywanie ogłoszeń do mieszkań.]
 @Override
 @Transactional
 public String linkAnnouncementsToApartments(Long announcementId, List<String> apartmentSignatures) 
@@ -2122,7 +2095,7 @@ Encja \texttt{Topic} reprezentuje główny wątek dyskusyjny. Każdy temat zawie
 \end{itemize}
 
 Kod encji:
-\begin{lstlisting}[language=Java, caption=Encja \texttt{Topic}]
+\begin{lstlisting}[language=Java, style=JavaStyle, caption=Encja \texttt{Topic}]
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -2163,16 +2136,16 @@ Encja \texttt{Post} reprezentuje pojedynczą wypowiedź w danym temacie. Każdy 
 \end{itemize}
 
 Kod encji:
-\begin{lstlisting}[language=Java, caption=Encja \texttt{Post}]
+\begin{lstlisting}[language=Java, style=JavaStyle, caption=Encja \texttt{Post}]
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Entity
 @Table(name = "Posts", indexes = {
-        @Index(name = "idx_post_created_at", columnList = "Created_at"),
-        @Index(name = "idx_post_topic_id", columnList = "topic_id"),
-        @Index(name = "idx_post_users_id", columnList = "users_id")
+      @Index(name = "idx_post_created_at", columnList = "Created_at"),
+      @Index(name = "idx_post_topic_id", columnList = "topic_id"),
+      @Index(name = "idx_post_users_id", columnList = "users_id")
 })
 public class Post {
     @Id
@@ -2225,7 +2198,7 @@ System zarządzania płatnościami w prototypie „Harmony Home Net” został z
 
 Encja \texttt{Payment} -- reprezentuje płatność przypisaną do konkretnego mieszkania. Oto kluczowe elementy:
 
-\begin{lstlisting}[language=Java, caption=Kod encji \texttt{Payment}]
+\begin{lstlisting}[language=Java, style=JavaStyle, caption=Kod encji \texttt{Payment}]
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -2286,7 +2259,7 @@ public class Payment {
 
 \textbf{Encja \texttt{PaymentComponent}} --- reprezentuje szczegółowy składnik płatności, który pozwala na rozbicie płatności na mniejsze części.
 
-\begin{lstlisting}[language=Java, caption=Kod encji \texttt{PaymentComponent}]
+\begin{lstlisting}[language=Java, style=JavaStyle, caption=Kod encji \texttt{PaymentComponent}]
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -2344,7 +2317,7 @@ W prototypie systemu „Harmony Home Net” proces zarządzania płatnościami p
 \begin{enumerate}
     \item \textbf{Tworzenie płatności} -- Płatność jest tworzona przez administratora lub pracownika systemu. Na tym etapie płatność jest automatycznie przypisywana do mieszkania, a pole \texttt{Ready\_to\_Pay} zostaje ustawione na \texttt{false}. Dzięki temu płatność jest widoczna dla właściciela mieszkania, ale nie może być jeszcze zrealizowana. Poniżej znajduje się fragment kodu odpowiedzialny za ten proces:
 
-\begin{lstlisting}[language=Java, caption=Fragment metody \texttt{createPayment}]
+\begin{lstlisting}[language=Java, style=JavaStyle, caption=Fragment metody \texttt{createPayment}]
 @Override
 @Transactional
 public PaymentResponse createPayment(PaymentRequest paymentRequest) throws ApartmentNotFoundException {
@@ -2374,7 +2347,7 @@ public PaymentResponse createPayment(PaymentRequest paymentRequest) throws Apart
 
     \item \textbf{Dodawanie komponentów} -- Po stworzeniu płatności administrator lub pracownik dodaje komponenty płatności, takie jak opłaty za media. Każdy komponent jest dodawany osobno, a brak automatyzacji powoduje konieczność ręcznego wprowadzenia danych. Fragment kodu odpowiedzialny za dodawanie komponentów przedstawia poniższa metoda:
 
-\begin{lstlisting}[language=Java, caption=Fragment metody \texttt{addPaymentComponent}]
+\begin{lstlisting}[language=Java, style=JavaStyle, caption=Fragment metody \texttt{addPaymentComponent}]
 @Override
 @Transactional
 public PaymentResponse addPaymentComponent(UUID paymentId, PaymentComponentRequest paymentComponentRequest) throws PaymentNotFoundException {
@@ -2400,7 +2373,7 @@ public PaymentResponse addPaymentComponent(UUID paymentId, PaymentComponentReque
 
     \item \textbf{Aktywacja płatności} -- Po dodaniu wszystkich komponentów płatności i upewnieniu się, że nie występują nieprawidłowości, pole \texttt{Ready\_to\_Pay} zostaje ustawione na \texttt{true}, co pozwala właścicielowi mieszkania na dokonanie płatności. Fragment kodu aktywującego płatność:
 
-\begin{lstlisting}[language=Java, caption=Fragment metody \texttt{activatePayment}]
+\begin{lstlisting}[language=Java, style=JavaStyle, caption=Fragment metody \texttt{activatePayment}]
 @Override
 public String activatePayment(UUID paymentId, Boolean setActive) throws PaymentNotFoundException {
     Payment payment = paymentRepository.findById(paymentId)
@@ -2418,7 +2391,7 @@ public String activatePayment(UUID paymentId, Boolean setActive) throws PaymentN
 
 Realizacja płatności w aktualnym prototypie jest uproszczona i pełni funkcję \emph{mock}. Mechanizm polega na zmianie statusu płatności na \texttt{PAID} oraz ustawieniu czasu jej realizacji. Przykład kodu:
 
-\begin{lstlisting}[language=Java, caption=Fragment metody \texttt{payPayment}]
+\begin{lstlisting}[language=Java, style=JavaStyle, caption=Fragment metody \texttt{payPayment}]
 @Override
 public PaymentResponse payPayment(UUID paymentId, String account) throws PaymentNotFoundException {
     Payment payment = paymentRepository.findById(paymentId)
@@ -2451,7 +2424,7 @@ W prototypie systemu „Harmony Home Net” za implementację automatycznych prz
 \begin{itemize}
     \item \textbf{Przypomnienia przed terminem płatności} -- użytkownicy otrzymują powiadomienia o nadchodzących płatnościach na dwa tygodnie oraz tydzień przed ich terminem. Mechanizm ten uruchamia się automatycznie w każdy poniedziałek o godzinie 12:00. Przykład fragmentu kodu obsługującego to przypomnienie:
 
-\begin{lstlisting}[language=Java, caption=Przypomnienie o nadchodzących płatnościach]
+\begin{lstlisting}[language=Java, style=JavaStyle, caption=Przypomnienie o nadchodzących płatnościach]
 @Scheduled(cron = "0 0 12 * * MON")
 @Async
 public void sendUpcomingPaymentReminders() {
@@ -2476,7 +2449,7 @@ public void sendUpcomingPaymentReminders() {
 
     \item \textbf{Przypomnienia o zaległych płatnościach} -- jeśli płatność nie zostanie zrealizowana w terminie, użytkownicy otrzymują przypomnienia co dwa dni. Ten mechanizm działa automatycznie i przypomina o konieczności uregulowania zaległości. Przykład fragmentu kodu odpowiedzialnego za przypomnienia po terminie:
 
-\begin{lstlisting}[language=Java, caption=Przypomnienie o zaległych płatnościach]
+\begin{lstlisting}[language=Java, style=JavaStyle, caption=Przypomnienie o zaległych płatnościach]
 @Scheduled(cron = "0 0 12 */2 * ?")
 @Async
 public void sendOverduePaymentReminders() {
@@ -2502,7 +2475,7 @@ public void sendOverduePaymentReminders() {
 \textbf{Powiadomienia} są wysyłane za pomocą e-maila lub SMS-a w zależności od preferencji użytkownika. Mechanizm ten bazuje na konfiguracji przechowywanej w tabeli z typami powiadomień (\texttt{NotificationType}).
 
 Przykład metody wysyłającej powiadomienia:
-\begin{lstlisting}[language=Java, caption=Wysyłanie powiadomień]
+\begin{lstlisting}[language=Java, style=JavaStyle, caption=Wysyłanie powiadomień]
 private void sendNotification(String email, String phoneNumber, String message) {
     List<NotificationType> notificationTypes = notificationTypeRepository.findByUserEmail(email);
 
@@ -2573,7 +2546,7 @@ Proces tworzenia głosowania jest w pełni funkcjonalny po stronie administracyj
 
 \textbf{Tworzenie głosowania} odbywa się przy użyciu metody serwisowej \texttt{createPoll}, która przyjmuje nazwę głosowania, treść, wymagane parametry (kworum, próg procentowy) oraz plik dokumentu. Fragment kodu:
 
-\begin{lstlisting}[language=Java, caption=Fragment metody \texttt{createPoll}]
+\begin{lstlisting}[language=Java, style=JavaStyle, caption=Fragment metody \texttt{createPoll}]
 @Override
 @Transactional
 public PollResponse createPoll(PollRequest pollRequest, UUID employeeId, MultipartFile file) throws UserNotFoundException, IOException {
@@ -2601,7 +2574,7 @@ public PollResponse createPoll(PollRequest pollRequest, UUID employeeId, Multipa
 
 \textbf{Oddawanie głosów} przez właścicieli mieszkań odbywa się za pomocą metody serwisowej \texttt{vote}. Przykładowy fragment kodu:
 
-\begin{lstlisting}[language=Java, caption=Fragment metody \texttt{vote}]
+\begin{lstlisting}[language=Java, style=JavaStyle, caption=Fragment metody \texttt{vote}]
 @Override
 @Transactional
 public VoteResponse vote(UUID pollId, UUID userId, String apartmentSignature, VoteChoice voteChoice) throws UserNotFoundException, PollNotFoundException, ApartmentNotFoundException {
@@ -2690,7 +2663,7 @@ Funkcjonalność płatności w systemie jest realizowana za pomocą klasy \textt
     \label{fig:mock_of_paymet}
 \end{figure}
 
-\begin{lstlisting}[language=Java, caption=Fragment klasy \texttt{BankingServiceImp}]
+\begin{lstlisting}[language=Java, style=JavaStyle, caption=Fragment klasy \texttt{BankingServiceImp}]
 @Override
 public void pay(BigDecimal amount, String account) {
     LOGGER.info("Paying " + amount + " to " + account);
@@ -2703,7 +2676,7 @@ Pełna integracja z rzeczywistymi systemami bankowymi wymagałaby dostępu do ic
 
 Wysyłanie powiadomień SMS jest realizowane przez klasę \texttt{SmsServiceImp}, która również działa jako \emph{mock}. Symuluje wysyłanie SMS-ów, zapisując treść i odbiorcę w logach systemowych:
 
-\begin{lstlisting}[language=Java, caption=Fragment klasy \texttt{SmsServiceImp}]
+\begin{lstlisting}[language=Java, style=JavaStyle, caption=Fragment klasy \texttt{SmsServiceImp}]
 @Override
 @Async
 public void sendSms(String text, String recipient) {
@@ -2718,7 +2691,7 @@ Dostęp do rzeczywistych usług SMS wymaga skorzystania z zewnętrznych platform
 
 Odczyty wody i prądu są generowane przez klasę \texttt{UtilityMeterServiceImp}. Zamiast rzeczywistych danych, raz na dobę generowane są losowe wartości:
 
-\begin{lstlisting}[language=Java, caption=Fragment klasy \texttt{UtilityMeterServiceImp}]
+\begin{lstlisting}[language=Java, style=JavaStyle, caption=Fragment klasy \texttt{UtilityMeterServiceImp}]
 @Scheduled(cron = "0 0 0 * * ?")
 public void generateRandomMeterReadings() {
     LOG.info("Generating random meter readings");
@@ -2733,7 +2706,7 @@ Integracja z rzeczywistymi licznikami wymagałaby dostępu do odpowiednich urzą
 
 Jedynym w pełni funkcjonalnym systemem zewnętrznym w prototypie jest wysyłanie powiadomień e-mail. Implementacja wykorzystuje usługę \texttt{JavaMailSender}, skonfigurowaną do współpracy z serwerem Gmail:
 
-\begin{lstlisting}[language=Java, caption=Fragment klasy \texttt{MailServiceImp}]
+\begin{lstlisting}[language=Java, style=JavaStyle, caption=Fragment klasy \texttt{MailServiceImp}]
 @Override
 @Async
 public void sendNotificationMail(String subject, String text, String recipient) {
@@ -2755,9 +2728,9 @@ public void sendNotificationMail(String subject, String text, String recipient) 
 
 Wysyłanie e-maili wymaga konfiguracji konta Gmail oraz przestrzegania jego zasad bezpieczeństwa, takich jak generowanie hasła aplikacji~\cite{gmail_api}.
 
-Poniżej znajduje się fragment kodu konfiguracji \texttt{application.yml}, który definiuje ustawienia dla usługi pocztowej w Spring Boot:
+Poniżej znajduje się fragment kodu konfiguracji \texttt{application.yml}, który definiuje ustawienia dla usługi pocztowej w Spring Boot.
 
-\begin{lstlisting}[language=YAML, caption=Fragment konfiguracji poczty w \texttt{application.yml}]
+\begin{lstlisting}[language=yaml, caption=Fragment konfiguracji poczty w \texttt{application.yml}]
 mail:
   host: smtp.gmail.com
   port: 587
@@ -2771,7 +2744,7 @@ mail:
           enable: true
 \end{lstlisting}
 
-\textbf{Opis konfiguracji:}
+Znaczenie poszczególnych atrybutów w tej konfiguracji jest następujące:
 \begin{itemize}
     \item \texttt{host} -- adres serwera SMTP Gmail.
     \item \texttt{port} -- port używany przez serwer SMTP (587 dla połączeń TLS).
@@ -2780,7 +2753,6 @@ mail:
     \item \texttt{auth} -- włączenie uwierzytelniania SMTP.
     \item \texttt{starttls.enable} -- aktywacja szyfrowania TLS.
 \end{itemize}
-
 Dzięki tej konfiguracji, wiadomości e-mail mogą być wysyłane bezpośrednio przez serwer Gmail, co zapewnia bezpieczeństwo oraz prostą integrację. W pełnowymiarowej aplikacji zaleca się przechowywanie poufnych danych, takich jak hasła, w zaszyfrowanych menedżerach sekretów 
 (np. \emph{HashiCorp Vault} lub \emph{AWS Secrets Manager})~\cite{hashicorp_vault, aws_secret}.
 
@@ -2805,15 +2777,15 @@ Folder \texttt{serviceTests} zawiera testy odpowiadające implementacjom serwis�
 \subsection{Zakres testów}
 Każdy test obejmuje:
 \begin{itemize}
-    \item Sprawdzenie poprawności logiki biznesowej serwisów,
-    \item Obsługę przypadków wyjątkowych, takich jak \texttt{AnnouncementNotFoundException}, \texttt{UserNotFoundException}, itp.,
-    \item Testy graniczne dla danych wejściowych.
+    \item sprawdzenie poprawności logiki biznesowej serwisów,
+    \item obsługę przypadków wyjątkowych, takich jak \texttt{AnnouncementNotFoundException}, \texttt{UserNotFoundException}, itp.,
+    \item testy graniczne dla danych wejściowych.
 \end{itemize}
 
 \subsection{Przykład testów}
 Przykładowe testy dla serwisu \texttt{AnnouncementService} weryfikują poprawność różnych funkcjonalności, w tym obsługi wyjątków oraz operacji CRUD. Oto kilka metod testowych:
 
-\begin{lstlisting}[language=Java, caption= Przykłądowe testy dla \texttt{AnnouncementService}]
+\begin{lstlisting}[language=Java, style=JavaStyle, caption= Przykłądowe testy dla \texttt{AnnouncementService}]
 @Test
 void testFindAnnouncementById_NotFound() {
     when(announcementRepository.findById(anyLong())).thenReturn(Optional.empty());
@@ -2839,11 +2811,12 @@ void testDeleteAnnouncementById_Success() {
 }
 \end{lstlisting}
 
+% TO DO: jeśli lista wyliczeniowa ma elementy kończące się średnikiem, to powinny one zaczynać się małą literą
 Powyższe testy weryfikują: 
 \begin{itemize}
-    \item Rzucanie wyjątków, gdy dane wejściowe są nieprawidłowe lub brak jest zasobu w bazie danych,
-    \item Poprawność zapisu danych do bazy,
-    \item Skuteczność operacji usuwania rekordów.
+    \item wyrzucanie wyjątków, gdy dane wejściowe są nieprawidłowe lub brak jest zasobu w bazie danych,
+    \item poprawność zapisu danych do bazy,
+    \item skuteczność operacji usuwania rekordów.
 \end{itemize}
 
 \subsection{Wyniki testów}
