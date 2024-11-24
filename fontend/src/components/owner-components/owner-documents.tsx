@@ -3,14 +3,12 @@
 import React, {useEffect, useState} from 'react'
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card"
 import {Button} from "@/components/ui/button"
-import {Input} from "@/components/ui/input"
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table"
-import {ChevronLeft, ChevronRight, Download, FileText, Search} from 'lucide-react'
+import {ChevronLeft, ChevronRight, Download, FileText} from 'lucide-react'
 import {jwtDecode} from "jwt-decode"
 import {toast} from "sonner"
 import {format, parseISO} from "date-fns"
 import {saveAs} from 'file-saver'
-import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select"
 
 interface Document {
     documentId: string
@@ -37,10 +35,6 @@ export function DocumentsSection() {
     const [totalPages, setTotalPages] = useState(0)
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
-    const [searchTerm, setSearchTerm] = useState('')
-    const [sortColumn, setSortColumn] = useState<keyof Document>('documentName')
-    const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
-    const [filterType, setFilterType] = useState('All')
 
     const fetchDocuments = async (page: number) => {
         try {
@@ -109,94 +103,36 @@ export function DocumentsSection() {
         }
     }
 
-    const handleSort = (column: keyof Document) => {
-        if (column === sortColumn) {
-            setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
-        } else {
-            setSortColumn(column)
-            setSortDirection('asc')
-        }
-    }
-
-    const filteredAndSortedDocuments = documents
-        .filter(doc =>
-            (doc.documentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                doc.documentType.toLowerCase().includes(searchTerm.toLowerCase())) &&
-            (filterType === 'All' || doc.documentType === filterType)
-        )
-        .sort((a, b) => {
-            if (a[sortColumn] < b[sortColumn]) return sortDirection === 'asc' ? -1 : 1
-            if (a[sortColumn] > b[sortColumn]) return sortDirection === 'asc' ? 1 : -1
-            return 0
-        })
-
     return (
         <div className="space-y-6">
             <h1 className="text-3xl font-bold flex items-center">
                 <FileText className="mr-2 h-8 w-8 text-primary"/>
-                Documents
+                Dokumenty
             </h1>
 
             <Card>
                 <CardHeader>
-                    <CardTitle>Your Documents</CardTitle>
+                    <CardTitle>Twoje dokumety</CardTitle>
                 </CardHeader>
                 <CardContent>
                     {isLoading ? (
-                        <div className="text-center">Loading documents...</div>
+                        <div className="text-center">Ładowanie dokumentów...</div>
                     ) : error ? (
                         <div className="text-center text-destructive">{error}</div>
                     ) : (
                         <>
-                            <div className="flex justify-between items-center mb-4">
-                                <div className="flex items-center space-x-2">
-                                    <Search className="h-5 w-5 text-muted-foreground"/>
-                                    <Input
-                                        placeholder="Search documents..."
-                                        value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
-                                        className="w-64"
-                                    />
-                                </div>
-                                <Select value={filterType} onValueChange={setFilterType}>
-                                    <SelectTrigger className="w-[180px]">
-                                        <SelectValue placeholder="Filter by type"/>
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="All">All Types</SelectItem>
-                                        {Array.from(new Set(documents.map(doc => doc.documentType))).map(type => (
-                                            <SelectItem key={type} value={type}>{type}</SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
                             <Table>
                                 <TableHeader>
                                     <TableRow>
-                                        <TableHead onClick={() => handleSort('documentName')}
-                                                   className="cursor-pointer">
-                                            Nazwa
-                                            dokumentu {sortColumn === 'documentName' && (sortDirection === 'asc' ? '▲' : '▼')}
-                                        </TableHead>
-                                        <TableHead onClick={() => handleSort('documentType')}
-                                                   className="cursor-pointer">
-                                            Typ
-                                            dokumentu {sortColumn === 'documentType' && (sortDirection === 'asc' ? '▲' : '▼')}
-                                        </TableHead>
-                                        <TableHead onClick={() => handleSort('documentExtension')}
-                                                   className="cursor-pointer">
-                                            Typ
-                                            pliku {sortColumn === 'documentExtension' && (sortDirection === 'asc' ? '▲' : '▼')}
-                                        </TableHead>
-                                        <TableHead onClick={() => handleSort('createdAt')} className="cursor-pointer">
-                                            Data
-                                            dodania {sortColumn === 'createdAt' && (sortDirection === 'asc' ? '▲' : '▼')}
-                                        </TableHead>
+                                        <TableHead>Nazwa dokumentu</TableHead>
+                                        <TableHead>Typ dokumentu</TableHead>
+                                        <TableHead>Typ pliku</TableHead>
+                                        <TableHead>Data dodania</TableHead>
                                         <TableHead>Akcje</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {filteredAndSortedDocuments.map((doc) => (
+                                    {documents.map((doc) => (
                                         <TableRow key={doc.documentId}>
                                             <TableCell className="font-medium">
                                                 <div className="flex items-center">

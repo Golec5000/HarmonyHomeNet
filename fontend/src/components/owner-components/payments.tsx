@@ -190,29 +190,29 @@ export function Payments({apartmentSignature}: PaymentsProps) {
         <div className="space-y-6 bg-background text-foreground">
             <h1 className="text-3xl font-bold flex items-center">
                 <CreditCard className="mr-2 h-8 w-8 text-primary"/>
-                Payments
+                Płatności
             </h1>
 
             <Card>
                 <CardHeader>
-                    <CardTitle>Payment History</CardTitle>
+                    <CardTitle>Historia Płatności</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead>Description</TableHead>
-                                <TableHead>Amount</TableHead>
-                                <TableHead>Time to Pay</TableHead>
-                                <TableHead>Payed</TableHead>
+                                <TableHead>Opis</TableHead>
+                                <TableHead>Kwota</TableHead>
+                                <TableHead>Czas na Zapłatę</TableHead>
+                                <TableHead>Zapłacono</TableHead>
                                 <TableHead>Status</TableHead>
-                                <TableHead>Actions</TableHead>
+                                <TableHead>Akcje</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {isLoading ? (
                                 <TableRow>
-                                    <TableCell colSpan={6} className="text-center">Loading payments...</TableCell>
+                                    <TableCell colSpan={6} className="text-center">Ładowanie płatności...</TableCell>
                                 </TableRow>
                             ) : payments && payments.content.length > 0 ? (
                                 payments.content.map((payment) => (
@@ -256,30 +256,30 @@ export function Payments({apartmentSignature}: PaymentsProps) {
                                                                     disabled={!payment.readyToPay}
                                                                     onClick={() => setSelectedPaymentId(payment.paymentId)}
                                                                 >
-                                                                    Pay Now
+                                                                    Zapłać Teraz
                                                                 </Button>
                                                             </DialogTrigger>
                                                             <DialogContent>
                                                                 <DialogHeader>
-                                                                    <DialogTitle>Pay Payment</DialogTitle>
+                                                                    <DialogTitle>Zapłać Płatność</DialogTitle>
                                                                 </DialogHeader>
                                                                 <div className="space-y-4">
                                                                     <div className="text-red-500 text-sm font-bold">
-                                                                        This is a mock payment system. No real
-                                                                        transactions will be processed.
+                                                                        To jest system płatności testowych. Żadne
+                                                                        prawdziwe transakcje nie będą przetwarzane.
                                                                     </div>
                                                                     <div>
-                                                                        <Label htmlFor="accountNumber">Account
-                                                                            Number</Label>
+                                                                        <Label htmlFor="accountNumber">Numer
+                                                                            Konta</Label>
                                                                         <Input
                                                                             id="accountNumber"
                                                                             value={accountNumber}
                                                                             onChange={(e) => setAccountNumber(e.target.value)}
-                                                                            placeholder="Enter your account number"
+                                                                            placeholder="Wprowadź numer konta"
                                                                         />
                                                                     </div>
-                                                                    <Button onClick={handlePayPayment}>Confirm
-                                                                        Payment</Button>
+                                                                    <Button onClick={handlePayPayment}>Potwierdź
+                                                                        Płatność</Button>
                                                                 </div>
                                                             </DialogContent>
                                                         </Dialog>
@@ -291,7 +291,7 @@ export function Payments({apartmentSignature}: PaymentsProps) {
                                                                 size="sm"
                                                                 onClick={() => toggleExpand(payment.paymentId)}
                                                             >
-                                                                {expandedPayment === payment.paymentId ? 'Hide' : 'Details'}
+                                                                {expandedPayment === payment.paymentId ? 'Ukryj' : 'Szczegóły'}
                                                                 {expandedPayment === payment.paymentId ?
                                                                     <ChevronUp className="ml-2 h-4 w-4"/> :
                                                                     <ChevronDown className="ml-2 h-4 w-4"/>
@@ -301,16 +301,16 @@ export function Payments({apartmentSignature}: PaymentsProps) {
                                                         <CollapsibleContent>
                                                             <Card className="mt-2 bg-muted">
                                                                 <CardContent className="p-4">
-                                                                    <h3 className="font-bold mb-2">Payment
-                                                                        Components</h3>
+                                                                    <h3 className="font-bold mb-2">Komponenty
+                                                                        Płatności</h3>
                                                                     <Table>
                                                                         <TableHeader>
                                                                             <TableRow>
-                                                                                <TableHead>Component</TableHead>
-                                                                                <TableHead>Unit Price</TableHead>
-                                                                                <TableHead>Unit</TableHead>
-                                                                                <TableHead>Multiplier</TableHead>
-                                                                                <TableHead>Amount</TableHead>
+                                                                                <TableHead>Komponent</TableHead>
+                                                                                <TableHead>Cena Jednostkowa</TableHead>
+                                                                                <TableHead>Jednostka</TableHead>
+                                                                                <TableHead>Mnożnik</TableHead>
+                                                                                <TableHead>Kwota</TableHead>
                                                                             </TableRow>
                                                                         </TableHeader>
                                                                         <TableBody>
@@ -325,7 +325,7 @@ export function Payments({apartmentSignature}: PaymentsProps) {
                                                                             ))}
                                                                             <TableRow>
                                                                                 <TableCell
-                                                                                    className="font-bold">Total</TableCell>
+                                                                                    className="font-bold">Razem</TableCell>
                                                                                 <TableCell colSpan={3}
                                                                                            className="font-bold text-right">
                                                                                     ${payment.paymentAmount.toFixed(2)}
@@ -344,7 +344,7 @@ export function Payments({apartmentSignature}: PaymentsProps) {
                                 ))
                             ) : (
                                 <TableRow>
-                                    <TableCell colSpan={6} className="text-center">No payments found.</TableCell>
+                                    <TableCell colSpan={6} className="text-center">Nie znaleziono płatności.</TableCell>
                                 </TableRow>
                             )}
                         </TableBody>
@@ -357,18 +357,18 @@ export function Payments({apartmentSignature}: PaymentsProps) {
                             disabled={!payments || !payments.hasPrevious}
                         >
                             <ChevronLeft className="h-4 w-4 mr-2"/>
-                            Previous
+                            Poprzednia
                         </Button>
                         <span className="text-sm">
-              Page {payments ? payments.currentPage + 1 : 0} of {payments ? payments.totalPages : 0}
-            </span>
+                        Strona {payments ? payments.currentPage + 1 : 0} z {payments ? payments.totalPages : 0}
+                    </span>
                         <Button
                             variant="outline"
                             size="sm"
                             onClick={handleNext}
                             disabled={!payments || !payments.hasNext}
                         >
-                            Next
+                            Następna
                             <ChevronRight className="h-4 w-4 ml-2"/>
                         </Button>
                     </div>

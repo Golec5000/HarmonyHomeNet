@@ -91,7 +91,7 @@ function LoginForm() {
                 />
             </div>
             <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">Hasło</Label>
                 <Input
                     id="password"
                     type="password"
@@ -120,9 +120,9 @@ export default function LoginPageComponent() {
                         <div className="flex justify-center mb-4">
                             <Home className="h-12 w-12 text-primary"/>
                         </div>
-                        <CardTitle className="text-3xl font-bold">Welcome to eBOK</CardTitle>
+                        <CardTitle className="text-3xl font-bold">Witaj w eBOK</CardTitle>
                         <CardDescription>
-                            Your Residential Property Management System
+                            Twój system zarządzania nieruchomościami mieszkaniowymi
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -131,7 +131,7 @@ export default function LoginPageComponent() {
                     <CardFooter
                         className="flex flex-col sm:flex-row justify-center items-center space-y-2 sm:space-y-0">
                         <Link href="/forgot-password" className="text-sm text-primary hover:underline">
-                            Forgot password?
+                            Zapomniałeś hasła?
                         </Link>
                     </CardFooter>
                 </Card>

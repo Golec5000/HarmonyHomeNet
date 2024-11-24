@@ -1,8 +1,8 @@
 'use client'
 
-import React, {useState, useEffect} from 'react'
+import React, {useEffect, useState} from 'react'
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card"
-import {Gauge, Droplet} from 'lucide-react'
+import {Droplet, Gauge} from 'lucide-react'
 import {toast} from 'sonner'
 
 interface UtilityMeterProps {

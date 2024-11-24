@@ -70,11 +70,11 @@ export function DocumentManagementComponent() {
     }
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setNewDocument({ ...newDocument, [e.target.name]: e.target.value })
+        setNewDocument({...newDocument, [e.target.name]: e.target.value})
     }
 
     const handleSelectChange = (value: 'RESOLUTION' | 'DECISION' | 'PROPERTY_DEED' | 'OTHER') => {
-        setNewDocument({ ...newDocument, documentType: value })
+        setNewDocument({...newDocument, documentType: value})
     }
 
     const handleUpload = async (e: React.FormEvent) => {
@@ -105,7 +105,7 @@ export function DocumentManagementComponent() {
             if (response.ok) {
                 toast.success('Document uploaded successfully')
                 fetchDocuments()
-                setNewDocument({ documentType: 'OTHER', apartmentSignature: '' })
+                setNewDocument({documentType: 'OTHER', apartmentSignature: ''})
                 setFile(null)
                 setIsUploadDialogOpen(false)
             } else {
@@ -176,37 +176,37 @@ export function DocumentManagementComponent() {
             <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="text-2xl font-bold flex items-center space-x-2">
                     <FileText className="h-6 w-6 text-primary"/>
-                    <span>Document Management</span>
+                    <span>Zarządzanie Dokumentami</span>
                 </CardTitle>
                 <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
                     <DialogTrigger asChild>
                         <Button>
-                            <Upload className="mr-2 h-4 w-4" />
-                            Upload Document
+                            <Upload className="mr-2 h-4 w-4"/>
+                            Prześlij Dokument
                         </Button>
                     </DialogTrigger>
                     <DialogContent>
                         <DialogHeader>
-                            <DialogTitle>Upload New Document</DialogTitle>
+                            <DialogTitle>Prześlij Nowy Dokument</DialogTitle>
                         </DialogHeader>
                         <form onSubmit={handleUpload} className="space-y-4">
                             <div>
-                                <Label htmlFor="documentType">Document Type</Label>
+                                <Label htmlFor="documentType">Typ Dokumentu</Label>
                                 <Select onValueChange={handleSelectChange} value={newDocument.documentType}>
                                     <SelectTrigger>
-                                        <SelectValue placeholder="Select document type" />
+                                        <SelectValue placeholder="Wybierz typ dokumentu"/>
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="RESOLUTION">Resolution</SelectItem>
-                                        <SelectItem value="DECISION">Decision</SelectItem>
-                                        <SelectItem value="PROPERTY_DEED">Property Deed</SelectItem>
-                                        <SelectItem value="OTHER">Other</SelectItem>
+                                        <SelectItem value="RESOLUTION">Rezolucja</SelectItem>
+                                        <SelectItem value="DECISION">Decyzja</SelectItem>
+                                        <SelectItem value="PROPERTY_DEED">Akt Własności</SelectItem>
+                                        <SelectItem value="OTHER">Inne</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
                             {newDocument.documentType === 'PROPERTY_DEED' && (
                                 <div>
-                                    <Label htmlFor="apartmentSignature">Apartment Signature</Label>
+                                    <Label htmlFor="apartmentSignature">Sygnatura Mieszkania</Label>
                                     <Input
                                         id="apartmentSignature"
                                         name="apartmentSignature"
@@ -217,11 +217,11 @@ export function DocumentManagementComponent() {
                                 </div>
                             )}
                             <div>
-                                <Label>Upload File</Label>
-                                <FileUploader handleChange={handleFileChange} name="file" types={fileTypes} />
-                                {file && <p className="mt-2 text-sm">Selected file: {file.name}</p>}
+                                <Label>Prześlij Plik</Label>
+                                <FileUploader handleChange={handleFileChange} name="file" types={fileTypes}/>
+                                {file && <p className="mt-2 text-sm">Wybrany plik: {file.name}</p>}
                             </div>
-                            <Button type="submit">Upload</Button>
+                            <Button type="submit">Prześlij</Button>
                         </form>
                     </DialogContent>
                 </Dialog>
@@ -230,11 +230,11 @@ export function DocumentManagementComponent() {
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead>Name</TableHead>
-                            <TableHead>Type</TableHead>
-                            <TableHead>Document Extension</TableHead>
-                            <TableHead>Created At</TableHead>
-                            <TableHead>Actions</TableHead>
+                            <TableHead>Nazwa</TableHead>
+                            <TableHead>Typ</TableHead>
+                            <TableHead>Rozszerzenie Dokumentu</TableHead>
+                            <TableHead>Utworzono</TableHead>
+                            <TableHead>Akcje</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -289,7 +289,7 @@ export function DocumentManagementComponent() {
             <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Delete Document</DialogTitle>
+                        <DialogTitle>Usuń Dokument / Odłacz użytkownika</DialogTitle>
                     </DialogHeader>
                     <div className="space-y-4">
                         <div className="flex items-center space-x-2">
@@ -298,20 +298,20 @@ export function DocumentManagementComponent() {
                                 checked={deleteCompletely}
                                 onCheckedChange={setDeleteCompletely}
                             />
-                            <Label htmlFor="delete-completely">Delete Completely</Label>
+                            <Label htmlFor="delete-completely">Usuń Całkowicie</Label>
                         </div>
                         {!deleteCompletely && (
                             <div>
-                                <Label htmlFor="user-id">User ID</Label>
+                                <Label htmlFor="user-id">ID Użytkownika</Label>
                                 <Input
                                     id="user-id"
                                     value={userIdToDelete}
                                     onChange={(e) => setUserIdToDelete(e.target.value)}
-                                    placeholder="Enter user ID"
+                                    placeholder="Wprowadź ID użytkownika"
                                 />
                             </div>
                         )}
-                        <Button onClick={handleDelete}>Confirm Delete</Button>
+                        <Button onClick={handleDelete}>Potwierdź Usunięcie</Button>
                     </div>
                 </DialogContent>
             </Dialog>

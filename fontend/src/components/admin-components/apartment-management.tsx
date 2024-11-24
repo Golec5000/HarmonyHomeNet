@@ -530,12 +530,12 @@ export function ApartmentManagement() {
                                                     {expandedApartment === apartment.apartmentSignature ? (
                                                         <>
                                                             <ChevronUp className="h-4 w-4 mr-2"/>
-                                                            Ukryj mieszkańców
+                                                            Ukryj właścicieli
                                                         </>
                                                     ) : (
                                                         <>
                                                             <ChevronDown className="h-4 w-4 mr-2"/>
-                                                            Pokaż mieszkańców
+                                                            Pokaż właścicieli
                                                         </>
                                                     )}
                                                 </Button>
@@ -544,7 +544,7 @@ export function ApartmentManagement() {
                                                 {expandedApartment === apartment.apartmentSignature && (
                                                     <Card className="mt-2">
                                                         <CardHeader>
-                                                            <CardTitle className="text-lg">Mieszkańcy</CardTitle>
+                                                            <CardTitle className="text-lg">Właściele</CardTitle>
                                                         </CardHeader>
                                                         <CardContent>
                                                             {residents.length > 0 ? (
@@ -570,7 +570,7 @@ export function ApartmentManagement() {
                                                                 <div className="text-center py-4">
                                                                     <Users
                                                                         className="h-8 w-8 text-muted-foreground mx-auto mb-2"/>
-                                                                    <p>Brak przypisanych mieszkańców</p>
+                                                                    <p>Brak przypisanych właścicieli</p>
                                                                 </div>
                                                             )}
                                                         </CardContent>

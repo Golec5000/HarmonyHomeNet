@@ -248,22 +248,22 @@ export function PollManagementComponent() {
             <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="text-2xl font-bold flex items-center space-x-2">
                     <Briefcase className="h-6 w-6 text-primary"/>
-                    <span>Poll Management</span>
+                    <span>Zarządzanie Głosowaniami</span>
                 </CardTitle>
                 <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
                     <DialogTrigger asChild>
                         <Button>
                             <Upload className="mr-2 h-4 w-4"/>
-                            Create Poll
+                            Utwórz Głosowanie
                         </Button>
                     </DialogTrigger>
                     <DialogContent>
                         <DialogHeader>
-                            <DialogTitle>Create New Poll</DialogTitle>
+                            <DialogTitle>Utwórz Nowe Głosowanie</DialogTitle>
                         </DialogHeader>
                         <form onSubmit={handleCreatePoll} className="space-y-4">
                             <div>
-                                <Label htmlFor="pollName">Poll Name</Label>
+                                <Label htmlFor="pollName">Nazwa Głosowania</Label>
                                 <Input
                                     id="pollName"
                                     name="pollName"
@@ -273,7 +273,7 @@ export function PollManagementComponent() {
                                 />
                             </div>
                             <div>
-                                <Label htmlFor="content">Content</Label>
+                                <Label htmlFor="content">Treść</Label>
                                 <Input
                                     id="content"
                                     name="content"
@@ -283,7 +283,7 @@ export function PollManagementComponent() {
                                 />
                             </div>
                             <div>
-                                <Label htmlFor="endDate">End Date</Label>
+                                <Label htmlFor="endDate">Data Zakończenia</Label>
                                 <Input
                                     id="endDate"
                                     name="endDate"
@@ -294,7 +294,7 @@ export function PollManagementComponent() {
                                 />
                             </div>
                             <div>
-                                <Label htmlFor="minSummary">Minimum Summary</Label>
+                                <Label htmlFor="minSummary">Minimalne Podsumowanie</Label>
                                 <Input
                                     id="minSummary"
                                     name="minSummary"
@@ -305,7 +305,7 @@ export function PollManagementComponent() {
                                 />
                             </div>
                             <div>
-                                <Label htmlFor="minCurrentVotesCount">Minimum Votes Count</Label>
+                                <Label htmlFor="minCurrentVotesCount">Minimalna Liczba Głosów</Label>
                                 <Input
                                     id="minCurrentVotesCount"
                                     name="minCurrentVotesCount"
@@ -316,11 +316,11 @@ export function PollManagementComponent() {
                                 />
                             </div>
                             <div>
-                                <Label>Upload File</Label>
+                                <Label>Prześlij Plik</Label>
                                 <FileUploader handleChange={handleFileChange} name="file" types={fileTypes}/>
-                                {file && <p className="mt-2 text-sm">Selected file: {file.name}</p>}
+                                {file && <p className="mt-2 text-sm">Wybrany plik: {file.name}</p>}
                             </div>
-                            <Button type="submit">Create Poll</Button>
+                            <Button type="submit">Utwórz Głosowanie</Button>
                         </form>
                     </DialogContent>
                 </Dialog>
@@ -329,14 +329,14 @@ export function PollManagementComponent() {
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead><FileText className="h-4 w-4 mr-2 inline-block"/>Name</TableHead>
-                            <TableHead><Calendar className="h-4 w-4 mr-2 inline-block"/>Created At</TableHead>
-                            <TableHead><Calendar className="h-4 w-4 mr-2 inline-block"/>End Date</TableHead>
-                            <TableHead><Percent className="h-4 w-4 mr-2 inline-block"/>Min Summary</TableHead>
-                            <TableHead><Percent className="h-4 w-4 mr-2 inline-block"/>Summary</TableHead>
-                            <TableHead>Min Votes</TableHead>
-                            <TableHead>Current Votes</TableHead>
-                            <TableHead>Actions</TableHead>
+                            <TableHead><FileText className="h-4 w-4 mr-2 inline-block"/>Nazwa</TableHead>
+                            <TableHead><Calendar className="h-4 w-4 mr-2 inline-block"/>Utworzono</TableHead>
+                            <TableHead><Calendar className="h-4 w-4 mr-2 inline-block"/>Data Zakończenia</TableHead>
+                            <TableHead><Percent className="h-4 w-4 mr-2 inline-block"/>Min. Podsumowanie</TableHead>
+                            <TableHead><Percent className="h-4 w-4 mr-2 inline-block"/>Podsumowanie</TableHead>
+                            <TableHead>Kworum</TableHead>
+                            <TableHead>Obecna ilość</TableHead>
+                            <TableHead>Akcje</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -384,13 +384,12 @@ export function PollManagementComponent() {
                                                 <Table>
                                                     <TableHeader>
                                                         <TableRow>
-                                                            <TableHead><ThumbsUp className="h-4 w-4 mr-2 inline-block"/>Vote
-                                                                Choice</TableHead>
-                                                            <TableHead><Calendar className="h-4 w-4 mr-2 inline-block"/>Created
-                                                                At</TableHead>
-                                                            <TableHead><FileText className="h-4 w-4 mr-2 inline-block"/>Apartment
-                                                                Signature</TableHead>
-                                                            <TableHead>Action</TableHead>
+                                                            <TableHead><ThumbsUp className="h-4 w-4 mr-2 inline-block"/>Wybór
+                                                                Głosu</TableHead>
+                                                            <TableHead><Calendar className="h-4 w-4 mr-2 inline-block"/>Utworzono</TableHead>
+                                                            <TableHead><FileText className="h-4 w-4 mr-2 inline-block"/>Sygnatura
+                                                                Mieszkania</TableHead>
+                                                            <TableHead>Akcja</TableHead>
                                                         </TableRow>
                                                     </TableHeader>
                                                     <TableBody>
