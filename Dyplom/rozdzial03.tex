@@ -676,17 +676,27 @@ Dzięki implementacji mechanizmu czarnej listy system skutecznie zapobiega nieau
 
 \subsection{Mechanizmy resetowania hasła}
 
-Mechanizm resetowania hasła w systemie „Harmony Home Net” został zaprojektowany z uwzględnieniem podstawowych wymagań bezpieczeństwa. Jako że aplikacja jest prototypem, proces został uproszczony w stosunku do tego, jak wyglądałby w pełnoprawnej produkcyjnej aplikacji. W profesjonalnych wdrożeniach resetowanie hasła zwykle obejmuje podział na osobne endpointy oraz wieloetapowy proces potwierdzania tożsamości użytkownika.
+Mechanizm resetowania hasła w systemie „Harmony Home Net” został zaprojektowany z uwzględnieniem podstawowych wymagań bezpieczeństwa. Jako że aplikacja jest prototypem, proces został uproszczony w stosunku do tego, jak wyglądałby w pełnoprawnej produkcyjnej aplikacji. W profesjonalnych wdrożeniach resetowanie hasła zwykle obejmuje podział na osobne endpointy oraz wieloetapowy proces potwierdzania tożsamości użytkownika. To jak obecnie wygląda proces resetu hasła jest przestawione na rysunku~\ref{fig:ui_password_reset}.
 
-Główne funkcjonalności mechanizmu resetowania hasła:
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.63\linewidth]{rys03/pass_resert}
+    \caption{Interfejs użytkownika mechanizmu resetowania hasła w prototypie systemu „Harmony Home Net”}
+    \label{fig:ui_password_reset}
+\end{figure}
+
+Główne funkcjonalności mechanizmu resetowania hasła przedstawionego na rysunku~\ref{fig:ui_password_reset}:
 
 \begin{itemize}
-    \item \textbf{Prośba o reset hasła} -- użytkownik przesyła żądanie na endpoint \texttt{/forgot-password}, dostarczając swój adres e-mail. Jeśli podany e-mail znajduje się w bazie danych, generowany jest unikalny token zabezpieczający, który jest wysyłany na podany adres e-mail użytkownika wraz z linkiem do resetowania hasła. 
+    \item \textbf{Prośba o reset hasła} -- użytkownik korzysta z sekcji \emph{Send Reset Link}, gdzie wprowadza swój adres e-mail i przesyła żądanie za pomocą przycisku \emph{Send Reset Link}. Po przesłaniu żądania na endpoint \texttt{/forgot-password} generowany jest unikalny token zabezpieczający, który zostaje wysłany na wskazany adres e-mail.
+    
+    \item \textbf{Resetowanie hasła} -- w sekcji \emph{Reset Password} użytkownik wprowadza nowe hasło, potwierdza je, a następnie wprowadza otrzymany token resetujący. Formularz przesyła dane na endpoint \texttt{/reset-password}, który weryfikuje token, sprawdza jego ważność oraz aktualizuje hasło w bazie danych.
 
-    \item \textbf{Resetowanie hasła} -- po kliknięciu w link użytkownik zostaje przekierowany na dedykowaną stronę resetowania hasła, gdzie przesyła nową wartość hasła oraz potwierdzenie. Endpoint \texttt{/reset-password} przyjmuje token oraz nowe hasło, weryfikuje poprawność i aktualizuje dane w bazie, jeśli token jest ważny i jeszcze nie wygasł.
+    \item \textbf{Bezpieczeństwo} -- tokeny resetujące są jednorazowe i posiadają ograniczony czas ważności. Dodatkowo system wymusza spełnienie kryteriów bezpieczeństwa dla nowego hasła.
 
-    \item \textbf{Zmiana hasła} -- użytkownik, który jest zalogowany, może zmienić swoje hasło bez potrzeby resetowania go. Endpoint \texttt{/change-password} umożliwia przesłanie nowego hasła oraz jego potwierdzenia. Przed zmianą hasła system weryfikuje zgodność adresu e-mail i autoryzację użytkownika.
+    \item \textbf{Zmiana hasła} -- dla zalogowanych użytkowników dostępny jest również dedykowany endpoint \texttt{/change-password}, który umożliwia zmianę hasła bez potrzeby resetowania, co zwiększa wygodę użytkowania systemu. Znajduję się o w panelu użytkownika w zakładce \textbf{,,Ustawienia''}
 \end{itemize}
+
 
 Podział mechanizmów resetowania w profesjonalnych aplikacjach:
 
@@ -2630,12 +2640,19 @@ W prototypie systemu „Harmony Home Net” udało się zaimplementować:
 
 Mimo osiągniętych rezultatów, w prototypie nie udało się zrealizować kilku istotnych funkcji lub wymagają one dalszego rozwoju:
 \begin{itemize}
-    \item \textbf{Pełny interfejs użytkownika} -- brakuje rozbudowanego UI dla właścicieli mieszkań umożliwiającego przeglądanie głosowań i wyników.
+    \item \textbf{Pełny interfejs użytkownika} -- brakuje rozbudowanego UI dla właścicieli mieszkań umożliwiającego przeglądanie głosowań i wyników, co jest przestawione na ryusnku~\ref{fig:poll_owner_ui}.
     \item \textbf{Oddawanie głosów} -- mechanizm został zaimplementowany i przetestowany w prostych przypadkach, ale brak UI dla właścicieli może ujawnić potencjalne problemy i aspekty wymagające usprawnienia.
     \item \textbf{Zaawansowane raportowanie} -- aktualnie brak automatycznego generowania szczegółowych raportów wyników głosowań.
     \item \textbf{Integracja z systemami prawnymi} -- nie wdrożono automatycznego przesyłania wyników głosowania do systemów prawnych lub rejestrów.
     \item \textbf{Wsparcie dla różnych scenariuszy głosowania} -- brak obsługi bardziej złożonych mechanizmów liczenia głosów, takich jak podział na grupy czy różne wagi głosów.
 \end{itemize}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.63\linewidth]{rys03/poll_ui_unfinish}
+    \caption{Aktualny stan UI do głosowani po stonie właściela}
+    \label{fig:poll_owner_ui}
+\end{figure}
 
 \subsection{Profesjonalne podejście do głosowań}
 
@@ -2664,7 +2681,14 @@ System „Harmony Home Net” wykorzystuje kilka integracji z systemami zewnętr
 
 \subsection{System bankowości}
 
-Funkcjonalność płatności w systemie jest realizowana za pomocą klasy \texttt{BankingServiceImp}, która symuluje przesłanie żądania płatności do systemu bankowego. W obecnym stanie logika płatności ogranicza się do wyświetlenia odpowiednich informacji w konsoli, oarz do uproszczonego formularza w UI właściela:
+Funkcjonalność płatności w systemie jest realizowana za pomocą klasy \texttt{BankingServiceImp}, która symuluje przesłanie żądania płatności do systemu bankowego. W obecnym stanie logika płatności ogranicza się do wyświetlenia odpowiednich informacji w konsoli, oraz do uproszczonego formularza w UI właściciela, jak przedationo na rysynku~\ref{fig:mock_of_paymet}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.63\linewidth]{rys03/mock_pay}
+    \caption{Mock formularza płatności}
+    \label{fig:mock_of_paymet}
+\end{figure}
 
 \begin{lstlisting}[language=Java, caption=Fragment klasy \texttt{BankingServiceImp}]
 @Override
@@ -2773,6 +2797,63 @@ Każdy typ powiadomienia przypisany do użytkownika pozwala na indywidualizację
 
 
 \section{Testy}
+W celu zapewnienia wysokiej jakości i niezawodności aplikacji, przeprowadzono testy jednostkowe dla wszystkich głównych serwisów. Testy zostały zorganizowane w osobnym module aplikacji, a ich implementacja oparta jest na frameworku JUnit. Każdy z serwisów został przetestowany pod kątem poprawności działania jego metod oraz obsługi wyjątków.
 
+\subsection{Struktura testów}
+Folder \texttt{serviceTests} zawiera testy odpowiadające implementacjom serwisów z folderu \texttt{implementation}. Przykładowo, dla serwisu \texttt{AnnouncementServiceImp} znajduje się plik \texttt{AnnouncementServiceTest.java}. Struktura ta zapewnia klarowność i łatwość w nawigacji pomiędzy kodem implementacji a testami.
 
+\subsection{Zakres testów}
+Każdy test obejmuje:
+\begin{itemize}
+    \item Sprawdzenie poprawności logiki biznesowej serwisów,
+    \item Obsługę przypadków wyjątkowych, takich jak \texttt{AnnouncementNotFoundException}, \texttt{UserNotFoundException}, itp.,
+    \item Testy graniczne dla danych wejściowych.
+\end{itemize}
+
+\subsection{Przykład testów}
+Przykładowe testy dla serwisu \texttt{AnnouncementService} weryfikują poprawność różnych funkcjonalności, w tym obsługi wyjątków oraz operacji CRUD. Oto kilka metod testowych:
+
+\begin{lstlisting}[language=Java, caption= Przykłądowe testy dla \texttt{AnnouncementService}]
+@Test
+void testFindAnnouncementById_NotFound() {
+    when(announcementRepository.findById(anyLong())).thenReturn(Optional.empty());
+    Assertions.assertThrows(AnnouncementNotFoundException.class, () -> {
+        announcementService.findAnnouncementById(1L);
+    });
+}
+
+@Test
+void testCreateAnnouncement_Success() {
+    Announcement announcement = new Announcement("New Announcement", "Description");
+    when(announcementRepository.save(any(Announcement.class))).thenReturn(announcement);
+    Announcement result = announcementService.createAnnouncement(announcement);
+    Assertions.assertEquals("New Announcement", result.getTitle());
+}
+
+@Test
+void testDeleteAnnouncementById_Success() {
+    doNothing().when(announcementRepository).deleteById(anyLong());
+    Assertions.assertDoesNotThrow(() -> {
+        announcementService.deleteAnnouncementById(1L);
+    });
+}
+\end{lstlisting}
+
+Powyższe testy weryfikują: 
+\begin{itemize}
+    \item Rzucanie wyjątków, gdy dane wejściowe są nieprawidłowe lub brak jest zasobu w bazie danych,
+    \item Poprawność zapisu danych do bazy,
+    \item Skuteczność operacji usuwania rekordów.
+\end{itemize}
+
+\subsection{Wyniki testów}
+Wszystkie testy jednostkowe zakończyły się pozytywnie, co potwierdza, że zaimplementowane serwisy działają zgodnie z założeniami. Pokrycie testami obejmuje główne przypadki użycia aplikacji. Na rzutach ekranu (rys.~\ref{fig:test_presetation}) widać przykłady 2 serii wykonach testów.
+
+\begin{figure}[htb]
+	\centering
+		\includegraphics[width=0.91\linewidth]{rys03/testy/platnosci_testy} \\[-1ex]
+		\includegraphics[width=0.91\linewidth]{rys03/testy/user_testy} \\[-1ex]
+		\caption{Przedstawienie 2 serii testów dla systemu}
+	\label{fig:test_presetation}
+\end{figure}
 
