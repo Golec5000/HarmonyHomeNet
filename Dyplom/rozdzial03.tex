@@ -5,9 +5,9 @@ Proces implementacji polega na przełożeniu założeń architektonicznych, wyma
 % TO DO: praca wymaga poprawek stylistycznych. Niektóre zdania są "zbyt pompatyczne", czasem też niegramatyczne.
 Warto podkreślić, że obecnie system „Harmony Home Net” ma charakter prototypu. Pozwala on na walidację podstawowych założeń oraz funkcji aplikacji eBOK, jednocześnie stanowiąc fundament dla przyszłego rozwoju pełnoprawnej aplikacji produkcyjnej. Zastosowane technologie, takie jak Next.js dla frontendu, Spring Boot dla backendu oraz Docker dla konteneryzacji, zapewniają skalowalność oraz łatwość rozbudowy systemu w kolejnych etapach.
 
-Rozdział rozpocznie omówienie zastosowanej \textbf{architektury warstwowej}~\cite{n_tier_wiki}, która jest podstawą projektowanego systemu. Szczegółowo opisane zostaną wszystkie warstwy – prezentacji, logiki biznesowej oraz dostępu do danych – z uwzględnieniem ich ról oraz sposobu implementacji. Następnie uwaga zostanie zwrócona na \textbf{bazę danych}. Omówione zostaną podejścia Database First i Code First, wraz z uzasadnieniem wyboru pierwszego z nich. Podane zostaną szczegóły zaprojektowanej struktury bazy danych oraz sposób jej integracji z aplikacją.
+Rozdział rozpocznie omówienie zastosowanej \textbf{architektury warstwowej}~\cite{n_tier_wiki}, która jest podstawą projektowanego systemu. Szczegółowo opisane zostaną wszystkie warstwy – prezentacji, logiki biznesowej oraz dostępu do danych – z uwzględnieniem ich ról oraz sposobu implementacji. Następnie uwaga zostanie zwrócona na \textbf{bazę danych}. Omówione zostaną podejścia \emph{Database First} i \emph{Code First}, wraz z uzasadnieniem wyboru pierwszego z nich. Podane zostaną szczegóły zaprojektowanej struktury bazy danych oraz sposób jej integracji z aplikacją.
 
-W kolejnym kroku dokonany zostanie przegląd kluczowych elementów systemu. Rozpocznie się on od tematu \textbf{bezpieczeństwa}, w tym mechanizmów autoryzacji i uwierzytelniania zrealizowanych przy użyciu Spring Security. Następnie zostanie opisane \textbf{zarządzanie użytkownikami systemu} jako centralny element systemu, a także inne istotne funkcje, takie jak zarządzanie mieszkaniami, zgłoszeniami technicznymi, płatnościami i powiadomieniami.
+Przegląd kluczowych elementów systemu związanych z \textbf{bezpieczeństwem} obejmie mechanizmy autoryzacji i uwierzytelniania, zrealizowane za pomocą Spring Security. Następnie zostanie opisane \textbf{zarządzanie użytkownikami systemu}, a także inne istotne funkcje, jak zarządzanie mieszkaniami, zgłoszeniami technicznymi, płatnościami i powiadomieniami.
 
 
 % TO DO: czy rzeczywiście wdrożenia? Wdrożenie to proces instalacji i uruchomienia aplikacji w środowisku produkcyjnym.
@@ -19,7 +19,7 @@ W kolejnym kroku dokonany zostanie przegląd kluczowych elementów systemu. Rozp
 
 Architektura warstwowa jest jednym z najbardziej rozpowszechnionych wzorców projektowych w inżynierii oprogramowania. Polega na podziale aplikacji na logiczne warstwy, z których każda pełni określoną funkcję. W typowej architekturze warstwowej wyróżnia się cztery kluczowe warstwy: warstwę prezentacji, logiki biznesowej, dostępu do danych oraz warstwę danych~\cite{n_tier_baeldung, n_tier_medium}. Ich ogólny schemat przedstawiono na rysunku \ref{fig:n_tier_arch}. Poszczególne elementy schematu oznaczono literami (a, b, c, d), co pozwala na ich jednoznaczną identyfikację w dalszym opisie.
 
-Podział na warstwy przynosi wiele korzyści:
+\noindent Podział na warstwy przynosi wiele korzyści:
 \begin{itemize}
     \item \textbf{Modularność} -- niezależność warstw ułatwia rozwój i utrzymanie systemu.
     \item \textbf{Reużywalność} -- komponenty warstw mogą być łatwo wykorzystane w innych projektach.
@@ -35,50 +35,43 @@ Do wad architektury warstwowej należą:
 \end{itemize}
 
 Zastosowanie architektury warstwowej w systemie „Harmony Home Net” zapewnić ma jego modularność, skalowalność oraz łatwość utrzymania, spełniając wymagania zarówno użytkowników końcowych, jak i administratorów.
-\begin{figure}[t]
+\begin{figure}[htb]
     \centering
-    \includegraphics[scale=1]{rys03/diagram_architektury_warstwowej}
+    \includegraphics[scale=1.2]{rys03/diagram_architektury_warstwowej}
     \caption{Ogólny schemat architektury warstwowej}
     \label{fig:n_tier_arch}
 \end{figure}
 
 \subsection{Warstwa prezentacji (ang.\ \emph{Presentation Layer})}
-Warstwa prezentacji odpowiada za interakcję użytkownika z aplikacją, będąc głównym punktem styku użytkownika z systemem. Na tym poziomie użytkownik wprowadza dane wejściowe, a system zwraca wyniki w formie czytelnej i zrozumiałej. Głównym zadaniem warstwy prezentacji jest renderowanie interfejsu użytkownika oraz obsługa zdarzeń takich jak kliknięcia czy przesunięcia. Odpowiada również za wstępną walidację danych wejściowych, na przykład sprawdzanie, czy wprowadzony adres e-mail ma poprawny format. Przetworzone dane są następnie przekazywane do warstwy logiki biznesowej, gdzie są dalej analizowane i przetwarzane.
+Warstwa prezentacji, oznaczona literą \texttt{a)} na rysunku \ref{fig:n_tier_arch}), odpowiada za interakcję użytkownika z systemem. Na tym poziomie użytkownik wprowadza dane wejściowe, a system zwraca wyniki w formie czytelnej i zrozumiałej. Głównym zadaniem warstwy prezentacji jest renderowanie interfejsu użytkownika oraz obsługa zdarzeń takich jak kliknięcia czy przesunięcia. Odpowiada również za wstępną walidację danych wejściowych, na przykład sprawdzanie, czy wprowadzony adres e-mail ma poprawny format. Przetworzone dane są następnie przekazywane do warstwy logiki biznesowej, gdzie są dalej analizowane i przetwarzane.
 
-Na rysunku \ref{fig:n_tier_arch} warstwa prezentacji jest oznaczona literą \texttt{a)}. W systemie ,,Harmony Home Net,, została zrealizowana za pomocą frameworka Next.js w języku TypeScript. Odpowiada ona za wyświetlanie interfejsu użytkownika, w tym panelu właściela, gdzie użytkownicy mogą przeglądać zgłoszenia techniczne, dokonywać płatności oraz uczestniczyć w głosowaniach. Użycie Next.js umożliwia renderowanie po stronie serwera, co poprawia wydajność aplikacji oraz jej pozycjonowanie w wyszukiwarkach (SEO). Dzięki komponentom wielokrotnego użytku interfejs użytkownika jest spójny wizualnie i funkcjonalnie. 
+W systemie ,,Harmony Home Net,, warstwę tę zrealizowano za pomocą frameworka Next.js, w~języku TypeScript. Odpowiada ona za wyświetlanie interfejsu użytkownika, w tym panelu właściela, gdzie użytkownicy mogą przeglądać zgłoszenia techniczne, dokonywać płatności oraz uczestniczyć w głosowaniach. Użycie Next.js umożliwia renderowanie po stronie serwera, co poprawia wydajność aplikacji oraz jej pozycjonowanie w wyszukiwarkach (SEO). Dzięki komponentom wielokrotnego użytku interfejs użytkownika jest spójny wizualnie i funkcjonalnie. 
 
 \subsection{Warstwa logiki biznesowej (ang.\ \emph{Business Logic Layer})}
 
-Warstwa logiki biznesowej pełni kluczową rolę w przetwarzaniu danych wejściowych i realizacji reguł biznesowych. Na tym poziomie dane są analizowane i przetwarzane zgodnie z zasadami określonymi przez specyfikę aplikacji. Główne zadania tej warstwy obejmują koordynację przepływu danych między innymi warstwami oraz obsługę wyjątków, które mogą wystąpić w wyniku błędów na wcześniejszych etapach przetwarzania.
+Warstwa logiki biznesowej, oznaczona  literą \texttt{b)} na rysunku \ref{fig:n_tier_arch}, pełni kluczową rolę w przetwarzaniu danych wejściowych i realizacji reguł biznesowych. Na tym poziomie dane są analizowane i przetwarzane zgodnie z zasadami określonymi przez specyfikę aplikacji. Główne zadania tej warstwy obejmują koordynację przepływu danych między innymi warstwami oraz obsługę wyjątków, które mogą wystąpić w wyniku błędów na wcześniejszych etapach przetwarzania.
 
-Na rysunku \ref{fig:n_tier_arch} warstwa logiki biznesowej jest oznaczona  literą \texttt{b)}. W~systemie ,,Harmony Home Net,, warstwa ta, oparta na Spring Boot, realizuje procesy biznesowe takie jak autoryzacja użytkowników przy użyciu OAuth 2.0, zarządzanie zgłoszeniami technicznymi oraz integracja z systemami płatności. Warstwa ta komunikuje się z frontendem poprzez REST API, co zapewnia efektywne przetwarzanie żądań i odpowiedzi. Dodatkowo technologia Spring Boot umożliwia implementację skalowalnych i bezpiecznych rozwiązań, co jest kluczowe w przypadku obsługi dużej liczby użytkowników.
+W~systemie ,,Harmony Home Net'' warstwa ta, oparta na Spring Boot, realizuje procesy biznesowe takie jak autoryzacja użytkowników przy użyciu OAuth 2.0, zarządzanie zgłoszeniami technicznymi oraz integracja z systemami płatności. Warstwa ta komunikuje się z frontendem poprzez REST API, co zapewnia efektywne przetwarzanie żądań i odpowiedzi. Dodatkowo technologia Spring Boot umożliwia implementację skalowalnych i bezpiecznych rozwiązań, co jest kluczowe w przypadku obsługi dużej liczby użytkowników.
 
 \subsection{Warstwa dostępu do danych (ang.\ \emph{Data Access Layer})}
 
-Warstwa dostępu do danych odpowiada za komunikację między logiką biznesową a fizycznym przechowywaniem danych. Jej główną funkcją jest wykonywanie operacji takich jak zapisywanie, odczytywanie, aktualizowanie i usuwanie danych w sposób zoptymalizowany i bezpieczny. Często korzysta się z bibliotek ORM, takich jak Hibernate lub JPA w Javie, które ułatwiają mapowanie danych między bazą a obiektami aplikacji.
+Warstwa dostępu do danych, oznaczona literą \texttt{c)} na rysunku \ref{fig:n_tier_arch}, odpowiada za komunikację między logiką biznesową a fizycznym przechowywaniem danych. Jej główną funkcją jest wykonywanie operacji takich jak zapisywanie, odczytywanie, aktualizowanie i usuwanie danych w sposób zoptymalizowany i bezpieczny. Często korzysta się z bibliotek ORM, takich jak Hibernate lub JPA w Javie, które ułatwiają mapowanie danych między bazą a obiektami aplikacji.
 
-Na rysunku \ref{fig:n_tier_arch} warstwa dostępu do danych jest oznaczona literą \texttt{c)}. W systemie ,,Harmony Home Net,, baza danych PostgreSQL została uruchomiona w środowisku Docker. Dzięki zastosowaniu JPA możliwe jest łatwe mapowanie danych między tabelami bazodanowymi a obiektami aplikacji w Javie. Taka implementacja umożliwia optymalizację zapytań i zapewnia wydajność operacji, co jest istotne w przypadku dużej ilości danych przechowywanych w systemie, takich jak zgłoszenia techniczne czy płatności właścieli.
+W systemie ,,Harmony Home Net,, baza danych PostgreSQL została uruchomiona w środowisku Docker. Dzięki zastosowaniu JPA możliwe jest łatwe mapowanie danych między tabelami bazodanowymi a obiektami aplikacji w Javie. Taka implementacja umożliwia optymalizację zapytań i zapewnia wydajność operacji, co jest istotne w przypadku dużej ilości danych przechowywanych w systemie, takich jak zgłoszenia techniczne czy płatności właścieli.
 
 \subsection{Warstwa danych (ang.\ \emph{Data Layer})}
+Warstwa danych, oznaczona literą \texttt{d)} na rysunku \ref{fig:n_tier_arch}, odpowiada za trwałe przechowywanie danych aplikacji w bazach danych. Obejmuje zarządzanie strukturą danych, ich bezpieczeństwem oraz udostępnianie ich innym warstwom w sposób wydajny i zorganizowany. W systemie ,,Harmony Home Net'' wykorzystano bazę danych PostgreSQL wdrożoną w kontenerze Docker. 
 
-Warstwa danych odpowiada za trwałe przechowywanie danych aplikacji w bazach danych. Obejmuje zarządzanie strukturą danych, ich bezpieczeństwem oraz udostępnianie ich innym warstwom w sposób wydajny i zorganizowany. W systemie ,,Harmony Home Net'' wykorzystano bazę danych PostgreSQL, która została wdrożona w kontenerze Docker. 
-
-Na rysunku \ref{fig:n_tier_arch} warstwa danych jest oznaczona literą \texttt{d)}. Dzięki zastosowaniu mapowania ORM dane w bazie są bezpośrednio odwzorowywane na obiekty w aplikacji, co pozwala na wygodniejsze operacje na danych. Mechanizm ORM umożliwia wykonywanie zapytań SQL w sposób abstrakcyjny i bardziej czytelny, co upraszcza implementację i zmniejsza ryzyko błędów.
-
-
-\section{Struktura bazy danych}
-
-Projektowanie bazy danych to jeden z kluczowych etapów tworzenia systemów informatycznych. W kontekście systemu ,,Harmony Home Net'' zdecydowano się na podejście \emph{Database First}, które polega na zaprojektowaniu struktury bazy danych przed rozpoczęciem implementacji kodu aplikacji. Jest to jedno z dwóch popularnych podejść do projektowania baz danych w aplikacjach, obok \emph{Code First}~\cite{DB_FIRST_VS_CODE_FIRST_1,DB_FIRST_VS_CODE_FIRST_2}.
-
-\subsection{Porównanie podejść Database First i Code First}
+Projektowanie bazy danych to jeden z kluczowych etapów tworzenia systemów informatycznych. Może odbywać się w podejściach \emph{Database First} i \emph{Code First}~\cite{DB_FIRST_VS_CODE_FIRST_1,DB_FIRST_VS_CODE_FIRST_2}. 
 
 Podejście \emph{Code First} zakłada, że na początku w kodzie aplikacji powstanie model danych. Następnie na podstawie tego kodu zostanie wygenerowany schemat bazy danych~\cite{CODE_FIRST}. Dzięki temu podejściu możliwe są dynamiczne zmiany w~strukturze danych podczas rozwoju aplikacji. Przydaje się to w projektach, gdzie schemat bazy danych ewoluuje w odpowiedzi na zmieniające się wymagania biznesowe. Jednak w dużych projektach, w których schemat danych jest złożony i~wymaga precyzyjnej kontroli, podejście to może nie zadziałać.
 
-Z kolei podejście \emph{Database First} polega na wcześniejszym zaprojektowaniu schematu bazy danych, a następnie wygenerowaniu modelu aplikacji na jego podstawie. Jest to podejście bardziej tradycyjne, które umożliwia dokładne zdefiniowanie struktury danych jeszcze przed rozpoczęciem kodowania aplikacji~\cite{DB_FIRST}. Taka metodologia daje większą przewidywalność i precyzję, co jest istotne w systemach o wysokim stopniu zależności od integralności danych. Dodatkowo, podejście to pozwala na pełne wykorzystanie możliwości narzędzi ORM, takich jak JPA, ponieważ bazuje na uprzednio zaprojektowanym schemacie.
+Podejście \emph{Database First} polega na zaprojektowaniu schematu bazy danych, a następnie wygenerowaniu modelu aplikacji na jego podstawie. Jest to podejście bardziej tradycyjne, dające większą przewidywalność i precyzję, co jest istotne w systemach o wysokim stopniu zależności od integralności danych. Dodatkowo pozwala na pełne wykorzystanie możliwości narzędzi ORM, takich jak JPA, ponieważ bazuje na uprzednio zaprojektowanym schemacie. 
 
-\subsection{Wyboru podejścia Database First}
+Dzięki zastosowaniu mapowania ORM dane w bazie są bezpośrednio odwzorowywane na obiekty w aplikacji, co pozwala na wygodniejsze operacje na danych. Mechanizm ORM umożliwia wykonywanie zapytań SQL w sposób abstrakcyjny i bardziej czytelny, co upraszcza implementację i zmniejsza ryzyko błędów.
 
-Zdecydowano się na podejście \emph{Database First} z kilku ważnych powodów.
+\section{Struktura bazy danych}
+W kontekście systemu ,,Harmony Home Net'' zdecydowano się na podejście \emph{Database First}. Zdecydowano się na to z kilku ważnych powodów.
 \begin{itemize}
     \item \textbf{Centralna rola bazy danych} -- baza danych pełni kluczową funkcję w systemie, przechowując informacje o użytkownikach, lokalach, zgłoszeniach technicznych oraz płatnościach. Precyzyjne zaprojektowanie jej struktury na etapie początkowym pozwoliło na lepsze zrozumienie relacji między danymi i~ich hierarchii.
     \item \textbf{Integracja z narzędziami ORM} -- dzięki wykorzystaniu podejścia \emph{Database First}, istniejące narzędzia ORM, takie jak JPA (Java Persistence API), mogły zostać bezproblemowo dostosowane do uprzednio przygotowanego schematu bazy danych, co uprościło implementację i~zmniejszyło ryzyko błędów.
@@ -97,7 +90,7 @@ Strukturę bazy danych w systemie „Harmony Home Net” zaprojektowano z uwzgl�
 \end{figure}
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=1\linewidth]{rys03/ebok_db_physical}
+    \includegraphics[width=1\linewidth]{rys03/ebok_db_physical} % TO DO: da się jeszcze zacieśnić tabele (przesunąć lekko do lewej to po prawej stronie licząc od połowy)
     \caption{Schemat fizyczny bazy danych systemu}
     \label{fig:ebok_db_physical}
 \end{figure}
@@ -424,36 +417,34 @@ Mechanizm logowania zapewnia bezpieczną i bezstanową autoryzację użytkownik�
 
 \subsection{Zarządzanie tokenami JWT i autoryzacja użytkowników}
 
-Zarządzanie tokenami JWT w systemie „Harmony Home Net” opiera się na zaawansowanych mechanizmach walidacji i autoryzacji, integrując je z frameworkiem Spring Security. Schemat ilustrujący proces dostępu do zasobów systemu został przedstawiony na rysunku \ref{fig:resource_access_flow}.
-
+Zarządzanie tokenami JWT w systemie „Harmony Home Net” opiera się na zaawansowanych mechanizmach walidacji i autoryzacji, integrując je z frameworkiem Spring Security. Schemat ilustrujący proces dostępu do zasobów systemu pokazano na rysunku \ref{fig:resource_access_flow}.
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=.9\linewidth]{rys03/Diagram_dotępu_do_zasobów_systemu}
+    \includegraphics[width=.9\linewidth]{rys03/Diagram_dotępu_do_zasobów_systemu}  % TO DO: proszę poprawić skośne strzałki na poziome, poprawić bałagan przy HTTP:403 - strzałki nie muszą przecinać się)
     \caption{Diagram zarządzania tokenami JWT i autoryzacji użytkowników~\cite{JWToauth}}
     \label{fig:resource_access_flow}
 \end{figure}
 
-Proces składa się z następujących kroków, oznaczonych literami \textbf{a}–\textbf{i} na schemacie:
+Proces ten składa się z następujących kroków:
+\begin{enumerate}
+    \item[\texttt{a)}] Przesłanie żądania przez użytkownika -- użytkownik wysyła żądanie HTTP do usługi API z dołączonym tokenem JWT w nagłówku \texttt{Authorization}.
+    
+    \item[\texttt{b)}] Przechwycenie żądania przez \texttt{JwtAccessTokenFilter} -- niestandardowy filtr \texttt{JwtAccessTokenFilter}, zintegrowany z \texttt{SecurityFilterChain}, przechwytuje żądanie i analizuje token JWT. Jeśli token jest nieobecny lub niepoprawny, zwracana jest odpowiedź z kodem HTTP \texttt{403}.
+    
+    \item[\texttt{c)}] Ekstrakcja danych z tokenu JWT przez \texttt{Jwt Service / OAuth 2.0 Resource Server} -- w przypadku obecności tokenu JWT, usługa \texttt{Jwt Service}, korzystająca z mechanizmu \emph{OAuth 2.0 Resource Server}, jest wywoływana w celu ekstrakcji adresu e-mail użytkownika (\texttt{userEmail}). Jeśli dane użytkownika nie mogą zostać odczytane lub token jest nieprawidłowy, zwracany jest status HTTP \texttt{403}.
 
-\begin{itemize}
-    \item \textbf{Przesłanie żądania przez użytkownika \texttt{a)}} -- użytkownik wysyła żądanie HTTP do usługi API z dołączonym tokenem JWT w nagłówku \texttt{Authorization}.
+    \item[\texttt{d)}] Sprawdzenie użytkownika w bazie danych -- Wyodrębniony adres e-mail użytkownika jest wykorzystywany do zapytania w bazie danych za pomocą \texttt{UserDetailsService}. Jeśli użytkownik nie istnieje w bazie, zwracana jest odpowiedź z kodem HTTP \texttt{403}.
     
-    \item \textbf{Przechwycenie żądania przez \texttt{JwtAccessTokenFilter} \texttt{b)}} -- niestandardowy filtr \texttt{JwtAccessTokenFilter}, zintegrowany z \texttt{SecurityFilterChain}, przechwytuje żądanie i analizuje token JWT. Jeśli token jest nieobecny lub niepoprawny, zwracana jest odpowiedź z kodem HTTP \texttt{403}.
+    \item[\texttt{e)}] Walidacja tokenu JWT -- token JWT jest weryfikowany pod kątem poprawności oraz daty ważności. Jeśli token wygasł, zwracana jest odpowiedź HTTP \texttt{403}.
     
-    \item \textbf{Ekstrakcja danych z tokenu JWT przez \texttt{Jwt Service / OAuth 2.0 Resource Server} \texttt{c)}} -- w przypadku obecności tokenu JWT, usługa \texttt{Jwt Service}, korzystająca z mechanizmu \emph{OAuth 2.0 Resource Server}, jest wywoływana w celu ekstrakcji adresu e-mail użytkownika (\texttt{userEmail}). Jeśli dane użytkownika nie mogą zostać odczytane lub token jest nieprawidłowy, zwracany jest status HTTP \texttt{403}.
-
-    \item \textbf{Sprawdzenie użytkownika w bazie danych \texttt{d)}} -- Wyodrębniony adres e-mail użytkownika jest wykorzystywany do zapytania w bazie danych za pomocą \texttt{UserDetailsService}. Jeśli użytkownik nie istnieje w bazie, zwracana jest odpowiedź z kodem HTTP \texttt{403}.
+    \item[\texttt{f)}] Utworzenie obiektu \texttt{UsernamePasswordAuthenticationToken} -- jeśli token JWT jest ważny, informacje o użytkowniku są przetwarzane w obiekt \texttt{UsernamePasswordAuthenticationToken}, który następnie jest przechowywany w \texttt{SecurityContextHolder}.
     
-    \item \textbf{Walidacja tokenu JWT \texttt{e)}} -- token JWT jest weryfikowany pod kątem poprawności oraz daty ważności. Jeśli token wygasł, zwracana jest odpowiedź HTTP \texttt{403}.
+    \item[\texttt{g)}] Autoryzacja przez Spring Security -- mechanizm autoryzacji Spring Security jest automatycznie wywoływany, aby sprawdzić, czy użytkownik ma odpowiednie uprawnienia do dostępu do zasobów.
     
-    \item \textbf{Utworzenie obiektu \texttt{UsernamePasswordAuthenticationToken} \texttt{f)}} -- jeśli token JWT jest ważny, informacje o użytkowniku są przetwarzane w obiekt \texttt{UsernamePasswordAuthenticationToken}, który następnie jest przechowywany w \texttt{SecurityContextHolder}.
+    \item[\texttt{h)}] Przekazanie żądania do kontrolera -- po pomyślnym uwierzytelnieniu i autoryzacji żądanie jest kierowane do odpowiedniego kontrolera, który obsługuje dalsze przetwarzanie.
     
-    \item \textbf{Autoryzacja przez Spring Security \texttt{g)}} -- mechanizm autoryzacji Spring Security jest automatycznie wywoływany, aby sprawdzić, czy użytkownik ma odpowiednie uprawnienia do dostępu do zasobów.
-    
-    \item \textbf{Przekazanie żądania do kontrolera \texttt{h)}} -- po pomyślnym uwierzytelnieniu i autoryzacji żądanie jest kierowane do odpowiedniego kontrolera, który obsługuje dalsze przetwarzanie.
-    
-    \item \textbf{Zwrócenie odpowiedzi \texttt{i)}} -- po przetworzeniu żądania kontroler zwraca odpowiedź JSON z kodem HTTP \texttt{200}.
-\end{itemize}
+    \item[\texttt{i)}] Zwrócenie odpowiedzi -- po przetworzeniu żądania kontroler zwraca odpowiedź JSON z kodem HTTP \texttt{200}.
+\end{enumerate}
 
 Kluczowym elementem procesu zarządzania tokenami JWT jest klasa \texttt{JwtAccessTokenFilter}, której zadaniem jest przechwytywanie i weryfikacja tokenów JWT w żądaniach HTTP. Kod tej klasy przedstawiono poniżej:
 
@@ -506,8 +497,7 @@ public class JwtAccessTokenFilter extends OncePerRequestFilter {
 }
 \end{lstlisting}
 
-Opis działania klasy:
-
+\noindent Opis działania klasy:
 \begin{itemize}
     \item Klasa \texttt{JwtAccessTokenFilter} dziedziczy po \texttt{OncePerRequestFilter}, dzięki czemu jest wywoływana raz dla każdego żądania.
     \item Weryfikacja nagłówka \texttt{Authorization} zapewnia, że token JWT jest obecny i poprawny.
@@ -517,8 +507,7 @@ Opis działania klasy:
 \end{itemize}
 
 
-Klasa \texttt{JwtConfig} zapewnia konfigurację mechanizmów dekodowania i kodowania tokenów JWT przy użyciu kluczy RSA. Kod klasy:
-
+Klasa \texttt{JwtConfig} zapewnia konfigurację mechanizmów dekodowania i kodowania tokenów JWT przy użyciu kluczy RSA. Jej kod przedstawiono poniżej.
 \begin{lstlisting}[language=Java, style=JavaStyle, caption=Klasa \texttt{JwtConfig}]
 @Configuration
 public class JwtConfig {
@@ -545,7 +534,7 @@ public class JwtConfig {
 }
 \end{lstlisting}
 
-Klasa \texttt{JwtTokenUtils} odpowiada za operacje związane z tokenami JWT, takie jak ekstrakcja danych, weryfikacja poprawności oraz walidacja zgodności z danymi użytkownika. Kod tej klasy przedstawiono poniżej:
+Klasa \texttt{JwtTokenUtils} odpowiada za operacje związane z tokenami JWT, takie jak ekstrakcja danych, weryfikacja poprawności oraz walidacja zgodności z danymi użytkownika. Jej kod przedstawiono poniżej.
 
 \begin{lstlisting}[language=Java, style=JavaStyle, caption=Klasa \texttt{JwtTokenUtils}]
 @Component
@@ -580,9 +569,10 @@ public class JwtTokenUtils {
 
 \subsection{Zarządzanie czarną listą tokenów}
 
-Mechanizm zarządzania czarną listą tokenów jest kluczowym elementem zapewnienia bezpieczeństwa w systemie „Harmony Home Net”. Umożliwia on unieważnienie tokenów JWT, co jest szczególnie istotne w procesie wylogowania użytkownika. Dzięki temu można natychmiast zakończyć sesję użytkownika i uniemożliwić dostęp do zasobów chronionych systemu przy użyciu starego tokenu.
+Mechanizm zarządzania czarną listą tokenów w systemie „Harmony Home Net” umożliwia unieważnienie tokenów JWT. Jest to szczególnie istotne w procesie wylogowania użytkownika. Dzięki temu można natychmiast zakończyć sesję użytkownika i uniemożliwić dostęp do zasobów chronionych systemu przy użyciu starego tokenu.
 
-\textbf{Proces wylogowania i dodawania tokenu do czarnej listy} -- podczas wylogowania system korzysta z dedykowanego łańcucha filtrów \texttt{logoutSecurityFilterChain}, zdefiniowanego w klasie \texttt{SecurityConfig}. Fragment konfiguracji przedstawiono poniżej:
+\noindent \textbf{Proces wylogowania i dodawania tokenu do czarnej listy}\newline
+Podczas wylogowania system korzysta z dedykowanego łańcucha filtrów \texttt{logoutSecurityFilterChain}, zdefiniowanego w klasie \texttt{SecurityConfig}. Fragment konfiguracji przedstawiono poniżej.
 
 \begin{lstlisting}[language=Java, style=JavaStyle, caption=Konfiguracja łańcucha wylogowania]
 @Bean
@@ -614,7 +604,8 @@ Podczas wylogowania użytkownik wysyła żądanie HTTP na ścieżkę \texttt{/lo
     \item Wyczyszczenie kontekstu bezpieczeństwa (\texttt{SecurityContextHolder}) w celu unieważnienia sesji użytkownika.
 \end{itemize}
 
-\textbf{Zarządzanie czarną listą tokenów} -- klasa \texttt{TokenBlacklistService} odpowiada za przechowywanie tokenów w czarnej liście oraz ich usuwanie po wygaśnięciu. Kod klasy przedstawiono poniżej:
+\noindent \textbf{Zarządzanie czarną listą tokenów}\newline
+Klasa \texttt{TokenBlacklistService} odpowiada za przechowywanie tokenów w czarnej liście oraz ich usuwanie po wygaśnięciu. Kod klasy przedstawiono poniżej.
 
 \begin{lstlisting}[language=Java, style=JavaStyle, caption=Klasa \texttt{TokenBlacklistService}]
 @Service
@@ -647,14 +638,15 @@ public class TokenBlacklistService {
 }
 \end{lstlisting}
 
-Funkcjonalności tej klasy obejmują:
+\noindent Znaczenie metody tej klasy jest następujące:
 \begin{itemize}
     \item \texttt{blacklistToken} -- dodaje token JWT do czarnej listy w momencie wylogowania.
     \item \texttt{isTokenBlacklisted} -- sprawdza, czy dany token znajduje się na czarnej liście.
     \item \texttt{clearExpiredTokens} -- usuwa z czarnej listy tokeny, które wygasły, aby ograniczyć zużycie pamięci.
 \end{itemize}
 
-\textbf{Harmonogram czyszczenia czarnej listy} --  usługa \texttt{TokenBlacklistService} korzysta z metody \texttt{@Scheduled}, która co 15 minut sprawdza i usuwa tokeny wygasłe. Jest to realizowane asynchronicznie, dzięki czemu proces ten nie wpływa na wydajność aplikacji.
+\noindent \textbf{Harmonogram czyszczenia czarnej listy}\newline
+Usługa \texttt{TokenBlacklistService} korzysta z metody \texttt{@Scheduled}, która co 15 minut sprawdza i usuwa tokeny wygasłe. Jest to realizowane asynchronicznie, dzięki czemu proces ten nie wpływa na wydajność aplikacji.
 
 Dzięki istnieniu czarnych list system skutecznie zapobiega nieautoryzowanemu dostępowi do zasobów po wylogowaniu użytkownika lub wykryciu naruszenia bezpieczeństwa.
 
@@ -669,7 +661,7 @@ Mechanizm resetowania hasła zaprojektowano z uwzględnieniem podstawowych wymag
     \label{fig:ui_password_reset}
 \end{figure}
 
-Samo resetowania hasła odbywa się według kroków:
+\noindent Samo resetowania hasła odbywa się według kroków:
 \begin{itemize}
     \item \textbf{Prośba o reset hasła} -- użytkownik korzysta z sekcji \emph{Send Reset Link}, gdzie wprowadza swój adres e-mail i przesyła żądanie za pomocą przycisku \emph{Send Reset Link}. Po przesłaniu żądania na endpoint \texttt{/forgot-password} generowany jest unikalny token zabezpieczający, który zostaje wysłany na wskazany adres e-mail.
     
@@ -710,11 +702,12 @@ public ResponseEntity<String> changePassword(@RequestBody PasswordChangeRequest 
 }
 \end{lstlisting}
 
-Znaczenie poszczególnych endpointów jest następujące.\newline
-\texttt{forgotPassword} -- generuje token resetujący, który jest wysyłany na podany adres e-mail użytkownika. Token ma ograniczoną ważność, co zwiększa bezpieczeństwo.\newline
-\texttt{resetPassword} -- weryfikuje token przesłany przez użytkownika, sprawdza jego ważność oraz zgodność przesłanych haseł. W przypadku pomyślnej walidacji hasło użytkownika jest aktualizowane w bazie.\newline
-\texttt{changePassword} -- pozwala na zmianę hasła dla zalogowanych użytkowników, weryfikując zgodność adresu e-mail i przesłanych danych.
-
+\noindent Znaczenie poszczególnych endpointów jest następujące:
+\begin{itemize}
+\item \texttt{forgotPassword} -- generuje token resetujący, który jest wysyłany na podany adres e-mail użytkownika. Token ma ograniczoną ważność, co zwiększa bezpieczeństwo.
+\item \texttt{resetPassword} -- weryfikuje token przesłany przez użytkownika, sprawdza jego ważność oraz zgodność przesłanych haseł. W przypadku pomyślnej walidacji hasło użytkownika jest aktualizowane w bazie.
+\item \texttt{changePassword} -- pozwala na zmianę hasła dla zalogowanych użytkowników, weryfikując zgodność adresu e-mail i przesłanych danych.
+\end{itemize}
 
 Resetowania hasła jest realizowane przez klasę \texttt{AuthServiceImp}, która implementuje interfejs \texttt{AuthService}. Kluczowe metody odpowiedzialne za reset przedstwiono na listingu poniżej.
 \begin{lstlisting}[language=Java, style=JavaStyle, caption=Metody resetowania hasła w klasie \texttt{AuthServiceImp}]
@@ -755,7 +748,9 @@ public void resetPassword(String token, String newPassword, String confirmPasswo
 }
 \end{lstlisting}
 
-Działanie poszczególnych metod jest następujące.\newline
+\noindent Działanie poszczególnych metod jest następujące:
+\begin{itemize}
+\item 
 \texttt{forgotPassword(String email)} -- ta metoda generuje token resetowania hasła dla użytkownika z podanym adresem e-mail. W szczególności:
     \begin{enumerate}
         \item Sprawdza, czy użytkownik istnieje w bazie danych. Jeśli nie, rzuca wyjątek \texttt{UserNotFoundException}.
@@ -763,17 +758,17 @@ Działanie poszczególnych metod jest następujące.\newline
         \item Ustawia token oraz datę jego wygaśnięcia (np. 1 godzina od momentu utworzenia) w obiekcie użytkownika.
         \item Wysyła wiadomość e-mail z tokenem i informacją o resetowaniu hasła za pomocą usługi \texttt{MailService}.
     \end{enumerate}
- \texttt{resetPassword(String token, String newPassword, String confirmPassword)} -- ta metoda obsługuje resetowanie hasła na podstawie tokenu. Kluczowe kroki:
+\item 
+\texttt{resetPassword(String token, String newPassword, String confirmPassword)} -- ta metoda obsługuje resetowanie hasła na podstawie tokenu. Kluczowe kroki:
     \begin{enumerate}
         \item Pobiera użytkownika z bazy danych na podstawie przesłanego tokenu. Jeśli token jest nieprawidłowy, rzuca wyjątek \texttt{ResponseStatusException}.
         \item Sprawdza, czy nowe hasło oraz jego potwierdzenie są zgodne. W przypadku niezgodności rzuca wyjątek \texttt{BAD\_REQUEST}.
-        \item Weryfikuje, czy token nie wygasł, porównując jego datę wygaśnięcia z bieżącym czasem.
+        \item Weryfikuje ważność tokenu, porównując jego datę wygaśnięcia z bieżącym czasem.
         \item Aktualizuje hasło użytkownika, resetuje token oraz jego datę ważności w bazie danych.
     \end{enumerate}
+\end{itemize}
 
-
-\textbf{Implementacja czyszczenia wygasłych tokenów:}
-
+\noindent \textbf{Implementacja czyszczenia wygasłych tokenów}\newline
 Aby zapewnić bezpieczeństwo i efektywne zarządzanie bazą danych, w systemie zaimplementowano usługę \texttt{TokenCleanupService}, która regularnie usuwa wygasłe tokeny resetujące hasła. Kluczowe elementy implementacji:
 \begin{itemize}
     \item Usługa korzysta z adnotacji \texttt{@Scheduled}, aby wykonywać zadanie czyszczenia co 30 minut.
@@ -796,14 +791,13 @@ public class TokenCleanupService {
 
 }
 \end{lstlisting}
-
-\textbf{Szczegóły implementacji:}
+Podsumowując główne cechy implementacji:
 \begin{itemize}
-    \item \textbf{Token ważny czasowo} -- tokeny resetujące hasło mają ograniczony czas ważności, co minimalizuje ryzyko nieautoryzowanego użycia.
-    \item \textbf{Regularne usuwanie} -- mechanizm automatycznego czyszczenia zapewnia, że baza danych pozostaje wolna od nieaktualnych tokenów.
+    \item \textbf{Token jest ważny czasowo} -- tokeny resetujące hasło mają ograniczony czas ważności, co minimalizuje ryzyko nieautoryzowanego użycia.
+    \item \textbf{Usuwanie wygasłych tokenów odbywa się regularnie} -- mechanizm automatycznego czyszczenia zapewnia, że baza danych pozostaje wolna od nieaktualnych tokenów.
 \end{itemize}
 
-Bezpieczeństwo i walidacja:
+\noindent \textbf{Bezpieczeństwo i walidacja}\newline
 Każdy krok w procesie resetowania hasła jest zabezpieczony odpowiednimi walidacjami:
 \begin{enumerate}
     \item Token jest szyfrowany i przechowywany w bazie danych, co uniemożliwia jego odczytanie w przypadku naruszenia bezpieczeństwa bazy.
@@ -811,7 +805,7 @@ Każdy krok w procesie resetowania hasła jest zabezpieczony odpowiednimi walida
     \item Sprawdzana jest zgodność nowego hasła i jego potwierdzenia, aby uniknąć przypadkowych błędów ze strony użytkownika.
 \end{enumerate}
 
-Rozszerzenie funkcjonalności w przyszłości:
+\noindent \textbf{Rozszerzenie funkcjonalności w przyszłości}\newline
 W przyszłości mechanizm może zostać rozszerzony o dodatkowe funkcje, takie jak:
 \begin{enumerate}
     \item Logowanie operacji resetowania hasła w celu audytowania.
@@ -819,7 +813,7 @@ W przyszłości mechanizm może zostać rozszerzony o dodatkowe funkcje, takie j
     \item Wysyłanie linku resetującego, który odsyła użytkownika na dedykowaną stronę, zamiast przesyłania samego tokenu w wiadomości.
 \end{enumerate}
 
-Bezpieczeństwo i wygoda użytkownika: 
+\noindent \textbf{Bezpieczeństwo i wygoda użytkownika}\newline 
 Mechanizmy te, choć uproszczone w prototypie, zapewniają podstawowy poziom bezpieczeństwa, jednocześnie umożliwiając wygodne resetowanie hasła. W przyszłości aplikacja może zostać rozszerzona o dodatkowe zabezpieczenia, takie jak wieloskładnikowe uwierzytelnianie (MFA) lub mechanizmy monitorujące nieautoryzowane próby resetowania hasła.
 
 
@@ -829,17 +823,14 @@ System zarządzania użytkownikami w prototypie \textbf{Harmony Home Net} zosta�
 
 \subsection{Encja użytkownika \texttt{User}}
 
-Encja \texttt{User} jest jednym z dwóch centralnym elementem systemu zarządzania użytkownikami. Reprezentuje dane użytkownika w systemie, takie jak imię, nazwisko, adres e-mail, numer telefonu oraz przypisana rola. Klasa \texttt{User} implementuje interfejs \texttt{UserDetails} z biblioteki Spring Security, co umożliwia jej bezpośrednie wykorzystanie w procesie autoryzacji i uwierzytelniania użytkowników.
-
-\textbf{Kluczowe cechy encji \texttt{User}:}
+Encja \texttt{User} jest jednym z dwóch centralnym elementem systemu zarządzania użytkownikami. Reprezentuje dane użytkownika w systemie, takie jak imię, nazwisko, adres e-mail, numer telefonu oraz przypisana rola. Klasa \texttt{User} implementuje interfejs \texttt{UserDetails} z biblioteki Spring Security, co umożliwia jej bezpośrednie wykorzystanie w procesie autoryzacji i uwierzytelniania użytkowników. Kluczowe cechy encji \texttt{User} to:
 \begin{itemize}
     \item \textbf{Implementacja \texttt{UserDetails}} -- dzięki implementacji interfejsu \texttt{UserDetails}, encja \texttt{User} jest zintegrowana z mechanizmami Spring Security, które wykorzystują ją do przechowywania i zarządzania danymi uwierzytelniającymi.
     \item \textbf{Adnotacje JPA} -- encja jest zmapowana na tabelę \texttt{Users} w bazie danych przy użyciu adnotacji JPA, takich jak \texttt{@Entity}, \texttt{@Table} oraz \texttt{@Column}.
     \item \textbf{Powiązania z innymi encjami} -- encja posiada relacje z wieloma innymi tabelami, takimi jak \texttt{NotificationType}, \texttt{UserDocumentConnection} oraz \texttt{PossessionHistory}, które odzwierciedlają jej złożoną strukturę w systemie.
     \item \textbf{Zabezpieczenia danych} -- pola, takie jak hasło (\texttt{Password}), są odpowiednio walidowane i szyfrowane przed zapisaniem w bazie danych.
 \end{itemize}
-
-\textbf{Fragment kodu encji \texttt{User}:}
+Poniżej zamieszczono fragment kodu encji \texttt{User}.
 \begin{lstlisting}[language=Java, style=JavaStyle, caption=Encja użytkownika \texttt{User}]
 @Data
 @AllArgsConstructor
@@ -931,17 +922,20 @@ public class User implements UserDetails {
 
 \subsection{Role i poziomy dostępu}
 
-System zarządzania użytkownikami opiera się na hierarchii ról, które są zdefiniowane w klasie \texttt{Role}. Każda rola ma przypisany poziom dostępu, wyrażony jako liczba całkowita. Dzięki temu system może łatwo określić, czy użytkownik posiada wystarczające uprawnienia do wykonania określonej operacji, takiej jak edycja danych innego użytkownika czy przypisanie nowej roli.
-
-\textbf{Definicja ról w systemie:}
+System zarządzania użytkownikami opiera się na hierarchii ról, które są zdefiniowane w klasie \texttt{Role}. Dzięki temu system może łatwo określić, czy użytkownik posiada wystarczające uprawnienia do wykonania określonej operacji, takiej jak edycja danych innego użytkownika czy przypisanie nowej roli. Role zdefiniowane w systemie to:
 \begin{itemize}
     \item \texttt{ROLE\_OWNER} -- poziom 1, właściciel mieszkania, podstawowa rola w systemie.
     \item \texttt{ROLE\_EMPLOYEE} -- poziom 2, pracownik administracyjny.
     \item \texttt{ROLE\_ADMIN} -- poziom 3, administrator systemu.
     \item \texttt{ROLE\_SUPER\_ADMIN} -- poziom 4, najwyższy poziom dostępu, superadministrator.
 \end{itemize}
-
-Fragment kodu definiującego enumerację \texttt{Role}:
+\noindent \textbf{Działanie hierarchii ról}
+\begin{itemize}
+    \item Każda rola ma wartość liczbową (\texttt{level}), określającą jej miejsce w hierarchii uprawnień.
+    \item Funkcje takie jak przypisywanie nowych ról czy edycja danych sprawdzają, czy użytkownik wykonujący operację posiada wyższy lub równy poziom dostępu (\texttt{level}) w stosunku do użytkownika, którego dane mają być zmodyfikowane.
+    \item Rola \texttt{ROLE\_OWNER} jest specjalnie zabezpieczona, aby zapobiec jej zmianie na inną rolę bez uprzedniego usunięcia użytkownika i ponownej rejestracji.
+\end{itemize}
+Poniżej zamieszczono fragment kodu definiującego enumerację \texttt{Role}.
 \begin{lstlisting}[language=Java, style=JavaStyle, caption=Definicja ról w systemie \texttt{Role}]
 package bwp.hhn.backend.harmonyhomenetlogic.utils.enums;
 
@@ -950,10 +944,7 @@ import org.springframework.security.core.GrantedAuthority;
 
 @Getter
 public enum Role implements GrantedAuthority {
-    ROLE_OWNER(1),
-    ROLE_EMPLOYEE(2),
-    ROLE_ADMIN(3),
-    ROLE_SUPER_ADMIN(4);
+    ROLE_OWNER(1), ROLE_EMPLOYEE(2), ROLE_ADMIN(3), ROLE_SUPER_ADMIN(4);
 
     private final int level;
 
@@ -968,12 +959,7 @@ public enum Role implements GrantedAuthority {
 }
 \end{lstlisting}
 
-\textbf{Działanie hierarchii ról:}
-\begin{itemize}
-    \item Każda rola ma wartość liczbową (\texttt{level}), określającą jej miejsce w hierarchii uprawnień.
-    \item Funkcje takie jak przypisywanie nowych ról czy edycja danych sprawdzają, czy użytkownik wykonujący operację posiada wyższy lub równy poziom dostępu (\texttt{level}) w stosunku do użytkownika, którego dane mają być zmodyfikowane.
-    \item Rola \texttt{ROLE\_OWNER} jest specjalnie zabezpieczona, aby zapobiec jej zmianie na inną rolę bez uprzedniego usunięcia użytkownika i ponownej rejestracji.
-\end{itemize}
+
 
 
 \subsection{Dodawanie użytkowników i przypisywanie ról}
@@ -1279,9 +1265,7 @@ Dzięki tym zmianom proces zarządzania właścicielami mieszkań stanie się ba
 
 \subsection{Opis encji i relacji}
 
-\textbf{Encja \texttt{Document}}  
-Encja \texttt{Document} jest kluczowym elementem systemu zarządzania dokumentami, przechowując dane niezbędne do identyfikacji i obsługi dokumentów w systemie. Kod klasy przedstawia się następująco:
-
+\textbf{Encja \texttt{Document}}  -- jest kluczowym elementem systemu zarządzania dokumentami, przechowując dane niezbędne do identyfikacji i obsługi dokumentów w systemie. Kod odpowiadającej jej klasy przedstawiono poniżej.
 \begin{lstlisting}[language=Java, style=JavaStyle, caption=Encja \texttt{Document}]
 @Data
 @AllArgsConstructor
@@ -1324,19 +1308,18 @@ public class Document {
 }
 \end{lstlisting}
 
-\textbf{Opis elementów encji:}
+\noindent Znaczenie atrybutów klasy:
 \begin{itemize}
-    \item \texttt{uuidID} -- unikalny identyfikator UUID każdego dokumentu, generowany automatycznie.
-    \item \texttt{documentName} -- nazwa dokumentu, wymagana i unikalna w systemie.
-    \item \texttt{documentExtension} -- rozszerzenie pliku, wskazujące format przechowywanego dokumentu.
-    \item \texttt{documentType} -- typ dokumentu zdefiniowany w enumeracji \texttt{DocumentType}.
-    \item \texttt{documentData} -- dane dokumentu zapisane w postaci tablicy bajtów.
-    \item \texttt{createdAt} -- znacznik czasu wskazujący moment dodania dokumentu do systemu.
+    \item \texttt{uuidID} -- unikalny identyfikator UUID każdego dokumentu, generowany automatycznie,
+    \item \texttt{documentName} -- nazwa dokumentu, wymagana i unikalna w systemie,
+    \item \texttt{documentExtension} -- rozszerzenie pliku, wskazujące format przechowywanego dokumentu,
+    \item \texttt{documentType} -- typ dokumentu zdefiniowany w enumeracji \texttt{DocumentType},
+    \item \texttt{documentData} -- dane dokumentu zapisane w postaci tablicy bajtów,
+    \item \texttt{createdAt} -- znacznik czasu wskazujący moment dodania dokumentu do systemu,
     \item \texttt{userDocumentConnections} -- lista obiektów reprezentujących relacje z użytkownikami.
 \end{itemize}
 
-\textbf{Encja \texttt{UserDocumentConnection}} -- tabela pośrednicząca \texttt{UserDocumentConnection} zarządza relacją między dokumentami a użytkownikami, którzy mają do nich dostęp. Jej kod wygląda następująco:
-
+\textbf{Encja \texttt{UserDocumentConnection}} -- tabela pośrednicząca \texttt{UserDocumentConnection} zarządza relacją między dokumentami a użytkownikami, którzy mają do nich dostęp. Kod odpowiadającej jej klasy przedstawiono poniżej.
 \begin{lstlisting}[language=Java, style=JavaStyle, caption=Encja \texttt{UserDocumentConnection}]
 @Entity
 @Data
@@ -1366,16 +1349,15 @@ public class UserDocumentConnection {
 }
 \end{lstlisting}
 
-\textbf{Opis elementów encji:}
+\noindent Znaczenie atrybutów klasy:
 \begin{itemize}
-    \item \texttt{uuidID} -- unikalny identyfikator każdego rekordu w tabeli pośredniczącej.
-    \item \texttt{document} -- pole relacyjne wskazujące na powiązany dokument.
-    \item \texttt{user} -- pole relacyjne wskazujące na powiązanego użytkownika.
+    \item \texttt{uuidID} -- unikalny identyfikator każdego rekordu w tabeli pośredniczącej,
+    \item \texttt{document} -- pole relacyjne wskazujące na powiązany dokument,
+    \item \texttt{user} -- pole relacyjne wskazujące na powiązanego użytkownika,
     \item \texttt{grantedAt} -- data przyznania dostępu użytkownikowi do dokumentu.
 \end{itemize}
 
 \subsection{Rodzaje dokumentów}
-
 Rodzaje dokumentów w systemie są zdefiniowane w enumeracji \texttt{DocumentType}, która umożliwia kategoryzację dokumentów. Definicja wygląda następująco:
 
 \begin{lstlisting}[language=Java, style=JavaStyle, caption=Enumeracja \texttt{DocumentType}]
@@ -1422,14 +1404,14 @@ Opis procesu dodawania dokumentów:
     \end{itemize}
 \end{enumerate}
 
-Dodatkowo, schemat~\ref{fig:document_schema} przedstawia trzy główne przypadki związane z dodawaniem dokumentów:
+\noindent Schemat~\ref{fig:document_schema} przedstawia też trzy główne przypadki związane z dodawaniem dokumentów:
 \begin{itemize}
     \item \texttt{a)} -- dodanie nowego dokumentu do systemu: Wymaga określenia rodzaju dokumentu (\texttt{D\_Pub} lub \texttt{D\_Priv}). Dokument publiczny automatycznie łączy się z wszystkimi użytkownikami (\texttt{U}), natomiast dokument prywatny jest przypisywany do użytkowników na podstawie historii posiadania (\texttt{Ph}).
     \item \texttt{b)} -- dodanie nowego użytkownika do systemu: Wszystkie istniejące dokumenty publiczne (\texttt{D\_Pub}) są automatycznie przypisywane nowemu użytkownikowi (\texttt{U}).
     \item \texttt{c)} -- zmiana właściciela mieszkania: W przypadku dokumentów prywatnych (\texttt{D\_Priv}), konieczne jest zaktualizowanie połączeń dokumentu z użytkownikami na podstawie nowej historii posiadania (\texttt{Ph}). W takiej sytuacji usuwa się stare połączenia i dodaje nowe, zgodnie z aktualnym stanem prawnym.
 \end{itemize}
 
-Fragment kodu kontrolera
+Poniżej zamieszczono fragment kodu kontrolera oraz serwisu.
 \begin{lstlisting}[language=Java, style=JavaStyle, caption=Fragment klasy \texttt{DocumentController}]
 @PostMapping("/upload-document")
 public ResponseEntity<DocumentResponse> uploadDocument(
@@ -1440,7 +1422,6 @@ public ResponseEntity<DocumentResponse> uploadDocument(
 }
 \end{lstlisting}
 
-Fragment kodu serwisu:
 \begin{lstlisting}[language=Java, style=JavaStyle, caption=Metoda dodawania dokumentu w klasie \texttt{DocumentServiceImp}]
 @Override
 @Transactional
