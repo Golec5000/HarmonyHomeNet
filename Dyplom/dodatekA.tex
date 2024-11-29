@@ -1,0 +1,185 @@
+\chapter{Dodatek A}
+
+\section{Instrukcja wdrożeniowa}
+
+W celu uruchomienia prototypu systemu „Harmony Home Net” przygotowano środowisko bazujące na technologii Docker, które umożliwia szybkie uruchomienie wszystkich niezbędnych komponentów, takich jak backend, frontend oraz baza danych. Poniżej przedstawiono szczegółowe kroki i wymagania związane z wdrożeniem.
+
+\subsection{Wymagania wstępne}
+
+Przed przystąpieniem do wdrożenia należy upewnić się, że na maszynie wdrożeniowej są zainstalowane:
+\begin{itemize}
+    \item Docker (wersja 20.10 lub nowsza),
+    \item Docker Compose (wersja 1.29 lub nowsza),
+    \item Konto Gmail skonfigurowane do wysyłania powiadomień (wymagane w prototypie).
+\end{itemize}
+
+\subsection{Konfiguracja środowiska}
+
+Plik \texttt{docker-compose.yml} definiuje konfigurację kontenerów systemu. Kluczowe ustawienia obejmują:
+\begin{itemize}
+    \item konfigurację bazy danych PostgreSQL,
+    \item uruchomienie backendu z podanymi zmiennymi środowiskowymi,
+    \item uruchomienie frontendu w trybie deweloperskim,
+    \item konfigurację narzędzia do zarządzania bazą danych (pgAdmin).
+\end{itemize}
+
+\begin{lstlisting}[language=yaml, caption=Fragment pliku \texttt{docker-compose.yml}]
+version: '3.8'
+
+services:
+  backend_app:
+    build:
+      context: ./backend
+    ports:
+      - "8444:8443"
+    depends_on:
+      - db
+    environment:
+      # Database
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/HarmonyHomeNet_DB
+      SPRING_DATASOURCE_USERNAME: user
+      SPRING_DATASOURCE_PASSWORD: admin
+
+      # Mail
+      SPRING_MAIL_HOST: smtp.gmail.com
+      SPRING_MAIL_PORT: 587
+      SPRING_MAIL_USERNAME: your_email@example.com
+      SPRING_MAIL_PASSWORD: yout_password
+
+      # Super admin user details
+      SUPER_ADMIN_FIRST_NAME: Daniel
+      SUPER_ADMIN_LAST_NAME: Ryszkowski
+      SUPER_ADMIN_EMAIL: daniel.hhn.SA@gmail.com
+      SUPER_ADMIN_PASSWORD: superadmin_password123
+      SUPER_ADMIN_PHONE: 111111111
+
+  db:
+    image: postgres:alpine
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: HarmonyHomeNet_DB
+\end{lstlisting}
+
+\subsection{Backend}
+
+Dockerfile backendu został zaprojektowany zgodnie z dobrymi praktykami, co pozwala na tworzenie wieloetapowych obrazów. Pierwszy etap buduje aplikację, a drugi uruchamia ją w zoptymalizowanym środowisku.
+
+\begin{lstlisting}[language=Dockerfile, caption=Dockerfile backendu]
+FROM maven:3.8.5-openjdk-17 AS build
+WORKDIR /backend_app
+COPY pom.xml .
+RUN mvn dependency:go-offline
+COPY src ./src
+RUN mvn package -DskipTests
+
+FROM openjdk:17-jdk-alpine
+WORKDIR /app
+COPY --from=build /backend_app/target/*.jar app.jar
+EXPOSE 8443
+ENTRYPOINT ["java", "-jar", "app.jar", "--server.port=8443"]
+\end{lstlisting}
+
+\subsection{Frontend}
+
+Dockerfile frontendu działa w trybie deweloperskim, co oznacza, że środowisko jest zoptymalizowane pod kątem prac rozwojowych. Mimo że takie podejście działa w prototypie, w przyszłości należy przygotować zoptymalizowaną wersję produkcyjną.
+
+\begin{lstlisting}[language=Dockerfile, caption=Dockerfile frontendu]
+FROM node:20-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+EXPOSE 3000
+CMD npm run dev
+\end{lstlisting}
+
+\subsection{Inicjalizacja superadministratora}
+
+Pierwsze uruchomienie backendu automatycznie tworzy konto superadministratora na podstawie zmiennych środowiskowych zdefiniowanych w pliku \texttt{docker-compose.yml}. Kod odpowiedzialny za inicjalizację prezentuje się następująco:
+
+\begin{lstlisting}[language=Java, caption=Kod inicjalizacji superadministratora]
+@PostConstruct
+public void init() {
+    User superAdmin = createUserIfNotExists(
+        superAdminFirstName,
+        superAdminLastName,
+        superAdminEmail,
+        bCryptPasswordEncoder.encode(superAdminPassword),
+        superAdminPhone,
+        Role.ROLE_SUPER_ADMIN
+    );
+}
+\end{lstlisting}
+
+\subsection{Konfiguracja przed pierwszym uruchomieniem}
+
+Przed pierwszym uruchomieniem systemu należy skonfigurować zmienne środowiskowe, które definiują dane dostępowe do serwera pocztowego oraz informacje o koncie superadministratora. Są one zdefiniowane w sekcji \texttt{environment} pliku \texttt{docker-compose.yml}. Poniżej przedstawiono ich szczegóły:
+
+\begin{lstlisting}[language=yaml, caption=Konfiguracja zmiennych środowiskowych]
+# Mail
+SPRING_MAIL_HOST: smtp.gmail.com
+SPRING_MAIL_PORT: 587
+SPRING_MAIL_USERNAME: your_email@example.com
+SPRING_MAIL_PASSWORD: your_password
+
+# Super admin user details
+SUPER_ADMIN_FIRST_NAME: Daniel
+SUPER_ADMIN_LAST_NAME: Ryszkowski
+SUPER_ADMIN_EMAIL: daniel.hhn.SA@gmail.com
+SUPER_ADMIN_PASSWORD: superadmin_password123
+SUPER_ADMIN_PHONE: 111111111
+\end{lstlisting}
+
+\textbf{Opis pól do konfiguracji:}
+\begin{itemize}
+    \item \texttt{SPRING\_MAIL\_HOST}, \texttt{SPRING\_MAIL\_PORT} -- domyślne wartości dla serwera SMTP usługi Gmail.
+    \item \texttt{SPRING\_MAIL\_USERNAME}, \texttt{SPRING\_MAIL\_PASSWORD} -- dane logowania do konta Gmail, które będzie wykorzystywane do wysyłania wiadomości e-mail. Wartości te należy uzupełnić własnym adresem e-mail i hasłem (lub hasłem aplikacji).
+    \item \texttt{SUPER\_ADMIN\_FIRST\_NAME}, \texttt{SUPER\_ADMIN\_LAST\_NAME}, \texttt{SUPER\_ADMIN\_EMAIL}, \texttt{SUPER\_ADMIN\_PASSWORD}, \texttt{SUPER\_ADMIN\_PHONE} -- dane pierwszego użytkownika z rolą superadministratora. Wartości te można dostosować według potrzeb organizacji.
+\end{itemize}
+
+\subsection{Konfiguracja konta Gmail do wysyłania e-maili}
+
+Aby system mógł korzystać z serwera Gmail do wysyłania wiadomości e-mail, należy skonfigurować konto Gmail zgodnie z poniższymi krokami:
+
+\begin{enumerate}
+    \item Zaloguj się na swoje konto Gmail.
+    \item Przejdź do ustawień konta, a następnie wybierz sekcję \texttt{Bezpieczeństwo}.
+    \item Włącz opcję \texttt{Dostęp mniej bezpiecznych aplikacji} (jeśli jest dostępna).
+    \item Alternatywnie, jeżeli dostęp mniej bezpiecznych aplikacji nie jest dostępny, wygeneruj hasło aplikacji:
+    \begin{itemize}
+        \item Przejdź do sekcji \texttt{Hasła aplikacji}, przez wyszukiwarkę w panelu konta.
+        \item Wybierz aplikację \texttt{Poczta} i urządzenie \texttt{Komputer}.
+        \item Kliknij \texttt{Generuj} i skopiuj wygenerowane hasło.
+        \item Wprowadź to hasło w polu \texttt{SPRING\_MAIL\_PASSWORD} w pliku \texttt{docker-compose.yml}.
+    \end{itemize}
+    \item \textbf{Upewnij się, że konto Gmail ma włączone uwierzytelnianie dwuskładnikowe, jeśli wymaga tego konfiguracja hasła aplikacji}.
+\end{enumerate}
+
+\subsection{Pierwsze uruchomienie systemu}
+
+Po skonfigurowaniu zmiennych środowiskowych i konta Gmail, system można uruchomić za pomocą następującego polecenia:
+\begin{verbatim}
+docker-compose up --build
+\end{verbatim}
+
+W trakcie pierwszego uruchomienia backend automatycznie utworzy konto superadministratora z wykorzystaniem danych wprowadzonych w sekcji \texttt{SUPER\_ADMIN\_*} zmiennych środowiskowych. Konto to umożliwia dostęp do panelu administracyjnego aplikacji i zarządzanie systemem.
+
+
+Po uruchomieniu:
+\begin{itemize}
+    \item Backend dostępny jest pod adresem \texttt{https://localhost:8444}.
+    \item Frontend można otworzyć pod adresem \texttt{http://localhost:3000}.
+    \item pgAdmin dostępny jest pod adresem \texttt{http://localhost:5050}.
+\end{itemize}
+
+\subsection{Uwagi i rozwój przyszłościowy}
+
+Obecna implementacja frontendu w trybie deweloperskim działa poprawnie, ale wymaga optymalizacji przed wdrożeniem produkcyjnym. W przyszłości należy:
+\begin{itemize}
+    \item przygotować zoptymalizowaną wersję frontendu w trybie produkcyjnym,
+    \item wdrożyć rzeczywistą integrację z zewnętrznymi systemami bankowymi i usługami SMS,
+    \item rozszerzyć dokumentację wdrożeniową o instrukcje dotyczące monitorowania i skalowania aplikacji.
+\end{itemize}

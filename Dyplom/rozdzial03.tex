@@ -45,6 +45,18 @@ Zastosowanie architektury warstwowej w systemie „Harmony Home Net” zapewnić
 \subsection{Warstwa prezentacji (ang.\ \emph{Presentation Layer})}
 Warstwa prezentacji, oznaczona literą \texttt{a)} na rysunku \ref{fig:n_tier_arch}), odpowiada za interakcję użytkownika z systemem. Na tym poziomie użytkownik wprowadza dane wejściowe, a system zwraca wyniki w formie czytelnej i zrozumiałej. Głównym zadaniem warstwy prezentacji jest renderowanie interfejsu użytkownika oraz obsługa zdarzeń takich jak kliknięcia czy przesunięcia. Odpowiada również za wstępną walidację danych wejściowych, na przykład sprawdzanie, czy wprowadzony adres e-mail ma poprawny format. Przetworzone dane są następnie przekazywane do warstwy logiki biznesowej, gdzie są dalej analizowane i przetwarzane.
 
+W warstwie prezentacji zastosowano również architekturę typu AJAX. Jest to technologia umożliwiająca komunikację między przeglądarką użytkownika a serwerem w sposób asynchroniczny, co oznacza, że wymiana danych może zachodzić bez konieczności przeładowania całej strony. Dzięki temu interfejs użytkownika pozostaje dynamiczny i responsywny~\cite{ajax}.
+
+Mechanizm działania AJAX jest następujący:
+\begin{itemize}
+    \item Gdy użytkownik wykonuje określoną akcję (np. klika przycisk), przeglądarka wysyła żądanie HTTP do serwera za pomocą obiektu \texttt{XMLHttpRequest} lub współczesnych API takich jak \texttt{fetch}.
+    \item Serwer przetwarza żądanie i zwraca odpowiedź, najczęściej w formacie JSON, który jest łatwy do przetwarzania po stronie klienta.
+    \item Warstwa prezentacji przetwarza otrzymane dane i aktualizuje odpowiednie elementy strony bez konieczności jej ponownego ładowania.
+\end{itemize}
+
+Przykładowym zastosowaniem AJAX w systemie „Harmony Home Net” jest dynamiczne odświeżanie listy ogłoszeń, płatności czy zgłoszeń technicznych w zależności od akcji użytkownika. Dzięki temu użytkownik otrzymuje aktualne dane w czasie rzeczywistym, co znacząco poprawia komfort pracy z systemem.
+
+
 W systemie ,,Harmony Home Net,, warstwę tę zrealizowano za pomocą frameworka Next.js, w~języku TypeScript. Odpowiada ona za wyświetlanie interfejsu użytkownika, w tym panelu właściela, gdzie użytkownicy mogą przeglądać zgłoszenia techniczne, dokonywać płatności oraz uczestniczyć w głosowaniach. Użycie Next.js umożliwia renderowanie po stronie serwera, co poprawia wydajność aplikacji oraz jej pozycjonowanie w wyszukiwarkach (SEO). Dzięki komponentom wielokrotnego użytku interfejs użytkownika jest spójny wizualnie i funkcjonalnie. 
 
 \subsection{Warstwa logiki biznesowej (ang.\ \emph{Business Logic Layer})}
@@ -90,8 +102,7 @@ Strukturę bazy danych w systemie „Harmony Home Net” zaprojektowano z uwzgl�
 \end{figure}
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=1\linewidth]{rys03/ebok_db_physical} % TO DO: da się jeszcze zacieśnić tabele (przesunąć lekko do lewej to po prawej stronie licząc od połowy)
-    \caption{Schemat fizyczny bazy danych systemu}
+    \includegraphics[width=1\linewidth]{rys03/ebok_db_physical}
     \label{fig:ebok_db_physical}
 \end{figure}
 
@@ -214,38 +225,40 @@ W celu poprawy wydajności bazy danych zastosowano następujące mechanizmy:
 
 Struktura bazy danych systemu \textbf{Harmony Home Net} została zaprojektowana w sposób umożliwiający jej skalowalność, wydajność oraz łatwość integracji z innymi komponentami aplikacji. Podejście \emph{Database First} okazało się optymalnym wyborem, zapewniając precyzyjne odwzorowanie wymagań biznesowych i technicznych systemu. Schematy konceptualny (rysunek \ref{fig:ebok_db_concept}) i fizyczny (rysunek \ref{fig:ebok_db_physical}) ilustrują relacje pomiędzy tabelami, które stanowią podstawę spójnego i efektywnego zarządzania danymi.
 
-\section{Bezpieczeństwo, uwierzytelnianie i autoryzacja w~aplikacji}
-% TO DO: pojawiło się wodolejstwo. Opisał Pan dość dokładnie zawartość podrozdziałów, by potem tę zawartość dokładnie przedstawić. Efekt - pewien galimatias.
-%        trochę poskracałem i uporzatkowałem treść, ale jeszcze nie jestem zadowolony z efektu.
-Aby zapewnić ochronę danych użytkowników oraz bezpieczny dostęp do zasobów w implementacji systemu „Harmony Home Net” wdrożono różne mechanizmy bezpieczeństwa. Zastosowano przy tym Spring Security, wykorzystując obsługą tokenów JWT oraz \emph{OAuth 2.0 Resource Server} do uwierzytelniania i autoryzacji. 
+\section{Bezpieczeństwo, uwierzytelnianie i autoryzacja w aplikacji}
 
-Poniżej wyjaśniono rolę \emph{OAuth 2.0 Resource Server} w weryfikacji tokenów dostępu generowanych w ramach sesji użytkownika. Mechanizm ten umożliwia bezpieczne zarządzanie dostępem do zasobów oraz bezstanowe uwierzytelnianie użytkowników, eliminując konieczność utrzymywania sesji po stronie serwera.
+W systemie „Harmony Home Net” wdrożono mechanizmy bezpieczeństwa oparte na Spring Security, w tym obsługę tokenów JWT oraz \emph{OAuth 2.0 Resource Server}. Rozwiązania te zapewniają ochronę danych użytkowników oraz bezpieczny dostęp do zasobów.
 
-Następnie zajęto się filtrami bezpieczeństwa (\emph{SecurityFilterChain}), zarządzaniem sesjami w trybie bezstanowym oraz zabezpieczeniem API za pomocą tokenów JWT i \emph{OAuth 2.0 Resource Server}. W tej części przedstawiono również znaczenie \texttt{JwtAuthenticationConverter} i jego rolę w integracji z mechanizmami Spring Security. Następnie zwrócono uwagę na proces logowania z wykorzystaniem nazw użytkowników, haseł oraz generowania tokenów JWT. Proces uwierzytelniania użytkowników opisano w oparciu o klasę \texttt{UserInfoManagerConfig}, która integruje bazę danych z mechanizmami uwierzytelniania w Spring Security.
+\subsection{Przegląd mechanizmów bezpieczeństwa}
 
-W osobnym podrozdziale opisano zarządzanie tokenami JWT i autoryzacji użytkowników. W procesie tym obsłużono schemat związany z uwierzytelnianiem użytkowników przy użyciu \emph{OAuth 2.0 Resource Server}. Zaimplementowane mechanizmy pozwalają na sprawdzanie poprawności i wykrywania wygasłych lub nieautoryzowanych tokenów. Kluczową rolę pełni w tym klasa \texttt{JwtAccessTokenFilter}, która weryfikuje tokeny w żądaniach HTTP.
+Podstawą uwierzytelniania i autoryzacji jest \emph{OAuth 2.0 Resource Server}, który weryfikuje tokeny dostępu generowane podczas sesji użytkownika. Dzięki podejściu bezstanowemu eliminowana jest konieczność utrzymywania sesji na serwerze. 
 
-Przedstawiono też implementacją usługi \texttt{TokenBlacklistService}, która pozwala na unieważnianie tokenów w momencie wylogowania użytkownika. Dzięki temu użytkownicy mogą zostać natychmiast wylogowani, a sesje mogą być anulowane w przypadku wykrycia naruszeń bezpieczeństwa. Usługa obejmuje również harmonogram automatycznego usuwania wygasłych tokenów z czarnej listy, co zwiększa wydajność systemu.
+Za zarządzanie bezpieczeństwem API odpowiadają filtry w ramach \emph{SecurityFilterChain}. Pozwalają one na elastyczne zarządzanie dostępem do różnych ścieżek żądań oraz implementację niestandardowych mechanizmów autoryzacji, takich jak \texttt{JwtAuthenticationConverter}. Ten komponent umożliwia mapowanie ról i uprawnień na podstawie zawartości tokenu JWT.
 
-Podrozdział kończy omówienie mechanizmy resetowania hasła. Bazuje on na konfiguracja specjalnego łańcucha filtrów bezpieczeństwa, który umożliwia różnicowanie poziomów dostępu na podstawie ścieżek. Mechanizm ten obsługuje żądania związane z resetowaniem hasła, przy zachowaniu odpowiedniego poziomu bezpieczeństwa dla publicznych punktów końcowych.
-
+Dodatkowo zaimplementowano mechanizm resetowania haseł, obsługiwany przez dedykowany łańcuch filtrów. System uwzględnia również możliwość unieważniania tokenów JWT za pomocą \texttt{TokenBlacklistService}, co pozwala na natychmiastowe wylogowanie użytkowników w sytuacjach wymagających dodatkowego zabezpieczenia.
 
 \subsection{Konfiguracja łańcucha filtrów bezpieczeństwa}
-Łańcuch filtrów bezpieczeństwa (\emph{Security Filter Chain}) odgrywa kluczową rolę w zapewnieniu ochrony aplikacji. W systemie „Harmony Home Net” został on skonfigurowany przy użyciu klasy \texttt{SecurityConfig}, która definiuje różne ścieżki żądań oraz odpowiadające im mechanizmy uwierzytelniania i autoryzacji. Każda ścieżka obsługiwana jest przez dedykowany łańcuch filtrów, co umożliwia elastyczne zarządzanie poziomem bezpieczeństwa.
 
-W konfiguracji wykorzystano mechanizm \texttt{JwtAuthenticationConverter}, który umożliwia niestandardowe przekształcanie tokenów JWT na obiekty \texttt{Authentication}, dodając autoryzacje na podstawie zawartości tokenu. Dzięki temu aplikacja może elastycznie zarządzać dostępem użytkowników na podstawie przypisanych im ról lub innych atrybutów zawartych w tokenie JWT.
+W systemie zastosowano cztery główne łańcuchy filtrów, zdefiniowane w klasie \texttt{SecurityConfig}. Każdy z nich odpowiada za obsługę innego typu żądań:
 
-Kluczowym elementem konfiguracji jest również zastosowanie adnotacji \texttt{@Order}. Każdy łańcuch filtrów posiada określoną kolejność, która decyduje o tym, w jakiej sekwencji będą przetwarzane żądania. Dzięki temu można precyzyjnie kontrolować, które mechanizmy mają priorytet w przetwarzaniu poszczególnych ścieżek. Niewłaściwe ustawienie kolejności mogłoby spowodować nieprawidłowe działanie zabezpieczeń.
-
-W systemie zaimplementowano cztery główne łańcuchy filtrów:
 \begin{itemize}
-    \item \textbf{Łańcuch obsługi resetowania hasła} -- scieżki \texttt{/auth/forgot-password} i \texttt{/auth/reset-password} są publicznie dostępne bez konieczności uwierzytelniania (\texttt{@Order(1)}).
-    \item \textbf{Łańcuch logowania} -- obsługuje ścieżkę \texttt{/auth/login}, zapewniając uwierzytelnianie użytkownika przy użyciu nazw użytkowników i haseł (\texttt{@Order(2)}).
-    \item \textbf{Łańcuch API} -- chroni wszystkie ścieżki API zaczynające się od \texttt{/api/v1/}, wymagając tokenu JWT do autoryzacji (\texttt{@Order(3)}).
-    \item \textbf{Łańcuch wylogowania} -- obsługuje ścieżkę \texttt{/logout}, umożliwiając wylogowanie użytkownika i unieważnienie tokenu JWT (\texttt{@Order(4)}).
+    \item \textbf{Łańcuch resetowania haseł} -- Publiczny dostęp do punktów końcowych \texttt{/auth/forgot-password} i \texttt{/auth/reset-password} (\texttt{@Order(1)}).
+    \item \textbf{Łańcuch logowania} -- Obsługuje ścieżkę \texttt{/auth/login}, wykorzystując uwierzytelnianie oparte na nazwach użytkowników i hasłach (\texttt{@Order(2)}).
+    \item \textbf{Łańcuch API} -- Chroni ścieżki \texttt{/api/v1/}, wymagając tokenu JWT do autoryzacji (\texttt{@Order(3)}).
+    \item \textbf{Łańcuch wylogowania} -- Umożliwia wylogowanie użytkowników oraz unieważnienie ich tokenów JWT (\texttt{@Order(4)}).
 \end{itemize}
 
-Każdy z łańcuchów został skonfigurowany jako komponent Spring Bean, dzięki czemu można elastycznie dostosowywać ustawienia w zależności od potrzeb. Poniżej przedstawiono pełny kod konfiguracji:
+%---
+\noindent
+Każdy łańcuch został skonfigurowany jako oddzielny komponent Spring Bean, co pozwala na łatwą modyfikację w zależności od potrzeb. Kluczowe elementy konfiguracji to:
+\begin{itemize}
+    \item Rozdziela odpowiedzialność za różne ścieżki żądań, pozwalając na precyzyjne zarządzanie dostępem.
+    \item Wykorzystuje \texttt{JwtAuthenticationConverter} do niestandardowego zarządzania autoryzacją na podstawie zawartości tokenu JWT.
+    \item Bezstanowe zarządzanie sesjami przy użyciu \texttt{SessionCreationPolicy.STATELESS}.
+    \item Zachowuje odpowiednią kolejność przetwarzania żądań dzięki zastosowaniu adnotacji \texttt{@Order}.
+\end{itemize}
+
+\noindent Fragment kodu przedstawia konfigurację jednego z łańcuchów:
 
 \begin{lstlisting}[language=Java, style=JavaStyle, caption=Pełna konfiguracja łańcucha filtrów bezpieczeństwa]
 @Configuration
@@ -340,19 +353,9 @@ public class SecurityConfig {
 }
 \end{lstlisting}
 
-%---
-\noindent
-Dzięki tej konfiguracji system:
-\begin{itemize}
-    \item Rozdziela odpowiedzialność za różne ścieżki żądań, pozwalając na precyzyjne zarządzanie dostępem.
-    \item Wykorzystuje \texttt{JwtAuthenticationConverter} do niestandardowego zarządzania autoryzacją na podstawie zawartości tokenu JWT.
-    \item Umożliwia bezstanowe zarządzanie sesjami za pomocą tokenów JWT.
-    \item Zachowuje odpowiednią kolejność przetwarzania żądań dzięki zastosowaniu adnotacji \texttt{@Order}.
-\end{itemize}
-
 \subsection{Proces logowania}
 
-Mechanizm logowania w systemie „Harmony Home Net” został zaprojektowany w oparciu o Spring Security i tokeny JWT. Poniżej przedstawiono szczegółowy opis procesu logowania, krok po kroku, na podstawie schematu zaprezentowanego na rysunku \ref{fig:ebok_db_concept}.
+Mechanizm logowania w systemie „Harmony Home Net” oparto na Spring Security i tokenach JWT. Proces ten został szczegółowo opisany na podstawie schematu przedstawionego na rysunku \ref{fig:ebok_db_concept}.
 
 \begin{figure}[ht]
     \centering
@@ -361,23 +364,18 @@ Mechanizm logowania w systemie „Harmony Home Net” został zaprojektowany w o
     \label{fig:ebok_db_concept}
 \end{figure}
 
-Proces logowania składa się z następujących kroków, oznaczonych literami \textbf{a}–\textbf{e} na schemacie:
+Logowanie składa się z kilku kluczowych etapów:
 
 \begin{enumerate}
-    \item \textbf{Przesłanie danych logowania \texttt{a)}} -- Użytkownik wysyła żądanie HTTP \texttt{POST} na endpoint \texttt{/auth/login}, dostarczając swoje dane logowania, takie jak nazwa użytkownika i hasło. 
-		
-    \item \textbf{Uwierzytelnienie użytkownika przez \texttt{AuthenticationManager} \texttt{b)}} -- \texttt{AuthenticationManager} to kluczowy komponent Spring Security, który weryfikuje dane logowania. W pierwszym kroku proces uwierzytelniania odbywa się za pomocą dostarczonej nazwy użytkownika i hasła.
+    \item \textbf{Przesłanie danych logowania \texttt{a)}} -- Użytkownik wysyła żądanie HTTP \texttt{POST} na endpoint \texttt{/auth/login}, podając nazwę użytkownika oraz hasło. 
 
-    \item \textbf{Sprawdzenie danych w repozytorium użytkowników \texttt{c)}} -- \texttt{AuthenticationManager} deleguje żądanie do repozytorium użytkowników (\texttt{UserRepository}), które weryfikuje, czy użytkownik o podanym loginie istnieje w systemie. W tym celu wykorzystywana jest klasa \texttt{UserInfoManagerConfig}, która implementuje interfejs \texttt{UserDetailsService}. Jeśli użytkownik nie zostanie znaleziony lub dane logowania są niepoprawne, proces logowania kończy się niepowodzeniem i zwracany jest status \texttt{HTTP 403}.
+    \item \textbf{Weryfikacja przez \texttt{AuthenticationManager} \texttt{b)}} -- Spring Security wykorzystuje komponent \texttt{AuthenticationManager} do uwierzytelnienia użytkownika. Na tym etapie sprawdzana jest zgodność podanych danych logowania z zapisami w systemie.
 
-    \item \textbf{Generowanie tokenu JWT \texttt{d)}} -- Jeśli dane logowania są poprawne, na podstawie informacji o użytkowniku generowany jest token JWT za pomocą usługi \texttt{JwtService}. Token zawiera zaszyfrowane informacje, takie jak identyfikator użytkownika, rola w systemie oraz data wygaśnięcia. Klucze RSA zapewniają bezpieczeństwo tokenu.
+    \item \textbf{Sprawdzenie w repozytorium użytkowników \texttt{c)}} -- \texttt{AuthenticationManager} deleguje żądanie do repozytorium użytkowników (\texttt{UserRepository}). Klasa \texttt{UserInfoManagerConfig}, implementująca interfejs \texttt{UserDetailsService}, sprawdza istnienie użytkownika w bazie danych i weryfikuje poprawność danych logowania. W przypadku błędnych danych zwracany jest status \texttt{HTTP 403}.
 
-    \item \textbf{Zwrócenie tokenu JWT w odpowiedzi \texttt{e)}} -- Token JWT jest przesyłany do użytkownika w odpowiedzi HTTP \texttt{200}. Użytkownik przechowuje token lokalnie (np. w pamięci przeglądarki lub w \emph{sessionStorage}), aby używać go do autoryzacji kolejnych żądań do API. Token posiada czas ważności 10 minut, co zapewnia odpowiedni balans pomiędzy bezpieczeństwem a wygodą użytkownika:
-\begin{itemize}
-    \item Krótki czas ważności minimalizuje ryzyko wykorzystania tokenu przez osoby nieuprawnione w przypadku jego przechwycenia lub zgubienia.
-    \item Jednocześnie, 10 minut jest wystarczające dla typowych operacji użytkownika, takich jak przeglądanie aplikacji i wykonywanie kolejnych żądań API bez konieczności częstego odświeżania tokenu.
-\end{itemize}
- 
+    \item \textbf{Generowanie tokenu JWT \texttt{d)}} -- Po pomyślnym uwierzytelnieniu użytkownika generowany jest token JWT. Token zawiera informacje o użytkowniku (np. identyfikator, rolę oraz datę wygaśnięcia) i jest zabezpieczony przy użyciu kluczy RSA.
+
+    \item \textbf{Przesłanie tokenu JWT w odpowiedzi \texttt{e)}} -- Token JWT jest zwracany użytkownikowi jako odpowiedź HTTP \texttt{200}. Jest przechowywany lokalnie (np. w pamięci przeglądarki) i wykorzystywany do autoryzacji kolejnych żądań do API. Czas ważności tokenu wynosi 10 minut, co zapewnia równowagę między bezpieczeństwem a wygodą użytkownika.
 \end{enumerate}
 
 W szczególności klasa \texttt{UserInfoManagerConfig}, wykorzystywana w kroku \texttt{c)}, odpowiada za weryfikację istnienia użytkownika w bazie danych oraz dostarczenie szczegółów użytkownika wymaganych przez mechanizm uwierzytelniania. Kod klasy przedstawiono poniżej:
@@ -406,47 +404,56 @@ public class UserInfoManagerConfig implements UserDetailsService {
 }
 \end{lstlisting}
 
-Kluczowe funkcje tej klasy:
+\noindent Kluczowe aspekty konfiguracji
+Klasa \texttt{UserInfoManagerConfig}, używana podczas weryfikacji użytkownika, implementuje istotne elementy uwierzytelniania. Jej główne funkcje to:
 \begin{itemize}
-    \item \textbf{Implementacja metody \texttt{loadUserByUsername}:} Weryfikuje istnienie użytkownika w bazie danych na podstawie adresu e-mail.
-    \item \textbf{Obsługa wyjątków:} W przypadku, gdy użytkownik nie zostanie znaleziony, rzucany jest wyjątek \texttt{UsernameNotFoundException}, który kończy proces logowania.
-    \item \textbf{Repozytorium \texttt{UserRepository}:} Umożliwia dostęp do bazy danych w celu wyszukiwania użytkowników.
+    \item \textbf{Weryfikacja użytkownika} -- Metoda \texttt{loadUserByUsername} sprawdza istnienie użytkownika w bazie danych na podstawie podanego adresu e-mail.
+    \item \textbf{Obsługa błędów} -- W przypadku, gdy użytkownik nie zostanie znaleziony, zwracany jest wyjątek \texttt{UsernameNotFoundException}, kończący proces logowania.
+    \item \textbf{Repozytorium użytkowników} -- Klasa korzysta z \texttt{UserRepository}, które zapewnia dostęp do bazy danych.
 \end{itemize}
 
-Mechanizm logowania zapewnia bezpieczną i bezstanową autoryzację użytkowników, minimalizując ryzyko naruszenia danych i nieuprawnionego dostępu.
+Mechanizm logowania w systemie jest bezpieczny i bezstanowy, co pozwala na ograniczenie ryzyka związanego z nieuprawnionym dostępem do zasobów oraz zwiększa wydajność. Dzięki zastosowaniu tokenów JWT proces uwierzytelniania jest szybki, a system nie wymaga utrzymywania sesji po stronie serwera, co upraszcza zarządzanie użytkownikami i zapewnia lepszą skalowalność.
 
 \subsection{Zarządzanie tokenami JWT i autoryzacja użytkowników}
 
-Zarządzanie tokenami JWT w systemie „Harmony Home Net” opiera się na zaawansowanych mechanizmach walidacji i autoryzacji, integrując je z frameworkiem Spring Security. Schemat ilustrujący proces dostępu do zasobów systemu pokazano na rysunku \ref{fig:resource_access_flow}.
+Zarządzanie tokenami JWT w systemie „Harmony Home Net” bazuje na mechanizmach walidacji i autoryzacji zaimplementowanych przy użyciu frameworka Spring Security. Proces ten został zilustrowany na rysunku \ref{fig:resource_access_flow}.
+
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=.9\linewidth]{rys03/Diagram_dotępu_do_zasobów_systemu}  % TO DO: proszę poprawić skośne strzałki na poziome, poprawić bałagan przy HTTP:403 - strzałki nie muszą przecinać się)
+    \includegraphics[width=.9\linewidth]{rys03/Diagram_dotępu_do_zasobów_systemu} 
     \caption{Diagram zarządzania tokenami JWT i autoryzacji użytkowników~\cite{JWToauth}}
     \label{fig:resource_access_flow}
 \end{figure}
 
-Proces ten składa się z następujących kroków:
-\begin{enumerate}
-    \item[\texttt{a)}] Przesłanie żądania przez użytkownika -- użytkownik wysyła żądanie HTTP do usługi API z dołączonym tokenem JWT w nagłówku \texttt{Authorization}.
-    
-    \item[\texttt{b)}] Przechwycenie żądania przez \texttt{JwtAccessTokenFilter} -- niestandardowy filtr \texttt{JwtAccessTokenFilter}, zintegrowany z \texttt{SecurityFilterChain}, przechwytuje żądanie i analizuje token JWT. Jeśli token jest nieobecny lub niepoprawny, zwracana jest odpowiedź z kodem HTTP \texttt{403}.
-    
-    \item[\texttt{c)}] Ekstrakcja danych z tokenu JWT przez \texttt{Jwt Service / OAuth 2.0 Resource Server} -- w przypadku obecności tokenu JWT, usługa \texttt{Jwt Service}, korzystająca z mechanizmu \emph{OAuth 2.0 Resource Server}, jest wywoływana w celu ekstrakcji adresu e-mail użytkownika (\texttt{userEmail}). Jeśli dane użytkownika nie mogą zostać odczytane lub token jest nieprawidłowy, zwracany jest status HTTP \texttt{403}.
+Proces autoryzacji i uwierzytelniania z wykorzystaniem tokenów JWT składa się z następujących etapów:
 
-    \item[\texttt{d)}] Sprawdzenie użytkownika w bazie danych -- Wyodrębniony adres e-mail użytkownika jest wykorzystywany do zapytania w bazie danych za pomocą \texttt{UserDetailsService}. Jeśli użytkownik nie istnieje w bazie, zwracana jest odpowiedź z kodem HTTP \texttt{403}.
+\begin{enumerate}
+    \item[\texttt{a)}] \textbf{Przesłanie żądania przez użytkownika} -- Użytkownik wysyła żądanie HTTP do serwera API, dołączając token JWT w nagłówku \texttt{Authorization}.
     
-    \item[\texttt{e)}] Walidacja tokenu JWT -- token JWT jest weryfikowany pod kątem poprawności oraz daty ważności. Jeśli token wygasł, zwracana jest odpowiedź HTTP \texttt{403}.
+    \item[\texttt{b)}] \textbf{Przechwycenie żądania przez \texttt{JwtAccessTokenFilter}} -- Niestandardowy filtr \texttt{JwtAccessTokenFilter} przechwytuje żądanie i analizuje token JWT. Jeśli token jest niepoprawny lub nieobecny, użytkownik otrzymuje odpowiedź z kodem HTTP \texttt{403}.
     
-    \item[\texttt{f)}] Utworzenie obiektu \texttt{UsernamePasswordAuthenticationToken} -- jeśli token JWT jest ważny, informacje o użytkowniku są przetwarzane w obiekt \texttt{UsernamePasswordAuthenticationToken}, który następnie jest przechowywany w \texttt{SecurityContextHolder}.
+    \item[\texttt{c)}] \textbf{Ekstrakcja danych z tokenu JWT} -- Token jest weryfikowany i dekodowany przez mechanizm \texttt{Jwt Service} w oparciu o \emph{OAuth 2.0 Resource Server}. Ekstrakcja danych, takich jak identyfikator użytkownika (\texttt{userEmail}), pozwala na kontynuację procesu autoryzacji. W przypadku błędów związanych z tokenem odpowiedź zawiera kod HTTP \texttt{403}.
     
-    \item[\texttt{g)}] Autoryzacja przez Spring Security -- mechanizm autoryzacji Spring Security jest automatycznie wywoływany, aby sprawdzić, czy użytkownik ma odpowiednie uprawnienia do dostępu do zasobów.
+    \item[\texttt{d)}] \textbf{Weryfikacja użytkownika w bazie danych} -- Wyodrębniony identyfikator użytkownika jest porównywany z danymi w bazie za pomocą \texttt{UserDetailsService}. Jeśli użytkownik nie istnieje w systemie, proces zostaje przerwany i zwracany jest kod HTTP \texttt{403}.
     
-    \item[\texttt{h)}] Przekazanie żądania do kontrolera -- po pomyślnym uwierzytelnieniu i autoryzacji żądanie jest kierowane do odpowiedniego kontrolera, który obsługuje dalsze przetwarzanie.
+    \item[\texttt{e)}] \textbf{Walidacja tokenu JWT} -- Token JWT jest sprawdzany pod kątem poprawności oraz daty ważności. Jeśli token wygasł, odpowiedź zawiera kod HTTP \texttt{403}.
     
-    \item[\texttt{i)}] Zwrócenie odpowiedzi -- po przetworzeniu żądania kontroler zwraca odpowiedź JSON z kodem HTTP \texttt{200}.
+    \item[\texttt{f)}] \textbf{Tworzenie obiektu \texttt{UsernamePasswordAuthenticationToken}} -- W przypadku pomyślnej weryfikacji danych użytkownika tworzony jest obiekt \texttt{UsernamePasswordAuthenticationToken}, który przechowuje informacje o użytkowniku i jego uprawnieniach. Obiekt ten jest następnie zapisywany w \texttt{SecurityContextHolder}.
+    
+    \item[\texttt{g)}] \textbf{Autoryzacja zasobów} -- Spring Security sprawdza, czy użytkownik ma odpowiednie uprawnienia do żądanych zasobów. W przypadku braku odpowiednich uprawnień odpowiedź zawiera kod HTTP \texttt{403}.
+    
+    \item[\texttt{h)}] \textbf{Przekierowanie do kontrolera} -- Po pomyślnym uwierzytelnieniu żądanie jest przekazywane do kontrolera odpowiedzialnego za obsługę żądania.
+    
+    \item[\texttt{i)}] \textbf{Zwrócenie odpowiedzi} -- Kontroler zwraca odpowiedź JSON z kodem HTTP \texttt{200}, informując o sukcesie operacji.
 \end{enumerate}
 
-Kluczowym elementem procesu zarządzania tokenami JWT jest klasa \texttt{JwtAccessTokenFilter}, której zadaniem jest przechwytywanie i weryfikacja tokenów JWT w żądaniach HTTP. Kod tej klasy przedstawiono poniżej:
+\noindent Kluczowe komponenty zarządzania tokenami JWT
+Proces zarządzania tokenami opiera się na kilku kluczowych klasach:
+\begin{itemize}
+    \item \textbf{\texttt{JwtAccessTokenFilter}} -- Klasa odpowiedzialna za przechwytywanie żądań HTTP i analizę tokenów JWT. Filtr weryfikuje poprawność tokenu, sprawdza jego obecność na czarnej liście oraz zapisuje dane użytkownika w kontekście bezpieczeństwa.
+    \item \textbf{\texttt{JwtTokenUtils}} -- Obsługuje operacje na tokenach JWT, takie jak ekstrakcja danych, sprawdzanie poprawności i walidacja zgodności z danymi użytkownika.
+    \item \textbf{\texttt{JwtConfig}} -- Zapewnia konfigurację mechanizmów kodowania i dekodowania tokenów JWT przy użyciu kluczy RSA. Klucz publiczny służy do weryfikacji tokenu, natomiast klucz prywatny wykorzystywany jest podczas jego generowania.
+\end{itemize}
 
 \begin{lstlisting}[language=Java, style=JavaStyle, caption=Kod niestandardowego filtra \texttt{JwtAccessTokenFilter}]
 @RequiredArgsConstructor
@@ -497,17 +504,14 @@ public class JwtAccessTokenFilter extends OncePerRequestFilter {
 }
 \end{lstlisting}
 
-\noindent Opis działania klasy:
+\noindent Opis funkcji \texttt{JwtAccessTokenFilter}
 \begin{itemize}
-    \item Klasa \texttt{JwtAccessTokenFilter} dziedziczy po \texttt{OncePerRequestFilter}, dzięki czemu jest wywoływana raz dla każdego żądania.
-    \item Weryfikacja nagłówka \texttt{Authorization} zapewnia, że token JWT jest obecny i poprawny.
-    \item Tokeny znajdujące się na czarnej liście są odrzucane z kodem HTTP \texttt{401}.
-    \item Token JWT jest dekodowany za pomocą klucza publicznego RSA, a dane użytkownika są odczytywane i weryfikowane.
-    \item Po pomyślnej weryfikacji dane użytkownika są zapisywane w \texttt{SecurityContextHolder}, umożliwiając dalszy proces autoryzacji.
+    \item Filtr przechwytuje każde żądanie HTTP i sprawdza obecność nagłówka \texttt{Authorization}.
+    \item W przypadku nieprawidłowego tokenu lub jego braku użytkownik otrzymuje odpowiedź HTTP \texttt{403}.
+    \item Token JWT jest dekodowany za pomocą klucza publicznego RSA, a jego dane są weryfikowane pod kątem zgodności z informacjami o użytkowniku.
+    \item Po pomyślnej weryfikacji dane użytkownika są zapisywane w kontekście bezpieczeństwa, umożliwiając dalszy proces autoryzacji.
 \end{itemize}
 
-
-Klasa \texttt{JwtConfig} zapewnia konfigurację mechanizmów dekodowania i kodowania tokenów JWT przy użyciu kluczy RSA. Jej kod przedstawiono poniżej.
 \begin{lstlisting}[language=Java, style=JavaStyle, caption=Klasa \texttt{JwtConfig}]
 @Configuration
 public class JwtConfig {
@@ -534,8 +538,6 @@ public class JwtConfig {
 }
 \end{lstlisting}
 
-Klasa \texttt{JwtTokenUtils} odpowiada za operacje związane z tokenami JWT, takie jak ekstrakcja danych, weryfikacja poprawności oraz walidacja zgodności z danymi użytkownika. Jej kod przedstawiono poniżej.
-
 \begin{lstlisting}[language=Java, style=JavaStyle, caption=Klasa \texttt{JwtTokenUtils}]
 @Component
 @RequiredArgsConstructor
@@ -560,19 +562,13 @@ public class JwtTokenUtils {
 }
 \end{lstlisting}
 
-\begin{itemize}
-    \item \texttt{JwtAccessTokenFilter} przechwytuje żądania HTTP, weryfikuje tokeny JWT i zapisuje dane użytkownika w kontekście bezpieczeństwa.
-    \item \texttt{JwtTokenUtils} obsługuje logikę ekstrakcji i walidacji danych z tokenu.
-    \item \texttt{JwtConfig} dostarcza konfigurację mechanizmów kodowania i dekodowania tokenów JWT z użyciem kluczy RSA.
-\end{itemize}
-
 
 \subsection{Zarządzanie czarną listą tokenów}
 
-Mechanizm zarządzania czarną listą tokenów w systemie „Harmony Home Net” umożliwia unieważnienie tokenów JWT. Jest to szczególnie istotne w procesie wylogowania użytkownika. Dzięki temu można natychmiast zakończyć sesję użytkownika i uniemożliwić dostęp do zasobów chronionych systemu przy użyciu starego tokenu.
+Mechanizm zarządzania czarną listą tokenów w systemie „Harmony Home Net” zapewnia możliwość unieważnienia tokenów JWT, co jest kluczowe podczas wylogowywania użytkowników. Dzięki temu rozwiązaniu system natychmiast kończy sesję użytkownika, uniemożliwiając dalszy dostęp do chronionych zasobów przy użyciu unieważnionego tokenu.
 
 \noindent \textbf{Proces wylogowania i dodawania tokenu do czarnej listy}\newline
-Podczas wylogowania system korzysta z dedykowanego łańcucha filtrów \texttt{logoutSecurityFilterChain}, zdefiniowanego w klasie \texttt{SecurityConfig}. Fragment konfiguracji przedstawiono poniżej.
+Wylogowanie użytkownika odbywa się za pomocą dedykowanego łańcucha filtrów \texttt{logoutSecurityFilterChain}, zdefiniowanego w klasie \texttt{SecurityConfig}. Kod konfiguracji łańcucha wylogowania został przedstawiony poniżej.
 
 \begin{lstlisting}[language=Java, style=JavaStyle, caption=Konfiguracja łańcucha wylogowania]
 @Bean
@@ -597,15 +593,15 @@ public SecurityFilterChain logoutSecurityFilterChain(HttpSecurity httpSecurity) 
 }
 \end{lstlisting}
 
-Podczas wylogowania użytkownik wysyła żądanie HTTP na ścieżkę \texttt{/logout}. Mechanizm \texttt{logoutSuccessHandler} wykonuje następujące kroki:
+W procesie wylogowania system wykonuje następujące kroki:
 \begin{itemize}
     \item Ekstrakcja tokenu JWT z nagłówka \texttt{Authorization}.
-    \item Dodanie tokenu do czarnej listy za pomocą usługi \texttt{TokenBlacklistService}.
-    \item Wyczyszczenie kontekstu bezpieczeństwa (\texttt{SecurityContextHolder}) w celu unieważnienia sesji użytkownika.
+    \item Dodanie tokenu do czarnej listy za pomocą \texttt{TokenBlacklistService}.
+    \item Wyczyszczenie kontekstu bezpieczeństwa (\texttt{SecurityContextHolder}), co skutkuje natychmiastowym unieważnieniem sesji użytkownika.
 \end{itemize}
 
 \noindent \textbf{Zarządzanie czarną listą tokenów}\newline
-Klasa \texttt{TokenBlacklistService} odpowiada za przechowywanie tokenów w czarnej liście oraz ich usuwanie po wygaśnięciu. Kod klasy przedstawiono poniżej.
+Za przechowywanie i obsługę czarnej listy tokenów odpowiada klasa \texttt{TokenBlacklistService}. Kod tej klasy przedstawiono poniżej.
 
 \begin{lstlisting}[language=Java, style=JavaStyle, caption=Klasa \texttt{TokenBlacklistService}]
 @Service
@@ -638,21 +634,22 @@ public class TokenBlacklistService {
 }
 \end{lstlisting}
 
-\noindent Znaczenie metody tej klasy jest następujące:
+Funkcje klasy \texttt{TokenBlacklistService} obejmują:
 \begin{itemize}
-    \item \texttt{blacklistToken} -- dodaje token JWT do czarnej listy w momencie wylogowania.
+    \item \texttt{blacklistToken} -- dodaje token JWT do czarnej listy, co uniemożliwia jego dalsze wykorzystanie.
     \item \texttt{isTokenBlacklisted} -- sprawdza, czy dany token znajduje się na czarnej liście.
-    \item \texttt{clearExpiredTokens} -- usuwa z czarnej listy tokeny, które wygasły, aby ograniczyć zużycie pamięci.
+    \item \texttt{clearExpiredTokens} -- usuwa wygasłe tokeny z czarnej listy, redukując wykorzystanie pamięci.
 \end{itemize}
 
 \noindent \textbf{Harmonogram czyszczenia czarnej listy}\newline
-Usługa \texttt{TokenBlacklistService} korzysta z metody \texttt{@Scheduled}, która co 15 minut sprawdza i usuwa tokeny wygasłe. Jest to realizowane asynchronicznie, dzięki czemu proces ten nie wpływa na wydajność aplikacji.
+Usługa \texttt{TokenBlacklistService} korzysta z harmonogramowanego zadania (\texttt{@Scheduled}), które co 15 minut przeszukuje czarną listę i usuwa tokeny, które wygasły. Operacja ta jest realizowana asynchronicznie, co zapobiega wpływowi na wydajność systemu.
 
-Dzięki istnieniu czarnych list system skutecznie zapobiega nieautoryzowanemu dostępowi do zasobów po wylogowaniu użytkownika lub wykryciu naruszenia bezpieczeństwa.
+Mechanizm czarnej listy tokenów pozwala na skuteczne zabezpieczenie systemu przed dostępem nieautoryzowanym po wylogowaniu użytkownika lub w przypadku naruszeń bezpieczeństwa.
+
 
 \subsection{Mechanizmy resetowania hasła}
 
-Mechanizm resetowania hasła zaprojektowano z uwzględnieniem podstawowych wymagań bezpieczeństwa. Proces został uproszczony w stosunku do tego, jak wyglądałby w pełnoprawnej produkcyjnej aplikacji. W profesjonalnych wdrożeniach resetowanie hasła zwykle obejmuje podział na osobne endpointy oraz wieloetapowy proces potwierdzania tożsamości użytkownika. To, jak obecnie wygląda proces resetu hasła, pokazano na rysunku~\ref{fig:ui_password_reset}.
+Mechanizm resetowania hasła w systemie „Harmony Home Net” został zaprojektowany z uwzględnieniem podstawowych zasad bezpieczeństwa, jednak w uproszczonej formie w stosunku do pełnoprawnych wdrożeń produkcyjnych. Proces został podzielony na kilka etapów, które pokazano na rysunku~\ref{fig:ui_password_reset}.
 
 \begin{figure}[ht]
     \centering
@@ -661,26 +658,18 @@ Mechanizm resetowania hasła zaprojektowano z uwzględnieniem podstawowych wymag
     \label{fig:ui_password_reset}
 \end{figure}
 
-\noindent Samo resetowania hasła odbywa się według kroków:
+Resetowanie hasła przebiega według następujących kroków:
 \begin{itemize}
-    \item \textbf{Prośba o reset hasła} -- użytkownik korzysta z sekcji \emph{Send Reset Link}, gdzie wprowadza swój adres e-mail i przesyła żądanie za pomocą przycisku \emph{Send Reset Link}. Po przesłaniu żądania na endpoint \texttt{/forgot-password} generowany jest unikalny token zabezpieczający, który zostaje wysłany na wskazany adres e-mail.
+    \item \textbf{Prośba o reset hasła} -- użytkownik wprowadza swój adres e-mail w sekcji \emph{Send Reset Link} i przesyła żądanie na endpoint \texttt{/forgot-password}. Na wskazany adres e-mail wysyłany jest unikalny token resetujący.
     
-    \item \textbf{Resetowanie hasła} -- w sekcji \emph{Reset Password} użytkownik wprowadza nowe hasło, potwierdza je, a następnie wprowadza otrzymany token resetujący. Formularz przesyła dane na endpoint \texttt{/reset-password}, który weryfikuje token, sprawdza jego ważność oraz aktualizuje hasło w bazie danych.
-
-    \item \textbf{Bezpieczeństwo} -- tokeny resetujące są jednorazowe i posiadają ograniczony czas ważności. Dodatkowo system wymusza spełnienie kryteriów bezpieczeństwa dla nowego hasła.
-
-    \item \textbf{Zmiana hasła} -- dla zalogowanych użytkowników dostępny jest również dedykowany endpoint \texttt{/change-password}, który umożliwia zmianę hasła bez potrzeby resetowania, co zwiększa wygodę użytkowania systemu. Znajduję się o w panelu użytkownika w zakładce \textbf{,,Ustawienia''}
+    \item \textbf{Resetowanie hasła} -- w sekcji \emph{Reset Password} użytkownik wprowadza nowe hasło, jego potwierdzenie oraz token resetujący. Formularz przesyła dane na endpoint \texttt{/reset-password}, który weryfikuje token, sprawdza jego ważność i aktualizuje hasło w bazie danych.
+    
+    \item \textbf{Bezpieczeństwo} -- tokeny resetujące są jednorazowe i mają ograniczony czas ważności. System wymusza także spełnienie kryteriów bezpieczeństwa dla nowych haseł.
+    
+    \item \textbf{Zmiana hasła} -- dla zalogowanych użytkowników dostępny jest dedykowany endpoint \texttt{/change-password}, który umożliwia zmianę hasła bez konieczności resetowania. Funkcjonalność ta znajduje się w zakładce \textbf{Ustawienia} w panelu użytkownika.
 \end{itemize}
 
-
-W przypadku produkcyjnych aplikacji mechanizmy resetowania hasła są bardziej rozbudowane. Proces ten obejmuje:
-\begin{itemize}
-    \item \emph{Wysłanie zabezpieczonego linku na e-mail} -- prośba o reset hasła generuje link zawierający jednorazowy token uwierzytelniający, wysyłany na adres e-mail użytkownika.
-    \item \emph{Weryfikacja linku} -- po kliknięciu w link użytkownik zostaje przekierowany na stronę umożliwiającą ustawienie nowego hasła, gdzie token jest weryfikowany.
-    \item \emph{Dodatkowe zabezpieczenia} -- ograniczenie czasowe ważności tokenu (np. 15 minut–1 godzina), szyfrowanie danych oraz logowanie operacji resetu w celu audytowania.
-\end{itemize}
-
-Jeśli chodzi o „Harmony Home Net”, to mechanizm resetowania hasła zaimplementowano z~użyciem kontrolera \texttt{AuthController} obsługującego endpointy o kodzie jak niżej.
+Mechanizm został zaimplementowany w kontrolerze \texttt{AuthController}, który obsługuje odpowiednie endpointy. Kod przedstawiono poniżej.
 
 \begin{lstlisting}[language=Java, style=JavaStyle, caption=Fragment klasy \texttt{AuthController}]
 @PostMapping("/forgot-password")
@@ -702,14 +691,15 @@ public ResponseEntity<String> changePassword(@RequestBody PasswordChangeRequest 
 }
 \end{lstlisting}
 
-\noindent Znaczenie poszczególnych endpointów jest następujące:
+Znaczenie poszczególnych endpointów:
 \begin{itemize}
-\item \texttt{forgotPassword} -- generuje token resetujący, który jest wysyłany na podany adres e-mail użytkownika. Token ma ograniczoną ważność, co zwiększa bezpieczeństwo.
-\item \texttt{resetPassword} -- weryfikuje token przesłany przez użytkownika, sprawdza jego ważność oraz zgodność przesłanych haseł. W przypadku pomyślnej walidacji hasło użytkownika jest aktualizowane w bazie.
-\item \texttt{changePassword} -- pozwala na zmianę hasła dla zalogowanych użytkowników, weryfikując zgodność adresu e-mail i przesłanych danych.
+    \item \texttt{forgotPassword} -- generuje jednorazowy token resetujący i wysyła go na adres e-mail użytkownika.
+    \item \texttt{resetPassword} -- weryfikuje token oraz zgodność przesłanych haseł. W przypadku poprawnej walidacji aktualizuje hasło użytkownika w bazie danych.
+    \item \texttt{changePassword} -- umożliwia zalogowanym użytkownikom zmianę hasła po podaniu aktualnych danych.
 \end{itemize}
 
-Resetowania hasła jest realizowane przez klasę \texttt{AuthServiceImp}, która implementuje interfejs \texttt{AuthService}. Kluczowe metody odpowiedzialne za reset przedstwiono na listingu poniżej.
+Proces resetowania hasła obsługiwany jest przez klasę \texttt{AuthServiceImp}, implementującą interfejs \texttt{AuthService}. Kluczowe metody przedstawiono poniżej.
+
 \begin{lstlisting}[language=Java, style=JavaStyle, caption=Metody resetowania hasła w klasie \texttt{AuthServiceImp}]
 @Override
 public void forgotPassword(String email) {
@@ -748,89 +738,44 @@ public void resetPassword(String token, String newPassword, String confirmPasswo
 }
 \end{lstlisting}
 
-\noindent Działanie poszczególnych metod jest następujące:
+Działanie metod:
 \begin{itemize}
-\item 
-\texttt{forgotPassword(String email)} -- ta metoda generuje token resetowania hasła dla użytkownika z podanym adresem e-mail. W szczególności:
-    \begin{enumerate}
-        \item Sprawdza, czy użytkownik istnieje w bazie danych. Jeśli nie, rzuca wyjątek \texttt{UserNotFoundException}.
-        \item Generuje unikalny token przy użyciu \texttt{UUID} i szyfruje go za pomocą algorytmu \texttt{BCrypt}.
-        \item Ustawia token oraz datę jego wygaśnięcia (np. 1 godzina od momentu utworzenia) w obiekcie użytkownika.
-        \item Wysyła wiadomość e-mail z tokenem i informacją o resetowaniu hasła za pomocą usługi \texttt{MailService}.
-    \end{enumerate}
-\item 
-\texttt{resetPassword(String token, String newPassword, String confirmPassword)} -- ta metoda obsługuje resetowanie hasła na podstawie tokenu. Kluczowe kroki:
-    \begin{enumerate}
-        \item Pobiera użytkownika z bazy danych na podstawie przesłanego tokenu. Jeśli token jest nieprawidłowy, rzuca wyjątek \texttt{ResponseStatusException}.
-        \item Sprawdza, czy nowe hasło oraz jego potwierdzenie są zgodne. W przypadku niezgodności rzuca wyjątek \texttt{BAD\_REQUEST}.
-        \item Weryfikuje ważność tokenu, porównując jego datę wygaśnięcia z bieżącym czasem.
-        \item Aktualizuje hasło użytkownika, resetuje token oraz jego datę ważności w bazie danych.
-    \end{enumerate}
+    \item \texttt{forgotPassword} -- generuje token resetujący, ustawia jego czas ważności i wysyła e-mail z instrukcjami.
+    \item \texttt{resetPassword} -- weryfikuje token, sprawdza zgodność nowego hasła z potwierdzeniem i aktualizuje dane użytkownika w bazie.
 \end{itemize}
 
-\noindent \textbf{Implementacja czyszczenia wygasłych tokenów}\newline
-Aby zapewnić bezpieczeństwo i efektywne zarządzanie bazą danych, w systemie zaimplementowano usługę \texttt{TokenCleanupService}, która regularnie usuwa wygasłe tokeny resetujące hasła. Kluczowe elementy implementacji:
-\begin{itemize}
-    \item Usługa korzysta z adnotacji \texttt{@Scheduled}, aby wykonywać zadanie czyszczenia co 30 minut.
-    \item Metoda \texttt{cleanUpExpiredResetTokens} usuwa tokeny wygasłe w oparciu o bieżący czas.
-    \item Usługa działa asynchronicznie, dzięki adnotacji \texttt{@Async} nie blokuje innych operacji.
-\end{itemize}
-
-\begin{lstlisting}[language=Java, style=JavaStyle, caption=Usługa czyszczenia wygasłych tokenów \texttt{TokenCleanupService}]
-@Service
-@RequiredArgsConstructor
-public class TokenCleanupService {
-
-    private final UserRepository userRepository;
-
-    @Scheduled(cron = "0 0/30 * * * *") // Co 30 minut
-    @Async
-    public void cleanUpExpiredResetTokens() {
-        userRepository.deleteAllExpiredResetTokens(Instant.now());
-    }
-
-}
-\end{lstlisting}
-Podsumowując główne cechy implementacji:
-\begin{itemize}
-    \item \textbf{Token jest ważny czasowo} -- tokeny resetujące hasło mają ograniczony czas ważności, co minimalizuje ryzyko nieautoryzowanego użycia.
-    \item \textbf{Usuwanie wygasłych tokenów odbywa się regularnie} -- mechanizm automatycznego czyszczenia zapewnia, że baza danych pozostaje wolna od nieaktualnych tokenów.
-\end{itemize}
-
-\noindent \textbf{Bezpieczeństwo i walidacja}\newline
-Każdy krok w procesie resetowania hasła jest zabezpieczony odpowiednimi walidacjami:
+\noindent \textbf{Bezpieczeństwo i rozwój}\newline
+Obecna implementacja zapewnia podstawowe mechanizmy ochrony:
 \begin{enumerate}
-    \item Token jest szyfrowany i przechowywany w bazie danych, co uniemożliwia jego odczytanie w przypadku naruszenia bezpieczeństwa bazy.
-    \item Token ma ograniczoną ważność, co minimalizuje ryzyko jego wykorzystania po upływie określonego czasu.
-    \item Sprawdzana jest zgodność nowego hasła i jego potwierdzenia, aby uniknąć przypadkowych błędów ze strony użytkownika.
+    \item Tokeny są jednorazowe, szyfrowane i mają ograniczony czas ważności.
+    \item Nowe hasła muszą spełniać wymagania dotyczące bezpieczeństwa.
+    \item Weryfikacja zgodności haseł minimalizuje ryzyko błędów użytkownika.
 \end{enumerate}
 
-\noindent \textbf{Rozszerzenie funkcjonalności w przyszłości}\newline
-W przyszłości mechanizm może zostać rozszerzony o dodatkowe funkcje, takie jak:
-\begin{enumerate}
-    \item Logowanie operacji resetowania hasła w celu audytowania.
-    \item Dodanie wieloskładnikowego uwierzytelniania (MFA) podczas resetowania hasła.
-    \item Wysyłanie linku resetującego, który odsyła użytkownika na dedykowaną stronę, zamiast przesyłania samego tokenu w wiadomości.
-\end{enumerate}
+W przyszłości system może zostać rozbudowany o:
+\begin{itemize}
+    \item Audyt operacji resetowania hasła.
+    \item Wdrożenie wieloskładnikowego uwierzytelniania (MFA) podczas resetu.
+    \item Wysyłanie linku resetującego zamiast tokenu w treści e-maila.
+\end{itemize}
 
-\noindent \textbf{Bezpieczeństwo i wygoda użytkownika}\newline 
-Mechanizmy te, choć uproszczone w prototypie, zapewniają podstawowy poziom bezpieczeństwa, jednocześnie umożliwiając wygodne resetowanie hasła. W przyszłości aplikacja może zostać rozszerzona o dodatkowe zabezpieczenia, takie jak wieloskładnikowe uwierzytelnianie (MFA) lub mechanizmy monitorujące nieautoryzowane próby resetowania hasła.
-
+Mechanizm resetowania hasła, mimo uproszczeń w prototypie, spełnia kluczowe wymagania bezpieczeństwa i może być łatwo rozszerzony w przyszłych wersjach systemu.
 
 \section{Zarządzanie użytkownikami}
 
-System zarządzania użytkownikami w prototypie \textbf{Harmony Home Net} został zaprojektowany jako zamknięty system, co oznacza, że proces rejestracji nowych użytkowników odbywa się wyłącznie z poziomu pracownika administracyjnego. Brak publicznego systemu rejestracji użytkowników jest zamierzonym rozwiązaniem, mającym na celu zwiększenie bezpieczeństwa systemu oraz ograniczenie dostępu jedynie do osób upoważnionych. 
+System zarządzania użytkownikami w prototypie \textbf{Harmony Home Net} został zaprojektowany jako zamknięty system, co oznacza, że rejestracja nowych użytkowników odbywa się wyłącznie za pośrednictwem pracowników administracyjnych. Takie podejście pozwala zwiększyć bezpieczeństwo, ograniczając dostęp do systemu jedynie do osób upoważnionych.
 
 \subsection{Encja użytkownika \texttt{User}}
 
-Encja \texttt{User} jest jednym z dwóch centralnym elementem systemu zarządzania użytkownikami. Reprezentuje dane użytkownika w systemie, takie jak imię, nazwisko, adres e-mail, numer telefonu oraz przypisana rola. Klasa \texttt{User} implementuje interfejs \texttt{UserDetails} z biblioteki Spring Security, co umożliwia jej bezpośrednie wykorzystanie w procesie autoryzacji i uwierzytelniania użytkowników. Kluczowe cechy encji \texttt{User} to:
+Encja \texttt{User} stanowi jeden z kluczowych elementów systemu zarządzania użytkownikami. Reprezentuje dane użytkownika, takie jak imię, nazwisko, adres e-mail, numer telefonu oraz przypisana rola. Klasa ta implementuje interfejs \texttt{UserDetails} z biblioteki Spring Security, co umożliwia jej bezpośrednie wykorzystanie w procesach uwierzytelniania i autoryzacji. Najważniejsze cechy encji \texttt{User} to:
 \begin{itemize}
-    \item \textbf{Implementacja \texttt{UserDetails}} -- dzięki implementacji interfejsu \texttt{UserDetails}, encja \texttt{User} jest zintegrowana z mechanizmami Spring Security, które wykorzystują ją do przechowywania i zarządzania danymi uwierzytelniającymi.
-    \item \textbf{Adnotacje JPA} -- encja jest zmapowana na tabelę \texttt{Users} w bazie danych przy użyciu adnotacji JPA, takich jak \texttt{@Entity}, \texttt{@Table} oraz \texttt{@Column}.
-    \item \textbf{Powiązania z innymi encjami} -- encja posiada relacje z wieloma innymi tabelami, takimi jak \texttt{NotificationType}, \texttt{UserDocumentConnection} oraz \texttt{PossessionHistory}, które odzwierciedlają jej złożoną strukturę w systemie.
-    \item \textbf{Zabezpieczenia danych} -- pola, takie jak hasło (\texttt{Password}), są odpowiednio walidowane i szyfrowane przed zapisaniem w bazie danych.
+    \item \textbf{Integracja z mechanizmami Spring Security} -- implementacja interfejsu \texttt{UserDetails} umożliwia przechowywanie danych uwierzytelniających i ich wykorzystanie w procesach autoryzacji.
+    \item \textbf{Adnotacje JPA} -- klasa jest zmapowana na tabelę \texttt{Users} w bazie danych za pomocą adnotacji takich jak \texttt{@Entity}, \texttt{@Table} oraz \texttt{@Column}.
+    \item \textbf{Relacje z innymi encjami} -- encja posiada powiązania z tabelami, takimi jak \texttt{NotificationType}, \texttt{UserDocumentConnection} oraz \texttt{PossessionHistory}, co odzwierciedla jej rolę w systemie.
+    \item \textbf{Bezpieczeństwo danych} -- hasła użytkowników są walidowane i szyfrowane przed zapisem do bazy danych, zapewniając ochronę wrażliwych informacji.
 \end{itemize}
-Poniżej zamieszczono fragment kodu encji \texttt{User}.
+
+Poniżej przedstawiono kod encji \texttt{User}.
 \begin{lstlisting}[language=Java, style=JavaStyle, caption=Encja użytkownika \texttt{User}]
 @Data
 @AllArgsConstructor
@@ -917,25 +862,26 @@ public class User implements UserDetails {
 }
 \end{lstlisting}
 
-\textbf{Rola w procesie autoryzacji} -- dzięki implementacji metody \texttt{getAuthorities()} z interfejsu \texttt{UserDetails}, encja \texttt{User} umożliwia Spring Security odczytywanie ról przypisanych użytkownikowi. To pozwala na efektywne zarządzanie dostępem do zasobów w systemie i egzekwowanie polityk bezpieczeństwa na podstawie ról użytkowników.
-
+\textbf{Rola w autoryzacji użytkowników} -- dzięki metodzie \texttt{getAuthorities()} encja umożliwia odczytywanie ról przypisanych użytkownikowi. W połączeniu z mechanizmami Spring Security pozwala to na efektywne zarządzanie dostępem do zasobów systemu.
 
 \subsection{Role i poziomy dostępu}
 
-System zarządzania użytkownikami opiera się na hierarchii ról, które są zdefiniowane w klasie \texttt{Role}. Dzięki temu system może łatwo określić, czy użytkownik posiada wystarczające uprawnienia do wykonania określonej operacji, takiej jak edycja danych innego użytkownika czy przypisanie nowej roli. Role zdefiniowane w systemie to:
+System zarządzania użytkownikami opiera się na hierarchii ról, które definiują poziom uprawnień. Klasa \texttt{Role} pozwala określić, czy użytkownik ma wystarczające uprawnienia do wykonania określonych operacji, takich jak edycja danych innych użytkowników czy przypisanie nowej roli. Dostępne role:
 \begin{itemize}
     \item \texttt{ROLE\_OWNER} -- poziom 1, właściciel mieszkania, podstawowa rola w systemie.
     \item \texttt{ROLE\_EMPLOYEE} -- poziom 2, pracownik administracyjny.
     \item \texttt{ROLE\_ADMIN} -- poziom 3, administrator systemu.
-    \item \texttt{ROLE\_SUPER\_ADMIN} -- poziom 4, najwyższy poziom dostępu, superadministrator.
+    \item \texttt{ROLE\_SUPER\_ADMIN} -- poziom 4, superadministrator, najwyższy poziom dostępu.
 \end{itemize}
-\noindent \textbf{Działanie hierarchii ról}
+
+\textbf{Zasady działania hierarchii ról}:
 \begin{itemize}
-    \item Każda rola ma wartość liczbową (\texttt{level}), określającą jej miejsce w hierarchii uprawnień.
-    \item Funkcje takie jak przypisywanie nowych ról czy edycja danych sprawdzają, czy użytkownik wykonujący operację posiada wyższy lub równy poziom dostępu (\texttt{level}) w stosunku do użytkownika, którego dane mają być zmodyfikowane.
-    \item Rola \texttt{ROLE\_OWNER} jest specjalnie zabezpieczona, aby zapobiec jej zmianie na inną rolę bez uprzedniego usunięcia użytkownika i ponownej rejestracji.
+    \item Każda rola ma przypisaną wartość \texttt{level}, określającą jej miejsce w hierarchii.
+    \item Operacje takie jak przypisanie nowej roli są dozwolone wyłącznie dla użytkowników posiadających wyższy poziom \texttt{level} niż modyfikowany użytkownik.
+    \item Rola \texttt{ROLE\_OWNER} jest dodatkowo zabezpieczona przed zmianami, co wymusza usunięcie i ponowną rejestrację użytkownika w celu zmiany jego uprawnień.
 \end{itemize}
-Poniżej zamieszczono fragment kodu definiującego enumerację \texttt{Role}.
+
+Poniżej przedstawiono kod definiujący hierarchię ról.
 \begin{lstlisting}[language=Java, style=JavaStyle, caption=Definicja ról w systemie \texttt{Role}]
 package bwp.hhn.backend.harmonyhomenetlogic.utils.enums;
 
@@ -959,24 +905,21 @@ public enum Role implements GrantedAuthority {
 }
 \end{lstlisting}
 
-
-
-
 \subsection{Dodawanie użytkowników i przypisywanie ról}
 
-Proces zarządzania użytkownikami, w tym ich dodawanie i edycja, jest realizowany za pomocą prostego mechanizmu autoryzacji opartego na wartościach liczbowych przypisanych do ról w enumeracji \texttt{Role}. Każda rola (np. \texttt{ROLE\_OWNER}, \texttt{ROLE\_EMPLOYEE}, \texttt{ROLE\_ADMIN}) ma przypisany poziom dostępu, który określa możliwość wykonywania operacji takich jak dodawanie, edytowanie czy usuwanie użytkowników. Mechanizm ten wymaga, aby poziom dostępu osoby wykonującej daną operację był równy lub wyższy od poziomu użytkownika, na którym operacja ma być wykonana.
+Proces zarządzania użytkownikami, obejmujący ich dodawanie i edycję, opiera się na mechanizmie autoryzacji bazującym na poziomach dostępu przypisanych do ról w enumeracji \texttt{Role}. Każda rola (\texttt{ROLE\_OWNER}, \texttt{ROLE\_EMPLOYEE}, \texttt{ROLE\_ADMIN}, \texttt{ROLE\_SUPER\_ADMIN}) ma określony poziom dostępu, co pozwala kontrolować uprawnienia do wykonywania operacji takich jak dodawanie, edycja czy usuwanie użytkowników.
 
 \textbf{Kluczowe założenia mechanizmu:}
 \begin{itemize}
-    \item \textbf{Hierarchia poziomów dostępu} -- wartości liczbowe przypisane do ról zapewniają, że np. użytkownik z rolą \texttt{ROLE\_ADMIN} może edytować użytkowników z rolami o niższym poziomie, ale nie może przypisać im roli o poziomie wyższym od swojego.
-    \item \textbf{Zabezpieczenie ról} -- rola \texttt{ROLE\_OWNER} jest szczególnie chroniona – nie można zmienić jej na inną rolę, taką jak \texttt{ROLE\_EMPLOYEE} lub \texttt{ROLE\_ADMIN}, i odwrotnie. Aby dokonać takiej zmiany, konieczne jest usunięcie użytkownika i ponowne dodanie go z nową rolą.
+    \item \textbf{Hierarchia poziomów dostępu} -- wartości liczbowe przypisane do ról zapewniają, że użytkownicy z wyższymi poziomami uprawnień mogą zarządzać użytkownikami posiadającymi role o niższym poziomie.
+    \item \textbf{Zabezpieczenie ról} -- rola \texttt{ROLE\_OWNER} jest szczególnie chroniona i nie może być zmieniona bez usunięcia użytkownika i jego ponownej rejestracji z nową rolą.
 \end{itemize}
 
-Proces rejestracji użytkownika został zaimplementowany w usłudze \texttt{AuthServiceImp}, a jego kluczowe elementy to:
+Proces rejestracji użytkownika został zaimplementowany w usłudze \texttt{AuthServiceImp}. Kluczowe elementy tego procesu to:
 \begin{itemize}
-    \item \textbf{Weryfikacja dostępu pracownika rejestrującego} -- Przy każdej rejestracji token JWT dostarczony przez pracownika jest weryfikowany, aby upewnić się, że osoba rejestrująca ma odpowiednie uprawnienia do przypisania nowego użytkownika i jego roli.
-    \item \textbf{Przypisywanie ról} -- Użytkownikowi można przypisać jedną z dostępnych ról (\texttt{ROLE\_OWNER}, \texttt{ROLE\_EMPLOYEE}, \texttt{ROLE\_ADMIN}, \texttt{ROLE\_SUPER\_ADMIN}). Każda rola ma określony poziom dostępu, co zapobiega nadawaniu wyższych ról przez osoby z niższymi uprawnieniami.
-    \item \textbf{Wysyłanie powitalnego e-maila} -- Po poprawnym zapisaniu użytkownika w bazie danych, na jego adres e-mail wysyłana jest wiadomość powitalna za pomocą usługi \texttt{MailService}.
+    \item \textbf{Weryfikacja uprawnień pracownika rejestrującego} -- token JWT dostarczony przez pracownika jest weryfikowany, aby upewnić się, że osoba wykonująca operację ma odpowiednie uprawnienia.
+    \item \textbf{Przypisywanie ról} -- nowym użytkownikom można przypisać jedną z dostępnych ról. Mechanizm weryfikuje, czy osoba rejestrująca ma wystarczające uprawnienia do przypisania danej roli.
+    \item \textbf{Wysyłanie e-maila powitalnego} -- po pomyślnej rejestracji użytkownik otrzymuje e-mail z informacją o utworzeniu konta.
 \end{itemize}
 
 Fragment kodu obsługującego rejestrację użytkownika:
@@ -1014,11 +957,11 @@ public String register(RegisterRequest userRequest, String accessToken) {
 
 \subsection{Zarządzanie użytkownikami i ich danymi}
 
-Funkcjonalność zarządzania użytkownikami obejmuje:
+System zarządzania użytkownikami zapewnia funkcje takie jak:
 \begin{itemize}
-    \item \textbf{Paginację} -- dla efektywnego zarządzania dużą liczbą użytkowników, zaimplementowano mechanizm stronicowania (\texttt{Pagination}), który umożliwia pobieranie danych w mniejszych porcjach.
-    \item \textbf{Edycja danych użytkownika} -- administratorzy mogą zmieniać dane użytkowników, takie jak e-mail, imię, nazwisko czy rola.
-    \item \textbf{Usuwanie użytkowników} -- system pozwala na usuwanie użytkowników wraz z powiązanymi danymi, takimi jak powiadomienia czy głosy.
+    \item \textbf{Paginacja} -- mechanizm stronicowania umożliwia efektywne zarządzanie dużą liczbą użytkowników.
+    \item \textbf{Edycja danych użytkownika} -- administratorzy mogą zmieniać dane użytkowników, w tym e-mail, imię, nazwisko oraz przypisaną rolę.
+    \item \textbf{Usuwanie użytkowników} -- system pozwala na usuwanie użytkowników wraz z powiązanymi danymi, np. powiadomieniami czy historią posiadania nieruchomości.
 \end{itemize}
 
 \textbf{Fragment kodu obsługującego edycję użytkownika:}
@@ -1065,8 +1008,7 @@ public UserResponse updateUser(UUID userId, UserRequest user, String accessToken
 }
 \end{lstlisting}
 
-
-Fragment kontrolera odpowiedzialnego za paginację i zarządzanie użytkownikami:
+\textbf{Fragment kontrolera odpowiedzialnego za paginację i zarządzanie użytkownikami:}
 \begin{lstlisting}[language=Java, style=JavaStyle, caption=Metoda paginacji w \texttt{UserController}]
 @GetMapping("/get-all-users")
 public ResponseEntity<PageResponse<UserResponse>> getAllUsers(
@@ -1078,25 +1020,32 @@ public ResponseEntity<PageResponse<UserResponse>> getAllUsers(
 
 \subsection{Przyszłe usprawnienia: integracja ACL}
 
-Jednym z możliwych kierunków rozwoju systemu jest integracja mechanizmu \textbf{ACL}~\cite{acl}. ACL umożliwia bardziej precyzyjne zarządzanie dostępem do zasobów poprzez przypisywanie uprawnień na poziomie pojedynczych zasobów (np. użytkownik może edytować tylko swoje zgłoszenia techniczne, ale nie ma dostępu do zgłoszeń innych właścicieli). Dzięki temu system mógłby zapewniać większą elastyczność i bezpieczeństwo przy zarządzaniu użytkownikami.
+W ramach rozwoju systemu rozważana jest integracja mechanizmu \textbf{ACL}~\cite{acl}, umożliwiającego precyzyjne zarządzanie dostępem do zasobów. Mechanizm ten pozwala przypisywać uprawnienia na poziomie poszczególnych obiektów, np. ograniczając dostęp użytkowników do wybranych zgłoszeń technicznych.
 
-ACL w przyszłości może obejmować:
+\textbf{Potencjalne zastosowania ACL:}
 \begin{itemize}
-    \item Definiowanie uprawnień na poziomie obiektów (np. dostęp do konkretnego mieszkania).
-    \item Tworzenie hierarchii uprawnień dostosowanych do struktury organizacyjnej wspólnoty mieszkaniowej.
-    \item Logowanie i audyt działań użytkowników w celu monitorowania potencjalnych nadużyć.
+    \item Definiowanie uprawnień na poziomie obiektów, takich jak mieszkania czy zgłoszenia techniczne.
+    \item Hierarchiczne zarządzanie uprawnieniami, dostosowane do struktury wspólnoty mieszkaniowej.
+    \item Audytowanie i logowanie działań użytkowników, co pozwala monitorować potencjalne nadużycia.
 \end{itemize}
 
-W obecnym prototypie systemu, zarządzanie użytkownikami i przypisywanie ról stanowi solidną podstawę, którą można rozbudować o bardziej zaawansowane mechanizmy, takie jak ACL, w przyszłych wersjach aplikacji.
-
+Obecnie zarządzanie użytkownikami i przypisywanie ról w systemie stanowi solidny fundament, który w przyszłości może zostać rozwinięty o bardziej zaawansowane mechanizmy takie jak ACL.
 
 \section{Zarządzanie mieszkaniami}
 
-Zarządzanie mieszkaniami w prototypie systemu ,,Harmony Home Net'' jest kluczowym elementem jego funkcjonalności. Mieszkanie stanowi jedną z dwóch podstawowych tabel w systemie, obok tabeli użytkowników. W ramach tej sekcji omówione zostaną szczegóły implementacyjne, w tym struktura encji, tabela pośrednicząca \texttt{PossessionHistory}, sposób zarządzania mieszkaniami, właścicielami oraz przyszłe funkcje, które mogą zostać zaimplementowane.
+Zarządzanie mieszkaniami w prototypie systemu ,,Harmony Home Net'' jest kluczowym elementem jego funkcjonalności. Mieszkanie stanowi jedną z dwóch podstawowych tabel w systemie, obok tabeli użytkowników. W tej sekcji opisano strukturę encji \texttt{Apartment}, tabelę pośredniczącą \texttt{PossessionHistory}, mechanizmy przypisywania właścicieli oraz możliwe kierunki rozwoju tego modułu.
 
 \subsection{Encja \texttt{Apartment}}
 
-Encja \texttt{Apartment} reprezentuje mieszkanie w systemie. Każdy rekord zawiera informacje takie jak adres, powierzchnia, wartość procentowa oraz sygnatura unikalna dla każdego mieszkania. Struktura encji jest następująca:
+Encja \texttt{Apartment} reprezentuje mieszkanie w systemie i przechowuje kluczowe informacje, takie jak adres, powierzchnia, wartość procentowa oraz unikalna sygnatura. Struktura encji została zaprojektowana w sposób umożliwiający łatwe zarządzanie danymi oraz integrację z innymi elementami systemu.
+
+\begin{itemize}
+    \item \textbf{Adres i lokalizacja} -- Każde mieszkanie posiada informacje o adresie, mieście oraz kodzie pocztowym, które są walidowane podczas dodawania.
+    \item \textbf{Powierzchnia i wartość procentowa} -- Dane dotyczące powierzchni mieszkania i jego udziału procentowego w całej wspólnocie są przechowywane z wysoką precyzją dzięki typowi \texttt{BigDecimal}.
+    \item \textbf{Relacje} -- Encja posiada relację z tabelą \texttt{PossessionHistory}, umożliwiającą przypisywanie mieszkań do użytkowników i zarządzanie historią posiadania.
+\end{itemize}
+
+Poniżej przedstawiono fragment kodu encji \texttt{Apartment}.
 
 \begin{lstlisting}[language=Java, style=JavaStyle, caption=Encja mieszkania \texttt{Apartment}]
 @Data
@@ -1162,7 +1111,15 @@ public class Apartment {
 
 \subsection{Tabela pośrednicząca \texttt{PossessionHistory}}
 
-Tabela \texttt{PossessionHistory} umożliwia zarządzanie relacjami pomiędzy użytkownikami a mieszkaniami. Zawiera informacje o tym, które mieszkania są aktualnie przypisane do jakich użytkowników oraz historię przypisań. Struktura tabeli zapewnia unikalność pary użytkownik-mieszkanie.
+Tabela \texttt{PossessionHistory} pełni rolę pośredniczącą między użytkownikami a mieszkaniami. Pozwala zarządzać przypisaniami oraz przechowywać historię posiadania. Każda relacja użytkownik-mieszkanie jest unikalna, co zapewnia integralność danych.
+
+\begin{itemize}
+    \item \textbf{Historia przypisań} -- Każdy rekord przechowuje daty rozpoczęcia i zakończenia posiadania mieszkania.
+    \item \textbf{Dodatkowe informacje} -- Możliwość przechowywania notatek związanych ze statusem przypisania.
+    \item \textbf{Relacje} -- Tabela jest połączona zarówno z tabelą użytkowników, jak i mieszkań.
+\end{itemize}
+
+Fragment kodu tabeli \texttt{PossessionHistory}:
 
 \begin{lstlisting}[language=Java, style=JavaStyle, caption=Tabela pośrednicząca \texttt{PossessionHistory}]
 @Data
@@ -1205,9 +1162,15 @@ public class PossessionHistory {
 }
 \end{lstlisting}
 
-\subsection{Przypisywanie i odłączanie właścieli}
+\subsection{Przypisywanie i odłączanie właścicieli}
 
-Proces przypisywania mieszkania do użytkownika jest realizowany w serwisie \texttt{ApartmentsServiceImp}. Przykładowa implementacja:
+Proces przypisywania mieszkania do użytkownika jest realizowany w serwisie \texttt{ApartmentsServiceImp}. W trakcie przypisywania sprawdzane są następujące aspekty:
+\begin{itemize}
+    \item \textbf{Istnienie użytkownika i mieszkania} -- Weryfikacja, czy użytkownik i mieszkanie istnieją w systemie.
+    \item \textbf{Unikalność przypisania} -- Sprawdzenie, czy użytkownik nie ma już przypisanego danego mieszkania.
+\end{itemize}
+
+Fragment implementacji przypisywania właścicieli:
 
 \begin{lstlisting}[language=Java, style=JavaStyle, caption=Przypisywanie właścicieli w \texttt{ApartmentsServiceImp}]
 @Override
@@ -1239,33 +1202,30 @@ public PossessionHistoryResponse createPossessionHistory(String apartmentSignatu
 }
 \end{lstlisting}
 
-\subsection{Przyszłe usprawnienia dla zarządzania właścielami}
+\subsection{Przyszłe usprawnienia dla zarządzania właścicielami}
 
-Aktualnie proces dodawania i usuwania właścicieli mieszkań na warstwie frontendowej jest zrealizowany w sposób bardzo uproszony. Użytkownik musi ręcznie wprowadzić UUID osoby, która ma zostać przypisana jako właściciel mieszkania, co jest niepraktyczne i podatne na błędy w przypadku dużej liczby użytkowników.
-
-Proponowane usprawnienia obejmują:
-
+Aktualne rozwiązania zarządzania właścicielami mieszkań w prototypie systemu są funkcjonalne, jednak wymagają usprawnień w zakresie ergonomii oraz automatyzacji. Wprowadzenie poniższych zmian zwiększy użyteczność systemu:
 \begin{itemize}
-    \item \textbf{Lista wyliczeniowa użytkowników} -- Zastąpienie ręcznego wpisywania UUID możliwością wyboru użytkownika z listy dostępnych właścicieli. Lista mogłaby wyświetlać podstawowe informacje o użytkownikach, takie jak imię, nazwisko, e-mail czy numer telefonu.
-    \item \textbf{Filtry wyszukiwania} -- wprowadzenie mechanizmu filtrów, który umożliwiłby wyszukiwanie użytkowników na podstawie określonych kryteriów, takich jak rola, adres e-mail czy numer telefonu.
-    \item \textbf{Intuicyjny interfejs} -- dodanie opcji podglądu szczegółowych informacji o użytkowniku bez opuszczania ekranu zarządzania mieszkaniami.
+    \item \textbf{Lista użytkowników} -- Zastąpienie ręcznego wpisywania UUID możliwością wyboru użytkownika z rozwijanej listy.
+    \item \textbf{Mechanizmy wyszukiwania} -- Wdrożenie wyszukiwania użytkowników na podstawie kryteriów takich jak imię, nazwisko, e-mail czy numer telefonu.
+    \item \textbf{Zaawansowany interfejs} -- Dodanie podglądu szczegółowych informacji o użytkownikach bez opuszczania ekranu zarządzania mieszkaniami.
 \end{itemize}
 
-W przyszłości planowane jest rozszerzenie systemu o następujące funkcje:
+Planowane funkcje rozwojowe obejmują:
 \begin{itemize}
-    \item \textbf{Automatyczne generowanie powiadomień} -- informowanie właścicieli o zmianach statusu mieszkania.
-    \item \textbf{Zaawansowana historia posiadania} -- dodanie możliwości załączania notatek i dokumentów do historii posiadania.
-    \item \textbf{Integracja z systemami księgowymi} -- automatyczne generowanie opłat na podstawie powierzchni mieszkania i jego wartości procentowej.
+    \item \textbf{Powiadomienia o zmianach statusu} -- Automatyczne informowanie właścicieli o zmianach statusu mieszkania.
+    \item \textbf{Rozbudowana historia posiadania} -- Możliwość dodawania notatek i dokumentów do przypisań.
+    \item \textbf{Integracja z systemami księgowymi} -- Generowanie opłat na podstawie powierzchni mieszkania i jego udziału procentowego.
 \end{itemize}
 
-Dzięki tym zmianom proces zarządzania właścicielami mieszkań stanie się bardziej intuicyjny i mniej podatny na błędy. Dodatkowo, lepsza prezentacja danych na froncie pozwoli pracownikom administracyjnym szybciej i sprawniej realizować operacje związane z przypisywaniem właścicieli.
+Dzięki wdrożeniu tych usprawnień zarządzanie mieszkaniami stanie się bardziej intuicyjne i mniej podatne na błędy, co znacząco zwiększy efektywność pracy administracyjnej.
 
-
-\section{Zarządzie dokumentami}
+\section{Zarzadzanie dokumentami}
 
 \subsection{Opis encji i relacji}
 
-\textbf{Encja \texttt{Document}}  -- jest kluczowym elementem systemu zarządzania dokumentami, przechowując dane niezbędne do identyfikacji i obsługi dokumentów w systemie. Kod odpowiadającej jej klasy przedstawiono poniżej.
+\textbf{Encja \texttt{Document}} -- stanowi podstawowy element systemu zarządzania dokumentami, przechowując dane identyfikujące i obsługujące dokumenty w systemie. Kod klasy prezentuje poniższy fragment.
+
 \begin{lstlisting}[language=Java, style=JavaStyle, caption=Encja \texttt{Document}]
 @Data
 @AllArgsConstructor
@@ -1308,18 +1268,19 @@ public class Document {
 }
 \end{lstlisting}
 
-\noindent Znaczenie atrybutów klasy:
+\noindent Kluczowe atrybuty klasy obejmują:
 \begin{itemize}
-    \item \texttt{uuidID} -- unikalny identyfikator UUID każdego dokumentu, generowany automatycznie,
-    \item \texttt{documentName} -- nazwa dokumentu, wymagana i unikalna w systemie,
-    \item \texttt{documentExtension} -- rozszerzenie pliku, wskazujące format przechowywanego dokumentu,
+    \item \texttt{uuidID} -- unikalny identyfikator dokumentu,
+    \item \texttt{documentName} -- nazwa dokumentu, unikalna w systemie,
+    \item \texttt{documentExtension} -- rozszerzenie pliku, określające jego format,
     \item \texttt{documentType} -- typ dokumentu zdefiniowany w enumeracji \texttt{DocumentType},
-    \item \texttt{documentData} -- dane dokumentu zapisane w postaci tablicy bajtów,
-    \item \texttt{createdAt} -- znacznik czasu wskazujący moment dodania dokumentu do systemu,
-    \item \texttt{userDocumentConnections} -- lista obiektów reprezentujących relacje z użytkownikami.
+    \item \texttt{documentData} -- dane dokumentu zapisane jako tablica bajtów,
+    \item \texttt{createdAt} -- data dodania dokumentu do systemu,
+    \item \texttt{userDocumentConnections} -- lista relacji dokumentu z użytkownikami.
 \end{itemize}
 
-\textbf{Encja \texttt{UserDocumentConnection}} -- tabela pośrednicząca \texttt{UserDocumentConnection} zarządza relacją między dokumentami a użytkownikami, którzy mają do nich dostęp. Kod odpowiadającej jej klasy przedstawiono poniżej.
+\textbf{Encja \texttt{UserDocumentConnection}} -- zarządza relacją między dokumentami a użytkownikami mającymi do nich dostęp. Poniższy fragment przedstawia strukturę tej encji.
+
 \begin{lstlisting}[language=Java, style=JavaStyle, caption=Encja \texttt{UserDocumentConnection}]
 @Entity
 @Data
@@ -1349,31 +1310,33 @@ public class UserDocumentConnection {
 }
 \end{lstlisting}
 
-\noindent Znaczenie atrybutów klasy:
+\noindent Główne pola encji to:
 \begin{itemize}
-    \item \texttt{uuidID} -- unikalny identyfikator każdego rekordu w tabeli pośredniczącej,
-    \item \texttt{document} -- pole relacyjne wskazujące na powiązany dokument,
-    \item \texttt{user} -- pole relacyjne wskazujące na powiązanego użytkownika,
-    \item \texttt{grantedAt} -- data przyznania dostępu użytkownikowi do dokumentu.
+    \item \texttt{uuidID} -- unikalny identyfikator relacji,
+    \item \texttt{document} -- odniesienie do powiązanego dokumentu,
+    \item \texttt{user} -- odniesienie do użytkownika,
+    \item \texttt{grantedAt} -- data przyznania dostępu do dokumentu.
 \end{itemize}
 
 \subsection{Rodzaje dokumentów}
-Rodzaje dokumentów w systemie są zdefiniowane w enumeracji \texttt{DocumentType}, która umożliwia kategoryzację dokumentów. Definicja wygląda następująco:
+
+Rodzaje dokumentów są definiowane w enumeracji \texttt{DocumentType}, która umożliwia ich kategoryzację. Przykładowe typy dokumentów to:
+
 
 \begin{lstlisting}[language=Java, style=JavaStyle, caption=Enumeracja \texttt{DocumentType}]
 public enum DocumentType {
-    RESOLUTION,    // Uchwały.
-    DECISION,      // Decyzje.
-    PROPERTY_DEED, // Akty własności (prywatne).
-    OTHER          // Inne dokumenty.
+    RESOLUTION,    // Uchwały
+    DECISION,      // Decyzje
+    PROPERTY_DEED, // Akty własności
+    OTHER          // Inne dokumenty
 }
 \end{lstlisting}
 
-W systemie wszystkie dokumenty, które nie są typu \texttt{PROPERTY\_DEED}, są publiczne i dostępne dla każdego użytkownika.
+Dokumenty o typie innym niż \texttt{PROPERTY\_DEED} są publiczne i automatycznie dostępne dla wszystkich użytkowników.
 
-\subsection{Przepływ dokumentów w systemie ,,Harmony Home Net''}
+\subsection{Przepływ dokumentów w systemie „Harmony Home Net”}
 
-W prototypie systemu „Harmony Home Net” przepływ dokumentów został uproszczony:
+Przepływ dokumentów w systemie jest uproszczony i przedstawiony na schemacie~\ref{fig:document_schema}.
 
 \begin{figure}[h]
     \centering
@@ -1382,36 +1345,22 @@ W prototypie systemu „Harmony Home Net” przepływ dokumentów został uprosz
     \label{fig:document_schema}
 \end{figure}
 
-Na schemacie ~\ref{fig:document_schema} oznaczono:
-\begin{itemize}
-    \item \texttt{D} -- Encja \texttt{Document}, reprezentująca dokument w systemie. Każdy dokument zawiera informacje o nazwie, typie, rozszerzeniu i danych pliku.
-    \item \texttt{D\_Pub} -- Dokumenty publiczne, które są automatycznie przypisywane do wszystkich użytkowników w systemie, np. decyzje lub uchwały.
-    \item \texttt{D\_Priv} -- Dokumenty prywatne (\texttt{PROPERTY\_DEED}), które są przypisywane wyłącznie właścicielom mieszkań na podstawie historii posiadania (\texttt{Ph}).
-    \item \texttt{U} -- Encja \texttt{User}, reprezentująca użytkownika systemu. Każdy użytkownik może mieć przypisane dokumenty zarówno publiczne, jak i prywatne.
-    \item \texttt{Ph} -- Tabela \texttt{PossessionHistory}, zawierająca informacje o historii posiadania mieszkań przez użytkowników, co umożliwia precyzyjne przypisanie dokumentów prywatnych.
-    \item \texttt{A} -- Encja \texttt{Apartment}, reprezentująca mieszkanie w systemie. Sygnatura mieszkania jest kluczowa przy przypisywaniu dokumentów prywatnych.
-\end{itemize}
-
 Opis procesu dodawania dokumentów:
 \begin{enumerate}
-    \item Dokument jest dodawany przez administratora lub pracownika systemu poprzez endpoint upload (\texttt{/upload-document}). W tym procesie określane są szczegóły dokumentu, takie jak jego typ oraz opcjonalne powiązanie z mieszkaniem (\texttt{A}).
-    \item Dokumenty publiczne (\texttt{D\_Pub}) są automatycznie przypisywane do wszystkich użytkowników w systemie. Mechanizm ten działa zarówno w momencie dodawania dokumentu, jak i tworzenia nowego użytkownika.
-    \item Dokumenty prywatne (\texttt{D\_Priv}) są przypisywane na podstawie tabeli \texttt{PossessionHistory} (\texttt{Ph}) do właścicieli mieszkań (\texttt{A}). Proces ten wymaga podania sygnatury mieszkania, co umożliwia precyzyjne przypisanie dokumentu do odpowiednich użytkowników.
-    \item W przypadku zmiany właściciela mieszkania lub dodania współwłaściciela:
-    \begin{itemize}
-        \item Połączenie dokumentu prywatnego z dotychczasowym właścicielem może zostać usunięte, jednak sam dokument pozostaje w archiwum.
-        \item Nowy dokument, odzwierciedlający zmienione prawa własności, jest dodawany do systemu, a odpowiednie połączenia z użytkownikami są aktualizowane.
-    \end{itemize}
+    \item Dokument dodawany jest przez administratora za pomocą endpointu \texttt{/upload-document}, gdzie określane są jego szczegóły, takie jak typ i opcjonalne powiązanie z mieszkaniem.
+    \item Dokumenty publiczne (\texttt{D\_Pub}) są przypisywane automatycznie wszystkim użytkownikom systemu.
+    \item Dokumenty prywatne (\texttt{D\_Priv}) przypisywane są właścicielom mieszkań na podstawie tabeli \texttt{PossessionHistory}.
+    \item Zmiana właściciela mieszkania skutkuje aktualizacją przypisań dokumentów w systemie.
 \end{enumerate}
 
-\noindent Schemat~\ref{fig:document_schema} przedstawia też trzy główne przypadki związane z dodawaniem dokumentów:
+Schemat~\ref{fig:document_schema} ilustruje trzy główne przypadki:
 \begin{itemize}
-    \item \texttt{a)} -- dodanie nowego dokumentu do systemu: Wymaga określenia rodzaju dokumentu (\texttt{D\_Pub} lub \texttt{D\_Priv}). Dokument publiczny automatycznie łączy się z wszystkimi użytkownikami (\texttt{U}), natomiast dokument prywatny jest przypisywany do użytkowników na podstawie historii posiadania (\texttt{Ph}).
-    \item \texttt{b)} -- dodanie nowego użytkownika do systemu: Wszystkie istniejące dokumenty publiczne (\texttt{D\_Pub}) są automatycznie przypisywane nowemu użytkownikowi (\texttt{U}).
-    \item \texttt{c)} -- zmiana właściciela mieszkania: W przypadku dokumentów prywatnych (\texttt{D\_Priv}), konieczne jest zaktualizowanie połączeń dokumentu z użytkownikami na podstawie nowej historii posiadania (\texttt{Ph}). W takiej sytuacji usuwa się stare połączenia i dodaje nowe, zgodnie z aktualnym stanem prawnym.
+    \item \textbf{Dodanie dokumentu} -- określenie jego rodzaju i przypisanie do odpowiednich użytkowników.
+    \item \textbf{Dodanie użytkownika} -- automatyczne przypisanie istniejących dokumentów publicznych.
+    \item \textbf{Zmiana właściciela mieszkania} -- aktualizacja przypisań dokumentów prywatnych.
 \end{itemize}
 
-Poniżej zamieszczono fragment kodu kontrolera oraz serwisu.
+Fragment kodu kontrolera obsługującego dodawanie dokumentów:
 \begin{lstlisting}[language=Java, style=JavaStyle, caption=Fragment klasy \texttt{DocumentController}]
 @PostMapping("/upload-document")
 public ResponseEntity<DocumentResponse> uploadDocument(
@@ -1576,34 +1525,35 @@ public DocumentResponse uploadDocument(MultipartFile file, String apartmentSigna
 
 \subsection{Istniejące rozwiązania do ochrony i przepływu dokumentów}
 
-Współczesne systemy zarządzania dokumentami (DMS) oferują szereg funkcji zapewniających bezpieczeństwo oraz efektywny przepływ dokumentów w organizacjach. Poniżej przedstawiono kluczowe mechanizmy i narzędzia stosowane w tym zakresie:
+Współczesne systemy zarządzania dokumentami (DMS) oferują szeroką gamę funkcji, które zwiększają bezpieczeństwo i efektywność zarządzania dokumentami w organizacjach. Kluczowe mechanizmy stosowane w tych systemach to:
 
 \begin{itemize}
-	\item \textbf{Kontrola dostępu ACL} -- umożliwia definiowanie uprawnień dla użytkowników lub grup, określając, kto może przeglądać, edytować czy usuwać konkretne dokumenty. Dzięki temu tylko upoważnione osoby mają dostęp do wrażliwych informacji~\cite{acl, acl_2}.
+	\item \textbf{Kontrola dostępu ACL} -- Umożliwia definiowanie uprawnień dla użytkowników lub grup, określając, kto może przeglądać, edytować czy usuwać konkretne dokumenty. Dzięki temu tylko upoważnione osoby mają dostęp do wrażliwych informacji~\cite{acl, acl_2}.
 	
-	\item \textbf{Szyfrowanie danych} -- zapewnia ochronę dokumentów podczas ich przechowywania oraz transmisji, uniemożliwiając nieautoryzowanym podmiotom odczytanie zawartości bez odpowiednich kluczy deszyfrujących~\cite{szyrowanie_danych}.
+	\item \textbf{Szyfrowanie danych} -- Chroni dokumenty podczas ich przechowywania oraz transmisji, uniemożliwiając nieautoryzowanym podmiotom odczytanie zawartości bez odpowiednich kluczy deszyfrujących~\cite{szyrowanie_danych}.
 
-	\item \textbf{Śledzenie wersji (Version Control)} -- pozwala na monitorowanie zmian w dokumentach, zachowując historię modyfikacji. Umożliwia to powrót do wcześniejszych wersji oraz identyfikację autorów poszczególnych zmian~\cite{kotntrola_wersji}. 
+	\item \textbf{Śledzenie wersji (Version Control)} -- Umożliwia monitorowanie zmian w dokumentach, zachowując historię modyfikacji. Funkcja ta pozwala wrócić do wcześniejszych wersji oraz identyfikować autorów zmian~\cite{kontrola_wersji}. 
 	
-	\item \textbf{Elektroniczny obieg dokumentów (Workflow Automation)} -- automatyzuje procesy związane z przepływem dokumentów między pracownikami i działami, eliminując potrzebę ręcznego przekazywania dokumentów i przyspieszając procesy decyzyjne~\cite{workflow_utomation}.
+	\item \textbf{Elektroniczny obieg dokumentów (Workflow Automation)} -- Automatyzuje procesy związane z przepływem dokumentów między pracownikami i działami, eliminując potrzebę ręcznego przekazywania dokumentów i przyspieszając procesy decyzyjne~\cite{workflow_automation}.
 
-	\item \textbf{Integracja z innymi systemami} -- nowoczesne DMS często integrują się z innymi narzędziami biznesowymi, takimi jak systemy ERP czy CRM, co umożliwia spójny przepływ informacji w całej organizacji~\cite{dms}. 
+	\item \textbf{Integracja z innymi systemami} -- Nowoczesne DMS mogą być zintegrowane z innymi narzędziami, takimi jak systemy ERP czy CRM, umożliwiając spójny przepływ informacji w całej organizacji~\cite{dms}. 
 
-	\item \textbf{Zgodność z regulacjami prawnymi} -- systemy te są projektowane tak, aby spełniać wymogi prawne dotyczące przechowywania i ochrony danych, co jest kluczowe w kontekście RODO czy innych regulacji branżowych~\cite{rodo_dokumenty}.
+	\item \textbf{Zgodność z regulacjami prawnymi} -- Systemy te są projektowane tak, aby spełniać wymogi dotyczące przechowywania i ochrony danych, co jest kluczowe w kontekście przepisów, takich jak RODO czy inne regulacje branżowe~\cite{rodo_dokumenty}.
 	
-	\item \textbf{Guardian w Pythonie} -- w środowiskach programistycznych opartych na Pythonie popularnym rozwiązaniem do zarządzania uprawnieniami jest biblioteka \texttt{Guardian}. Umożliwia ona implementację bardziej zaawansowanych mechanizmów kontroli dostępu, takich jak przypisywanie uprawnień na poziomie obiektów (\emph{object-level permissions}). Dzięki \texttt{Guardian} każdemu dokumentowi można przypisać indywidualne reguły dostępu, zapewniając wysoki poziom bezpieczeństwa w aplikacjach. Przykładowo, dostęp do dokumentu może być ograniczony do konkretnego użytkownika lub grupy użytkowników, z precyzyjną kontrolą nad operacjami, które mogą oni wykonywać (np. odczyt, edycja, usunięcie)~\cite{django_guardian}.  
-	
+	\item \textbf{Guardian w Pythonie} -- W środowiskach programistycznych opartych na Pythonie popularnym narzędziem do zarządzania uprawnieniami jest biblioteka \texttt{Guardian}. Pozwala ona na przypisywanie uprawnień na poziomie obiektów (\emph{object-level permissions}), umożliwiając bardziej precyzyjną kontrolę dostępu. Na przykład, każdemu dokumentowi można przypisać indywidualne reguły dostępu, ograniczając operacje, które mogą być wykonywane przez określonych użytkowników (np. odczyt, edycja, usunięcie). Biblioteka ta jest szczególnie przydatna w aplikacjach, które wymagają zaawansowanego zarządzania dostępem~\cite{django_guardian}.
 \end{itemize}
 
-Wybór odpowiedniego systemu zarządzania dokumentami powinien uwzględniać specyficzne potrzeby organizacji, jej strukturę oraz obowiązujące regulacje prawne. Implementacja takich rozwiązań przyczynia się do zwiększenia efektywności operacyjnej oraz podniesienia poziomu bezpieczeństwa informacji.
+Dobór odpowiedniego systemu zarządzania dokumentami powinien być dostosowany do specyficznych wymagań organizacji, jej struktury i obowiązujących regulacji prawnych. Wdrożenie tych mechanizmów pozwala na podniesienie efektywności operacyjnej, usprawnienie przepływu informacji oraz zwiększenie poziomu bezpieczeństwa przechowywanych dokumentów.
 
-\section{Zarządzie zgłoszeniami problemów}
 
-System zarządzania zgłoszeniami problemów w prototypie „Harmony Home Net” umożliwia użytkownikom zgłaszanie różnego rodzaju problemów związanych z ich mieszkaniem. Obecna implementacja zapewnia podstawowe funkcjonalności dodawania zgłoszeń, zarządzania ich statusem oraz powiązania ich z odpowiednimi użytkownikami i mieszkaniami.
+\section{Zarządzanie zgłoszeniami problemów}
+
+System zarządzania zgłoszeniami problemów w prototypie „Harmony Home Net” umożliwia użytkownikom zgłaszanie różnego rodzaju problemów związanych z ich mieszkaniami. Obecna implementacja zapewnia podstawowe funkcjonalności, takie jak dodawanie zgłoszeń, zarządzanie ich statusem oraz powiązanie zgłoszeń z użytkownikami i mieszkaniami.
 
 \subsection{Opis encji \texttt{ProblemReport}}
 
-Encja \texttt{ProblemReport} jest centralnym elementem zarządzania zgłoszeniami. Poniżej przedstawiono jej definicję oraz szczegółowy opis.
+Encja \texttt{ProblemReport} jest kluczowym elementem zarządzania zgłoszeniami w systemie. Jej struktura definiuje atrybuty zgłoszenia, takie jak status, kategoria czy powiązania z użytkownikiem oraz mieszkaniem. Poniżej przedstawiono uproszczony kod tej encji:
+
 
 \begin{lstlisting}[language=Java, style=JavaStyle, caption=Definicja encji \texttt{ProblemReport}]
 @Data
@@ -1663,49 +1613,45 @@ Opis pól encji:
 \begin{itemize}
     \item \textbf{\texttt{id}} -- Unikalny identyfikator zgłoszenia.
     \item \textbf{\texttt{reportStatus}} -- Status zgłoszenia (\texttt{OPEN}, \texttt{IN\_PROGRESS}, \texttt{DONE}).
-    \item \textbf{\texttt{note}} -- Szczegóły zgłoszenia, opisujące problem (maksymalnie 1000 znaków).
+    \item \textbf{\texttt{note}} -- Szczegóły zgłoszenia opisujące problem.
     \item \textbf{\texttt{category}} -- Kategoria zgłoszenia (\texttt{GENERAL}, \texttt{TECHNICAL}, \texttt{FINANCIAL}, \texttt{OTHER}).
     \item \textbf{\texttt{endDate}} -- Data zakończenia zgłoszenia.
     \item \textbf{\texttt{createdAt}} -- Data utworzenia zgłoszenia.
-    \item \textbf{\texttt{user}} -- Powiązanie zgłoszenia z użytkownikiem, który je złożył.
-    \item \textbf{\texttt{apartment}} -- Powiązanie zgłoszenia z mieszkaniem, którego dotyczy.
+    \item \textbf{\texttt{user}} -- Powiązanie zgłoszenia z użytkownikiem.
+    \item \textbf{\texttt{apartment}} -- Powiązanie zgłoszenia z mieszkaniem.
 \end{itemize}
 
 \subsection{Proces zgłaszania i zarządzania zgłoszeniami}
 
-Zgłaszanie problemów przez właściciela:
+\textbf{Zgłaszanie problemów przez właściciela:}
 \begin{itemize}
-    \item Użytkownik, będący właścicielem mieszkania, może zgłosić problem dotyczący konkretnego mieszkania. 
-    \item Zgłoszenie jest tworzone z określeniem kategorii, opisu problemu oraz inicjalnym statusem (\texttt{OPEN}).
-		\item Właściel/właściele danego mieszkania maja w czasie rzeczywistym podgąl do zgłsznie do danego mieszkania oraz dostaja powiadomienia jeśli dojdzie  do jakieś zmiany w zgłoszeniu.
+    \item Właściciel mieszkania może zgłosić problem dotyczący konkretnego mieszkania.
+    \item Zgłoszenie zawiera szczegóły problemu (opis, kategoria) i domyślny status \texttt{OPEN}.
+    \item Właściciel ma wgląd do zgłoszenia w czasie rzeczywistym oraz otrzymuje powiadomienia o zmianach statusu.
 \end{itemize}
 
-Zarządzanie zgłoszeniami przez pracownika:
+\textbf{Zarządzanie zgłoszeniami przez pracownika:}
 \begin{itemize}
-    \item Pracownicy mogą edytować zgłoszenia, zmieniając ich status (\texttt{IN\_PROGRESS}, \texttt{DONE}) oraz wprowadzając dodatkowe informacje w notatkach.
-    \item Obecna implementacja umożliwia jedynie manualne zarządzanie statusem i opisem zgłoszeń.
+    \item Pracownicy mogą zmieniać status zgłoszenia (\texttt{IN\_PROGRESS}, \texttt{DONE}) i edytować notatki.
+    \item Obecna implementacja wymaga ręcznego zarządzania statusem zgłoszeń.
 \end{itemize}
 
-Utrzymanie zgłoszeń przy zmianie właściciela mieszkania:
+\textbf{Utrzymanie zgłoszeń przy zmianie właściciela mieszkania:}
 \begin{itemize}
-    \item W przypadku zmiany właściciela mieszkania, zgłoszenia pozostają w systemie i są automatycznie przypisywane nowym właścicielom.
-    \item Dzięki temu historia problemów związanych z mieszkaniem pozostaje dostępna dla nowych właścicieli.
+    \item W przypadku zmiany właściciela mieszkania, zgłoszenia pozostają w systemie i są przypisywane nowym właścicielom.
+    \item Historia problemów związanych z mieszkaniem jest dostępna dla nowych właścicieli.
 \end{itemize}
-
 
 \subsection{Funkcje serwisu \texttt{ProblemReportServiceImp}}
 
-Serwis \texttt{ProblemReportServiceImp} obsługuje kluczowe operacje związane z zarządzaniem zgłoszeniami problemów. Oto szczegółowy opis funkcji wraz z ich implementacją:
+Serwis \texttt{ProblemReportServiceImp} obsługuje kluczowe operacje związane z zarządzaniem zgłoszeniami problemów.
 
-Tworzenie zgłoszenia problemu.
-
-Funkcja \texttt{createProblemReport} umożliwia dodanie nowego zgłoszenia problemu przez użytkownika. Proces obejmuje:
-\begin{enumerate}
-    \item Walidację istnienia mieszkania na podstawie sygnatury (\texttt{apartmentSignature}).
-    \item Sprawdzenie, czy użytkownik jest powiązany z danym mieszkaniem na podstawie tabeli historii posiadania (\texttt{PossessionHistory}).
-    \item Utworzenie nowego zgłoszenia problemu z przypisaniem go do odpowiedniego użytkownika i mieszkania.
-    \item Zapis zgłoszenia w repozytorium \texttt{ProblemReportRepository}.
-\end{enumerate}
+\textbf{Tworzenie zgłoszenia problemu:}
+\begin{itemize}
+    \item Walidacja istnienia mieszkania oraz powiązania użytkownika z mieszkaniem.
+    \item Utworzenie zgłoszenia z przypisaniem do odpowiedniego użytkownika i mieszkania.
+    \item Zapis zgłoszenia w repozytorium.
+\end{itemize}
 
 \begin{lstlisting}[language=Java, style=JavaStyle, caption=Tworzenie zgłoszenia problemu.]
 @Override
@@ -1755,7 +1701,12 @@ public ProblemReportResponse createProblemReport(ProblemReportRequest problemRep
     }
 \end{lstlisting}
 
-\textbf{Aktualizacja zgłoszenia problemu} -- funkcja \texttt{updateProblemReport} pozwala na aktualizację statusu zgłoszenia oraz jego szczegółów. Jeśli zgłoszenie zostanie oznaczone jako zakończone (\texttt{DONE}), ustawiana jest również data zakończenia.
+\textbf{Aktualizacja zgłoszenia problemu:}
+\begin{itemize}
+    \item Zmiana szczegółów zgłoszenia i jego statusu.
+    \item Automatyczne ustawienie daty zakończenia, jeśli status zmieni się na \texttt{DONE}.
+    \item Powiadamianie użytkowników o zmianach statusu poprzez e-mail i SMS.
+\end{itemize}
 
 \begin{lstlisting}[language=Java, style=JavaStyle, caption=Aktualizacja zgłoszenia problemu.]
 @Override
@@ -1813,15 +1764,15 @@ public ProblemReportResponse updateProblemReport(Long problemReportId, ProblemRe
     }
 \end{lstlisting}
 
-\textbf{Powiadamianie użytkowników o zmianach statusu zgłoszeń} -- metoda \texttt{updateProblemReport} zawiera również logikę wysyłania powiadomień do użytkowników za pomocą e-maili lub wiadomości SMS o zmianie statusu zgłoszenia. Dzięki temu użytkownicy są na bieżąco informowani o postępach w realizacji zgłoszenia.
-
 \subsection{Przyszły rozwój systemu}
-Obecny system zarządzania zgłoszeniami jest prototypem, a jego funkcjonalności mogą zostać rozszerzone w przyszłości:
+
+Planowane rozszerzenia systemu:
 \begin{itemize}
-    \item Wprowadzenie integracji z systemami zarządzania usługami naprawczymi, aby automatycznie przekazywać zgłoszenia do odpowiednich serwisów zewnętrznych.
-    \item Rozbudowa struktury zgłoszeń o możliwość przypisywania zgłoszeń do konkretnych pracowników odpowiedzialnych za ich realizację.
-    \item Dodanie możliwości załączania zdjęć i plików do zgłoszeń w celu dokładniejszego dokumentowania problemów.
+    \item Integracja z systemami zarządzania usługami naprawczymi, aby automatycznie kierować zgłoszenia do odpowiednich serwisów.
+    \item Możliwość przypisywania zgłoszeń do konkretnych pracowników odpowiedzialnych za ich realizację.
+    \item Dodanie opcji załączania zdjęć i plików do zgłoszeń, co umożliwi dokładniejsze dokumentowanie problemów.
 \end{itemize}
+
 
 
 \section{Zarządzanie ogłoszeniami}
@@ -1830,9 +1781,11 @@ System zarządzania ogłoszeniami w prototypie „Harmony Home Net” umożliwia
 
 \subsection{Struktura danych}
 
-Ogłoszenia w systemie są reprezentowane przez encję \texttt{Announcement}, która przechowuje podstawowe informacje, takie jak tytuł, treść, czas utworzenia i aktualizacji oraz powiązanie z użytkownikiem odpowiedzialnym za dodanie ogłoszenia. Relacje z właścielami są zarządzane za pomocą tabeli pośredniczącej \texttt{AnnouncementApartment}. Poniżej przedstawiono kod implementacji encji:
+Ogłoszenia w systemie są reprezentowane przez encję \texttt{Announcement}, która przechowuje podstawowe informacje, takie jak tytuł, treść, czas utworzenia i aktualizacji oraz powiązanie z użytkownikiem odpowiedzialnym za dodanie ogłoszenia. Relacje z właścicielami mieszkań są zarządzane za pomocą tabeli pośredniczącej \texttt{AnnouncementApartment}. 
 
-\textbf{Encja \texttt{Announcement}}
+\textbf{Encja \texttt{Announcement}}  
+Encja przechowuje szczegóły ogłoszenia, w tym tytuł, treść, czas utworzenia oraz powiązania z użytkownikami. 
+
 \begin{lstlisting}[language=Java, style=JavaStyle, caption=Encja \texttt{Announcement}]
 @Data
 @AllArgsConstructor
@@ -1881,7 +1834,8 @@ public class Announcement {
 }
 \end{lstlisting}
 
-\textbf{Tabela pośrednicząca \texttt{AnnouncementApartment}} -- tabela \texttt{AnnouncementApartment} zarządza relacjami między ogłoszeniami a mieszkaniami, umożliwiając przypisywanie i odłączanie ogłoszeń od wybranych nieruchomości. Przykładowa implementacja poniżej:
+\noindent Tabela pośrednicząca \texttt{AnnouncementApartment}
+Zarządza relacjami między ogłoszeniami a mieszkaniami, umożliwiając przypisywanie i odłączanie ogłoszeń od konkretnych nieruchomości. 
 
 \begin{lstlisting}[language=Java, style=JavaStyle, caption=Encja \texttt{AnnouncementApartment}]
 @Data
@@ -1929,7 +1883,8 @@ public class AnnouncementApartment {
 
 \subsection{Funkcjonalności systemu ogłoszeń}
 
-\textbf{Dodawanie ogłoszeń} -- ogłoszenia mogą być dodawane przez administratorów i pracowników za pomocą metody \texttt{createAnnouncement}. W procesie tym podawane są informacje, takie jak tytuł, treść oraz identyfikator użytkownika odpowiedzialnego za utworzenie ogłoszenia. Poniżej przedstawiono implementację:
+\noindent Dodawanie ogłoszeń
+Administratorzy i pracownicy mogą tworzyć ogłoszenia za pomocą metody \texttt{createAnnouncement}, określając tytuł, treść oraz autora ogłoszenia.
 
 \begin{lstlisting}[language=Java, style=JavaStyle, caption=Dodawanie ogłoszenia.]
 @Override
@@ -1957,7 +1912,14 @@ public AnnouncementResponse createAnnouncement(AnnouncementRequest announcementR
 }
 \end{lstlisting}
 
-\textbf{Przypisywanie ogłoszeń do mieszkań} -- administratorzy i pracownicy mogą przypisywać ogłoszenia do konkretnych mieszkań za pomocą metody \texttt{linkAnnouncementsToApartments}. W procesie tym:
+\noindent Przypisywanie ogłoszeń do mieszkań
+Funkcja \texttt{linkAnnouncementsToApartments} umożliwia przypisanie ogłoszenia do wybranych mieszkań. Proces obejmuje:
+\begin{enumerate}
+    \item Pobranie mieszkań na podstawie podanych identyfikatorów.
+    \item Tworzenie powiązań między ogłoszeniem a mieszkaniami.
+    \item Wysyłanie powiadomień o nowym ogłoszeniu do właścicieli mieszkań.
+\end{enumerate}
+
 \begin{enumerate}
     \item Pobierane są identyfikatory mieszkań.
     \item Tworzone są nowe powiązania między ogłoszeniem a mieszkaniami.
@@ -1987,75 +1949,30 @@ public String linkAnnouncementsToApartments(Long announcementId, List<String> ap
 }
 \end{lstlisting}
 
-\textbf{Odłączanie ogłoszeń od mieszkań} -- odłączanie ogłoszeń od mieszkań odbywa się za pomocą metody \texttt{unlinkAnnouncementsFromApartments}. Proces ten usuwa powiązania między wskazanymi mieszkaniami a ogłoszeniem.
+\noindent Odłączanie ogłoszeń od mieszkań
+Funkcja \texttt{unlinkAnnouncementsFromApartments} usuwa powiązania między wybranymi mieszkaniami a ogłoszeniem, co pozwala na dynamiczne zarządzanie widocznością ogłoszeń.
 
 \subsection{Możliwości rozbudowy systemu zarządzania ogłoszeniami}
 
-W obecnej formie system zarządzania ogłoszeniami w „Harmony Home Net” został zaprojektowany jako prototypowy, z podstawowym zestawem funkcji umożliwiających publikację i zarządzanie ogłoszeniami. W przyszłości można rozważyć rozszerzenie funkcjonalności systemu o poniższe elementy:
+Obecny system ogłoszeń w „Harmony Home Net” zapewnia podstawowy zestaw funkcji, który może być rozwijany o następujące elementy:
 
-\begin{enumerate}
-    \item \textbf{Rozbudowa uprawnień dostępu}
-    \begin{itemize}
-        \item Dodanie bardziej precyzyjnych mechanizmów kontroli dostępu, takich jak przypisywanie ról z różnymi poziomami uprawnień do ogłoszeń (np. możliwość przeglądania, edycji, usuwania).
-        \item Implementacja ACL w celu definiowania indywidualnych uprawnień na poziomie ogłoszeń, mieszkań czy użytkowników~\cite{acl, acl_2}.
-    \end{itemize}
+\begin{itemize}
+    \item \textbf{Rozbudowa uprawnień dostępu} -- Wprowadzenie precyzyjnych mechanizmów kontroli dostępu, takich jak przypisywanie ról i poziomów uprawnień do ogłoszeń, z możliwością edycji i usuwania przez określone grupy użytkowników.
+    
+    \item \textbf{Zaawansowane powiadomienia}  -- Możliwość wysyłania dynamicznych powiadomień, takich jak notyfikacje push czy personalizowane wiadomości e-mail i SMS dla różnych grup użytkowników.
 
-    \item \textbf{Obsługa zaawansowanych powiadomień}
-    \begin{itemize}
-        \item Wprowadzenie dynamicznych powiadomień, takich jak notyfikacje push, integracje z aplikacjami mobilnymi czy webhooki do zewnętrznych systemów.
-        \item Możliwość tworzenia szablonów powiadomień z dostosowywaniem treści do odbiorcy (np. inny komunikat dla administratorów, a inny dla właścieli).
-    \end{itemize}
+    \item \textbf{Historia zmian i wersjonowanie ogłoszeń} -- Funkcja śledzenia zmian w treści ogłoszeń oraz opcja przywracania poprzednich wersji w przypadku pomyłek.
 
-    \item \textbf{Personalizacja ogłoszeń}
-    \begin{itemize}
-        \item Dodanie możliwości tworzenia ogłoszeń przypisanych do grup użytkowników (np. tylko do właścieli konkretnej dzielnicy lub piętra).
-        \item Opcja filtrowania ogłoszeń na podstawie kategorii, priorytetu lub statusu (np. aktywne, archiwalne).
-    \end{itemize}
+    \item \textbf{Personalizacja ogłoszeń} -- Możliwość przypisywania ogłoszeń do grup użytkowników na podstawie kategorii, lokalizacji lub innych kryteriów, takich jak status mieszkań.
 
-    \item \textbf{Historia i wersjonowanie ogłoszeń}
-    \begin{itemize}
-        \item Wprowadzenie historii zmian ogłoszeń, która umożliwi śledzenie edycji tytułów lub treści wraz z informacjami o autorach.
-        \item Możliwość powrotu do poprzednich wersji ogłoszeń w przypadku błędów lub pomyłek.
-    \end{itemize}
+    \item \textbf{Integracja z systemami zewnętrznymi} -- API umożliwiające zewnętrznym aplikacjom publikowanie ogłoszeń lub ich synchronizację z systemami zarządzania nieruchomościami.
 
-    \item \textbf{Dodanie zaawansowanych kategorii i tagowania}
-    \begin{itemize}
-        \item Wprowadzenie kategorii ogłoszeń (np. techniczne, administracyjne, ogólne) oraz tagów umożliwiających lepsze wyszukiwanie i organizację treści.
-        \item Dynamiczne filtry w interfejsie użytkownika do łatwego przeszukiwania ogłoszeń na podstawie kategorii, tagów lub dat.
-    \end{itemize}
+    \item \textbf{Automatyzacja publikacji} -- Harmonogram publikacji i automatyczne archiwizowanie ogłoszeń po upływie daty ważności.
+\end{itemize}
 
-    \item \textbf{Integracja z systemami zewnętrznymi}
-    \begin{itemize}
-        \item Połączenie systemu ogłoszeń z aplikacjami mobilnymi lub zewnętrznymi systemami zarządzania nieruchomościami (np. platformy CRM/ERP).
-        \item Dodanie API umożliwiającego zewnętrznym aplikacjom publikowanie ogłoszeń lub pobieranie ich w czasie rzeczywistym.
-    \end{itemize}
+Rozbudowa tych funkcji pozwoli na zwiększenie efektywności komunikacji w systemie, a także na lepsze dostosowanie mechanizmu ogłoszeń do potrzeb użytkowników i administratorów. Dzięki temu system będzie bardziej elastyczny i przyjazny w obsłudze, co znacząco podniesie jego wartość użytkową.
 
-    \item \textbf{Zaawansowana analiza i raportowanie}
-    \begin{itemize}
-        \item Tworzenie raportów na temat liczby opublikowanych ogłoszeń, ich zasięgu oraz aktywności użytkowników (np. ile osób otworzyło ogłoszenie).
-        \item Możliwość analizy skuteczności powiadomień w zależności od użytego kanału (e-mail, SMS, push).
-    \end{itemize}
 
-    \item \textbf{Automatyzacja publikacji ogłoszeń}
-    \begin{itemize}
-        \item Wprowadzenie harmonogramów publikacji ogłoszeń, aby mogły być one automatycznie publikowane w określonym czasie.
-        \item Opcja automatycznego archiwizowania ogłoszeń po upływie daty ważności.
-    \end{itemize}
-
-    \item \textbf{Dodanie systemu komentarzy i potwierdzeń}
-    \begin{itemize}
-        \item Możliwość dodawania komentarzy do ogłoszeń przez użytkowników w celu wyrażenia opinii lub zadania pytań.
-        \item Funkcja potwierdzenia przeczytania ogłoszenia przez użytkowników, co ułatwi monitorowanie zasięgu informacji.
-    \end{itemize}
-
-    \item \textbf{Mechanizmy bezpieczeństwa i zgodności}
-    \begin{itemize}
-        \item Wprowadzenie logowania aktywności związanych z zarządzaniem ogłoszeniami w celu zapewnienia audytowalności.
-        \item Zapewnienie zgodności z regulacjami prawnymi dotyczącymi ochrony danych, takimi jak RODO, w kontekście przechowywania i dystrybucji ogłoszeń.
-    \end{itemize}
-\end{enumerate}
-
-Dzięki tym usprawnieniom system zarządzania ogłoszeniami w „Harmony Home Net” może ewoluować w bardziej zaawansowane narzędzie, które zwiększy efektywność komunikacji między pracownikami wspólnoty, a właścielami mieszkań, jednocześnie oferując większą elastyczność i bezpieczeństwo.
 
 
 \section{Zarządzanie forum dla wspólnoty}
@@ -2063,19 +1980,19 @@ Dzięki tym usprawnieniom system zarządzania ogłoszeniami w „Harmony Home Ne
 System forum w aplikacji „Harmony Home Net” został zaprojektowany w formie uproszczonej, z uwzględnieniem podstawowych potrzeb komunikacyjnych mieszkańców wspólnoty. Forum pozwala użytkownikom tworzyć tematy, dodawać posty oraz zarządzać ich treścią w ramach jasno określonych zasad i ograniczeń.
 
 \subsection{Opis encji}
-Forum składa się z dwóch głównych encji: \texttt{Topic} (temat) i \texttt{Post} (post), które są powiązane z użytkownikami (\texttt{User}).
 
-\subsubsection{\texttt{Topic} -- Temat forum}
-Encja \texttt{Topic} reprezentuje główny wątek dyskusyjny. Każdy temat zawiera następujące pola:
+Forum składa się z dwóch głównych encji: \texttt{Topic} i \texttt{Post}. Encja \texttt{Topic} reprezentuje główny wątek dyskusyjny, natomiast encja \texttt{Post} odpowiada pojedynczym wypowiedziom w ramach tych wątków. Każda z encji jest powiązana z użytkownikami, umożliwiając przypisanie ich do twórców tematów oraz autorów postów.
+
+\textbf{Encja \texttt{Topic}}  
+Encja \texttt{Topic} przechowuje dane o wątku dyskusyjnym. Kluczowe pola to unikalny identyfikator, tytuł, data utworzenia oraz lista postów powiązanych z danym tematem. Przykładowy kod tej encji zawiera:
 \begin{itemize}
-    \item \textbf{UUID\_id} -- unikalny identyfikator tematu.
-    \item \textbf{title} -- tytuł tematu, ograniczony do 50 znaków.
-    \item \textbf{createdAt} -- data utworzenia tematu.
-    \item \textbf{user} -- odniesienie do użytkownika, który stworzył temat.
-    \item \textbf{posts} -- lista postów przypisanych do danego tematu.
+    \item \texttt{UUID\_id} -- unikalny identyfikator tematu.
+    \item \texttt{title} -- tytuł tematu, ograniczony do 50 znaków.
+    \item \texttt{createdAt} -- data utworzenia tematu.
+    \item \texttt{posts} -- lista postów przypisanych do danego tematu.
+    \item \texttt{user} -- użytkownik będący twórcą tematu.
 \end{itemize}
 
-Kod encji:
 \begin{lstlisting}[language=Java, style=JavaStyle, caption=Encja \texttt{Topic}]
 @Data
 @AllArgsConstructor
@@ -2106,17 +2023,16 @@ public class Topic {
 }
 \end{lstlisting}
 
-\subsubsection{\texttt{Post} -- Post na forum}
-Encja \texttt{Post} reprezentuje pojedynczą wypowiedź w danym temacie. Każdy post zawiera następujące pola:
+\textbf{Encja \texttt{Post}}  
+Encja \texttt{Post} reprezentuje wypowiedź użytkownika w ramach wątku. Przechowuje treść posta, datę utworzenia oraz odniesienia do powiązanego tematu i autora. Kluczowe pola to:
 \begin{itemize}
-    \item \textbf{UUID\_id} -- unikalny identyfikator posta.
-    \item \textbf{content} -- treść posta, ograniczona do 1000 znaków.
-    \item \textbf{createdAt} -- data utworzenia posta.
-    \item \textbf{topic} -- odniesienie do tematu, w którym post został zamieszczony.
-    \item \textbf{user} -- odniesienie do użytkownika, który zamieścił post.
+    \item \texttt{UUID\_id} -- unikalny identyfikator posta.
+    \item \texttt{content} -- treść posta, ograniczona do 1000 znaków.
+    \item \texttt{createdAt} -- data utworzenia posta.
+    \item \texttt{topic} -- powiązanie z tematem, do którego post należy.
+    \item \texttt{user} -- użytkownik będący autorem posta.
 \end{itemize}
 
-Kod encji:
 \begin{lstlisting}[language=Java, style=JavaStyle, caption=Encja \texttt{Post}]
 @Data
 @AllArgsConstructor
@@ -2149,35 +2065,48 @@ public class Post {
 \end{lstlisting}
 
 \subsection{Obecna funkcjonalność systemu forum}
+
+System forum umożliwia realizację podstawowych operacji związanych z komunikacją użytkowników:
 \begin{itemize}
-    \item \textbf{Tworzenie tematów} -- każdy użytkownik może utworzyć nowy temat, który staje się dostępny dla wszystkich członków wspólnoty.
-    \item \textbf{Dodawanie postów} -- użytkownicy mogą dodawać odpowiedzi (posty) w ramach wybranego tematu.
-    \item \textbf{Zarządzanie postami i tematami} -- Posty i tematy nie mogą być edytowane, ale mogą być usuwane przez autora lub osoby z rolą pracowniczą.
-    \item \textbf{Historia i trwałość danych} -- posty i tematy pozostają w systemie nawet po usunięciu użytkownika, a w interfejsie użytkownika przy autorze wyświetlana jest informacja, że użytkownik został usunięty.
-    \item \textbf{Brak struktury drzewiastej} -- dyskusje w ramach tematów są liniowe, bez możliwości tworzenia wątków zagnieżdżonych.
+    \item Tworzenie nowych tematów, które są dostępne dla wszystkich członków wspólnoty.
+    \item Dodawanie postów jako odpowiedzi w wybranych wątkach tematycznych.
+    \item Zarządzanie treścią poprzez usuwanie tematów i postów przez autorów lub pracowników.
+    \item Zachowanie historii dyskusji – posty i tematy pozostają widoczne nawet po usunięciu konta autora, z oznaczeniem „użytkownik usunięty”.
+    \item Linearność dyskusji – brak wsparcia dla struktury drzewiastej wątków.
 \end{itemize}
 
 \subsection{Możliwości rozbudowy systemu forum}
+
+W przyszłości system forum może zostać rozszerzony o nowe funkcjonalności, takie jak:
 \begin{itemize}
-    \item \textbf{Edycja postów i tematów} -- wprowadzenie funkcji edytowania istniejących postów i tematów, z zachowaniem historii zmian.
-    \item \textbf{Prywatne wątki} -- możliwość tworzenia wątków dostępnych tylko dla wybranej grupy użytkowników (np. mieszkańców konkretnego mieszkania).
-    \item \textbf{Powiadomienia} -- dynamiczne powiadamianie użytkowników o nowych postach lub tematach poprzez e-mail, SMS lub notyfikacje push.
-    \item \textbf{Ocena treści} -- dodanie funkcji oceniania postów (np. poprzez system „Lubię to” lub głosy w górę/w dół).
-    \item \textbf{Raportowanie treści} -- mechanizm zgłaszania nieodpowiednich treści do moderacji.
-    \item \textbf{Tagowanie tematów} -- wprowadzenie tagów pozwalających na łatwiejsze wyszukiwanie i organizację wątków.
-    \item \textbf{Integracja z innymi modułami} -- połączenie forum z modułem ogłoszeń lub zarządzania dokumentami, np. poprzez dodawanie linków do istotnych zasobów.
-    \item \textbf{Statystyki} -- generowanie raportów na temat aktywności użytkowników na forum.
+    \item Wprowadzenie możliwości edytowania istniejących postów i tematów z historią zmian.
+    \item Dodanie prywatnych wątków dostępnych tylko dla wybranej grupy użytkowników, np. mieszkańców konkretnego budynku.
+    \item Powiadamianie użytkowników o nowych tematach i postach za pomocą e-maili, SMS-ów lub notyfikacji push.
+    \item Ocena treści przez użytkowników za pomocą systemu głosów lub reakcji.
+    \item Raportowanie nieodpowiednich treści przez użytkowników z możliwością moderacji przez pracowników.
+    \item Tagowanie tematów, co ułatwi wyszukiwanie oraz organizację treści.
+    \item Statystyki aktywności na forum, umożliwiające monitorowanie zaangażowania użytkowników.
 \end{itemize}
 
-Rozbudowa forum może znacząco zwiększyć zaangażowanie włąścieli oraz poprawić komunikację w ramach wspólnoty, czyniąc system bardziej funkcjonalnym i wszechstronnym.
+Rozbudowa systemu forum może zwiększyć zaangażowanie mieszkańców oraz poprawić komunikację w ramach wspólnoty, zapewniając jednocześnie lepsze narzędzia do moderacji i zarządzania treścią.
+
+
+
 
 \section{Zarządzanie płatnościami}
 
-System zarządzania płatnościami w prototypie „Harmony Home Net” został zaprojektowany w sposób uproszczony. Mechanizm umożliwia przypisywanie płatności do konkretnego mieszkania z pomocą sygnatury lokalu, z opcją dodawania szczegółowych komponentów płatności. Kluczowym elementem jest pole \texttt{Ready\_to\_Pay}, które pełni funkcję zabezpieczenia przed przedwczesnym udostępnieniem płatności do realizacji. Właściciel mieszkania ma dostęp do listy wszystkich przypisanych płatności, jednak możliwość ich wykonania (np. poprzez aktywny przycisk płatności) jest blokowana do momentu ustawienia pola \texttt{Ready\_to\_Pay} na \texttt{true}. Dzięki temu płatności nie mogą zostać zrealizowane przed ich odpowiednim przygotowaniem.
+System zarządzania płatnościami w prototypie „Harmony Home Net” został zaprojektowany w sposób uproszczony. Mechanizm umożliwia przypisywanie płatności do konkretnego mieszkania z pomocą sygnatury lokalu, z opcją dodawania szczegółowych komponentów płatności. Kluczowym elementem jest pole \texttt{Ready\_to\_Pay}, które pełni funkcję zabezpieczenia przed przedwczesnym udostępnieniem płatności do realizacji. Właściciel mieszkania ma dostęp do listy wszystkich przypisanych płatności, jednak możliwość ich wykonania jest blokowana do momentu ustawienia pola \texttt{Ready\_to\_Pay} na \texttt{true}. Dzięki temu płatności nie mogą zostać zrealizowane przed ich odpowiednim przygotowaniem.
 
 \subsection{Opis encji}
 
-Encja \texttt{Payment} -- reprezentuje płatność przypisaną do konkretnego mieszkania. Oto kluczowe elementy:
+Encje \texttt{Payment} oraz \texttt{PaymentComponent} odpowiadają za przechowywanie danych o płatnościach i ich szczegółach. Kluczowe cechy encji \texttt{Payment} obejmują:
+\begin{itemize}
+    \item Powiązanie z mieszkaniem poprzez pole \texttt{apartment}.
+    \item Pole \texttt{Ready\_to\_Pay}, które kontroluje dostępność płatności do realizacji.
+    \item Mechanizm \texttt{@PrePersist}, inicjalizujący datę płatności na miesiąc od momentu jej utworzenia.
+\end{itemize}
+
+Kod encji \texttt{Payment} przedstawia poniższy fragment:
 
 \begin{lstlisting}[language=Java, style=JavaStyle, caption=Kod encji \texttt{Payment}]
 @Data
@@ -2232,13 +2161,13 @@ public class Payment {
 }
 \end{lstlisting}
 
+Encja \texttt{PaymentComponent} umożliwia rozbicie płatności na mniejsze części, np. za media. Kluczowe elementy to:
 \begin{itemize}
-    \item \textbf{\texttt{Ready\_to\_Pay}} -- pole definiujące, czy płatność jest gotowa do realizacji. Po stworzeniu płatność domyślnie ma wartość \texttt{false}.
-    \item \textbf{Połączenie z mieszkaniem} -- każda płatność jest powiązana z encją \texttt{Apartment}, co pozwala na precyzyjne przypisanie jej do konkretnej nieruchomości.
-    \item \textbf{\texttt{PrePersist}} -- mechanizm inicjalizujący datę płatności na jeden miesiąc od momentu jej utworzenia.
+    \item \texttt{componentType} -- typ komponentu płatności, np. energia elektryczna.
+    \item \texttt{unitPrice} -- cena jednostkowa za komponent.
+    \item \texttt{specialMultiplier} -- mnożnik modyfikujący koszty.
+    \item \texttt{componentAmount} -- ilość jednostek związanych z komponentem.
 \end{itemize}
-
-\textbf{Encja \texttt{PaymentComponent}} --- reprezentuje szczegółowy składnik płatności, który pozwala na rozbicie płatności na mniejsze części.
 
 \begin{lstlisting}[language=Java, style=JavaStyle, caption=Kod encji \texttt{PaymentComponent}]
 @Data
@@ -2284,19 +2213,16 @@ public class PaymentComponent {
 }
 \end{lstlisting}
 
-\begin{itemize}
-    \item \textbf{\texttt{componentType}} -- typ komponentu płatności, np. \emph{energia elektryczna}, \emph{woda}.
-    \item \textbf{\texttt{unitPrice}} -- cena jednostkowa za komponent.
-    \item \textbf{\texttt{specialMultiplier}} -- specjalny mnożnik, pozwalający na modyfikację kosztów (np. rabaty, dodatkowe opłaty).
-    \item \textbf{\texttt{componentAmount}} -- ilość jednostek związanych z danym komponentem.
-\end{itemize}
-
 \subsection{Proces dodawania płatności}
 
 W prototypie systemu „Harmony Home Net” proces zarządzania płatnościami przebiega w trzech etapach. Obecnie jest to uproszczony mechanizm pełniący funkcję demonstracyjną (\emph{mock}). System nie posiada jeszcze zaawansowanych funkcjonalności, takich jak integracja z systemami płatności czy automatyzacja generowania komponentów. Niemniej jednak, poniższe etapy ilustrują podstawowy przepływ operacji:
 
+
+\subsection{Proces dodawania płatności}
+
+W aktualnym prototypie proces zarządzania płatnościami jest uproszczony i składa się z trzech etapów:
 \begin{enumerate}
-    \item \textbf{Tworzenie płatności} -- Płatność jest tworzona przez administratora lub pracownika systemu. Na tym etapie płatność jest automatycznie przypisywana do mieszkania, a pole \texttt{Ready\_to\_Pay} zostaje ustawione na \texttt{false}. Dzięki temu płatność jest widoczna dla właściciela mieszkania, ale nie może być jeszcze zrealizowana. Poniżej znajduje się fragment kodu odpowiedzialny za ten proces:
+    \item \textbf{Tworzenie płatności} -- Administrator przypisuje płatność do mieszkania, ustawiając pole \texttt{Ready\_to\_Pay} na \texttt{false}, co uniemożliwia jej realizację do czasu pełnej konfiguracji.
 
 \begin{lstlisting}[language=Java, style=JavaStyle, caption=Fragment metody \texttt{createPayment}]
 @Override
@@ -2326,8 +2252,8 @@ public PaymentResponse createPayment(PaymentRequest paymentRequest) throws Apart
 }
 \end{lstlisting}
 
-    \item \textbf{Dodawanie komponentów} -- Po stworzeniu płatności administrator lub pracownik dodaje komponenty płatności, takie jak opłaty za media. Każdy komponent jest dodawany osobno, a brak automatyzacji powoduje konieczność ręcznego wprowadzenia danych. Fragment kodu odpowiedzialny za dodawanie komponentów przedstawia poniższa metoda:
-
+    \item \textbf{Dodawanie komponentów płatności} -- Każdy składnik płatności jest dodawany ręcznie przez administratora. Komponenty można dowolnie konfigurować.
+   
 \begin{lstlisting}[language=Java, style=JavaStyle, caption=Fragment metody \texttt{addPaymentComponent}]
 @Override
 @Transactional
@@ -2352,8 +2278,8 @@ public PaymentResponse addPaymentComponent(UUID paymentId, PaymentComponentReque
 }
 \end{lstlisting}
 
-    \item \textbf{Aktywacja płatności} -- Po dodaniu wszystkich komponentów płatności i upewnieniu się, że nie występują nieprawidłowości, pole \texttt{Ready\_to\_Pay} zostaje ustawione na \texttt{true}, co pozwala właścicielowi mieszkania na dokonanie płatności. Fragment kodu aktywującego płatność:
-
+   \item \textbf{Aktywacja płatności} -- Po dodaniu wszystkich komponentów płatność zostaje oznaczona jako gotowa do realizacji poprzez zmianę wartości pola \texttt{Ready\_to\_Pay}.
+    
 \begin{lstlisting}[language=Java, style=JavaStyle, caption=Fragment metody \texttt{activatePayment}]
 @Override
 public String activatePayment(UUID paymentId, Boolean setActive) throws PaymentNotFoundException {
@@ -2400,11 +2326,13 @@ W kolejnych etapach rozwoju systemu realizacja płatności zostanie rozbudowana 
 
 \subsection{Harmonogram przypomnień o płatnościach}
 
-W prototypie systemu „Harmony Home Net” za implementację automatycznych przypomnień o płatnościach odpowiada mechanizm harmonogramowania oparty na klasie \texttt{PaymentReminderScheduler}. Funkcjonalność ta obejmuje:
-
+W systemie za przypomnienia odpowiada klasa \texttt{PaymentReminderScheduler}. Mechanizm obejmuje:
 \begin{itemize}
-    \item \textbf{Przypomnienia przed terminem płatności} -- użytkownicy otrzymują powiadomienia o nadchodzących płatnościach na dwa tygodnie oraz tydzień przed ich terminem. Mechanizm ten uruchamia się automatycznie w każdy poniedziałek o godzinie 12:00. Przykład fragmentu kodu obsługującego to przypomnienie:
+    \item Powiadomienia przed terminem płatności, wysyłane dwa tygodnie oraz tydzień przed datą płatności.
+    \item Powiadomienia o zaległych płatnościach, wysyłane co dwa dni do czasu ich uregulowania.
+\end{itemize}
 
+Przykłady kodu harmonogramu:
 \begin{lstlisting}[language=Java, style=JavaStyle, caption=Przypomnienie o nadchodzących płatnościach]
 @Scheduled(cron = "0 0 12 * * MON")
 @Async
@@ -2428,8 +2356,6 @@ public void sendUpcomingPaymentReminders() {
 }
 \end{lstlisting}
 
-    \item \textbf{Przypomnienia o zaległych płatnościach} -- jeśli płatność nie zostanie zrealizowana w terminie, użytkownicy otrzymują przypomnienia co dwa dni. Ten mechanizm działa automatycznie i przypomina o konieczności uregulowania zaległości. Przykład fragmentu kodu odpowiedzialnego za przypomnienia po terminie:
-
 \begin{lstlisting}[language=Java, style=JavaStyle, caption=Przypomnienie o zaległych płatnościach]
 @Scheduled(cron = "0 0 12 */2 * ?")
 @Async
@@ -2451,7 +2377,6 @@ public void sendOverduePaymentReminders() {
     }
 }
 \end{lstlisting}
-\end{itemize}
 
 \textbf{Powiadomienia} są wysyłane za pomocą e-maila lub SMS-a w zależności od preferencji użytkownika. Mechanizm ten bazuje na konfiguracji przechowywanej w tabeli z typami powiadomień (\texttt{NotificationType}).
 
@@ -2469,63 +2394,52 @@ private void sendNotification(String email, String phoneNumber, String message) 
 }
 \end{lstlisting}
 
-Harmonogram przypomnień pozwala na regularne powiadamianie użytkowników o statusie ich płatności, minimalizując ryzyko opóźnień. W przyszłości funkcjonalność ta może zostać rozwinięta o bardziej zaawansowane metody planowania i integrację z dodatkowymi kanałami komunikacji, co zostanie szczegółowo opisane w sekcji „Systemy zewnętrzne”.
+Harmonogram przypomnień pozwala na regularne powiadamianie użytkowników o statusie ich płatności, minimalizując ryzyko opóźnień. W przyszłości funkcjonalność ta może zostać rozwinięta o bardziej zaawansowane metody planowania i integrację z dodatkowymi kanałami komunikacji, co zostanie szczegółowo opisane w sekcji \textbf{„Systemy zewnętrzne”}.
 
 \subsection{Profesjonalne podejście do zarządzania płatnościami}
 
-W pełnowymiarowych systemach płatności procesy te są znacznie bardziej złożone i obejmują:
+W pełnowymiarowych systemach płatności zarządzanie odbywa się za pomocą zaawansowanych mechanizmów:
 \begin{itemize}
-    \item \textbf{Automatyzację} -- generowanie komponentów płatności na podstawie danych historycznych, zapisów w umowach i prognoz zużycia, co eliminuje konieczność ręcznego wprowadzania danych.
-    \item \textbf{Przewidywanie kosztów} -- wykorzystanie zaawansowanych modeli analizy danych do prognozowania przyszłych kosztów, co pozwala użytkownikom na lepsze planowanie budżetu.
-    \item \textbf{Integrację z systemami płatności} -- obsługę popularnych dostawców, takich jak Stripe, PayPal czy polski BLIK, umożliwiając realizację transakcji bezpośrednio z poziomu systemu.
-    \item \textbf{Natychmiastową realizację płatności} -- synchronizację transakcji z systemami księgowymi w czasie rzeczywistym, zapewniając aktualność danych finansowych.
-    \item \textbf{Raportowanie} -- generowanie szczegółowych raportów dla właścicieli mieszkań i administratorów, umożliwiających monitorowanie statusu płatności i szczegółów transakcji.
+    \item Automatyzacja generowania płatności na podstawie danych historycznych.
+    \item Integracja z systemami zewnętrznymi, takimi jak Stripe, PayPal czy polski BLIK.
+    \item Natychmiastowa synchronizacja danych finansowych z systemami księgowymi.
 \end{itemize}
 
 \subsection{Diagramy BPMN}
 
-\textbf{Diagramy BPMN} -- to standardowe narzędzie do modelowania procesów biznesowych, które umożliwia graficzne przedstawienie przepływu operacji~\cite{BPMN_wiki, BPMN_spec}. Są one używane do:
+Diagramy BPMN umożliwiają graficzne modelowanie procesów płatniczych. Są one wykorzystywane do:
 \begin{itemize}
-    \item Definiowania ról (\emph{swimlanes}), takich jak użytkownik, administrator czy zewnętrzny dostawca usług płatniczych.
-    \item Opisu zdarzeń początkowych, końcowych i pośrednich, które inicjują lub zmieniają bieg procesu.
-    \item Modelowania decyzji i reguł biznesowych za pomocą bramek (\emph{gateways}), które określają różne ścieżki przepływu procesu.
-    \item Przedstawienia czynności (\emph{tasks}) wykonywanych przez system lub użytkowników.
+    \item Definiowania ról i odpowiedzialności (np. użytkownik, administrator, zewnętrzny dostawca usług płatniczych).
+    \item Opisu przepływów zdarzeń, takich jak inicjacja płatności czy wysyłka powiadomień.
+    \item Analizy i optymalizacji procesów.
 \end{itemize}
 
-Dzięki BPMN można optymalizować procesy, identyfikować potencjalne punkty ryzyka oraz planować automatyzację i integrację z innymi systemami.
+Dzięki BPMN można łatwo identyfikować potencjalne usprawnienia oraz planować automatyzację. Przykładowy diagram mógłby przedstawiać proces aktywacji płatności, wysyłki przypomnień oraz realizacji transakcji~\cite{BPMN_wiki, BPMN_camunda}.
 
-Przykładowy diagram BPMN dla procesu zarządzania płatnościami mógłby zawierać~\cite{BPMN_camunda}:
-\begin{itemize}
-    \item Generowanie płatności automatycznie na podstawie danych z systemu zarządzania nieruchomościami.
-    \item Weryfikację poprawności komponentów płatności przez administratora.
-    \item Przekazanie płatności do systemu zewnętrznego i odbiór potwierdzenia realizacji.
-    \item Notyfikacje dla właścicieli mieszkań o statusie płatności.
-\end{itemize}
 
-Diagramy BPMN wspierają zarówno techniczne, jak i biznesowe aspekty zarządzania procesami, umożliwiając transparentność oraz łatwiejszą komunikację między zespołami technicznymi i biznesowymi.
+
 
 \section{Zarządzanie głosowaniami}
 
-System głosowań w prototypie „Harmony Home Net” umożliwia organizację głosowań nad ważnymi decyzjami dla wspólnoty mieszkaniowej. 
+System głosowań w prototypie „Harmony Home Net” umożliwia organizację głosowań nad ważnymi decyzjami dla wspólnoty mieszkaniowej. Jego celem jest zapewnienie przejrzystości procesu decyzyjnego oraz wsparcie w zbieraniu głosów w formie elektronicznej.
 
 \subsection{Obecny stan implementacji}
 
-W aktualnym prototypie system obsługuje głosowania na poziomie administracyjnym. Proces obejmuje tworzenie głosowania, przesyłanie dokumentu nad którym głosowanie się odbywa, oraz określenie dwóch kluczowych parametrów:
+W aktualnym prototypie system obsługuje głosowania na poziomie administracyjnym. Proces obejmuje:
 \begin{itemize}
-    \item \textbf{Kworum} -- minimalna liczba oddanych głosów, aby głosowanie było ważne. Przykładowo, przy 100 mieszkaniach, ustalenie kworum na 60 oznacza, że co najmniej 60 mieszkań musi oddać głos.
-    \item \textbf{Minimalny próg procentowy} -- suma udziałów procentowych mieszkań głosujących \texttt{FOR}, która musi zostać osiągnięta. Udziały te wynikają z powierzchni mieszkań w stosunku do całkowitej powierzchni wspólnoty.
+    \item \textbf{Tworzenie głosowania} -- administrator określa nazwę, treść, załącza dokumenty oraz ustawia kluczowe parametry:
+        \begin{itemize}
+            \item \textbf{Kworum} -- minimalna liczba oddanych głosów, aby głosowanie było ważne. Przykładowo, przy 100 mieszkaniach ustalenie kworum na 60 oznacza, że co najmniej 60 mieszkań musi oddać głos.
+            \item \textbf{Minimalny próg procentowy} -- suma udziałów procentowych mieszkań głosujących \texttt{FOR}, która musi zostać osiągnięta. Udziały wynikają z powierzchni mieszkań w stosunku do całkowitej powierzchni wspólnoty.
+        \end{itemize}
+    \item \textbf{Załączanie dokumentów} -- dokument głosowania jest przechowywany jako załącznik, a w przypadku pozytywnego wyniku jest zapisywany do tabeli \texttt{Documents}.
+    \item \textbf{Przypomnienia o głosowaniach} -- system automatycznie przypomina użytkownikom o aktywnych głosowaniach oraz informuje ich o wynikach.
+    \item \textbf{Obsługa współwłasności} -- w przypadku mieszkań z kilkoma właścicielami, system akceptuje głos pierwszego właściciela, który odda głos.
 \end{itemize}
-
-Proces tworzenia głosowania jest w pełni funkcjonalny po stronie administracyjnej. Dokument głosowania jest przechowywany jako załącznik, a wynik pozytywny skutkuje zapisaniem głosowania do tabeli \texttt{Documents}, gdzie jest dostępny jako archiwum dla wszystkich użytkowników.
-
-\textbf{Kluczowe aspekty techniczne}
-
-1. \textbf{Głosowanie w przypadku współwłasności mieszkań} -- jeżeli mieszkanie ma kilku właścicieli, system akceptuje głos pierwszego z nich, który odda głos.
-2. \textbf{Przypomnienia o głosowaniach} -- mechanizm harmonogramowania przypomina użytkownikom o aktywnych głosowaniach oraz informuje o ich wynikach.
 
 \subsection{Proces głosowania}
 
-\textbf{Tworzenie głosowania} odbywa się przy użyciu metody serwisowej \texttt{createPoll}, która przyjmuje nazwę głosowania, treść, wymagane parametry (kworum, próg procentowy) oraz plik dokumentu. Fragment kodu:
+\textbf{Tworzenie głosowania} odbywa się przy użyciu metody \texttt{createPoll}.
 
 \begin{lstlisting}[language=Java, style=JavaStyle, caption=Fragment metody \texttt{createPoll}]
 @Override
@@ -2553,7 +2467,7 @@ public PollResponse createPoll(PollRequest pollRequest, UUID employeeId, Multipa
 }
 \end{lstlisting}
 
-\textbf{Oddawanie głosów} przez właścicieli mieszkań odbywa się za pomocą metody serwisowej \texttt{vote}. Przykładowy fragment kodu:
+\textbf{Oddawanie głosów} przez właścicieli mieszkań realizowane jest poprzez metodę \texttt{vote}, która sprawdza zgodność danych i weryfikuje, czy dla danego mieszkania głos nie został już oddany:
 
 \begin{lstlisting}[language=Java, style=JavaStyle, caption=Fragment metody \texttt{vote}]
 @Override
@@ -2583,59 +2497,61 @@ public VoteResponse vote(UUID pollId, UUID userId, String apartmentSignature, Vo
 
 \subsection{Osiągnięcia w aktualnym systemie}
 
-W prototypie systemu „Harmony Home Net” udało się zaimplementować:
+W prototypie systemu zaimplementowano:
 \begin{itemize}
-    \item \textbf{Tworzenie głosowań} -- funkcjonalność pozwala administratorowi na utworzenie głosowania, załączenie dokumentów oraz określenie kworum i minimalnego progu procentowego.
-    \item \textbf{Przypomnienia} -- mechanizm harmonogramowania przypomnień dla aktywnych głosowań, wysyłanych jako SMS lub e-mail.
-    \item \textbf{Walidacja wyników} -- weryfikacja wyników głosowania pod kątem spełnienia kworum i progu procentowego.
+    \item \textbf{Tworzenie głosowań} -- administratorzy mogą tworzyć głosowania z określeniem parametrów takich jak kworum czy minimalny próg procentowy.
+    \item \textbf{Przypomnienia} -- mechanizm harmonogramowania przypomina użytkownikom o aktywnych głosowaniach za pomocą e-maila lub SMS.
+    \item \textbf{Walidacja wyników} -- system weryfikuje spełnienie warunków kworum oraz progu procentowego.
 \end{itemize}
 
 \subsection{Braki i aspekty do rozwoju}
 
-Mimo osiągniętych rezultatów, w prototypie nie udało się zrealizować kilku istotnych funkcji lub wymagają one dalszego rozwoju:
+Obecna wersja systemu wymaga dalszego rozwoju w kilku kluczowych obszarach:
 \begin{itemize}
-    \item \textbf{Pełny interfejs użytkownika} -- brakuje rozbudowanego UI dla właścicieli mieszkań umożliwiającego przeglądanie głosowań i wyników, co jest przestawione na ryusnku~\ref{fig:poll_owner_ui}.
-    \item \textbf{Oddawanie głosów} -- mechanizm został zaimplementowany i przetestowany w prostych przypadkach, ale brak UI dla właścicieli może ujawnić potencjalne problemy i aspekty wymagające usprawnienia.
-    \item \textbf{Zaawansowane raportowanie} -- aktualnie brak automatycznego generowania szczegółowych raportów wyników głosowań.
-    \item \textbf{Integracja z systemami prawnymi} -- nie wdrożono automatycznego przesyłania wyników głosowania do systemów prawnych lub rejestrów.
-    \item \textbf{Wsparcie dla różnych scenariuszy głosowania} -- brak obsługi bardziej złożonych mechanizmów liczenia głosów, takich jak podział na grupy czy różne wagi głosów.
+    \item \textbf{Interfejs użytkownika} -- brak zaawansowanego interfejsu dla właścicieli mieszkań do przeglądania wyników i historii głosowań (przedstawiony na rysunku~\ref{fig:poll_owner_ui}).
+    \item \textbf{Zaawansowane scenariusze głosowań} -- obsługa bardziej złożonych mechanizmów, takich jak głosowanie z różnymi wagami głosów.
+    \item \textbf{Automatyczne raportowanie} -- brak funkcji generowania raportów wyników w formacie gotowym do przedstawienia w oficjalnych dokumentach.
+    \item \textbf{Integracja z systemami prawnymi} -- automatyczne przesyłanie wyników do systemów prawnych.
 \end{itemize}
 
 \begin{figure}[ht]
     \centering
     \includegraphics[width=0.63\linewidth]{rys03/poll_ui_unfinish}
-    \caption{Aktualny stan UI do głosowani po stonie właściela}
+    \caption{Aktualny stan UI do głosowań po stronie właściciela.}
     \label{fig:poll_owner_ui}
 \end{figure}
 
 \subsection{Profesjonalne podejście do głosowań}
 
-W profesjonalnym systemie zarządzania głosowaniami proces jest zaprojektowany tak, aby był w pełni zautomatyzowany, przejrzysty i skalowalny. Obejmuje takie funkcje jak:
+Profesjonalny system zarządzania głosowaniami wymaga zaawansowanych funkcji, takich jak:
 \begin{itemize}
-    \item \textbf{Automatyczne przypomnienia} -- harmonogramowe wysyłanie powiadomień do użytkowników o aktywnych i nadchodzących głosowaniach oraz o ich wynikach. 
-    \item \textbf{Zaawansowane scenariusze głosowania} -- obsługa różnych typów głosów (większość kwalifikowana, zwykła), ustalanie indywidualnych progów dla głosowań, dynamiczne dostosowanie mechanizmów liczenia głosów.
-    \item \textbf{Generowanie raportów} -- automatyczne tworzenie raportów podsumowujących wyniki głosowania, z podziałem na głosy, osiągnięte kworum oraz spełnienie progu procentowego.
-    \item \textbf{Integracja z systemami zewnętrznymi} -- powiązanie wyników głosowań z systemami zarządzania dokumentami, księgowością lub systemami prawnymi, które automatycznie implementują wyniki głosowania (np. rejestracja uchwał w systemie prawnym).
-    \item \textbf{Wsparcie dla użytkowników} -- intuicyjny interfejs dla właścicieli mieszkań z możliwością przeglądania wyników, oddawania głosów oraz śledzenia historii głosowań.
+    \item \textbf{Automatyczne przypomnienia} -- wysyłanie dynamicznych powiadomień o aktywnych głosowaniach oraz ich wynikach.
+    \item \textbf{Wsparcie dla złożonych scenariuszy} -- obsługa głosowań z różnymi rodzajami większości (kwalifikowana, zwykła) oraz indywidualnymi progami.
+    \item \textbf{Zaawansowane raportowanie} -- automatyczne generowanie szczegółowych raportów.
+    \item \textbf{Integracja z systemami prawnymi i księgowymi} -- automatyczne rejestrowanie wyników głosowań w oficjalnych systemach.
+    \item \textbf{Przyjazny interfejs} -- intuicyjna obsługa dla użytkowników, z możliwością przeglądania wyników i śledzenia historii głosowań.
 \end{itemize}
 
-Rozwinięcie systemu do poziomu profesjonalnego wymagałoby zastosowania diagramów BPMN, które pozwalają na:
+\textbf{Diagramy BPMN} mogą wspierać optymalizację procesów głosowania:
 \begin{itemize}
-    \item Graficzne przedstawienie procesu głosowania, w tym wszystkich zdarzeń, decyzji i przepływów.
-    \item Określenie ról i zadań uczestników procesu (administrator, właściciele mieszkań, system powiadomień).
-    \item Analizę i optymalizację działania systemu.
+    \item Graficzne przedstawienie całego procesu, w tym przepływów decyzyjnych i działań uczestników.
+    \item Analiza i optymalizacja procedur głosowania.
+    \item Jasne zdefiniowanie ról i odpowiedzialności administratorów, właścicieli mieszkań i systemu.
 \end{itemize}
 
-Dzięki BPMN procesy takie jak tworzenie głosowań, przypomnienia, oddawanie głosów oraz generowanie wyników można dokładnie zaplanować i zaimplementować w sposób efektywny.
+Dzięki BPMN procesy takie jak organizacja głosowań, przypomnienia oraz analiza wyników mogą być łatwo modelowane i rozwijane zgodnie z wymaganiami wspólnoty.
+
+
+
 
 
 \section{Systemy zewnętrzne}
 
-System „Harmony Home Net” wykorzystuje kilka integracji z systemami zewnętrznymi, jednak w prototypie większość funkcjonalności została zaimplementowana jako \emph{mocki}, co oznacza uproszczoną symulację rzeczywistego działania. Poniżej opis poszczególnych integracji oraz ich aktualny stan.
+System „Harmony Home Net” korzysta z kilku integracji z systemami zewnętrznymi, jednak w prototypie większość z nich została zaimplementowana jako \emph{mocki}, symulujące rzeczywiste działanie. W tej sekcji opisano dostępne integracje oraz ich obecny stan.
 
 \subsection{System bankowości}
 
-Funkcjonalność płatności w systemie jest realizowana za pomocą klasy \texttt{BankingServiceImp}, która symuluje przesłanie żądania płatności do systemu bankowego. W obecnym stanie logika płatności ogranicza się do wyświetlenia odpowiednich informacji w konsoli, oraz do uproszczonego formularza w UI właściciela, jak przedationo na rysynku~\ref{fig:mock_of_paymet}
+Obsługa płatności została uproszczona i zrealizowana przez klasę \texttt{BankingServiceImp}, która symuluje przesyłanie żądania płatności do systemu bankowego. Funkcjonalność ta ogranicza się do wyświetlenia informacji w logach oraz uproszczonego formularza UI właściciela, przedstawionego na rysunku~\ref{fig:mock_of_paymet}.
 
 \begin{figure}[ht]
     \centering
@@ -2651,11 +2567,11 @@ public void pay(BigDecimal amount, String account) {
 }
 \end{lstlisting}
 
-Pełna integracja z rzeczywistymi systemami bankowymi wymagałaby dostępu do ich API, co zazwyczaj wiąże się z dodatkowymi kosztami i spełnieniem wymagań formalnych (np. certyfikacji)~\cite{paypal_api, stripe_api}.
+Pełna implementacja wymagałaby wykorzystania zewnętrznych usług, takich jak Twilio lub Clickatell~\cite{twilio, clickatell}.
 
-\subsection{System powiadomień SMS}
+\subsection{System odczytów liczników mediów}
 
-Wysyłanie powiadomień SMS jest realizowane przez klasę \texttt{SmsServiceImp}, która również działa jako \emph{mock}. Symuluje wysyłanie SMS-ów, zapisując treść i odbiorcę w logach systemowych:
+Odczyty liczników wody i prądu są generowane przez klasę \texttt{UtilityMeterServiceImp}. Obecnie wartości są losowo generowane raz na dobę.
 
 \begin{lstlisting}[language=Java, style=JavaStyle, caption=Fragment klasy \texttt{SmsServiceImp}]
 @Override
@@ -2681,11 +2597,11 @@ public void generateRandomMeterReadings() {
 }
 \end{lstlisting}
 
-Integracja z rzeczywistymi licznikami wymagałaby dostępu do odpowiednich urządzeń i ich API. Obecnie jest to poza zakresem prototypu.
+Integracja z rzeczywistymi licznikami wymagałaby obsługi odpowiednich urządzeń i ich API.
 
 \subsection{System wysyłania e-maili}
 
-Jedynym w pełni funkcjonalnym systemem zewnętrznym w prototypie jest wysyłanie powiadomień e-mail. Implementacja wykorzystuje usługę \texttt{JavaMailSender}, skonfigurowaną do współpracy z serwerem Gmail:
+Wysyłanie wiadomości e-mail jest jedynym w pełni funkcjonalnym systemem zewnętrznym w prototypie. Implementacja korzysta z usługi \texttt{JavaMailSender}, skonfigurowanej do pracy z serwerem Gmail.
 
 \begin{lstlisting}[language=Java, style=JavaStyle, caption=Fragment klasy \texttt{MailServiceImp}]
 @Override
@@ -2707,7 +2623,7 @@ public void sendNotificationMail(String subject, String text, String recipient) 
 }
 \end{lstlisting}
 
-Wysyłanie e-maili wymaga konfiguracji konta Gmail oraz przestrzegania jego zasad bezpieczeństwa, takich jak generowanie hasła aplikacji~\cite{gmail_api}.
+Usługa e-maili wymaga konfiguracji konta Gmail oraz przestrzegania jego zasad bezpieczeństwa, takich jak generowanie hasła aplikacji~\cite{gmail_api}.
 
 Poniżej znajduje się fragment kodu konfiguracji \texttt{application.yml}, który definiuje ustawienia dla usługi pocztowej w Spring Boot.
 
@@ -2734,37 +2650,44 @@ Znaczenie poszczególnych atrybutów w tej konfiguracji jest następujące:
     \item \texttt{auth} -- włączenie uwierzytelniania SMTP.
     \item \texttt{starttls.enable} -- aktywacja szyfrowania TLS.
 \end{itemize}
-Dzięki tej konfiguracji, wiadomości e-mail mogą być wysyłane bezpośrednio przez serwer Gmail, co zapewnia bezpieczeństwo oraz prostą integrację. W pełnowymiarowej aplikacji zaleca się przechowywanie poufnych danych, takich jak hasła, w zaszyfrowanych menedżerach sekretów 
-(np. \emph{HashiCorp Vault} lub \emph{AWS Secrets Manager})~\cite{hashicorp_vault, aws_secret}.
 
+Zaleca się, aby poufne dane, takie jak hasła, były przechowywane w zaszyfrowanych systemach, takich jak \emph{HashiCorp Vault} lub \emph{AWS Secrets Manager}~\cite{hashicorp_vault, aws_secret}.
 
 \subsection{Typy powiadomień użytkownika}
 
-Użytkownicy systemu mogą określić preferowany sposób otrzymywania powiadomień za pomocą encji \texttt{NotificationType}. Obsługiwane są dwa typy powiadomień:
+Użytkownicy mogą wybrać preferowany sposób otrzymywania powiadomień dzięki encji \texttt{NotificationType}, obsługującej dwa rodzaje:
 \begin{itemize}
-    \item \texttt{EMAIL} -- powiadomienia e-mail.
-    \item \texttt{SMS} -- powiadomienia SMS (obecnie jako \emph{mock}).
+    \item \texttt{EMAIL} -- wiadomości e-mail (działające).
+    \item \texttt{SMS} -- wiadomości SMS (w trybie \emph{mock}).
 \end{itemize}
 
-Każdy typ powiadomienia przypisany do użytkownika pozwala na indywidualizację komunikacji, ale pełna funkcjonalność wymaga integracji z rzeczywistymi systemami SMS. 
+Rozbudowa tej funkcji wymaga pełnej integracji z rzeczywistymi systemami komunikacyjnymi.
+
+
+
+
 
 
 \section{Testy}
-W celu zapewnienia wysokiej jakości i niezawodności aplikacji, przeprowadzono testy jednostkowe dla wszystkich głównych serwisów. Testy zostały zorganizowane w osobnym module aplikacji, a ich implementacja oparta jest na frameworku JUnit. Każdy z serwisów został przetestowany pod kątem poprawności działania jego metod oraz obsługi wyjątków.
+
+W celu zapewnienia wysokiej jakości i niezawodności aplikacji, przeprowadzono testy jednostkowe dla wszystkich głównych serwisów. Implementacja testów opiera się na frameworku JUnit, a testy zostały zorganizowane w odrębnym module aplikacji. Każdy serwis został przetestowany pod kątem poprawności działania metod oraz obsługi wyjątków.
 
 \subsection{Struktura testów}
-Folder \texttt{serviceTests} zawiera testy odpowiadające implementacjom serwisów z folderu \texttt{implementation}. Przykładowo, dla serwisu \texttt{AnnouncementServiceImp} znajduje się plik \texttt{AnnouncementServiceTest.java}. Struktura ta zapewnia klarowność i łatwość w nawigacji pomiędzy kodem implementacji a testami.
+
+Folder \texttt{serviceTests} zawiera zestawy testów odpowiadające implementacjom serwisów z folderu \texttt{implementation}. Na przykład dla serwisu \texttt{AnnouncementServiceImp} stworzono plik \texttt{AnnouncementServiceTest.java}. Taka struktura pozwala na łatwą nawigację pomiędzy kodem aplikacji a odpowiadającymi mu testami, co usprawnia proces rozwoju i utrzymania.
 
 \subsection{Zakres testów}
-Każdy test obejmuje:
+
+Testy jednostkowe obejmują:
 \begin{itemize}
-    \item sprawdzenie poprawności logiki biznesowej serwisów,
-    \item obsługę przypadków wyjątkowych, takich jak \texttt{AnnouncementNotFoundException}, \texttt{UserNotFoundException}, itp.,
-    \item testy graniczne dla danych wejściowych.
+    \item weryfikację poprawności logiki biznesowej serwisów,
+    \item obsługę wyjątków, takich jak \texttt{AnnouncementNotFoundException}, \texttt{UserNotFoundException}, itp.,
+    \item testy graniczne dla różnych wartości danych wejściowych.
 \end{itemize}
 
 \subsection{Przykład testów}
-Przykładowe testy dla serwisu \texttt{AnnouncementService} weryfikują poprawność różnych funkcjonalności, w tym obsługi wyjątków oraz operacji CRUD. Oto kilka metod testowych:
+
+Przykładowe testy dla serwisu \texttt{AnnouncementService} sprawdzają poprawność działania jego metod, w tym obsługę wyjątków oraz operacje CRUD. Wybrane fragmenty kodu testów:
 
 \begin{lstlisting}[language=Java, style=JavaStyle, caption= Przykłądowe testy dla \texttt{AnnouncementService}]
 @Test
@@ -2792,16 +2715,16 @@ void testDeleteAnnouncementById_Success() {
 }
 \end{lstlisting}
 
-% TO DO: jeśli lista wyliczeniowa ma elementy kończące się średnikiem, to powinny one zaczynać się małą literą
-Powyższe testy weryfikują: 
+Testy te sprawdzają:
 \begin{itemize}
-    \item wyrzucanie wyjątków, gdy dane wejściowe są nieprawidłowe lub brak jest zasobu w bazie danych,
-    \item poprawność zapisu danych do bazy,
-    \item skuteczność operacji usuwania rekordów.
+    \item obsługę błędów, np. brak zasobu w bazie danych,
+    \item poprawność zapisu nowych danych,
+    \item skuteczność usuwania rekordów z bazy danych.
 \end{itemize}
 
 \subsection{Wyniki testów}
-Wszystkie testy jednostkowe zakończyły się pozytywnie, co potwierdza, że zaimplementowane serwisy działają zgodnie z założeniami. Pokrycie testami obejmuje główne przypadki użycia aplikacji. Na rzutach ekranu (rys.~\ref{fig:test_presetation}) widać przykłady 2 serii wykonach testów.
+
+Wszystkie testy jednostkowe zakończyły się pozytywnie, co potwierdza, że zaimplementowane serwisy działają zgodnie z założeniami. Pokrycie testami obejmuje główne przypadki użycia aplikacji. Na rysunku~\ref{fig:test_presetation} przedstawiono wyniki dwóch serii testów.
 
 \begin{figure}[htb]
 	\centering
