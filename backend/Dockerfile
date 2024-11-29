@@ -41,10 +41,10 @@ EXPOSE 8443
 # Run the application with SSL settings and the corrected password
 ENTRYPOINT ["java", "-jar", "app.jar", \
     "--server.port=8443", \
-    "--spring.mail.host=smtp.gmail.com", \
-    "--spring.mail.port=587", \
-    "--spring.mail.username=your_email", \
-    "--spring.mail.password=your_password", \
+    "--spring.mail.host=${SPRING_MAIL_HOST}", \
+    "--spring.mail.port=${SPRING_MAIL_PORT}", \
+    "--spring.mail.username=${SPRING_MAIL_USERNAME}", \
+    "--spring.mail.password=${SPRING_MAIL_PASSWORD}", \
     "--spring.mail.properties.mail.smtp.auth=true", \
     "--spring.mail.properties.mail.smtp.starttls.enable=true", \
     "--spring.security.oauth2.resourceserver.jwt.public-key-location=classpath:publicKey.pem", \
