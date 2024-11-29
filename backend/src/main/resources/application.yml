@@ -1,0 +1,49 @@
+spring:
+  application:
+    name: backend
+  main:
+    banner-mode: off
+  datasource:
+    url: jdbc:postgresql://db:5432/HarmonyHomeNet_DB
+    username: user
+    password: admin
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      auto-commit: false
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    generate-ddl: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
+  docker:
+    compose:
+      file: ../compose.yaml
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: # your email
+    password: # your password
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+  security:
+    oauth2:
+      resource-server:
+        jwt:
+          public-key: classpath:publicKey.pem
+          private-key: classpath:privateKey.pem
+
+server:
+  port: 8444
