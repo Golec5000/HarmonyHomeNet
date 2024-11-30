@@ -1,21 +1,17 @@
-\chapter{Dodatek A}
+\chapter{Instrukcja wdrożeniowa}
 
-\section{Instrukcja wdrożeniowa}
+W celu uruchomienia prototypu systemu „Harmony Home Net” przygotowano środowisko bazujące na technologii Docker, które umożliwia szybkie uruchomienie wszystkich niezbędnych komponentów, takich jak backend, frontend oraz baza danych. Poniżej przedstawiono szczegółowe wymagania i kroki związane z wdrożeniem.
 
-W celu uruchomienia prototypu systemu „Harmony Home Net” przygotowano środowisko bazujące na technologii Docker, które umożliwia szybkie uruchomienie wszystkich niezbędnych komponentów, takich jak backend, frontend oraz baza danych. Poniżej przedstawiono szczegółowe kroki i wymagania związane z wdrożeniem.
-
-\subsection{Wymagania wstępne}
-
-Przed przystąpieniem do wdrożenia należy upewnić się, że na maszynie wdrożeniowej są zainstalowane:
+\section{Wymagania wstępne}
+Na maszynie wdrożeniowej powinny być zainstalowane:
 \begin{itemize}
     \item Docker (wersja 20.10 lub nowsza),
     \item Docker Compose (wersja 1.29 lub nowsza),
     \item Konto Gmail skonfigurowane do wysyłania powiadomień (wymagane w prototypie).
 \end{itemize}
 
-\subsection{Konfiguracja środowiska}
-
-Plik \texttt{docker-compose.yml} definiuje konfigurację kontenerów systemu. Kluczowe ustawienia obejmują:
+\section{Konfiguracja środowiska}
+Konfigurację kontenerów systemu zamieszczono w pliku \texttt{docker-compose.yml}. Kluczowe ustawienia obejmują:
 \begin{itemize}
     \item konfigurację bazy danych PostgreSQL,
     \item uruchomienie backendu z podanymi zmiennymi środowiskowymi,
@@ -67,7 +63,7 @@ services:
 
 Dockerfile backendu został zaprojektowany zgodnie z dobrymi praktykami, co pozwala na tworzenie wieloetapowych obrazów. Pierwszy etap buduje aplikację, a drugi uruchamia ją w zoptymalizowanym środowisku.
 
-\begin{lstlisting}[language=Dockerfile, caption=Dockerfile backendu]
+\begin{lstlisting}[language=docker, caption=Dockerfile backendu]
 FROM maven:3.8.5-openjdk-17 AS build
 WORKDIR /backend_app
 COPY pom.xml .
@@ -86,7 +82,7 @@ ENTRYPOINT ["java", "-jar", "app.jar", "--server.port=8443"]
 
 Dockerfile frontendu działa w trybie deweloperskim, co oznacza, że środowisko jest zoptymalizowane pod kątem prac rozwojowych. Mimo że takie podejście działa w prototypie, w przyszłości należy przygotować zoptymalizowaną wersję produkcyjną.
 
-\begin{lstlisting}[language=Dockerfile, caption=Dockerfile frontendu]
+\begin{lstlisting}[language=docker, caption=Dockerfile frontendu]
 FROM node:20-alpine
 WORKDIR /app
 COPY package*.json ./
@@ -96,26 +92,9 @@ EXPOSE 3000
 CMD npm run dev
 \end{lstlisting}
 
-\subsection{Inicjalizacja superadministratora}
 
-Pierwsze uruchomienie backendu automatycznie tworzy konto superadministratora na podstawie zmiennych środowiskowych zdefiniowanych w pliku \texttt{docker-compose.yml}. Kod odpowiedzialny za inicjalizację prezentuje się następująco:
-
-\begin{lstlisting}[language=Java, caption=Kod inicjalizacji superadministratora]
-@PostConstruct
-public void init() {
-    User superAdmin = createUserIfNotExists(
-        superAdminFirstName,
-        superAdminLastName,
-        superAdminEmail,
-        bCryptPasswordEncoder.encode(superAdminPassword),
-        superAdminPhone,
-        Role.ROLE_SUPER_ADMIN
-    );
-}
-\end{lstlisting}
-
-\subsection{Konfiguracja przed pierwszym uruchomieniem}
-
+\section{Przed pierwszym uruchomieniem}
+\subsection{Zmienne środowiskowe}
 Przed pierwszym uruchomieniem systemu należy skonfigurować zmienne środowiskowe, które definiują dane dostępowe do serwera pocztowego oraz informacje o koncie superadministratora. Są one zdefiniowane w sekcji \texttt{environment} pliku \texttt{docker-compose.yml}. Poniżej przedstawiono ich szczegóły:
 
 \begin{lstlisting}[language=yaml, caption=Konfiguracja zmiennych środowiskowych]
@@ -141,7 +120,6 @@ SUPER_ADMIN_PHONE: 111111111
 \end{itemize}
 
 \subsection{Konfiguracja konta Gmail do wysyłania e-maili}
-
 Aby system mógł korzystać z serwera Gmail do wysyłania wiadomości e-mail, należy skonfigurować konto Gmail zgodnie z poniższymi krokami:
 
 \begin{enumerate}
@@ -158,15 +136,26 @@ Aby system mógł korzystać z serwera Gmail do wysyłania wiadomości e-mail, n
     \item \textbf{Upewnij się, że konto Gmail ma włączone uwierzytelnianie dwuskładnikowe, jeśli wymaga tego konfiguracja hasła aplikacji}.
 \end{enumerate}
 
-\subsection{Pierwsze uruchomienie systemu}
-
+\section{Pierwsze uruchomienie systemu}
 Po skonfigurowaniu zmiennych środowiskowych i konta Gmail, system można uruchomić za pomocą następującego polecenia:
 \begin{verbatim}
 docker-compose up --build
 \end{verbatim}
 
-W trakcie pierwszego uruchomienia backend automatycznie utworzy konto superadministratora z wykorzystaniem danych wprowadzonych w sekcji \texttt{SUPER\_ADMIN\_*} zmiennych środowiskowych. Konto to umożliwia dostęp do panelu administracyjnego aplikacji i zarządzanie systemem.
-
+W trakcie pierwszego uruchomienia backend automatycznie utworzy konto superadministratora z wykorzystaniem danych wprowadzonych w sekcji \texttt{SUPER\_ADMIN\_*} pliku \texttt{docker-compose.yml}. Konto to umożliwia dostęp do panelu administracyjnego aplikacji i zarządzanie systemem. Kod odpowiedzialny za inicjalizację prezentuje się następująco:
+\begin{lstlisting}[language=Java, style=JavaStyle, caption=Kod inicjalizacji superadministratora]
+@PostConstruct
+public void init() {
+    User superAdmin = createUserIfNotExists(
+        superAdminFirstName,
+        superAdminLastName,
+        superAdminEmail,
+        bCryptPasswordEncoder.encode(superAdminPassword),
+        superAdminPhone,
+        Role.ROLE_SUPER_ADMIN
+    );
+}
+\end{lstlisting}
 
 Po uruchomieniu:
 \begin{itemize}
@@ -175,8 +164,7 @@ Po uruchomieniu:
     \item pgAdmin dostępny jest pod adresem \texttt{http://localhost:5050}.
 \end{itemize}
 
-\subsection{Uwagi i rozwój przyszłościowy}
-
+\section{Uwagi i rozwój przyszłościowy}
 Obecna implementacja frontendu w trybie deweloperskim działa poprawnie, ale wymaga optymalizacji przed wdrożeniem produkcyjnym. W przyszłości należy:
 \begin{itemize}
     \item przygotować zoptymalizowaną wersję frontendu w trybie produkcyjnym,

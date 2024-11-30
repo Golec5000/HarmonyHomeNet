@@ -329,6 +329,22 @@ captionpos=t
 
 \newcommand\ProcessThreeDashes{\llap{\color{cyan}\mdseries-{-}-}}
 
+\makeatletter
+
+\lstdefinelanguage{docker}{
+	keywords={FROM, RUN, COPY, ADD, ENTRYPOINT, CMD,  ENV, ARG, WORKDIR, EXPOSE, LABEL, USER, VOLUME, STOPSIGNAL, ONBUILD, MAINTAINER, HEALTHCHECK},
+  keywordstyle=\color{black}\bfseries,
+  identifierstyle=\color{blue},
+  sensitive=true,
+  comment=[l]{\#},
+  commentstyle=\color{purple}\ttfamily,
+  inputencoding=utf8,
+  extendedchars=true,
+	basicstyle=\color{blue}\ttfamily\footnotesize
+}
+
+\makeatother
+
 
 %%\definecolor{red}{rgb}{0.6,0,0} % for strings
 %%\definecolor{blue}{rgb}{0,0,0.6}
@@ -977,6 +993,7 @@ Specjalność: & {\bfseries \@specjalnosc}\\
 \include{rozdzial02}
 \include{rozdzial03}
 \include{rozdzial04}
+\appendix
 \include{dodatekA}
 \include{dodatekB}
 % LITERATURA (zostanie wygenerowana automatycznie)
@@ -995,7 +1012,7 @@ Specjalność: & {\bfseries \@specjalnosc}\\
 %       Nazwę pliku przygotowanej biblioteki wpisuje się bez rozszerzenia .bib
 %       (linia poniżej załaduje rekordy z pliku "dokumentacja.bib")
 \bibliography{dokumentacja}
-\appendix
+
 
 % Jeśli w pracy pojawiać się ma indeks, należy odkomentować poniższe linie
 %%\chapterstyle{noNumbered}
