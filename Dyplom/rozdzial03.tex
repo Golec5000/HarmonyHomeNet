@@ -103,6 +103,7 @@ Strukturę bazy danych w systemie „Harmony Home Net” zaprojektowano z uwzgl�
 \begin{figure}[ht]
     \centering
     \includegraphics[width=1\linewidth]{rys03/ebok_db_physical}
+		\caption{Schemat fizyczny bazy danych systemu}
     \label{fig:ebok_db_physical}
 \end{figure}
 
@@ -1338,33 +1339,38 @@ Dokumenty o typie innym niż \texttt{PROPERTY\_DEED} są publiczne i automatyczn
 %        aby się to wszystko nie myliło, proszę unikać stosowania słowa "relacja" w odniesieniu do powiązania encji.
 %        zresztą - mamy diagram ZWIĄZKÓW enci, a nie diagram relacji encji !!!!!
 
-Przepływ dokumentów w systemie jest uproszczony. Przedstawiono go na rysunku~\ref{fig:document_schema}.
-\begin{figure}[h]
+\noindent \textbf{Proces dodawania dokumentów}\\
+Przepływ dokumentów w systemie jest uproszczony. Przedstawiono go na rysunku~\ref{fig:document_schema}.Główne elementy schematu to:
+
+\begin{itemize}
+    \item \texttt{D} -- encja \texttt{Document}, reprezentująca dokument w systemie, zawierająca informacje o nazwie, typie, rozszerzeniu i danych pliku.
+    \item \texttt{D\_Pub} -- dokumenty publiczne, automatycznie przypisywane do wszystkich użytkowników systemu, np. uchwały lub decyzje.
+    \item \texttt{D\_Priv} -- dokumenty prywatne (\texttt{PROPERTY\_DEED}), przypisywane właścicielom mieszkań na podstawie tabeli \texttt{PossessionHistory}.
+    \item \texttt{U} -- encja \texttt{User}, reprezentująca użytkowników systemu, którzy mogą mieć przypisane dokumenty publiczne lub prywatne.
+    \item \texttt{Ph} -- encja \texttt{PossessionHistory}, przechowująca informacje o historii posiadania mieszkań, kluczowa dla przypisywania dokumentów prywatnych.
+    \item \texttt{A} -- encja \texttt{Apartment}, reprezentująca mieszkanie w systemie, z którym mogą być powiązane dokumenty prywatne.
+\end{itemize}
+
+\begin{figure}[ht]
     \centering
     \includegraphics[width=.7\linewidth]{rys03/dodawanie_dokumentów_schemat}
     \caption{Schemat dodawania dokumentów w systemie „Harmony Home Net”}
     \label{fig:document_schema}
 \end{figure}
 
-% TO DO: opis nie przystaje do rysunku. 
-%        D - to dokumenty, U - to użytkownicy, A - aktualizacja ????
-%        Po co są literki a), b), c)????
-%        Konieczna poprawka opisu
-Opis procesu dodawania dokumentów:
+\noindent \textbf{Opis procesu}\\
+Dodawanie dokumentów w systemie obejmuje trzy główne scenariusze:
+
 \begin{enumerate}
-    \item Dokument dodawany jest przez administratora za pomocą endpointu \texttt{/upload-document}, gdzie określane są jego szczegóły, takie jak typ i opcjonalne powiązanie z mieszkaniem.
-    \item Dokumenty publiczne (\texttt{D\_Pub}) są przypisywane automatycznie wszystkim użytkownikom systemu.
-    \item Dokumenty prywatne (\texttt{D\_Priv}) przypisywane są właścicielom mieszkań na podstawie tabeli \texttt{PossessionHistory}.
-    \item Zmiana właściciela mieszkania skutkuje aktualizacją przypisań dokumentów w systemie.
+    \item \textbf{Dodanie dokumentu przez administratora} --
+    administrator lub pracownik korzysta z endpointu \texttt{/upload-document}, aby wprowadzić dokument do systemu. Dokumenty publiczne (\texttt{D\_Pub}) są automatycznie przypisywane wszystkim użytkownikom (\texttt{U}), natomiast dokumenty prywatne (\texttt{D\_Priv}) są przypisywane właścicielom mieszkań na podstawie tabeli \texttt{PossessionHistory} (\texttt{Ph}). Dokument prywatny wymaga określenia sygnatury mieszkania (\texttt{A}) dla prawidłowego przypisania.
+
+    \item \textbf{Dodanie nowego użytkownika do systemu} --
+    nowo dodany użytkownik (\texttt{U}) automatycznie otrzymuje przypisanie do wszystkich istniejących dokumentów publicznych (\texttt{D\_Pub}).
+
+    \item \textbf{Zmiana właściciela mieszkania} --  
+    w przypadku zmiany właściciela mieszkania dokumenty prywatne (\texttt{D\_Priv}) są aktualizowane zgodnie z nowymi danymi w tabeli \texttt{PossessionHistory}. Dokumenty przypisane do poprzedniego właściciela są odłączane, ale nie usuwane z systemu, a nowe przypisania tworzone dla aktualnego właściciela mieszkania.
 \end{enumerate}
-
-Schemat na rysunku~\ref{fig:document_schema} ilustruje trzy główne przypadki:
-\begin{itemize}
-    \item \textbf{Dodanie dokumentu} -- określenie jego rodzaju i przypisanie do odpowiednich użytkowników.
-    \item \textbf{Dodanie użytkownika} -- automatyczne przypisanie istniejących dokumentów publicznych.
-    \item \textbf{Zmiana właściciela mieszkania} -- aktualizacja przypisań dokumentów prywatnych.
-\end{itemize}
-
 
 
 Fragment kodu kontrolera obsługującego dodawanie dokumentów:
@@ -1539,9 +1545,9 @@ Współczesne systemy zarządzania dokumentami (DMS) oferują szeroką gamę fun
 	
 	\item \textbf{Szyfrowanie danych} -- Chroni dokumenty podczas ich przechowywania oraz transmisji, uniemożliwiając nieautoryzowanym podmiotom odczytanie zawartości bez odpowiednich kluczy deszyfrujących~\cite{szyrowanie_danych}.
 
-	\item \textbf{Śledzenie wersji (Version Control)} -- Umożliwia monitorowanie zmian w dokumentach, zachowując historię modyfikacji. Funkcja ta pozwala wrócić do wcześniejszych wersji oraz identyfikować autorów zmian~\cite{kontrola_wersji}. 
+	\item \textbf{Śledzenie wersji (Version Control)} -- Umożliwia monitorowanie zmian w dokumentach, zachowując historię modyfikacji. Funkcja ta pozwala wrócić do wcześniejszych wersji oraz identyfikować autorów zmian~\cite{kotntrola_wersji}. 
 	
-	\item \textbf{Elektroniczny obieg dokumentów (Workflow Automation)} -- Automatyzuje procesy związane z przepływem dokumentów między pracownikami i działami, eliminując potrzebę ręcznego przekazywania dokumentów i przyspieszając procesy decyzyjne~\cite{workflow_automation}.
+	\item \textbf{Elektroniczny obieg dokumentów (Workflow Automation)} -- Automatyzuje procesy związane z przepływem dokumentów między pracownikami i działami, eliminując potrzebę ręcznego przekazywania dokumentów i przyspieszając procesy decyzyjne~\cite{workflow_utomation}.
 
 	\item \textbf{Integracja z innymi systemami} -- Nowoczesne DMS mogą być zintegrowane z innymi narzędziami, takimi jak systemy ERP czy CRM, umożliwiając spójny przepływ informacji w całej organizacji~\cite{dms}. 
 
