@@ -91,7 +91,7 @@ W kontekście systemu ,,Harmony Home Net'' zdecydowano się na podejście \emph{
     \item \textbf{Bezpieczeństwo i integralność danych} -- projektując bazę danych jako pierwszą można było od razu uwzględnić mechanizmy zabezpieczeń, takie jak klucze główne, obce oraz indeksy. Zminimalizowało to ryzyko wystąpienia niespójności danych w trakcie działania systemu.
 \end{itemize}
 
-\subsection{Opis struktury bazy danych}
+\subsection{Opis struktury}
 
 Strukturę bazy danych w systemie „Harmony Home Net” zaprojektowano z uwzględnieniem wymagań funkcjonalnych i niefunkcjonalnych aplikacji. Schemat bazy danych podzielono na warstwę konceptualną (rysunek \ref{fig:ebok_db_concept}) oraz fizyczną (rysunek \ref{fig:ebok_db_physical}), co umożliwiło dokładne odwzorowanie relacji pomiędzy danymi oraz optymalizację ich przechowywania.
 \begin{figure}[ht]
@@ -208,11 +208,8 @@ W implementacji kodu wszystkie tabele zostały podzielone na dwa logiczne pakiet
 Podział tabel na dwa pakiety zapewnia przejrzystość struktury kodu, łatwość zarządzania relacjami między encjami oraz ułatwia przyszłą rozbudowę systemu.
 
 
-\subsection{Relacje i integralność danych}
-
-Relacje między tabelami zostały szczegółowo odwzorowane za pomocą kluczy głównych i obcych, co umożliwia utrzymanie integralności danych oraz łatwe zarządzanie połączeniami między różnymi elementami bazy. Na przykład, tabela \texttt{Problem\_reports} zawiera klucze obce do tabel \texttt{Users} i \texttt{Apartments}, co pozwala na przypisanie zgłoszeń technicznych zarówno do konkretnego użytkownika, jak i lokalu. Analogicznie, tabela \texttt{Payments} jest powiązana z tabelą \texttt{Apartments}, co zapewnia pełną kontrolę nad płatnościami przypisanymi do danych lokali.
-
-\subsection{Mechanizmy optymalizacyjne}
+\subsection{Więzy integralności oraz wydajność}
+Związki między tabelami odwzorowano za pomocą kluczy głównych i obcych, co umożliwia utrzymanie integralności danych. Przykładowo tabela \texttt{Problem\_reports} zawiera klucze obce do tabel \texttt{Users} i \texttt{Apartments}, co pozwala na przypisanie zgłoszeń technicznych zarówno do konkretnego użytkownika, jak i lokalu. Analogicznie, tabela \texttt{Payments} jest powiązana z tabelą \texttt{Apartments}, co zapewnia pełną kontrolę nad płatnościami przypisanymi do danych lokali.
 
 W celu poprawy wydajności bazy danych zastosowano następujące mechanizmy:
 \begin{itemize}
@@ -224,9 +221,9 @@ W celu poprawy wydajności bazy danych zastosowano następujące mechanizmy:
 
 \subsection{Podsumowanie}
 
-Struktura bazy danych systemu „Harmony Home Net” została zaprojektowana w sposób umożliwiający jej skalowalność, wydajność oraz łatwość integracji z innymi komponentami aplikacji. Podejście \emph{Database First} okazało się optymalnym wyborem, zapewniając precyzyjne odwzorowanie wymagań biznesowych i technicznych systemu. Schematy konceptualny (rysunek \ref{fig:ebok_db_concept}) i fizyczny (rysunek \ref{fig:ebok_db_physical}) ilustrują relacje pomiędzy tabelami, które stanowią podstawę spójnego i efektywnego zarządzania danymi.
+Struktura bazy danych zaprojektowano w sposób umożliwiający jej skalowalność, wydajność oraz łatwość integracji z innymi komponentami aplikacji. Podejście \emph{Database First} okazało się optymalnym wyborem, zapewniając precyzyjne odwzorowanie wymagań biznesowych i technicznych systemu. Schematy konceptualny (rysunek \ref{fig:ebok_db_concept}) i fizyczny (rysunek \ref{fig:ebok_db_physical}) ilustrują relacje pomiędzy tabelami, które stanowią podstawę spójnego i~efektywnego zarządzania danymi.
 
-\section{Bezpieczeństwo, uwierzytelnianie i autoryzacja w aplikacji}
+\section{Bezpieczeństwo, uwierzytelnianie i autoryzacja w~aplikacji}
 
 W systemie „Harmony Home Net” wdrożono mechanizmy bezpieczeństwa oparte na Spring Security, w tym obsługę tokenów JWT oraz \emph{OAuth 2.0 Resource Server}. Rozwiązania te zapewniają ochronę danych użytkowników oraz bezpieczny dostęp do zasobów.
 
@@ -356,11 +353,11 @@ public class SecurityConfig {
 
 \subsection{Proces logowania}
 
-Mechanizm logowania w systemie „Harmony Home Net” oparto na Spring Security i tokenach JWT. Proces ten został szczegółowo opisany na podstawie schematu przedstawionego na rysunku \ref{fig:ebok_db_concept}.
+Mechanizm logowania w systemie „Harmony Home Net” oparto na Spring Security i tokenach JWT. Proces ten opisano w szczegółach na podstawie schematu z rysunku~\ref{fig:ebok_db_concept}.
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=.9\linewidth]{rys03/proces_logowania}
+    \includegraphics[scale=1.0]{rys03/proces_logowania}
     \caption{Schemat działania procesu logowania w systemie~\cite{JWToauth}}
     \label{fig:ebok_db_concept}
 \end{figure}
@@ -368,15 +365,15 @@ Mechanizm logowania w systemie „Harmony Home Net” oparto na Spring Security 
 Logowanie składa się z kilku kluczowych etapów:
 
 \begin{enumerate}
-    \item \textbf{Przesłanie danych logowania \texttt{a)}} -- Użytkownik wysyła żądanie HTTP \texttt{POST} na endpoint \texttt{/auth/login}, podając nazwę użytkownika oraz hasło. 
+    \item[\texttt{a)}] \textbf{Przesłanie danych logowania} -- Użytkownik wysyła żądanie HTTP \texttt{POST} na endpoint \texttt{/auth/login}, podając nazwę użytkownika oraz hasło. 
 
-    \item \textbf{Weryfikacja przez \texttt{AuthenticationManager} \texttt{b)}} -- Spring Security wykorzystuje komponent \texttt{AuthenticationManager} do uwierzytelnienia użytkownika. Na tym etapie sprawdzana jest zgodność podanych danych logowania z zapisami w systemie.
+    \item[\texttt{b)}] \textbf{Weryfikacja przez \texttt{AuthenticationManager}}} -- Spring Security wykorzystuje komponent \texttt{AuthenticationManager} do uwierzytelnienia użytkownika. Na tym etapie sprawdzana jest zgodność podanych danych logowania z zapisami w systemie.
 
-    \item \textbf{Sprawdzenie w repozytorium użytkowników \texttt{c)}} -- \texttt{AuthenticationManager} deleguje żądanie do repozytorium użytkowników (\texttt{UserRepository}). Klasa \texttt{UserInfoManagerConfig}, implementująca interfejs \texttt{UserDetailsService}, sprawdza istnienie użytkownika w bazie danych i weryfikuje poprawność danych logowania. W przypadku błędnych danych zwracany jest status \texttt{HTTP 403}.
+    \item[\texttt{c)}] \textbf{Sprawdzenie w repozytorium użytkowników} -- \texttt{AuthenticationManager} deleguje żądanie do repozytorium użytkowników (\texttt{UserRepository}). Klasa \texttt{UserInfoManagerConfig}, implementująca interfejs \texttt{UserDetailsService}, sprawdza istnienie użytkownika w bazie danych i weryfikuje poprawność danych logowania. W~przypadku błędnych danych zwracany jest status \texttt{HTTP 403}.
 
-    \item \textbf{Generowanie tokenu JWT \texttt{d)}} -- Po pomyślnym uwierzytelnieniu użytkownika generowany jest token JWT. Token zawiera informacje o użytkowniku (np. identyfikator, rolę oraz datę wygaśnięcia) i jest zabezpieczony przy użyciu kluczy RSA.
+    \item[\texttt{d)}] \textbf{Generowanie tokenu JWT} -- Po pomyślnym uwierzytelnieniu użytkownika generowany jest token JWT. Token zawiera informacje o użytkowniku (np. identyfikator, rolę oraz datę wygaśnięcia) i jest zabezpieczony przy użyciu kluczy RSA.
 
-    \item \textbf{Przesłanie tokenu JWT w odpowiedzi \texttt{e)}} -- Token JWT jest zwracany użytkownikowi jako odpowiedź HTTP \texttt{200}. Jest przechowywany lokalnie (np. w pamięci przeglądarki) i wykorzystywany do autoryzacji kolejnych żądań do API. Czas ważności tokenu wynosi 10 minut, co zapewnia równowagę między bezpieczeństwem a wygodą użytkownika.
+    \item[\texttt{e)}] \textbf{Przesłanie tokenu JWT w odpowiedzi} -- Token JWT jest zwracany użytkownikowi jako odpowiedź HTTP \texttt{200}. Jest przechowywany lokalnie (np.\ w pamięci przeglądarki) i~wykorzystywany do autoryzacji kolejnych żądań do API. Czas ważności tokenu wynosi 10 minut, co zapewnia równowagę między bezpieczeństwem a wygodą użytkownika.
 \end{enumerate}
 
 W szczególności klasa \texttt{UserInfoManagerConfig}, wykorzystywana w kroku \texttt{c)}, odpowiada za weryfikację istnienia użytkownika w bazie danych oraz dostarczenie szczegółów użytkownika wymaganych przez mechanizm uwierzytelniania. Kod klasy przedstawiono poniżej:
@@ -417,16 +414,13 @@ Mechanizm logowania w systemie jest bezpieczny i bezstanowy, co pozwala na ogran
 
 \subsection{Zarządzanie tokenami JWT i autoryzacja użytkowników}
 
-Zarządzanie tokenami JWT w systemie „Harmony Home Net” bazuje na mechanizmach walidacji i autoryzacji zaimplementowanych przy użyciu frameworka Spring Security. Proces ten został zilustrowany na rysunku \ref{fig:resource_access_flow}.
-
+Zarządzanie tokenami JWT w systemie „Harmony Home Net” bazuje na mechanizmach walidacji i autoryzacji zaimplementowanych przy użyciu frameworka Spring Security. Proces ten zilustrowano na rysunku \ref{fig:resource_access_flow}. Jego główne etapy opisano poniżej.
 \begin{figure}[ht]
     \centering
     \includegraphics[scale=1]{rys03/Diagram_dotępu_do_zasobów_systemu} 
     \caption{Diagram zarządzania tokenami JWT i autoryzacji użytkowników~\cite{JWToauth}}
     \label{fig:resource_access_flow}
 \end{figure}
-
-\noindent Etapy procesy autoryzacji i uwierzytelniania z wykorzystaniem tokenów JWT:
 \begin{enumerate}
     \item[\texttt{a)}] \textbf{Przesłanie żądania przez użytkownika} -- Użytkownik wysyła żądanie HTTP do serwera API, dołączając token JWT w nagłówku \texttt{Authorization}.
     
@@ -864,7 +858,7 @@ public class User implements UserDetails {
 
 \subsection{Role i poziomy dostępu}
 
-System zarządzania użytkownikami opiera się na hierarchii ról, które definiują poziom uprawnień. Klasa \texttt{Role} pozwala określić, czy użytkownik ma wystarczające uprawnienia do wykonania określonych operacji, takich jak edycja danych innych użytkowników czy przypisanie nowej roli. Dostępne role:
+System zarządzania użytkownikami opiera się na hierarchii ról definiujących poziom uprawnień. Klasa \texttt{Role} pozwala określić, czy użytkownik ma wystarczające uprawnienia do wykonania określonych operacji, jak edycja danych innych użytkowników czy przypisanie nowej roli. Dostępne role:
 \begin{itemize}
     \item \texttt{ROLE\_OWNER} -- poziom 1, właściciel mieszkania, podstawowa rola w systemie.
     \item \texttt{ROLE\_EMPLOYEE} -- poziom 2, pracownik administracyjny.
@@ -905,7 +899,7 @@ public enum Role implements GrantedAuthority {
 
 \subsection{Dodawanie użytkowników i przypisywanie ról}
 
-Proces zarządzania użytkownikami, obejmujący ich dodawanie i edycję, opiera się na mechanizmie autoryzacji bazującym na poziomach dostępu przypisanych do ról w enumeracji \texttt{Role}. Każda rola (\texttt{ROLE\_OWNER}, \texttt{ROLE\_EMPLOYEE}, \texttt{ROLE\_ADMIN}, \texttt{ROLE\_SUPER\_ADMIN}) ma określony poziom dostępu, co pozwala kontrolować uprawnienia do wykonywania operacji takich jak dodawanie, edycja czy usuwanie użytkowników.
+Proces zarządzania użytkownikami, obejmujący ich dodawanie i edycję, opiera się na mechanizmie autoryzacji bazującym na poziomach dostępu przypisanych do ról w enumeracji \texttt{Role}. Każda rola (\texttt{ROLE\_OWNER}, \texttt{ROLE\_EMPLOYEE}, \texttt{ROLE\_ADMIN}, \texttt{ROLE\_SUPER\_ADMIN}) ma określony poziom dostępu, co pozwala kontrolować uprawnienia do wykonywania operacji takich jak dodawanie, edycja czy usuwanie użytkowników.\\[-10pt]
 
 \textbf{Kluczowe założenia mechanizmu:}
 \begin{itemize}
@@ -1353,7 +1347,7 @@ Przepływ dokumentów w systemie jest uproszczony. Przedstawiono go na rysunku~\
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=.7\linewidth]{rys03/dodawanie_dokumentów_schemat}
+    \includegraphics[scale=1.2]{rys03/dodawanie_dokumentów_schemat}
     \caption{Schemat dodawania dokumentów w systemie „Harmony Home Net”}
     \label{fig:document_schema}
 \end{figure}
@@ -1486,52 +1480,51 @@ public DocumentResponse uploadDocument(MultipartFile file, String apartmentSigna
 \end{lstlisting}
 
 \begin{lstlisting}[language=Java, style=JavaStyle, caption=Metoda usuwania dokumetów i konretnych połaczeń z dokumentami w klasie \texttt{DocumentServiceImp}]
- @Override
-    @Transactional
-    public String deleteDocument(UUID documentId, UUID userId, Boolean deleteCompletely) throws DocumentNotFoundException, UserNotFoundException, IllegalArgumentException {
+@Override
+@Transactional
+public String deleteDocument(UUID documentId, UUID userId, Boolean deleteCompletely) throws DocumentNotFoundException, UserNotFoundException, IllegalArgumentException {
 
-        Document document = documentRepository.findById(documentId)
-                .orElseThrow(() -> new DocumentNotFoundException("Document id: " + documentId + " not found"));
+		Document document = documentRepository.findById(documentId)
+						.orElseThrow(() -> new DocumentNotFoundException("Document id: " + documentId + " not found"));
 
-        if (deleteCompletely) {
+		if (deleteCompletely) {
 
-            documentRepository.delete(document);
-            return "Document id: " + documentId + " deleted successfully for all users";
+				documentRepository.delete(document);
+				return "Document id: " + documentId + " deleted successfully for all users";
 
-        } else {
+		} else {
 
-            // Usuwanie tylko połączenia użytkownika z dokumentem
-            User user = userRepository.findById(userId)
-                    .orElseThrow(() -> new UserNotFoundException("User id: " + userId + " not found"));
+				// Usuwanie tylko połączenia użytkownika z dokumentem
+				User user = userRepository.findById(userId)
+								.orElseThrow(() -> new UserNotFoundException("User id: " + userId + " not found"));
 
-            UserDocumentConnection connection = userDocumentConnectionRepository
-                    .findByDocumentUuidIDAndUserUuidID(documentId, userId)
-                    .orElseThrow(() -> new IllegalArgumentException("Connection not found"));
+				UserDocumentConnection connection = userDocumentConnectionRepository
+								.findByDocumentUuidIDAndUserUuidID(documentId, userId)
+								.orElseThrow(() -> new IllegalArgumentException("Connection not found"));
 
-            // Inicjalizujemy listy, jeśli są nullem, aby uniknąć NullPointerException
-            if (user.getUserDocumentConnections() == null) user.setUserDocumentConnections(new ArrayList<>());
-            if (document.getUserDocumentConnections() == null) document.setUserDocumentConnections(new ArrayList<>());
+				// Inicjalizujemy listy, jeśli są nullem, aby uniknąć NullPointerException
+				if (user.getUserDocumentConnections() == null) user.setUserDocumentConnections(new ArrayList<>());
+				if (document.getUserDocumentConnections() == null) document.setUserDocumentConnections(new ArrayList<>());
 
-            // Usunięcie połączenia
-            user.getUserDocumentConnections().remove(connection);
-            document.getUserDocumentConnections().remove(connection);
+				// Usunięcie połączenia
+				user.getUserDocumentConnections().remove(connection);
+				document.getUserDocumentConnections().remove(connection);
 
-            userDocumentConnectionRepository.delete(connection);
+				userDocumentConnectionRepository.delete(connection);
 
-            mailService.sendNotificationMail(
-                    "Dokument odłączony",
-                    "Dokument został odłaczony od twojego konta: " + document.getDocumentName(),
-                    user.getEmail()
-            );
+				mailService.sendNotificationMail(
+								"Dokument odłączony",
+								"Dokument został odłaczony od twojego konta: " + document.getDocumentName(),
+								user.getEmail()
+				);
 
-            smsService.sendSms(
-                    "Dokument został odłaczony od twojego konta: " + document.getDocumentName(),
-                    user.getPhoneNumber()
-            );
+				smsService.sendSms(
+								"Dokument został odłaczony od twojego konta: " + document.getDocumentName(),
+								user.getPhoneNumber()
+				);
 
-            return "Document id: " + documentId + " disconnected successfully for user id: " + userId;
-        }
-    }
+				return "Document id: " + documentId + " disconnected successfully for user id: " + userId;
+		   }
 }
 \end{lstlisting}
 
@@ -1671,46 +1664,46 @@ Serwis \texttt{ProblemReportServiceImp} obsługuje kluczowe operacje związane z
 @Transactional
 public ProblemReportResponse createProblemReport(ProblemReportRequest problemReportRequest) throws UserNotFoundException, ApartmentNotFoundException {
 
-        String apartmentSignature = problemReportRequest.getApartmentSignature();
-        Apartment apartment = apartmentsRepository.findByApartmentSignature(apartmentSignature)
-                .orElseThrow(() -> new ApartmentNotFoundException("Apartment not found with id: " + apartmentSignature));
+		String apartmentSignature = problemReportRequest.getApartmentSignature();
+		Apartment apartment = apartmentsRepository.findByApartmentSignature(apartmentSignature)
+						.orElseThrow(() -> new ApartmentNotFoundException("Apartment not found with id: " + apartmentSignature));
 
-        UUID userId = problemReportRequest.getUserId();
+		UUID userId = problemReportRequest.getUserId();
 
-        if (!possessionHistoryRepository.existsByUserUuidIDAndApartmentUuidID(userId, apartment.getUuidID())) {
-            throw new UserNotFoundException("User with id: " + userId + " does not have access to apartment with signature: " + apartmentSignature);
-        }
+		if (!possessionHistoryRepository.existsByUserUuidIDAndApartmentUuidID(userId, apartment.getUuidID())) {
+				throw new UserNotFoundException("User with id: " + userId + " does not have access to apartment with signature: " + apartmentSignature);
+		}
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
+		User user = userRepository.findById(userId)
+						.orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
 
-        ProblemReport newProblemReport = ProblemReport.builder()
-                .note(problemReportRequest.getNote())
-                .reportStatus(problemReportRequest.getReportStatus())
-                .category(problemReportRequest.getCategory())
-                .user(user)
-                .apartment(apartment)
-                .build();
+		ProblemReport newProblemReport = ProblemReport.builder()
+						.note(problemReportRequest.getNote())
+						.reportStatus(problemReportRequest.getReportStatus())
+						.category(problemReportRequest.getCategory())
+						.user(user)
+						.apartment(apartment)
+						.build();
 
 
-        if (user.getProblemReports() == null) user.setProblemReports(new ArrayList<>());
-        user.getProblemReports().add(newProblemReport);
+		if (user.getProblemReports() == null) user.setProblemReports(new ArrayList<>());
+		user.getProblemReports().add(newProblemReport);
 
-        if (apartment.getProblemReports() == null) apartment.setProblemReports(new ArrayList<>());
-        apartment.getProblemReports().add(newProblemReport);
+		if (apartment.getProblemReports() == null) apartment.setProblemReports(new ArrayList<>());
+		apartment.getProblemReports().add(newProblemReport);
 
-        ProblemReport saved = problemReportRepository.save(newProblemReport);
-        userRepository.save(user);
-        apartmentsRepository.save(apartment);
+		ProblemReport saved = problemReportRepository.save(newProblemReport);
+		userRepository.save(user);
+		apartmentsRepository.save(apartment);
 
-        return ProblemReportResponse.builder()
-                .id(saved.getId())
-                .note(saved.getNote())
-                .reportStatus(saved.getReportStatus())
-                .category(saved.getCategory())
-                .userName(user.getFirstName() + " " + user.getLastName())
-                .apartmentAddress(apartment.getAddress())
-                .build();
+		return ProblemReportResponse.builder()
+						.id(saved.getId())
+						.note(saved.getNote())
+						.reportStatus(saved.getReportStatus())
+						.category(saved.getCategory())
+						.userName(user.getFirstName() + " " + user.getLastName())
+						.apartmentAddress(apartment.getAddress())
+						.build();
     }
 \end{lstlisting}
 
@@ -1726,54 +1719,54 @@ public ProblemReportResponse createProblemReport(ProblemReportRequest problemRep
 @Override
 public ProblemReportResponse updateProblemReport(Long problemReportId, ProblemReportRequest problemReportRequest) throws ProblemReportNotFoundException {
 
-        ProblemReport problemReportToUpdate = problemReportRepository.findById(problemReportId)
-             .orElseThrow(() -> new ProblemReportNotFoundException("Problem report not found with id: " + problemReportId));
+		ProblemReport problemReportToUpdate = problemReportRepository.findById(problemReportId)
+				 .orElseThrow(() -> new ProblemReportNotFoundException("Problem report not found with id: " + problemReportId));
 
-        problemReportToUpdate.setNote(problemReportRequest.getNote() != null ? problemReportRequest.getNote() : problemReportToUpdate.getNote());
-        problemReportToUpdate.setReportStatus(problemReportRequest.getReportStatus() != null ? problemReportRequest.getReportStatus() : problemReportToUpdate.getReportStatus());
-        problemReportToUpdate.setCategory(problemReportRequest.getCategory() != null ? problemReportRequest.getCategory() : problemReportToUpdate.getCategory());
+		problemReportToUpdate.setNote(problemReportRequest.getNote() != null ? problemReportRequest.getNote() : problemReportToUpdate.getNote());
+		problemReportToUpdate.setReportStatus(problemReportRequest.getReportStatus() != null ? problemReportRequest.getReportStatus() : problemReportToUpdate.getReportStatus());
+		problemReportToUpdate.setCategory(problemReportRequest.getCategory() != null ? problemReportRequest.getCategory() : problemReportToUpdate.getCategory());
 
-        if (ReportStatus.DONE.equals(problemReportRequest.getReportStatus()))
-            problemReportToUpdate.setEndDate(Instant.now());
+		if (ReportStatus.DONE.equals(problemReportRequest.getReportStatus()))
+				problemReportToUpdate.setEndDate(Instant.now());
 
-        User user = problemReportToUpdate.getUser();
+		User user = problemReportToUpdate.getUser();
 
-        if (user.getNotificationTypes() != null){
-            user.getNotificationTypes().forEach(notificationType -> {
-                switch (notificationType.getType()) {
-                    case EMAIL:
-                        switch (problemReportRequest.getReportStatus()) {
-                            case DONE -> mailService.sendNotificationMail("Problem report done", "Your problem report has been done", user.getEmail());
-                            case IN_PROGRESS -> mailService.sendNotificationMail("Problem report in progress", "Your problem report is in progress", user.getEmail());
-                            case OPEN -> mailService.sendNotificationMail("Problem report open", "Your problem report is open", user.getEmail());
-                        }
-                        break;
-                    case SMS:
-                        switch (problemReportRequest.getReportStatus()) {
-                            case DONE -> smsService.sendSms("Your problem report has been done", user.getPhoneNumber());
-                            case IN_PROGRESS -> smsService.sendSms("Your problem report is in progress", user.getPhoneNumber());
-                            case OPEN -> smsService.sendSms("Your problem report is open", user.getPhoneNumber());
-                        }
-                        break;
+		if (user.getNotificationTypes() != null){
+			user.getNotificationTypes().forEach(notificationType -> {
+				switch (notificationType.getType()) {
+					case EMAIL:
+						switch (problemReportRequest.getReportStatus()) {
+							case DONE -> mailService.sendNotificationMail("Problem report done", "Your problem report has been done", user.getEmail());
+							case IN_PROGRESS -> mailService.sendNotificationMail("Problem report in progress", "Your problem report is in progress", user.getEmail());
+							case OPEN -> mailService.sendNotificationMail("Problem report open", "Your problem report is open", user.getEmail());
+						}
+						break;
+					case SMS:
+						switch (problemReportRequest.getReportStatus()) {
+							case DONE -> smsService.sendSms("Your problem report has been done", user.getPhoneNumber());
+							case IN_PROGRESS -> smsService.sendSms("Your problem report is in progress", user.getPhoneNumber());
+							case OPEN -> smsService.sendSms("Your problem report is open", user.getPhoneNumber());
+						}
+						break;
 
-                    default:
-                        throw new IllegalStateException("Unexpected value: " + notificationType.getType());
-                }
-            });
-        }
+					default:
+							throw new IllegalStateException("Unexpected value: " + notificationType.getType());
+				}
+			});
+		}
 
 
-        ProblemReport updated = problemReportRepository.save(problemReportToUpdate);
+		ProblemReport updated = problemReportRepository.save(problemReportToUpdate);
 
-        return ProblemReportResponse.builder()
-                .id(updated.getId())
-                .note(updated.getNote())
-                .reportStatus(updated.getReportStatus())
-                .category(updated.getCategory())
-                .userName(updated.getUser().getFirstName() + " " + updated.getUser().getLastName())
-                .apartmentAddress(updated.getApartment().getAddress())
-                .endDate(updated.getEndDate())
-                .build();
+		return ProblemReportResponse.builder()
+						.id(updated.getId())
+						.note(updated.getNote())
+						.reportStatus(updated.getReportStatus())
+						.category(updated.getCategory())
+						.userName(updated.getUser().getFirstName() + " " + updated.getUser().getLastName())
+						.apartmentAddress(updated.getApartment().getAddress())
+						.endDate(updated.getEndDate())
+						.build();
 
     }
 \end{lstlisting}
@@ -2366,7 +2359,7 @@ public void sendOverduePaymentReminders() {
 }
 \end{lstlisting}
 
-\noindent \textbf{Powiadomienia} są wysyłane za pomocą e-maila lub SMS-a w zależności od preferencji użytkownika. Mechanizm ten bazuje na konfiguracji przechowywanej w tabeli z typami powiadomień (\texttt{NotificationType}).
+\noindent \textbf{Powiadomienia} są wysyłane e-mailem lub SMS-em odpowiednio do preferencji użytkownika. Mechanizm ten bazuje na konfiguracji przechowywanej w tabeli z typami powiadomień (\texttt{NotificationType}).
 Przykład metody wysyłającej powiadomienia zamieszczono poniżej.
 \begin{lstlisting}[language=Java, style=JavaStyle, caption=Wysyłanie powiadomień]
 private void sendNotification(String email, String phoneNumber, String message) {
@@ -2382,7 +2375,7 @@ private void sendNotification(String email, String phoneNumber, String message) 
 \end{lstlisting}
 
 \subsection{Możliwość rozwoju zarządzania płatnościami}
-Harmonogram przypomnień pozwala na regularne powiadamianie użytkowników o statusie ich płatności, minimalizując ryzyko opóźnień. W przyszłości funkcjonalność ta może zostać rozwinięta o bardziej zaawansowane metody planowania i integrację z dodatkowymi kanałami komunikacji, co zostanie szczegółowo opisane w sekcji \textbf{„Systemy zewnętrzne”}. W pełnowymiarowych systemach zarządzanie płatnościami odbywa się z pomocą zaawansowanych mechanizmów:
+Harmonogram przypomnień pozwala na regularne powiadamianie użytkowników o statusie ich płatności, minimalizując ryzyko opóźnień. W przyszłości funkcja ta może zostać rozwinięta o bardziej zaawansowane metody planowania i integrację z dodatkowymi kanałami komunikacji, co zostanie szczegółowo opisane w sekcji \textbf{„Systemy zewnętrzne”}. W pełnowymiarowych systemach zarządzanie płatnościami odbywa się z pomocą zaawansowanych mechanizmów:
 \begin{itemize}
     \item Automatyzacji generowania płatności na podstawie danych historycznych.
     \item Integracji z systemami zewnętrznymi, takimi jak Stripe, PayPal czy polski BLIK.
@@ -2551,7 +2544,7 @@ Integracja z rzeczywistymi licznikami wymagałaby zaś obsługi odpowiednich urz
 
 \subsection{System wysyłania e-maili}
 
-Wysyłanie wiadomości e-mail jest jedynym w pełni funkcjonalnym systemem zewnętrznym w prototypie. Implementacja korzysta z usługi \texttt{JavaMailSender}, skonfigurowanej do pracy z serwerem Gmail.
+Wysyłanie wiadomości e-mail jest jedynym w pełni funkcjonalnym systemem zewnętrznym w~prototypie. Implementacja korzysta z usługi \texttt{JavaMailSender}, skonfigurowanej do pracy z serwerem Gmail.
 
 \begin{lstlisting}[language=Java, style=JavaStyle, caption=Fragment klasy \texttt{MailServiceImp}]
 @Override
