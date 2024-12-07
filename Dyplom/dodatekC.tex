@@ -1,0 +1,90 @@
+\chapter{Krótki start}
+
+W tym dodatku przedstawiono przypadek u¿ycia aplikacji, w którym dodawany jest nowy w³aœciciel do systemu, nastêpnie nowe mieszkanie, a na koñcu dokonywane jest przypisanie w³aœciciela do lokalu.
+
+\noindent \textbf{Logowanie i panel g³ówny}
+
+Na rysunku~\ref{fig:logowanie} przedstawiono proces logowania siê do œwie¿o uruchomionego systemu w œrodowisku Docker. Dane do logowania, takie jak e-mail i has³o super administratora, s¹ konfigurowane w pliku \texttt{docker-compose.yml}. W tym przypadku u¿yto danych: \textbf{daniel.hhn.SA@gmail.com} oraz \textbf{superadmin\_password123}.
+
+\begin{figure}[ht]
+	\centering
+		\includegraphics[width=0.80\linewidth]{rys0C/logowanie_do_systemu}
+		\caption{Logowanie do systemu jako super administrator}
+	\label{fig:logowanie}
+\end{figure}
+
+Po udanym logowaniu system przenosi u¿ytkownika na panel g³ówny aplikacji, widoczny na rysunku~\ref{fig:panel_glowny}.
+
+\begin{figure}[ht]
+	\centering
+		\includegraphics[width=0.91\linewidth]{rys0C/panel_glowny_pracownika}
+		\caption{Panel g³ówny pracownika}
+	\label{fig:panel_glowny}
+\end{figure}
+
+\noindent \textbf{Dodanie nowego u¿ytkownika do systemu}
+
+Aby dodaæ nowego u¿ytkownika, nale¿y przejœæ do zak³adki \texttt{U¿ytkownicy}, znajduj¹cej siê w menu po lewej stronie (rys.~\ref{fig:panel_glowny}). Po otwarciu zak³adki ukazuje siê panel zarz¹dzania u¿ytkownikami (rys.~\ref{fig:user_add_panel}). Klikniêcie zielonego przycisku \texttt{Dodaj U¿ytkownika} otwiera formularz (rys.~\ref{fig:user_add_form}), w którym nale¿y wype³niæ dane u¿ytkownika, takie jak imiê, nazwisko, e-mail, numer telefonu, has³o oraz wybraæ rolê \texttt{ROLE\_OWNER}.
+
+\begin{figure}[htb]
+    \centering
+    \includegraphics[width=0.91\linewidth]{rys0C/zoskladka_do_uzytkownikow}
+    \caption{Zak³adka zarz¹dzania u¿ytkownikami}
+    \label{fig:user_add_panel}
+\end{figure}
+
+\begin{figure}[htb]
+    \centering
+    \includegraphics[width=0.70\linewidth]{rys0C/dodanie_wlasciela}
+    \caption{Formularz dodawania nowego u¿ytkownika}
+    \label{fig:user_add_form}
+\end{figure}
+
+\noindent \textbf{Dodanie nowego mieszkania do systemu}
+
+Aby dodaæ nowe mieszkanie, nale¿y przejœæ do zak³adki \texttt{Mieszkania}, dostêpnej z menu po lewej stronie (rys.~\ref{fig:panel_glowny}). Panel zarz¹dzania mieszkaniami (rys.~\ref{fig:apartment_add_panel}) umo¿liwia klikniêcie zielonego przycisku \texttt{Dodaj Mieszkanie}, co otwiera formularz dodawania mieszkania (rys.~\ref{fig:apartment_add_form}). W formularzu nale¿y uzupe³niæ dane takie jak adres, miasto, kod pocztowy, powierzchnia, sygnatura oraz procent udzia³u w nieruchomoœci.
+
+\begin{figure}[htb]
+    \centering
+    \includegraphics[width=0.91\linewidth]{rys0C/zakladka_od_mieszkan}
+    \caption{Zak³adka zarz¹dzania mieszkaniami}
+    \label{fig:apartment_add_panel}
+\end{figure}
+
+\begin{figure}[htb]
+    \centering
+    \includegraphics[width=0.70\linewidth]{rys0C/dodanie_nowego_mieszkania}
+    \caption{Formularz dodawania nowego mieszkania}
+    \label{fig:apartment_add_form}
+\end{figure}
+
+
+Po zakoñczeniu procesu dodawania nowe mieszkanie jest widoczne w systemie, jak pokazano na rysunku~\ref{fig:new_apartment}. W chwili dodania mieszkanie nie ma przypisanych w³aœcicieli.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.91\linewidth]{rys0C/jak_dodac_wlasciciela_1}
+    \caption{Nowe mieszkanie w systemie bez przypisanego w³aœciciela}
+    \label{fig:new_apartment}
+\end{figure}
+
+
+\noindent \textbf{Przypisanie w³aœciciela do mieszkania}
+
+Aby przypisaæ w³aœciciela do mieszkania, nale¿y w panelu zarz¹dzania mieszkaniami (rys.~\ref{fig:new_apartment}) wybraæ opcjê \texttt{Przypisz U¿ytkownika}, dostêpn¹ w kolumnie \texttt{Akcje}. Po wybraniu tej opcji otwiera siê okienko (rys.~\ref{fig:assign_owner_form}), w którym nale¿y podaæ identyfikator u¿ytkownika (\texttt{ID}) przypisanego wczeœniej w systemie jako w³aœciciel.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.91\linewidth]{rys0C/jak_dodac_wlasciciela_2}
+    \caption{Formularz przypisywania u¿ytkownika do mieszkania}
+    \label{fig:assign_owner_form}
+\end{figure}
+
+Po pomyœlnym przypisaniu w³aœciciela system wyœwietla zaktualizowan¹ listê w³aœcicieli, jak przedstawiono na rysunku~\ref{fig:owner_assigned}.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.91\linewidth]{rys0C/wlasciciel_dodany}
+    \caption{Udane przypisanie w³aœciciela do mieszkania}
+    \label{fig:owner_assigned}
+\end{figure}
