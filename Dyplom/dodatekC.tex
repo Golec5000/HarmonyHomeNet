@@ -1,90 +1,62 @@
-\chapter{Krótki start}
+\chapter{KrÃ³tki start}
+PoniÅ¼ej opisano prosty przypadek uÅ¼ycia aplikacji, w ktÃ³rym dodano nowego wÅ‚aÅ›ciciela do systemu, nastÄ™pnie nowe mieszkanie, a na koÅ„cu przypisano wÅ‚aÅ›ciciela do tego mieszkania.
 
-W tym dodatku przedstawiono przypadek u¿ycia aplikacji, w którym dodawany jest nowy w³aœciciel do systemu, nastêpnie nowe mieszkanie, a na koñcu dokonywane jest przypisanie w³aœciciela do lokalu.
-
-\noindent \textbf{Logowanie i panel g³ówny}
-
-Na rysunku~\ref{fig:logowanie} przedstawiono proces logowania siê do œwie¿o uruchomionego systemu w œrodowisku Docker. Dane do logowania, takie jak e-mail i has³o super administratora, s¹ konfigurowane w pliku \texttt{docker-compose.yml}. W tym przypadku u¿yto danych: \textbf{daniel.hhn.SA@gmail.com} oraz \textbf{superadmin\_password123}.
-
+\noindent \textbf{Logowanie i panel gÅ‚Ã³wny~~}
+Aby skorzystaÄ‡ z systemu naleÅ¼y siÄ™ do niego zalogowaÄ‡. Na rysunku~\ref{fig:logowanie} przedstawiono panel logowania do Å›wieÅ¼o uruchomionego systemu w Å›rodowisku Docker. Dane do logowania, takie jak e-mail i hasÅ‚o super administratora, sÄ… konfigurowane w pliku \texttt{docker-compose.yml}. Jak widaÄ‡ na wspomnianym rysunku, do logowania uÅ¼yto danych: \textbf{daniel.hhn.SA@gmail.com} oraz \textbf{superadmin\_password123}. Po udanym logowaniu system przeniesie uÅ¼ytkownika na panel gÅ‚Ã³wny pracownika pokazany na rysunku~\ref{fig:widoki}a.\\[-10pt]
 \begin{figure}[ht]
 	\centering
-		\includegraphics[width=0.80\linewidth]{rys0C/logowanie_do_systemu}
+		\includegraphics[scale=.6]{rys0C/logowanie_do_systemu}
 		\caption{Logowanie do systemu jako super administrator}
 	\label{fig:logowanie}
 \end{figure}
 
-Po udanym logowaniu system przenosi u¿ytkownika na panel g³ówny aplikacji, widoczny na rysunku~\ref{fig:panel_glowny}.
-
-\begin{figure}[ht]
+\noindent \textbf{Dodanie nowego uÅ¼ytkownika do systemu~~}
+Na panelu pracownika (rys.~\ref{fig:widoki}a), po lewej stronie widoczne sÄ… rÃ³Å¼ne opcje do wyboru. ZawartoÅ›Ä‡ wyÅ›wietlana w czÄ™Å›ci centralnej zaleÅ¼y wybranej opcji. W przypadku wybrania \texttt{UÅ¼ytkownicy}, w czÄ™Å›ci centralnej pojawi siÄ™ zakÅ‚adka zarzÄ…dzania uÅ¼ytkownikami (rys.~\ref{fig:widoki}b), zaÅ› w przypadku wybrania opcji \texttt{Mieszkania} -- zakÅ‚adka do zarzÄ…dzania mieszkaniami (rys.~\ref{fig:widoki}c).
+Dodawanie nowego uÅ¼ytkownika moÅ¼na zrealizowaÄ‡ na zakÅ‚adce zarzÄ…dzania uÅ¼ytkownikami. Wystarczy kliknÄ…Ä‡ na zielonym przycisku \texttt{Dodaj UÅ¼ytkownika}. W reakcji na to klikniÄ™cie otworzy siÄ™ formularz, na ktÃ³rym moÅ¼na wprowadziÄ‡ dane uÅ¼ytkownika, takie jak imiÄ™, nazwisko, e-mail, numer telefonu, hasÅ‚o oraz rolÄ™ (rys.~\ref{fig:widoki}d). W omawianym przypadku naleÅ¼y wybraÄ‡ rolÄ™ \texttt{ROLE\_OWNER}, co jest potrzebne by wykonaÄ‡ kolejny krok.
+\begin{figure}[htb]
 	\centering
-		\includegraphics[width=0.91\linewidth]{rys0C/panel_glowny_pracownika}
-		\caption{Panel g³ówny pracownika}
-	\label{fig:panel_glowny}
+  \begin{tabular}{@{}l@{}}
+		a) \\  \vtop{\vskip-2ex\hbox{\includegraphics[width=\linewidth]{rys0C/panel_glowny_pracownika}}}\\
+		b) \\  \vtop{\vskip-2ex\hbox{\includegraphics[width=\linewidth]{rys0C/zoskladka_do_uzytkownikow}}}\\
+		c) \\ \vtop{\vskip-2ex\hbox{\includegraphics[width=\linewidth]{rys0C/zakladka_od_mieszkan}}} \\
+		{\begin{tabularx}{\linewidth}{@{}XX@{}}
+		d) &   e) \\
+		\vtop{\vskip-2ex\hbox{\includegraphics[scale=.6]{rys0C/dodanie_wlasciela}}} &
+		\vtop{\vskip-2ex\hbox{\includegraphics[scale=.6]{rys0C/dodanie_nowego_mieszkania}}}
+		\end{tabularx}}
+  \end{tabular}
+		\caption{Widoki aplikacji: a) panel gÅ‚Ã³wny pracownika, b) zakÅ‚adka zarzÄ…dzania uÅ¼ytkownikami, c) zakÅ‚adka zarzÄ…dzania mieszkaniami}
+	\label{fig:widoki}
 \end{figure}
+\clearpage
 
-\noindent \textbf{Dodanie nowego u¿ytkownika do systemu}
+%\begin{figure}[htb]
+    %\centering
+    %\begin{tabular}{ll}
+		%a) &   b) \\
+		%\vtop{\vskip-2ex\hbox{\includegraphics[scale=.6]{rys0C/dodanie_wlasciela}}} &
+		%\vtop{\vskip-2ex\hbox{\includegraphics[scale=.6]{rys0C/dodanie_nowego_mieszkania}}}
+		%\end{tabular}
+    %\caption{Formularze dodawania: a) nowego uÅ¼ytkownika, b) nowego mieszkania}
+    %\label{fig:add}
+%\end{figure}
 
-Aby dodaæ nowego u¿ytkownika, nale¿y przejœæ do zak³adki \texttt{U¿ytkownicy}, znajduj¹cej siê w menu po lewej stronie (rys.~\ref{fig:panel_glowny}). Po otwarciu zak³adki ukazuje siê panel zarz¹dzania u¿ytkownikami (rys.~\ref{fig:user_add_panel}). Klikniêcie zielonego przycisku \texttt{Dodaj U¿ytkownika} otwiera formularz (rys.~\ref{fig:user_add_form}), w którym nale¿y wype³niæ dane u¿ytkownika, takie jak imiê, nazwisko, e-mail, numer telefonu, has³o oraz wybraæ rolê \texttt{ROLE\_OWNER}.
+
+\noindent \textbf{Dodanie nowego mieszkania do systemu~~}
+Aby dodaÄ‡ nowe mieszkanie, naleÅ¼y przejÅ›Ä‡ do wspomnianej zakÅ‚adki \texttt{Mieszkania}. Po tej czynnoÅ›ci w czÄ™Å›ci centralnej pojawi siÄ™ Panel zarzÄ…dzania mieszkaniami (rys.~\ref{fig:widoki}c). KlikniÄ™cie na zielonym przycisku \texttt{Dodaj Mieszkanie} wystÄ™pujÄ…cym na tej zakÅ‚adce spowoduje wyÅ›wietlenie  formularza dodawania mieszkania (rys.~\ref{fig:widoki}e). W formularzu naleÅ¼y uzupeÅ‚niÄ‡ takie dane, jak adres, miasto, kod pocztowy, powierzchnia, sygnatura oraz procent udziaÅ‚u w nieruchomoÅ›ci.
+
+\noindent \textbf{Przypisanie uÅ¼ytkownika do mieszkania~~} Po zakoÅ„czeniu procesu dodawania nowego mieszkania zostanie ono uwidocznione na liÅ›cie jak pokazano na rysunku~\ref{fig:apartment}a. BezpoÅ›rednio po dodaniu mieszkanie nie bÄ™dzie miaÅ‚o przypisanych wÅ‚aÅ›cicieli.
+Aby tÄ™ sytuacjÄ™ zmieniÄ‡ naleÅ¼y przypisaÄ‡ wÅ‚aÅ›ciciela do mieszkania. W tym celu naleÅ¼y na zarzÄ…dzania mieszkaniami (rys.~\ref{fig:apartment}a) wybraÄ‡ opcjÄ™ \texttt{Przypisz UÅ¼ytkownika} dostÄ™pnÄ… w kolumnie \texttt{Akcje}. Po wybraniu tej opcji otworzy siÄ™ okienko (rys.~\ref{fig:apartment}b), w ktÃ³rym naleÅ¼y podaÄ‡ identyfikator uÅ¼ytkownika (\texttt{ID}) (to miejsce na identyfikator uÅ¼ytkownika dodanego wczeÅ›niej do systemu jako wÅ‚aÅ›ciciel). Po pomyÅ›lnym przypisaniu wÅ‚aÅ›ciciela system wyÅ›wietla zaktualizowanÄ… listÄ™ wÅ‚aÅ›cicieli, jak przedstawiono na rysunku~\ref{fig:apartment}c.
 
 \begin{figure}[htb]
     \centering
-    \includegraphics[width=0.91\linewidth]{rys0C/zoskladka_do_uzytkownikow}
-    \caption{Zak³adka zarz¹dzania u¿ytkownikami}
-    \label{fig:user_add_panel}
-\end{figure}
-
-\begin{figure}[htb]
-    \centering
-    \includegraphics[width=0.70\linewidth]{rys0C/dodanie_wlasciela}
-    \caption{Formularz dodawania nowego u¿ytkownika}
-    \label{fig:user_add_form}
-\end{figure}
-
-\noindent \textbf{Dodanie nowego mieszkania do systemu}
-
-Aby dodaæ nowe mieszkanie, nale¿y przejœæ do zak³adki \texttt{Mieszkania}, dostêpnej z menu po lewej stronie (rys.~\ref{fig:panel_glowny}). Panel zarz¹dzania mieszkaniami (rys.~\ref{fig:apartment_add_panel}) umo¿liwia klikniêcie zielonego przycisku \texttt{Dodaj Mieszkanie}, co otwiera formularz dodawania mieszkania (rys.~\ref{fig:apartment_add_form}). W formularzu nale¿y uzupe³niæ dane takie jak adres, miasto, kod pocztowy, powierzchnia, sygnatura oraz procent udzia³u w nieruchomoœci.
-
-\begin{figure}[htb]
-    \centering
-    \includegraphics[width=0.91\linewidth]{rys0C/zakladka_od_mieszkan}
-    \caption{Zak³adka zarz¹dzania mieszkaniami}
-    \label{fig:apartment_add_panel}
-\end{figure}
-
-\begin{figure}[htb]
-    \centering
-    \includegraphics[width=0.70\linewidth]{rys0C/dodanie_nowego_mieszkania}
-    \caption{Formularz dodawania nowego mieszkania}
-    \label{fig:apartment_add_form}
+    \begin{tabular}{@{}l@{}}
+		a) \\  \vtop{\vskip-2ex\hbox{\includegraphics[width=\linewidth]{rys0C/jak_dodac_wlasciciela_1}}} \\
+		b) \\  \vtop{\vskip-2ex\hbox{\includegraphics[scale=.55]{rys0C/jak_dodac_wlasciciela_2}}} \\
+    c) \\  \vtop{\vskip-2ex\hbox{\includegraphics[width=\linewidth]{rys0C/wlasciciel_dodany}}}
+		\end{tabular}
+    \caption{Dodawanie nowego mieszkania: a) dane nowego mieszkania bez przypisanego wÅ‚aÅ›ciciela, b) przypisywania wÅ‚aÅ›ciciela do mieszkania, c) wynik udanego przypisanie wÅ‚aÅ›ciciela do mieszkania}
+    \label{fig:apartment}
 \end{figure}
 
 
-Po zakoñczeniu procesu dodawania nowe mieszkanie jest widoczne w systemie, jak pokazano na rysunku~\ref{fig:new_apartment}. W chwili dodania mieszkanie nie ma przypisanych w³aœcicieli.
-
-\begin{figure}[ht]
-    \centering
-    \includegraphics[width=0.91\linewidth]{rys0C/jak_dodac_wlasciciela_1}
-    \caption{Nowe mieszkanie w systemie bez przypisanego w³aœciciela}
-    \label{fig:new_apartment}
-\end{figure}
-
-
-\noindent \textbf{Przypisanie w³aœciciela do mieszkania}
-
-Aby przypisaæ w³aœciciela do mieszkania, nale¿y w panelu zarz¹dzania mieszkaniami (rys.~\ref{fig:new_apartment}) wybraæ opcjê \texttt{Przypisz U¿ytkownika}, dostêpn¹ w kolumnie \texttt{Akcje}. Po wybraniu tej opcji otwiera siê okienko (rys.~\ref{fig:assign_owner_form}), w którym nale¿y podaæ identyfikator u¿ytkownika (\texttt{ID}) przypisanego wczeœniej w systemie jako w³aœciciel.
-
-\begin{figure}[ht]
-    \centering
-    \includegraphics[width=0.91\linewidth]{rys0C/jak_dodac_wlasciciela_2}
-    \caption{Formularz przypisywania u¿ytkownika do mieszkania}
-    \label{fig:assign_owner_form}
-\end{figure}
-
-Po pomyœlnym przypisaniu w³aœciciela system wyœwietla zaktualizowan¹ listê w³aœcicieli, jak przedstawiono na rysunku~\ref{fig:owner_assigned}.
-
-\begin{figure}[ht]
-    \centering
-    \includegraphics[width=0.91\linewidth]{rys0C/wlasciciel_dodany}
-    \caption{Udane przypisanie w³aœciciela do mieszkania}
-    \label{fig:owner_assigned}
-\end{figure}

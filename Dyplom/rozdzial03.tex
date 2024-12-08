@@ -367,11 +367,11 @@ Logowanie składa się z kilku kluczowych etapów:
 \begin{enumerate}
     \item[\texttt{a)}] \textbf{Przesłanie danych logowania} -- Użytkownik wysyła żądanie HTTP \texttt{POST} na endpoint \texttt{/auth/login}, podając nazwę użytkownika oraz hasło. 
 
-    \item[\texttt{b)}] \textbf{Weryfikacja przez \texttt{AuthenticationManager}}} -- Spring Security wykorzystuje komponent \texttt{AuthenticationManager} do uwierzytelnienia użytkownika. Na tym etapie sprawdzana jest zgodność podanych danych logowania z zapisami w systemie.
+    \item[\texttt{b)}] \textbf{Weryfikacja przez \texttt{AuthenticationManager}} -- Spring Security wykorzystuje komponent \texttt{AuthenticationManager} do uwierzytelnienia użytkownika. Na tym etapie sprawdzana jest zgodność podanych danych logowania z zapisami w systemie.
 
     \item[\texttt{c)}] \textbf{Sprawdzenie w repozytorium użytkowników} -- \texttt{AuthenticationManager} deleguje żądanie do repozytorium użytkowników (\texttt{UserRepository}). Klasa \texttt{UserInfoManagerConfig}, implementująca interfejs \texttt{UserDetailsService}, sprawdza istnienie użytkownika w bazie danych i weryfikuje poprawność danych logowania. W~przypadku błędnych danych zwracany jest status \texttt{HTTP 403}.
 
-    \item[\texttt{d)}] \textbf{Generowanie tokenu JWT} -- Po pomyślnym uwierzytelnieniu użytkownika generowany jest token JWT. Token zawiera informacje o użytkowniku (np. identyfikator, rolę oraz datę wygaśnięcia) i jest zabezpieczony przy użyciu kluczy RSA.
+    \item[\texttt{d)}] \textbf{Generowanie tokenu JWT} -- Po pomyślnym uwierzytelnieniu użytkownika generowany jest token JWT. Token zawiera informacje o użytkowniku (np.\ identyfikator, rolę oraz datę wygaśnięcia) i jest zabezpieczony przy użyciu kluczy RSA.
 
     \item[\texttt{e)}] \textbf{Przesłanie tokenu JWT w odpowiedzi} -- Token JWT jest zwracany użytkownikowi jako odpowiedź HTTP \texttt{200}. Jest przechowywany lokalnie (np.\ w pamięci przeglądarki) i~wykorzystywany do autoryzacji kolejnych żądań do API. Czas ważności tokenu wynosi 10 minut, co zapewnia równowagę między bezpieczeństwem a wygodą użytkownika.
 \end{enumerate}
