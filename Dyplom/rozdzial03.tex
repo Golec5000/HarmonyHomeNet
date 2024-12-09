@@ -1348,7 +1348,7 @@ Przepływ dokumentów w systemie jest uproszczony. Przedstawiono go na rysunku~\
 \begin{figure}[ht]
     \centering
     \includegraphics[scale=1.2]{rys03/dodawanie_dokumentów_schemat}
-    \caption{Schemat dodawania dokumentów w systemie „Harmony Home Net”}
+    \caption{Zaimplementowany schemat dodawania dokumentów}
     \label{fig:document_schema}
 \end{figure}
 
@@ -1715,60 +1715,56 @@ public ProblemReportResponse createProblemReport(ProblemReportRequest problemRep
     \item Powiadomieniu użytkowników o zmianach statusu poprzez e-mail i SMS.
 \end{itemize}
 
-\begin{lstlisting}[language=Java, style=JavaStyle, caption=Aktualizacja zgłoszenia problemu.]
+\begin{lstlisting}[language=Java, style=JavaStyle, caption=Aktualizacja zgłoszenia problemu, tabsize=2]
 @Override
 public ProblemReportResponse updateProblemReport(Long problemReportId, ProblemReportRequest problemReportRequest) throws ProblemReportNotFoundException {
 
-		ProblemReport problemReportToUpdate = problemReportRepository.findById(problemReportId)
-				 .orElseThrow(() -> new ProblemReportNotFoundException("Problem report not found with id: " + problemReportId));
+    ProblemReport problemReportToUpdate = problemReportRepository.findById(problemReportId)
+         .orElseThrow(() -> new ProblemReportNotFoundException("Problem report not found with id: " + problemReportId));
 
-		problemReportToUpdate.setNote(problemReportRequest.getNote() != null ? problemReportRequest.getNote() : problemReportToUpdate.getNote());
-		problemReportToUpdate.setReportStatus(problemReportRequest.getReportStatus() != null ? problemReportRequest.getReportStatus() : problemReportToUpdate.getReportStatus());
-		problemReportToUpdate.setCategory(problemReportRequest.getCategory() != null ? problemReportRequest.getCategory() : problemReportToUpdate.getCategory());
+    problemReportToUpdate.setNote(problemReportRequest.getNote() != null ? problemReportRequest.getNote() : problemReportToUpdate.getNote());
+    problemReportToUpdate.setReportStatus(problemReportRequest.getReportStatus() != null ? problemReportRequest.getReportStatus() : problemReportToUpdate.getReportStatus());
+    problemReportToUpdate.setCategory(problemReportRequest.getCategory() != null ? problemReportRequest.getCategory() : problemReportToUpdate.getCategory());
 
-		if (ReportStatus.DONE.equals(problemReportRequest.getReportStatus()))
-				problemReportToUpdate.setEndDate(Instant.now());
+    if (ReportStatus.DONE.equals(problemReportRequest.getReportStatus()))
+        problemReportToUpdate.setEndDate(Instant.now());
 
-		User user = problemReportToUpdate.getUser();
+    User user = problemReportToUpdate.getUser();
 
-		if (user.getNotificationTypes() != null){
-			user.getNotificationTypes().forEach(notificationType -> {
-				switch (notificationType.getType()) {
-					case EMAIL:
-						switch (problemReportRequest.getReportStatus()) {
-							case DONE -> mailService.sendNotificationMail("Problem report done", "Your problem report has been done", user.getEmail());
-							case IN_PROGRESS -> mailService.sendNotificationMail("Problem report in progress", "Your problem report is in progress", user.getEmail());
-							case OPEN -> mailService.sendNotificationMail("Problem report open", "Your problem report is open", user.getEmail());
-						}
-						break;
-					case SMS:
-						switch (problemReportRequest.getReportStatus()) {
-							case DONE -> smsService.sendSms("Your problem report has been done", user.getPhoneNumber());
-							case IN_PROGRESS -> smsService.sendSms("Your problem report is in progress", user.getPhoneNumber());
-							case OPEN -> smsService.sendSms("Your problem report is open", user.getPhoneNumber());
-						}
-						break;
-
-					default:
-							throw new IllegalStateException("Unexpected value: " + notificationType.getType());
-				}
-			});
-		}
-
-
-		ProblemReport updated = problemReportRepository.save(problemReportToUpdate);
-
-		return ProblemReportResponse.builder()
-						.id(updated.getId())
-						.note(updated.getNote())
-						.reportStatus(updated.getReportStatus())
-						.category(updated.getCategory())
-						.userName(updated.getUser().getFirstName() + " " + updated.getUser().getLastName())
-						.apartmentAddress(updated.getApartment().getAddress())
-						.endDate(updated.getEndDate())
-						.build();
-
+    if (user.getNotificationTypes() != null){
+        user.getNotificationTypes().forEach(notificationType -> {
+          switch (notificationType.getType()) {
+              case EMAIL:
+                  switch (problemReportRequest.getReportStatus()) {
+                    case DONE -> mailService.sendNotificationMail("Problem report done", "Your problem report has been done", user.getEmail());
+                    case IN_PROGRESS -> mailService.sendNotificationMail("Problem report in progress", "Your problem report is in progress", user.getEmail());
+                    case OPEN -> mailService.sendNotificationMail("Problem report open", "Your problem report is open", user.getEmail());
+                  }
+                  break;
+              case SMS:
+                  switch (problemReportRequest.getReportStatus()) {
+                    case DONE -> smsService.sendSms("Your problem report has been done", user.getPhoneNumber());
+                    case IN_PROGRESS -> smsService.sendSms("Your problem report is in progress", user.getPhoneNumber());
+                    case OPEN -> smsService.sendSms("Your problem report is open", user.getPhoneNumber());
+                  }
+                  break;
+                  default:
+                      throw new IllegalStateException("Unexpected value: " + notificationType.getType());
+          }
+      });
     }
+
+    ProblemReport updated = problemReportRepository.save(problemReportToUpdate);
+    return ProblemReportResponse.builder()
+        .id(updated.getId())
+        .note(updated.getNote())
+        .reportStatus(updated.getReportStatus())
+        .category(updated.getCategory())
+        .userName(updated.getUser().getFirstName() + " " + updated.getUser().getLastName())
+        .apartmentAddress(updated.getApartment().getAddress())
+        .endDate(updated.getEndDate())
+        .build();
+}
 \end{lstlisting}
 
 \subsection{Możliwości rozwoju obsługi zgłoszeń}
@@ -1852,7 +1848,6 @@ public class Announcement {
                 @UniqueConstraint(columnNames = {"apartment_id", "announcement_id"})
         })
 public class AnnouncementApartment {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID")
@@ -2071,7 +2066,7 @@ Obecnie system forum umożliwia realizację podstawowej komunikacji między uży
     \item Zachowanie historii dyskusji – posty i tematy pozostają widoczne nawet po usunięciu konta autora, z oznaczeniem „użytkownik usunięty”.
     \item Linearność dyskusji – brak wsparcia dla struktury drzewiastej wątków.
 \end{itemize}
-W przyszłości system forum może zostać rozszerzony o nowe funkcjonalności, takie jak:
+W przyszłości system forum może zostać rozszerzony o nowe funkcje, jak np.:
 \begin{itemize}
     \item Wprowadzenie możliwości edytowania istniejących postów i tematów z historią zmian.
     \item Dodanie prywatnych wątków dostępnych tylko dla wybranej grupy użytkowników, np. mieszkańców konkretnego budynku.
@@ -2094,7 +2089,7 @@ Encje \texttt{Payment} oraz \texttt{PaymentComponent} odpowiadają za przechowyw
 \begin{itemize}
     \item Powiązanie z mieszkaniem poprzez pole \texttt{apartment}.
     \item Pole \texttt{Ready\_to\_Pay}, które kontroluje dostępność płatności do realizacji.
-    \item Mechanizm \texttt{@PrePersist}, inicjalizujący datę płatności na miesiąc od momentu jej utworzenia.
+    \item Mechanizm \texttt{@PrePersist}, inicjalizujący datę płatności na miesiąc od chwili jej utworzenia.
 \end{itemize}
 \begin{lstlisting}[language=Java, style=JavaStyle, caption=Kod encji \texttt{Payment},label=lst:payment]
 @Data
