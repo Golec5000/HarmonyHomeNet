@@ -221,7 +221,7 @@ W celu poprawy wydajności bazy danych zastosowano następujące mechanizmy:
 
 \subsection{Podsumowanie}
 
-Struktura bazy danych zaprojektowano w sposób umożliwiający jej skalowalność, wydajność oraz łatwość integracji z innymi komponentami aplikacji. Podejście \emph{Database First} okazało się optymalnym wyborem, zapewniając precyzyjne odwzorowanie wymagań biznesowych i technicznych systemu. Schematy konceptualny (rysunek \ref{fig:ebok_db_concept}) i fizyczny (rysunek \ref{fig:ebok_db_physical}) ilustrują relacje pomiędzy tabelami, które stanowią podstawę spójnego i~efektywnego zarządzania danymi.
+Struktura bazy danych zaprojektowano w sposób umożliwiający jej skalowalność, wydajność oraz łatwość integracji z innymi komponentami aplikacji. Podejście \emph{Database First} okazało się optymalnym wyborem, zapewniając precyzyjne odwzorowanie wymagań biznesowych i technicznych systemu. Schematy konceptualny (rysunek~\ref{fig:ebok_db_concept}) i fizyczny (rysunek~\ref{fig:ebok_db_physical}) ilustrują relacje pomiędzy tabelami, które stanowią podstawę spójnego i~efektywnego zarządzania danymi.
 
 \section{Bezpieczeństwo, uwierzytelnianie i autoryzacja w~aplikacji}
 
@@ -353,13 +353,13 @@ public class SecurityConfig {
 
 \subsection{Proces logowania}
 
-Mechanizm logowania w systemie „Harmony Home Net” oparto na Spring Security i tokenach JWT. Proces ten opisano w szczegółach na podstawie schematu z rysunku~\ref{fig:ebok_db_concept2}.
+Mechanizm logowania w systemie „Harmony Home Net” oparto na Spring Security i tokenach JWT. Proces ten opisano w szczegółach na podstawie schematu z rysunku~\ref{fig:login_process}.
 
 \begin{figure}[ht]
     \centering
     \includegraphics[scale=1.0]{rys03/proces_logowania}
     \caption{Schemat działania procesu logowania w systemie~\cite{JWToauth}}
-    \label{fig:ebok_db_concept2}
+    \label{fig:login_process}
 \end{figure}
 
 Logowanie składa się z kilku kluczowych etapów:
@@ -1194,7 +1194,7 @@ public PossessionHistoryResponse createPossessionHistory(String apartmentSignatu
 }
 \end{lstlisting}
 
-\subsection{Przyszłe usprawnienia dla zarządzania właścicielami}
+\subsection{Przyszłe usprawnienia dla zarządzania mieszkaniami}
 
 Aktualne rozwiązania zarządzania właścicielami mieszkań w prototypie systemu są funkcjonalne, jednak wymagają usprawnień w zakresie ergonomii oraz automatyzacji. Wprowadzenie poniższych zmian zwiększy użyteczność systemu:
 \begin{itemize}
@@ -1210,7 +1210,7 @@ Aktualne rozwiązania zarządzania właścicielami mieszkań w prototypie system
     \item \textbf{Integracja z systemami księgowymi} -- Generowanie opłat na podstawie powierzchni mieszkania i jego udziału procentowego.
 \end{itemize}
 
-Dzięki wdrożeniu tych usprawnień zarządzanie mieszkaniami stanie się bardziej intuicyjne i mniej podatne na błędy, co znacząco zwiększy efektywność pracy administracyjnej.
+Dzięki wdrożeniu tych usprawnień zarządzanie mieszkaniami stanie się bardziej intuicyjne i~mniej podatne na błędy, co znacząco zwiększy efektywność pracy administracyjnej.
 
 \section{Zarzadzanie dokumentami}
 
@@ -1334,7 +1334,7 @@ Dokumenty o typie innym niż \texttt{PROPERTY\_DEED} są publiczne i automatyczn
 %        zresztą - mamy diagram ZWIĄZKÓW enci, a nie diagram relacji encji !!!!!
 
 \noindent \textbf{Proces dodawania dokumentów}\\
-Przepływ dokumentów w systemie jest uproszczony. Przedstawiono go na rysunku~\ref{fig:document_schema}.Główne elementy schematu to:
+Przepływ dokumentów w systemie jest uproszczony. Przedstawiono go na rysunku~\ref{fig:document_schema}. Główne elementy schematu to:
 
 \begin{itemize}
     \item \texttt{D} -- encja \texttt{Document}, reprezentująca dokument w systemie, zawierająca informacje o nazwie, typie, rozszerzeniu i danych pliku.
@@ -1357,7 +1357,7 @@ Dodawanie dokumentów w systemie obejmuje trzy główne scenariusze:
 
 \begin{enumerate}
     \item \textbf{Dodanie dokumentu przez administratora} --
-    administrator lub pracownik korzysta z endpointu \texttt{/upload-document}, aby wprowadzić dokument do systemu. Dokumenty publiczne (\texttt{D\_Pub}) są automatycznie przypisywane wszystkim użytkownikom (\texttt{U}), natomiast dokumenty prywatne (\texttt{D\_Priv}) są przypisywane właścicielom mieszkań na podstawie tabeli \texttt{PossessionHistory} (\texttt{Ph}). Dokument prywatny wymaga określenia sygnatury mieszkania (\texttt{A}) dla prawidłowego przypisania.
+    administrator lub pracownik korzysta z~endpointu \texttt{/upload-document}, aby wprowadzić dokument do systemu. Dokumenty publiczne (\texttt{D\_Pub}) są automatycznie przypisywane wszystkim użytkownikom (\texttt{U}), natomiast dokumenty prywatne (\texttt{D\_Priv}) są przypisywane właścicielom mieszkań na podstawie tabeli \texttt{PossessionHistory} (\texttt{Ph}). Dokument prywatny wymaga określenia sygnatury mieszkania (\texttt{A}) dla prawidłowego przypisania.
 
     \item \textbf{Dodanie nowego użytkownika do systemu} --
     nowo dodany użytkownik (\texttt{U}) automatycznie otrzymuje przypisanie do wszystkich istniejących dokumentów publicznych (\texttt{D\_Pub}).
@@ -1542,7 +1542,7 @@ Współczesne systemy zarządzania dokumentami (DMS) oferują szeroką gamę fun
 	
 	\item \textbf{Elektroniczny obieg dokumentów (Workflow Automation)} -- Automatyzuje procesy związane z przepływem dokumentów między pracownikami i działami, eliminując potrzebę ręcznego przekazywania dokumentów i przyspieszając procesy decyzyjne~\cite{workflow_utomation}.
 
-	\item \textbf{Integracja z innymi systemami} -- Nowoczesne DMS mogą być zintegrowane z innymi narzędziami, takimi jak systemy ERP czy CRM, umożliwiając spójny przepływ informacji w całej organizacji~\cite{dms}. 
+	\item \textbf{Integracja z innymi systemami} -- Nowoczesne DMS mogą być zintegrowane z innymi narzędziami, takimi jak systemy ERP czy CRM, umożliwiając spójny przepływ informacji w~całej organizacji~\cite{dms}. 
 
 	\item \textbf{Zgodność z regulacjami prawnymi} -- Systemy te są projektowane tak, aby spełniać wymogi dotyczące przechowywania i ochrony danych, co jest kluczowe w kontekście przepisów, takich jak RODO czy inne regulacje branżowe~\cite{rodo_dokumenty}.
 	
@@ -1633,7 +1633,7 @@ public class ProblemReport {
 \begin{itemize}
     \item Właściciel mieszkania może zgłosić problem dotyczący konkretnego mieszkania.
     \item Zgłoszenie zawiera szczegóły problemu (opis, kategoria) i domyślny status \texttt{OPEN}.
-    \item Właściciel ma wgląd do zgłoszenia w czasie rzeczywistym oraz otrzymuje powiadomienia o zmianach statusu.
+    \item Właściciel ma wgląd do zgłoszenia w czasie rzeczywistym oraz otrzymuje powiadomienia o~zmianach statusu.
 \end{itemize}
 
 \noindent \textbf{Zarządzanie zgłoszeniami przez pracownika:}
@@ -2086,7 +2086,7 @@ Rozbudowa systemu forum może zwiększyć zaangażowanie mieszkańców oraz popr
 
 \section{Zarządzanie płatnościami}
 
-System zarządzania płatnościami w prototypie „Harmony Home Net” został zaprojektowany w sposób uproszczony. Mechanizm umożliwia przypisywanie płatności do konkretnego mieszkania z pomocą sygnatury lokalu, z opcją dodawania szczegółowych komponentów płatności. Kluczowym elementem jest pole \texttt{Ready\_to\_Pay}, które pełni funkcję zabezpieczenia przed przedwczesnym udostępnieniem płatności do realizacji. Właściciel mieszkania ma dostęp do listy wszystkich przypisanych płatności, jednak możliwość ich wykonania jest blokowana do momentu ustawienia pola \texttt{Ready\_to\_Pay} na \texttt{true}. Dzięki temu płatności nie mogą zostać zrealizowane przed ich odpowiednim przygotowaniem.
+System zarządzania płatnościami w prototypie „Harmony Home Net” został zaprojektowany w~sposób uproszczony. Mechanizm umożliwia przypisywanie płatności do konkretnego mieszkania z pomocą sygnatury lokalu, z opcją dodawania szczegółowych komponentów płatności. Kluczowym elementem jest pole \texttt{Ready\_to\_Pay}, które pełni funkcję zabezpieczenia przed przedwczesnym udostępnieniem płatności do realizacji. Właściciel mieszkania ma dostęp do listy wszystkich przypisanych płatności, jednak możliwość ich wykonania jest blokowana do momentu ustawienia pola \texttt{Ready\_to\_Pay} na \texttt{true}. Dzięki temu płatności nie mogą zostać zrealizowane przed ich odpowiednim przygotowaniem.
 
 \subsection{Opis encji}
 
@@ -2375,7 +2375,7 @@ private void sendNotification(String email, String phoneNumber, String message) 
 \end{lstlisting}
 
 \subsection{Możliwość rozwoju zarządzania płatnościami}
-Harmonogram przypomnień pozwala na regularne powiadamianie użytkowników o statusie ich płatności, minimalizując ryzyko opóźnień. W przyszłości funkcja ta może zostać rozwinięta o bardziej zaawansowane metody planowania i integrację z dodatkowymi kanałami komunikacji, co zostanie szczegółowo opisane w sekcji \textbf{„Systemy zewnętrzne”}. W pełnowymiarowych systemach zarządzanie płatnościami odbywa się z pomocą zaawansowanych mechanizmów:
+Harmonogram przypomnień pozwala na regularne powiadamianie użytkowników o statusie ich płatności, minimalizując ryzyko opóźnień. W przyszłości funkcja ta może zostać rozwinięta o~bardziej zaawansowane metody planowania i integrację z dodatkowymi kanałami komunikacji, co zostanie szczegółowo opisane w sekcji \textbf{„Systemy zewnętrzne”}. W pełnowymiarowych systemach zarządzanie płatnościami odbywa się z pomocą zaawansowanych mechanizmów:
 \begin{itemize}
     \item Automatyzacji generowania płatności na podstawie danych historycznych.
     \item Integracji z systemami zewnętrznymi, takimi jak Stripe, PayPal czy polski BLIK.
