@@ -25,7 +25,7 @@ Zgodnie z tym, co przedstawiono na rysunku~\ref{fig:zarys_architektury}, system 
 
     \item \textbf{Warstwa dostępu do danych} -- odpowiada za operacje na bazie danych PostgreSQL, która przechowuje kluczowe informacje dotyczące użytkowników, zgłoszeń oraz transakcji. Na rysunku~\ref{fig:zarys_architektury} system bazodanowy został umieszczony po prawej stronie i bezpośrednio połączony z modułem serwerowym, co umożliwia efektywne zarządzanie danymi.
 
-    \item \textbf{System bazodanowy} --  odpowiada za przechowywanie wszystkich danych przetwarzanych w systemie. Aplikacja korzysta z obrazu PostgreSQL uruchamianego w~kontenerze Docker. Na rysunku~\ref{fig:zarys_architektury} baza danych PostgreSQL stanowi kluczowy element infrastruktury. 
+    \item \textbf{System bazodanowy} --  odpowiada za przechowywanie wszystkich danych przetwarzanych w~systemie. Aplikacja korzysta z obrazu PostgreSQL uruchamianego w~kontenerze Docker. Na rysunku~\ref{fig:zarys_architektury} baza danych PostgreSQL stanowi kluczowy element infrastruktury. 
 
     \item \textbf{Moduł autoryzacji (OAuth 2.0)} -- zapewnia bezpieczny dostęp do zasobów systemu. Jak pokazano na rysunku~\ref{fig:zarys_architektury}, moduł ten pełni kluczową rolę w komunikacji pomiędzy warstwą serwerową a użytkownikami, kontrolując uprawnienia i dostęp do danych.
 
@@ -113,7 +113,7 @@ Wymagania funkcjonalne aplikacji eBOK koncentrują się na kluczowych działania
 
 	\item \textbf{Intuicyjność interfejsu}: Aplikacja musi być łatwa w obsłudze zarówno dla mieszkańców, jak i administratorów. Interfejs oparty na komponentach Shadcn UI, zgodny z WCAG 2.0, zapewnia dostępność i łatwość nawigacji.
 
-	\item \textbf{Zgodność z przepisami RODO}: System musi spełniać wymagania RODO dotyczące ochrony danych osobowych. Użytkownicy muszą mieć możliwość wglądu w swoje dane, ich modyfikacji oraz usunięcia. Proces przetwarzania danych musi być udokumentowany, a dostęp do danych ograniczony.
+	\item \textbf{Zgodność z przepisami RODO}: System musi spełniać wymagania RODO dotyczące ochrony danych osobowych. Użytkownicy muszą mieć możliwość wglądu w swoje dane, ich modyfikacji oraz usunięcia. Proces przetwarzania danych musi być udokumentowany, a~dostęp do danych ograniczony.
 
 	\item \textbf{Niezawodność}: System musi zapewniać ciągłość działania oraz regularne tworzenie kopii zapasowych bazy danych. Plan odzyskiwania po awarii musi umożliwiać szybkie przywrócenie funkcjonalności systemu.
 

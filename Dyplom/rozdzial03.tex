@@ -67,7 +67,7 @@ W~systemie ,,Harmony Home Net'' warstwa ta, oparta na Spring Boot, realizuje pro
 
 \subsection{Warstwa dostępu do danych (ang.\ \emph{Data Access Layer})}
 
-Warstwa dostępu do danych, oznaczona literą \texttt{c)} na rysunku \ref{fig:n_tier_arch}, odpowiada za komunikację między logiką biznesową a fizycznym przechowywaniem danych. Jej główną funkcją jest wykonywanie operacji takich jak zapisywanie, odczytywanie, aktualizowanie i usuwanie danych w sposób zoptymalizowany i bezpieczny. Często korzysta się z bibliotek ORM, takich jak Hibernate lub JPA w Javie, które ułatwiają mapowanie danych między bazą a obiektami aplikacji.
+Warstwa dostępu do danych, oznaczona literą \texttt{c)} na rysunku \ref{fig:n_tier_arch}, odpowiada za komunikację między logiką biznesową a fizycznym przechowywaniem danych. Jej główną funkcją jest wykonywanie operacji takich jak zapisywanie, odczytywanie, aktualizowanie i usuwanie danych w~sposób zoptymalizowany i bezpieczny. Często korzysta się z bibliotek ORM, takich jak Hibernate lub JPA w Javie, które ułatwiają mapowanie danych między bazą a obiektami aplikacji.
 
 W systemie ,,Harmony Home Net,, baza danych PostgreSQL została uruchomiona w środowisku Docker. Dzięki zastosowaniu JPA możliwe jest łatwe mapowanie danych między tabelami bazodanowymi a obiektami aplikacji w Javie. Taka implementacja umożliwia optymalizację zapytań i zapewnia wydajność operacji, co jest istotne w przypadku dużej ilości danych przechowywanych w systemie, takich jak zgłoszenia techniczne czy płatności właścieli.
 
@@ -353,13 +353,13 @@ public class SecurityConfig {
 
 \subsection{Proces logowania}
 
-Mechanizm logowania w systemie „Harmony Home Net” oparto na Spring Security i tokenach JWT. Proces ten opisano w szczegółach na podstawie schematu z rysunku~\ref{fig:ebok_db_concept}.
+Mechanizm logowania w systemie „Harmony Home Net” oparto na Spring Security i tokenach JWT. Proces ten opisano w szczegółach na podstawie schematu z rysunku~\ref{fig:ebok_db_concept2}.
 
 \begin{figure}[ht]
     \centering
     \includegraphics[scale=1.0]{rys03/proces_logowania}
     \caption{Schemat działania procesu logowania w systemie~\cite{JWToauth}}
-    \label{fig:ebok_db_concept}
+    \label{fig:ebok_db_concept2}
 \end{figure}
 
 Logowanie składa się z kilku kluczowych etapów:
@@ -432,7 +432,7 @@ Zarządzanie tokenami JWT w systemie „Harmony Home Net” bazuje na mechanizma
     
     \item[\texttt{e)}] \textbf{Walidacja tokenu JWT} -- Token JWT jest sprawdzany pod kątem poprawności oraz daty ważności. Jeśli token wygasł, odpowiedź zawiera kod HTTP \texttt{403}.
     
-    \item[\texttt{f)}] \textbf{Tworzenie obiektu \texttt{UsernamePasswordAuthenticationToken}} -- W przypadku pomyślnej weryfikacji danych użytkownika tworzony jest obiekt \texttt{UsernamePasswordAuthenticationToken}, który przechowuje informacje o użytkowniku i jego uprawnieniach. Obiekt ten jest następnie zapisywany w \texttt{SecurityContextHolder}.
+    \item[\texttt{f)}] \textbf{Tworzenie obiektu \texttt{UsernamePasswordAuthenticationToken}} -- W przypadku pomyślnej weryfikacji danych użytkownika tworzony jest obiekt \texttt{UsernamePasswordAuthenticationToken}, który przechowuje informacje o~użytkowniku i jego uprawnieniach. Obiekt ten jest następnie zapisywany w~\texttt{SecurityContextHolder}.
     
     \item[\texttt{g)}] \textbf{Autoryzacja zasobów} -- Spring Security sprawdza, czy użytkownik ma odpowiednie uprawnienia do żądanych zasobów. W przypadku braku odpowiednich uprawnień odpowiedź zawiera kod HTTP \texttt{403}.
     
@@ -653,7 +653,7 @@ Mechanizm resetowania hasła zaprojektowano z uwzględnieniem podstawowych zasad
 
 \noindent Resetowanie hasła przebiega według następujących kroków:
 \begin{itemize}
-    \item \textbf{Prośba o reset hasła} -- użytkownik wprowadza swój adres e-mail w sekcji \emph{Send Reset Link} i przesyła żądanie na endpoint \texttt{/forgot-password}. Na wskazany adres e-mail wysyłany jest unikalny token resetujący.
+    \item \textbf{Prośba o reset hasła} -- użytkownik wprowadza swój adres e-mail w sekcji \emph{Send Reset Link} i~przesyła żądanie na endpoint \texttt{/forgot-password}. Na wskazany adres e-mail wysyłany jest unikalny token resetujący.
     
     \item \textbf{Resetowanie hasła} -- w sekcji \emph{Reset Password} użytkownik wprowadza nowe hasło, jego potwierdzenie oraz token resetujący. Formularz przesyła dane na endpoint \texttt{/reset-password}, który weryfikuje token, sprawdza jego ważność i aktualizuje hasło w bazie danych.
     
@@ -870,7 +870,7 @@ System zarządzania użytkownikami opiera się na hierarchii ról definiujących
 \begin{itemize}
     \item Każda rola ma przypisaną wartość \texttt{level}, określającą jej miejsce w hierarchii.
     \item Operacje takie jak przypisanie nowej roli są dozwolone wyłącznie dla użytkowników posiadających wyższy poziom \texttt{level} niż modyfikowany użytkownik.
-    \item Rola \texttt{ROLE\_OWNER} jest dodatkowo zabezpieczona przed zmianami, co wymusza usunięcie i ponowną rejestrację użytkownika w celu zmiany jego uprawnień.
+    \item Rola \texttt{ROLE\_OWNER} jest dodatkowo zabezpieczona przed zmianami, co wymusza usunięcie i~ponowną rejestrację użytkownika w celu zmiany jego uprawnień.
 \end{itemize}
 
 \noindent Poniżej przedstawiono kod definiujący hierarchię ról.
